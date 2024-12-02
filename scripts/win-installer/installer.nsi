@@ -8,9 +8,9 @@ CPU amd64
 Unicode true
 
 !define APP_NAME "Coder"
-!define COMP_NAME "Coder Technologies, Inc."
+!define COMP_NAME "Xtressials Corp, Inc."
 !define VERSION "${CODER_NSIS_VERSION}"
-!define COPYRIGHT "Copyright (c) ${CODER_YEAR} Coder Technologies, Inc."
+!define COPYRIGHT "Copyright (c) ${CODER_YEAR} Xtressials Corp, Inc."
 !define DESCRIPTION "Remote development environments on your infrastructure provisioned with Terraform"
 !define INSTALLER_NAME "installer.exe"
 !define MAIN_APP_EXE "coder.exe"

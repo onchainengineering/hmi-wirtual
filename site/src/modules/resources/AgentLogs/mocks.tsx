@@ -36,7 +36,7 @@ export const MockSources = [
 		id: "8e2c562c-3361-4eee-b45a-96a3df4b9760",
 		created_at: "2024-03-14T11:31:03.443877Z",
 		display_name: "Coder Login",
-		icon: "/icon/coder.svg",
+		icon: "/icon/wirtual.svg",
 	},
 	{
 		workspace_agent_id: "722654da-cd27-4edf-a525-54979c864344",

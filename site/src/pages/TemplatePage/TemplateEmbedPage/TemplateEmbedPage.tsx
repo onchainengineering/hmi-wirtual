@@ -58,7 +58,7 @@ function getClipboardCopyContent(
 	const createWorkspaceParams = new URLSearchParams(buttonValues);
 	const buttonUrl = `${createWorkspaceUrl}?${createWorkspaceParams.toString()}`;
 
-	return `[![Open in Coder](${deploymentUrl}/open-in-coder.svg)](${buttonUrl})`;
+	return `[![Open in Coder](${deploymentUrl}/open-in-wirtual.svg)](${buttonUrl})`;
 }
 
 export const TemplateEmbedPageView: FC<TemplateEmbedPageViewProps> = ({
@@ -171,7 +171,7 @@ export const TemplateEmbedPageView: FC<TemplateEmbedPageViewProps> = ({
 							border: `1px solid ${theme.palette.divider}`,
 						})}
 					>
-						<img src="/open-in-coder.svg" alt="Open in Coder button" />
+						<img src="/open-in-wirtual.svg" alt="Open in Coder button" />
 						<div
 							css={{
 								padding: "48px 16px",

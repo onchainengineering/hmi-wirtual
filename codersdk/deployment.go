@@ -782,8 +782,6 @@ func DefaultCacheDir() string {
 }
 
 func DefaultSupportLinks(docsURL string) []LinkConfig {
-	version := buildinfo.Version()
-	buildInfo := fmt.Sprintf("Version: [`%s`](%s)", version, buildinfo.ExternalURL())
 
 	return []LinkConfig{
 		{
@@ -791,22 +789,7 @@ func DefaultSupportLinks(docsURL string) []LinkConfig {
 			Target: docsURL,
 			Icon:   "docs",
 		},
-		{
-			Name:   "Report a bug",
-			Target: "https://github.com/coder/coder/issues/new?labels=needs+grooming&body=" + buildInfo,
-			Icon:   "bug",
-		},
-		{
-			Name:   "Join the Coder Discord",
-			Target: "https://coder.com/chat?utm_source=coder&utm_medium=coder&utm_campaign=server-footer",
-			Icon:   "chat",
-		},
-		{
-			Name:   "Star the Repo",
-			Target: "https://github.com/coder/coder",
-			Icon:   "star",
-		},
-	}
+			}
 }
 
 func removeTrailingVersionInfo(v string) string {
@@ -816,9 +799,9 @@ func removeTrailingVersionInfo(v string) string {
 func DefaultDocsURL() string {
 	version := removeTrailingVersionInfo(buildinfo.Version())
 	if version == "v0.0.0" {
-		return "https://coder.com/docs"
+		return "https://docs.wirtual.dev"
 	}
-	return "https://coder.com/docs/@" + version
+	return "https://docs.wirtual.dev/@" + version
 }
 
 // DeploymentConfig contains both the deployment values and how they're set.

@@ -24,7 +24,7 @@ sources:
   - https://github.com/coder/coder/tree/main/helm/coder
 icon: https://helm.coder.com/coder_logo_black.png
 maintainers:
-  - name: Coder Technologies, Inc.
+  - name: Xtressials Corp, Inc.
     email: support@coder.com
     url: https://coder.com/contact
 

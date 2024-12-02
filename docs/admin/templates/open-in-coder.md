@@ -90,7 +90,7 @@ resource "coder_agent" "dev" {
 ### 3. Embed the "Open in Coder" button with Markdown
 
 ```md
-[![Open in Coder](https://YOUR_ACCESS_URL/open-in-coder.svg)](https://YOUR_ACCESS_URL/templates/YOUR_TEMPLATE/workspace)
+[![Open in Coder](https://YOUR_ACCESS_URL/open-in-wirtual.svg)](https://YOUR_ACCESS_URL/templates/YOUR_TEMPLATE/workspace)
 ```
 
 Be sure to replace `YOUR_ACCESS_URL` with your Coder access url (e.g.
@@ -101,7 +101,7 @@ Be sure to replace `YOUR_ACCESS_URL` with your Coder access url (e.g.
 This can be used to pre-fill the git repo URL, disk size, image, etc.
 
 ```md
-[![Open in Coder](https://YOUR_ACCESS_URL/open-in-coder.svg)](https://YOUR_ACCESS_URL/templates/YOUR_TEMPLATE/workspace?param.git_repo=https://github.com/coder/slog&param.home_disk_size%20%28GB%29=20)
+[![Open in Coder](https://YOUR_ACCESS_URL/open-in-wirtual.svg)](https://YOUR_ACCESS_URL/templates/YOUR_TEMPLATE/workspace?param.git_repo=https://github.com/coder/slog&param.home_disk_size%20%28GB%29=20)
 ```
 
 ![Pre-filled parameters](../../images/templates/pre-filled-parameters.png)
@@ -111,7 +111,7 @@ This can be used to pre-fill the git repo URL, disk size, image, etc.
 specified in your template in the `disable_params` search params list
 
 ```md
-[![Open in Coder](https://YOUR_ACCESS_URL/open-in-coder.svg)](https://YOUR_ACCESS_URL/templates/YOUR_TEMPLATE/workspace?disable_params=first_parameter,second_parameter)
+[![Open in Coder](https://YOUR_ACCESS_URL/open-in-wirtual.svg)](https://YOUR_ACCESS_URL/templates/YOUR_TEMPLATE/workspace?disable_params=first_parameter,second_parameter)
 ```
 
 ### Example: Kubernetes

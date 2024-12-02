@@ -24,7 +24,7 @@ export const WorkspacesEmpty: FC<WorkspacesEmptyProps> = ({
 	const featuredTemplates = templates?.slice(0, totalFeaturedTemplates);
 	const defaultTitle = "Create a workspace";
 	const defaultMessage =
-		"A workspace is your personal, customizable development environment.";
+		"A Wirtual workspace is a personal, customizable virtual desktop for AI agents.";
 	const defaultImage = (
 		<div
 			css={{

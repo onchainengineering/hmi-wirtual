@@ -13,8 +13,6 @@ const meta: Meta<typeof UserDropdown> = {
 		supportLinks: [
 			{ icon: "docs", name: "Documentation", target: "" },
 			{ icon: "bug", name: "Report a bug", target: "" },
-			{ icon: "chat", name: "Join the Coder Discord", target: "" },
-			{ icon: "star", name: "Star the Repo", target: "" },
 			{ icon: "/icon/aws.svg", name: "Amazon Web Services", target: "" },
 		],
 	},

@@ -25,7 +25,7 @@ import { Link } from "react-router-dom";
 export const Language = {
 	accountLabel: "Account",
 	signOutLabel: "Sign Out",
-	copyrightText: `\u00a9 ${new Date().getFullYear()} Coder Technologies, Inc.`,
+	copyrightText: `\u00a9 ${new Date().getFullYear()} Xtressials Corp, Inc.`,
 };
 
 export interface UserDropdownContentProps {

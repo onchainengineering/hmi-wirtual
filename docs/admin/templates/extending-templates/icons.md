@@ -24,7 +24,7 @@ come bundled with your Coder deployment.
 
   ```tf
   data "coder_parameter" "my_parameter" {
-    icon = "/icon/coder.svg"
+    icon = "/icon/wirtual.svg"
 
     option {
       icon = "/emojis/1f3f3-fe0f-200d-26a7-fe0f.png"

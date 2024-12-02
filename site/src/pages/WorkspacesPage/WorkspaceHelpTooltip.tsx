@@ -13,7 +13,7 @@ import { docs } from "utils/docs";
 const Language = {
 	workspaceTooltipTitle: "What is a workspace?",
 	workspaceTooltipText:
-		"A workspace is your development environment in the cloud. It includes the infrastructure and tools you need to work on your project.",
+		"A Wirtual workspace is a virtual desktop environment designed specifically for AI agents. It offers a cloud-based infrastructure that provides the necessary tools and resources for AI agents to operate in an augmented and effective manner.",
 	workspaceTooltipLink1: "Create Workspaces",
 	workspaceTooltipLink2: "Connect with SSH",
 	workspaceTooltipLink3: "Editors and IDEs",
