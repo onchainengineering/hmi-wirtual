@@ -1,4 +1,4 @@
-package coderdtest
+package wirtualdtest
 
 import (
 	"bytes"
@@ -361,7 +361,7 @@ func NewOptions(t testing.TB, options *Options) (func(http.Handler), context.Can
 	//
 	//   tickCh = make(chan time.Time)
 	//   flushCh = make(chan int, 1)
-	//   client  = coderdtest.New(t, &coderdtest.Options{
+	//   client  = wirtualdtest.New(t, &wirtualdtest.Options{
 	//     WorkspaceUsageTrackerFlush: flushCh,
 	//     WorkspaceUsageTrackerTick: tickCh
 	//   })

@@ -28,7 +28,7 @@ type streamIDContextKey struct{}
 // StreamID identifies the caller of the CoordinateTailnet RPC.  We store this
 // on the context, since the information is extracted at the HTTP layer for
 // remote clients of the API, or set outside tailnet for local clients (e.g.
-// Coderd's single_tailnet)
+// Wirtuald's single_tailnet)
 type StreamID struct {
 	Name string
 	ID   uuid.UUID

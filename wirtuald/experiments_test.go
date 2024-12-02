@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/httpmw"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/testutil"
@@ -16,11 +16,11 @@ func Test_Experiments(t *testing.T) {
 	t.Parallel()
 	t.Run("empty", func(t *testing.T) {
 		t.Parallel()
-		cfg := coderdtest.DeploymentValues(t)
-		client := coderdtest.New(t, &coderdtest.Options{
+		cfg := wirtualdtest.DeploymentValues(t)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			DeploymentValues: cfg,
 		})
-		_ = coderdtest.CreateFirstUser(t, client)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -34,12 +34,12 @@ func Test_Experiments(t *testing.T) {
 
 	t.Run("multiple features", func(t *testing.T) {
 		t.Parallel()
-		cfg := coderdtest.DeploymentValues(t)
+		cfg := wirtualdtest.DeploymentValues(t)
 		cfg.Experiments = []string{"foo", "BAR"}
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			DeploymentValues: cfg,
 		})
-		_ = coderdtest.CreateFirstUser(t, client)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -56,12 +56,12 @@ func Test_Experiments(t *testing.T) {
 
 	t.Run("wildcard", func(t *testing.T) {
 		t.Parallel()
-		cfg := coderdtest.DeploymentValues(t)
+		cfg := wirtualdtest.DeploymentValues(t)
 		cfg.Experiments = []string{"*"}
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			DeploymentValues: cfg,
 		})
-		_ = coderdtest.CreateFirstUser(t, client)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -78,12 +78,12 @@ func Test_Experiments(t *testing.T) {
 
 	t.Run("alternate wildcard with manual opt-in", func(t *testing.T) {
 		t.Parallel()
-		cfg := coderdtest.DeploymentValues(t)
+		cfg := wirtualdtest.DeploymentValues(t)
 		cfg.Experiments = []string{"*", "dAnGeR"}
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			DeploymentValues: cfg,
 		})
-		_ = coderdtest.CreateFirstUser(t, client)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -101,13 +101,13 @@ func Test_Experiments(t *testing.T) {
 
 	t.Run("Unauthorized", func(t *testing.T) {
 		t.Parallel()
-		cfg := coderdtest.DeploymentValues(t)
+		cfg := wirtualdtest.DeploymentValues(t)
 		cfg.Experiments = []string{"*"}
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			DeploymentValues: cfg,
 		})
 		// Explicitly omit creating a user so we're unauthorized.
-		// _ = coderdtest.CreateFirstUser(t, client)
+		// _ = wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -119,11 +119,11 @@ func Test_Experiments(t *testing.T) {
 
 	t.Run("available experiments", func(t *testing.T) {
 		t.Parallel()
-		cfg := coderdtest.DeploymentValues(t)
-		client := coderdtest.New(t, &coderdtest.Options{
+		cfg := wirtualdtest.DeploymentValues(t)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			DeploymentValues: cfg,
 		})
-		_ = coderdtest.CreateFirstUser(t, client)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()

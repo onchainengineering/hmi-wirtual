@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/provisionersdk/proto"
@@ -22,8 +22,8 @@ func TestCliTemplateCreate(t *testing.T) {
 	t.Parallel()
 	t.Run("Create", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		wirtualdtest.CreateFirstUser(t, client)
 		source := clitest.CreateTemplateVersionSource(t, completeWithAgent())
 		args := []string{
 			"templates",
@@ -57,8 +57,8 @@ func TestCliTemplateCreate(t *testing.T) {
 	})
 	t.Run("CreateNoLockfile", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		wirtualdtest.CreateFirstUser(t, client)
 		source := clitest.CreateTemplateVersionSource(t, completeWithAgent())
 		require.NoError(t, os.Remove(filepath.Join(source, ".terraform.lock.hcl")))
 		args := []string{
@@ -97,8 +97,8 @@ func TestCliTemplateCreate(t *testing.T) {
 	})
 	t.Run("CreateNoLockfileIgnored", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		wirtualdtest.CreateFirstUser(t, client)
 		source := clitest.CreateTemplateVersionSource(t, completeWithAgent())
 		require.NoError(t, os.Remove(filepath.Join(source, ".terraform.lock.hcl")))
 		args := []string{
@@ -133,8 +133,8 @@ func TestCliTemplateCreate(t *testing.T) {
 
 	t.Run("CreateStdin", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		wirtualdtest.CreateFirstUser(t, client)
 		source, err := echo.Tar(completeWithAgent())
 		require.NoError(t, err)
 
@@ -157,8 +157,8 @@ func TestCliTemplateCreate(t *testing.T) {
 
 	t.Run("Recreate template with same name (create, delete, create)", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		wirtualdtest.CreateFirstUser(t, client)
 
 		create := func() error {
 			source := clitest.CreateTemplateVersionSource(t, completeWithAgent())
@@ -199,8 +199,8 @@ func TestCliTemplateCreate(t *testing.T) {
 	t.Run("WithVariablesFileWithTheRequiredValue", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		wirtualdtest.CreateFirstUser(t, client)
 
 		templateVariables := []*proto.TemplateVariable{
 			{
@@ -248,8 +248,8 @@ func TestCliTemplateCreate(t *testing.T) {
 	t.Run("WithVariableOption", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		wirtualdtest.CreateFirstUser(t, client)
 
 		templateVariables := []*proto.TemplateVariable{
 			{
@@ -286,10 +286,10 @@ func TestCliTemplateCreate(t *testing.T) {
 	t.Run("RequireActiveVersionInvalid", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 		})
-		coderdtest.CreateFirstUser(t, client)
+		wirtualdtest.CreateFirstUser(t, client)
 		source := clitest.CreateTemplateVersionSource(t, completeWithAgent())
 		args := []string{
 			"templates",

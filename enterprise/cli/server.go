@@ -26,11 +26,11 @@ import (
 	"github.com/coder/quartz"
 	"github.com/coder/serpent"
 
-	agplcoderd "github.com/coder/coder/v2/wirtuald"
+	agplwirtuald "github.com/coder/coder/v2/wirtuald"
 )
 
 func (r *RootCmd) Server(_ func()) *serpent.Command {
-	cmd := r.RootCmd.Server(func(ctx context.Context, options *agplcoderd.Options) (*agplcoderd.API, io.Closer, error) {
+	cmd := r.RootCmd.Server(func(ctx context.Context, options *agplwirtuald.Options) (*agplwirtuald.API, io.Closer, error) {
 		if options.DeploymentValues.DERP.Server.RelayURL.String() != "" {
 			_, err := url.Parse(options.DeploymentValues.DERP.Server.RelayURL.String())
 			if err != nil {

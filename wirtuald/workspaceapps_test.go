@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"github.com/go-jose/go-jose/v4/jwt"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/cryptokeys"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbgen"
@@ -64,7 +64,7 @@ func TestGetAppHost(t *testing.T) {
 			accessURL, err := url.Parse(c.accessURL)
 			require.NoError(t, err)
 
-			client := coderdtest.New(t, &coderdtest.Options{
+			client := wirtualdtest.New(t, &wirtualdtest.Options{
 				AccessURL:   accessURL,
 				AppHostname: c.appHostname,
 			})
@@ -77,7 +77,7 @@ func TestGetAppHost(t *testing.T) {
 			require.Error(t, err)
 			require.Equal(t, "", host.Host)
 
-			_ = coderdtest.CreateFirstUser(t, client)
+			_ = wirtualdtest.CreateFirstUser(t, client)
 			host, err = client.AppHost(ctx)
 			require.NoError(t, err)
 			require.Equal(t, c.expected, host.Host)
@@ -201,7 +201,7 @@ func TestWorkspaceApplicationAuth(t *testing.T) {
 
 			clock := quartz.NewMock(t)
 
-			client := coderdtest.New(t, &coderdtest.Options{
+			client := wirtualdtest.New(t, &wirtualdtest.Options{
 				AccessURL:             accessURL,
 				AppHostname:           c.appHostname,
 				Database:              db,
@@ -209,7 +209,7 @@ func TestWorkspaceApplicationAuth(t *testing.T) {
 				APIKeyEncryptionCache: kc,
 				Clock:                 clock,
 			})
-			_ = coderdtest.CreateFirstUser(t, client)
+			_ = wirtualdtest.CreateFirstUser(t, client)
 
 			// Disable redirects.
 			client.HTTPClient.CheckRedirect = func(_ *http.Request, _ []*http.Request) error {

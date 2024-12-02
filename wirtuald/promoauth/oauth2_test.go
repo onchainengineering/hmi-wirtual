@@ -14,8 +14,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/oauth2"
 
-	"github.com/coder/coder/v2/wirtuald/coderdtest/oidctest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest/promhelp"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest/oidctest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest/promhelp"
 	"github.com/coder/coder/v2/wirtuald/externalauth"
 	"github.com/coder/coder/v2/wirtuald/promoauth"
 	"github.com/coder/coder/v2/testutil"
@@ -38,10 +38,10 @@ func TestInstrument(t *testing.T) {
 		"name":        id,
 		"status_code": "200",
 	}
-	const metricname = "coderd_oauth2_external_requests_total"
+	const metricname = "wirtuald_oauth2_external_requests_total"
 	count := func(source string) int {
 		labels["source"] = source
-		return promhelp.CounterValue(t, reg, "coderd_oauth2_external_requests_total", labels)
+		return promhelp.CounterValue(t, reg, "wirtuald_oauth2_external_requests_total", labels)
 	}
 
 	factory := promoauth.NewFactory(reg)
@@ -209,16 +209,16 @@ func TestGithubRateLimits(t *testing.T) {
 			}
 			pass := true
 			if !c.ExpectNoMetrics {
-				pass = pass && assert.Equal(t, promhelp.GaugeValue(t, reg, "coderd_oauth2_external_requests_rate_limit_total", labels), c.Limit, "limit")
-				pass = pass && assert.Equal(t, promhelp.GaugeValue(t, reg, "coderd_oauth2_external_requests_rate_limit_remaining", labels), c.Remaining, "remaining")
-				pass = pass && assert.Equal(t, promhelp.GaugeValue(t, reg, "coderd_oauth2_external_requests_rate_limit_used", labels), c.Used, "used")
+				pass = pass && assert.Equal(t, promhelp.GaugeValue(t, reg, "wirtuald_oauth2_external_requests_rate_limit_total", labels), c.Limit, "limit")
+				pass = pass && assert.Equal(t, promhelp.GaugeValue(t, reg, "wirtuald_oauth2_external_requests_rate_limit_remaining", labels), c.Remaining, "remaining")
+				pass = pass && assert.Equal(t, promhelp.GaugeValue(t, reg, "wirtuald_oauth2_external_requests_rate_limit_used", labels), c.Used, "used")
 				if !c.at.IsZero() {
 					until := c.Reset.Sub(c.at)
 					// Float accuracy is not great, so we allow a delta of 2
-					pass = pass && assert.InDelta(t, promhelp.GaugeValue(t, reg, "coderd_oauth2_external_requests_rate_limit_reset_in_seconds", labels), int(until.Seconds()), 2, "reset in")
+					pass = pass && assert.InDelta(t, promhelp.GaugeValue(t, reg, "wirtuald_oauth2_external_requests_rate_limit_reset_in_seconds", labels), int(until.Seconds()), 2, "reset in")
 				}
 			} else {
-				pass = pass && assert.Nil(t, promhelp.MetricValue(t, reg, "coderd_oauth2_external_requests_rate_limit_total", labels), "not exists")
+				pass = pass && assert.Nil(t, promhelp.MetricValue(t, reg, "wirtuald_oauth2_external_requests_rate_limit_total", labels), "not exists")
 			}
 
 			// Helpful debugging

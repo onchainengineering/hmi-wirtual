@@ -1,4 +1,4 @@
-package coderdtest
+package wirtualdtest
 
 import (
 	"go/ast"

@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/testutil"
 )
 
@@ -16,7 +16,7 @@ func TestDeploymentValues(t *testing.T) {
 	hi := "hi"
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
-	cfg := coderdtest.DeploymentValues(t)
+	cfg := wirtualdtest.DeploymentValues(t)
 	// values should be returned
 	cfg.BrowserOnly = true
 	// values should not be returned
@@ -29,10 +29,10 @@ func TestDeploymentValues(t *testing.T) {
 	cfg.ExternalTokenEncryptionKeys.Set("the_random_key_we_never_expected,an_other_key_we_never_unexpected")
 	cfg.Provisioner.DaemonPSK = "provisionersftw"
 
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := wirtualdtest.New(t, &wirtualdtest.Options{
 		DeploymentValues: cfg,
 	})
-	_ = coderdtest.CreateFirstUser(t, client)
+	_ = wirtualdtest.CreateFirstUser(t, client)
 	scrubbed, err := client.DeploymentConfig(ctx)
 	require.NoError(t, err)
 	// ensure normal values pass through
@@ -55,8 +55,8 @@ func TestDeploymentStats(t *testing.T) {
 	t.Log("This test is time-sensitive. It may fail if the deployment is not ready in time.")
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
-	client := coderdtest.New(t, &coderdtest.Options{})
-	_ = coderdtest.CreateFirstUser(t, client)
+	client := wirtualdtest.New(t, &wirtualdtest.Options{})
+	_ = wirtualdtest.CreateFirstUser(t, client)
 	assert.True(t, testutil.Eventually(ctx, t, func(tctx context.Context) bool {
 		_, err := client.DeploymentStats(tctx)
 		return err == nil

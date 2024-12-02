@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cdr.dev/slog/sloggers/slogtest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
@@ -110,7 +110,7 @@ func TestGetDeploymentWorkspaceAgentUsageStats(t *testing.T) {
 
 		db, _ := dbtestutil.NewDB(t)
 		authz := rbac.NewAuthorizer(prometheus.NewRegistry())
-		db = dbauthz.New(db, authz, slogtest.Make(t, &slogtest.Options{}), coderdtest.AccessControlStorePointer())
+		db = dbauthz.New(db, authz, slogtest.Make(t, &slogtest.Options{}), wirtualdtest.AccessControlStorePointer())
 		ctx := context.Background()
 		agentID := uuid.New()
 		// Since the queries exclude the current minute
@@ -182,7 +182,7 @@ func TestGetDeploymentWorkspaceAgentUsageStats(t *testing.T) {
 
 		db, _ := dbtestutil.NewDB(t)
 		authz := rbac.NewAuthorizer(prometheus.NewRegistry())
-		db = dbauthz.New(db, authz, slogtest.Make(t, &slogtest.Options{}), coderdtest.AccessControlStorePointer())
+		db = dbauthz.New(db, authz, slogtest.Make(t, &slogtest.Options{}), wirtualdtest.AccessControlStorePointer())
 		ctx := context.Background()
 		agentID := uuid.New()
 		// Since the queries exclude the current minute
@@ -219,7 +219,7 @@ func TestGetWorkspaceAgentUsageStats(t *testing.T) {
 
 		db, _ := dbtestutil.NewDB(t)
 		authz := rbac.NewAuthorizer(prometheus.NewRegistry())
-		db = dbauthz.New(db, authz, slogtest.Make(t, &slogtest.Options{}), coderdtest.AccessControlStorePointer())
+		db = dbauthz.New(db, authz, slogtest.Make(t, &slogtest.Options{}), wirtualdtest.AccessControlStorePointer())
 		ctx := context.Background()
 		// Since the queries exclude the current minute
 		insertTime := dbtime.Now().Add(-time.Minute)
@@ -361,7 +361,7 @@ func TestGetWorkspaceAgentUsageStats(t *testing.T) {
 
 		db, _ := dbtestutil.NewDB(t)
 		authz := rbac.NewAuthorizer(prometheus.NewRegistry())
-		db = dbauthz.New(db, authz, slogtest.Make(t, &slogtest.Options{}), coderdtest.AccessControlStorePointer())
+		db = dbauthz.New(db, authz, slogtest.Make(t, &slogtest.Options{}), wirtualdtest.AccessControlStorePointer())
 		ctx := context.Background()
 		// Since the queries exclude the current minute
 		insertTime := dbtime.Now().Add(-time.Minute)
@@ -719,7 +719,7 @@ func TestGetAuthorizedWorkspacesAndAgentsByOwnerID(t *testing.T) {
 		t.Parallel()
 		ctx := testutil.Context(t, testutil.WaitMedium)
 
-		authzdb := dbauthz.New(db, authorizer, slogtest.Make(t, &slogtest.Options{}), coderdtest.AccessControlStorePointer())
+		authzdb := dbauthz.New(db, authorizer, slogtest.Make(t, &slogtest.Options{}), wirtualdtest.AccessControlStorePointer())
 
 		userSubject, _, err := httpmw.UserRBACSubject(ctx, authzdb, user.ID, rbac.ExpandableScope(rbac.ScopeAll))
 		require.NoError(t, err)
@@ -1502,7 +1502,7 @@ func TestAuthorizedAuditLogs(t *testing.T) {
 	var allLogs []database.AuditLog
 	db, _ := dbtestutil.NewDB(t)
 	authz := rbac.NewAuthorizer(prometheus.NewRegistry())
-	db = dbauthz.New(db, authz, slogtest.Make(t, &slogtest.Options{}), coderdtest.AccessControlStorePointer())
+	db = dbauthz.New(db, authz, slogtest.Make(t, &slogtest.Options{}), wirtualdtest.AccessControlStorePointer())
 
 	siteWideIDs := []uuid.UUID{uuid.New(), uuid.New()}
 	for _, id := range siteWideIDs {

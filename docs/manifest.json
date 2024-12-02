@@ -756,7 +756,7 @@
 			"children": [
 				{
 					"title": "REST API",
-					"description": "Learn how to use Coderd API",
+					"description": "Learn how to use Wirtuald API",
 					"path": "./reference/api/index.md",
 					"icon_path": "./images/icons/api.svg",
 					"children": [

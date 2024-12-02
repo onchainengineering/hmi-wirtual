@@ -19,8 +19,8 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/coder/coder/v2/wirtuald"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest/oidctest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest/oidctest"
 	"github.com/coder/coder/v2/wirtuald/oauthpki"
 	"github.com/coder/coder/v2/testutil"
 )
@@ -127,9 +127,9 @@ func TestAzureADPKIOIDC(t *testing.T) {
 	require.Error(t, err, "error expected")
 }
 
-// TestAzureAKPKIWithCoderd uses a fake IDP and a real Coderd to test PKI auth.
+// TestAzureAKPKIWithWirtuald uses a fake IDP and a real Wirtuald to test PKI auth.
 // nolint:bodyclose
-func TestAzureAKPKIWithCoderd(t *testing.T) {
+func TestAzureAKPKIWithWirtuald(t *testing.T) {
 	t.Parallel()
 
 	scopes := []string{"openid", "email", "profile", "offline_access"}
@@ -161,7 +161,7 @@ func TestAzureAKPKIWithCoderd(t *testing.T) {
 	require.NoError(t, err)
 	cfg.OAuth2Config = pki
 
-	owner, _, api := coderdtest.NewWithAPI(t, &coderdtest.Options{
+	owner, _, api := wirtualdtest.NewWithAPI(t, &wirtualdtest.Options{
 		OIDCConfig: cfg,
 	})
 

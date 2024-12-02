@@ -1,4 +1,4 @@
-package coderdenttest
+package wirtualdenttest
 
 import (
 	"context"
@@ -64,7 +64,7 @@ type WorkspaceProxy struct {
 // If a token is not provided, a new workspace proxy region is created using the
 // owner client. If a token is provided, the proxy will become a replica of the
 // existing proxy region.
-func NewWorkspaceProxyReplica(t *testing.T, coderdAPI *wirtuald.API, owner *wirtualsdk.Client, options *ProxyOptions) WorkspaceProxy {
+func NewWorkspaceProxyReplica(t *testing.T, wirtualdAPI *wirtuald.API, owner *wirtualsdk.Client, options *ProxyOptions) WorkspaceProxy {
 	t.Helper()
 
 	ctx, cancelFunc := context.WithCancel(context.Background())
@@ -138,7 +138,7 @@ func NewWorkspaceProxyReplica(t *testing.T, coderdAPI *wirtuald.API, owner *wirt
 	}
 
 	// Inherit collector options from wirtuald, but keep the wsproxy reporter.
-	statsCollectorOptions := coderdAPI.Options.WorkspaceAppsStatsCollectorOptions
+	statsCollectorOptions := wirtualdAPI.Options.WorkspaceAppsStatsCollectorOptions
 	statsCollectorOptions.Reporter = nil
 	if options.FlushStats != nil {
 		statsCollectorOptions.Flush = options.FlushStats
@@ -149,14 +149,14 @@ func NewWorkspaceProxyReplica(t *testing.T, coderdAPI *wirtuald.API, owner *wirt
 	wssrv, err := wsproxy.New(ctx, &wsproxy.Options{
 		Logger:            logger,
 		Experiments:       options.Experiments,
-		DashboardURL:      coderdAPI.AccessURL,
+		DashboardURL:      wirtualdAPI.AccessURL,
 		AccessURL:         accessURL,
 		AppHostname:       options.AppHostname,
 		AppHostnameRegex:  appHostnameRegex,
-		RealIPConfig:      coderdAPI.RealIPConfig,
-		Tracing:           coderdAPI.TracerProvider,
-		APIRateLimit:      coderdAPI.APIRateLimit,
-		SecureAuthCookie:  coderdAPI.SecureAuthCookie,
+		RealIPConfig:      wirtualdAPI.RealIPConfig,
+		Tracing:           wirtualdAPI.TracerProvider,
+		APIRateLimit:      wirtualdAPI.APIRateLimit,
+		SecureAuthCookie:  wirtualdAPI.SecureAuthCookie,
 		ProxySessionToken: token,
 		DisablePathApps:   options.DisablePathApps,
 		// We need a new registry to not conflict with the wirtuald internal

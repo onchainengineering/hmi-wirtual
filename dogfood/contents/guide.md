@@ -38,13 +38,13 @@ The following explains how to do certain things related to dogfooding.
 
     Don’t fret! This is a known issue. To get around it:
 
-    1. Add `export DB_FROM=coderdb` to your `.bashrc` (make sure you
+    1. Add `export DB_FROM=wirtualdb` to your `.bashrc` (make sure you
        `source ~/.bashrc`)
     2. Run `sudo service postgresql start`
     3. Run `sudo -u postgres psql` (this will open the PostgreSQL CLI)
     4. Run `postgres-# alter user postgres password 'postgres';`
-    5. Run `postgres-# CREATE DATABASE coderdb;`
-    6. Run `postgres-# grant all privileges on database coderdb to postgres;`
+    5. Run `postgres-# CREATE DATABASE wirtualdb;`
+    6. Run `postgres-# grant all privileges on database wirtualdb to postgres;`
     7. Run `exit` to exit the PostgreSQL terminal
     8. Try `make bin` again.
     </aside>

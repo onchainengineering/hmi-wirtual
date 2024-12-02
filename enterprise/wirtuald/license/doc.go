@@ -1,12 +1,12 @@
-// Package license provides the license parsing and validation logic for Coderd.
-// Licensing in Coderd defines what features are allowed to be used in a
+// Package license provides the license parsing and validation logic for Wirtuald.
+// Licensing in Wirtuald defines what features are allowed to be used in a
 // given deployment. Without a license, or with a license that grants 0 features,
-// Coderd will refuse to execute some feature code paths. These features are
+// Wirtuald will refuse to execute some feature code paths. These features are
 // typically gated with a middleware that checks the license before allowing
 // the http request to proceed.
 //
 // Terms:
-// - FeatureName: A specific functionality that Coderd provides, such as
+// - FeatureName: A specific functionality that Wirtuald provides, such as
 //                external provisioners.
 //
 // - Feature: Entitlement definition for a FeatureName. A feature can be:

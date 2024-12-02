@@ -8,9 +8,9 @@ import (
 )
 
 var (
-	activeUsersDesc      = prometheus.NewDesc("coderd_license_active_users", "The number of active users.", nil, nil)
-	limitUsersDesc       = prometheus.NewDesc("coderd_license_limit_users", "The user seats limit based on the active Coder license.", nil, nil)
-	userLimitEnabledDesc = prometheus.NewDesc("coderd_license_user_limit_enabled", "Returns 1 if the current license enforces the user limit.", nil, nil)
+	activeUsersDesc      = prometheus.NewDesc("wirtuald_license_active_users", "The number of active users.", nil, nil)
+	limitUsersDesc       = prometheus.NewDesc("wirtuald_license_limit_users", "The user seats limit based on the active Coder license.", nil, nil)
+	userLimitEnabledDesc = prometheus.NewDesc("wirtuald_license_user_limit_enabled", "Returns 1 if the current license enforces the user limit.", nil, nil)
 )
 
 type MetricsCollector struct {

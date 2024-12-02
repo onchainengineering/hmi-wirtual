@@ -11,7 +11,7 @@ import (
 	"testing"
 
 	"github.com/coder/coder/v2/wirtuald"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/testutil"
@@ -161,16 +161,16 @@ func TestDERPHeaders(t *testing.T) {
 
 	// Create a wirtuald API instance the hard way since we need to change the
 	// handler to inject our custom /derp handler.
-	dv := coderdtest.DeploymentValues(t)
+	dv := wirtualdtest.DeploymentValues(t)
 	dv.DERP.Config.BlockDirect = true
-	setHandler, cancelFunc, serverURL, newOptions := coderdtest.NewOptions(t, &coderdtest.Options{
+	setHandler, cancelFunc, serverURL, newOptions := wirtualdtest.NewOptions(t, &wirtualdtest.Options{
 		DeploymentValues: dv,
 	})
 
 	// We set the handler after server creation for the access URL.
 	coderAPI := wirtuald.New(newOptions)
 	setHandler(coderAPI.RootHandler)
-	provisionerCloser := coderdtest.NewProvisionerDaemon(t, coderAPI)
+	provisionerCloser := wirtualdtest.NewProvisionerDaemon(t, coderAPI)
 	t.Cleanup(func() {
 		_ = provisionerCloser.Close()
 	})
@@ -183,8 +183,8 @@ func TestDERPHeaders(t *testing.T) {
 	})
 
 	var (
-		admin              = coderdtest.CreateFirstUser(t, client)
-		member, memberUser = coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+		admin              = wirtualdtest.CreateFirstUser(t, client)
+		member, memberUser = wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID)
 		workspace          = runAgent(t, client, memberUser.ID, newOptions.Database)
 	)
 

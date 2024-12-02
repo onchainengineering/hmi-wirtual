@@ -47,7 +47,7 @@ echo_latest_main_version() {
 	echo origin/main
 }
 
-sparse_clone_codersdk() {
+sparse_clone_wirtualsdk() {
 	mkdir -p "${1}"
 	cd "${1}"
 	rm -rf "${2}"
@@ -104,7 +104,7 @@ for channel in mainline stable; do
 	log "Fetching experiments from ${channel}"
 
 	tag=$(echo_latest_"${channel}"_version)
-	dir="$(sparse_clone_codersdk "${workdir}" "${channel}" "${tag}")"
+	dir="$(sparse_clone_wirtualsdk "${workdir}" "${channel}" "${tag}")"
 
 	declare -A all_experiments=()
 	all_experiments_out="$(parse_all_experiments "${dir}")"

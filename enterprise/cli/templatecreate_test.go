@@ -7,11 +7,11 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/testutil"
@@ -23,17 +23,17 @@ func TestTemplateCreate(t *testing.T) {
 	t.Run("RequireActiveVersion", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureAccessControl: 1,
 				},
 			},
-			Options: &coderdtest.Options{
+			Options: &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
 		})
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin())
+		templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin())
 
 		source := clitest.CreateTemplateVersionSource(t, &echo.Responses{
 			Parse:          echo.ParseComplete,
@@ -62,17 +62,17 @@ func TestTemplateCreate(t *testing.T) {
 	t.Run("WorkspaceCleanup", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
 			},
-			Options: &coderdtest.Options{
+			Options: &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
 		})
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin())
+		templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin())
 
 		source := clitest.CreateTemplateVersionSource(t, &echo.Responses{
 			Parse:          echo.ParseComplete,
@@ -112,15 +112,15 @@ func TestTemplateCreate(t *testing.T) {
 	t.Run("NotEntitled", func(t *testing.T) {
 		t.Parallel()
 
-		client, admin := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, admin := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{},
 			},
-			Options: &coderdtest.Options{
+			Options: &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
 		})
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleTemplateAdmin())
+		templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleTemplateAdmin())
 
 		inv, conf := newCLI(t, "templates",
 			"create", "new-template",
@@ -139,12 +139,12 @@ func TestTemplateCreate(t *testing.T) {
 	t.Run("SecondOrganization", func(t *testing.T) {
 		t.Parallel()
 
-		ownerClient, _ := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		ownerClient, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				// This only affects the first org.
 				IncludeProvisionerDaemon: false,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureAccessControl:              1,
 					wirtualsdk.FeatureCustomRoles:                1,
@@ -155,7 +155,7 @@ func TestTemplateCreate(t *testing.T) {
 		})
 
 		// Create the second organization
-		secondOrg := coderdenttest.CreateOrganization(t, ownerClient, coderdenttest.CreateOrganizationOptions{
+		secondOrg := wirtualdenttest.CreateOrganization(t, ownerClient, wirtualdenttest.CreateOrganizationOptions{
 			IncludeProvisionerDaemon: true,
 		})
 
@@ -171,7 +171,7 @@ func TestTemplateCreate(t *testing.T) {
 		})
 		require.NoError(t, err, "create admin role")
 
-		orgTemplateAdmin, _ := coderdtest.CreateAnotherUser(t, ownerClient, secondOrg.ID, rbac.RoleIdentifier{
+		orgTemplateAdmin, _ := wirtualdtest.CreateAnotherUser(t, ownerClient, secondOrg.ID, rbac.RoleIdentifier{
 			Name:           orgTemplateAdminRole.Name,
 			OrganizationID: secondOrg.ID,
 		})

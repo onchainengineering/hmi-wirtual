@@ -24,8 +24,8 @@ page describes possible deployments, challenges, and risks associated with them.
 
 ### wirtuald
 
-_coderd_ is the service created by running `coder server`. It is a thin API that
-connects workspaces, provisioners and users. _coderd_ stores its state in
+_wirtuald_ is the service created by running `coder server`. It is a thin API that
+connects workspaces, provisioners and users. _wirtuald_ stores its state in
 Postgres and is the only service that communicates with Postgres.
 
 It offers:
@@ -76,7 +76,7 @@ within workspaces.
 
 ## Service Bundling
 
-While _coderd_ and Postgres can be orchestrated independently, our default
+While _wirtuald_ and Postgres can be orchestrated independently, our default
 installation paths bundle them all together into one system service. It's
 perfectly fine to run a production deployment this way, but there are certain
 situations that necessitate decomposition:

@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -12,8 +12,8 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/coder/coder/v2/wirtuald"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest/oidctest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest/oidctest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
@@ -22,8 +22,8 @@ import (
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtuald/util/slice"
 	"github.com/coder/coder/v2/wirtualsdk"
-	coderden "github.com/coder/coder/v2/enterprise/wirtuald"
-	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	wirtualden "github.com/coder/coder/v2/enterprise/wirtuald"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/serpent"
@@ -897,7 +897,7 @@ func TestGroupSync(t *testing.T) {
 			}
 
 			// Create the user and add them to their initial groups
-			_, user := coderdtest.CreateAnotherUser(t, runner.AdminClient, org)
+			_, user := wirtualdtest.CreateAnotherUser(t, runner.AdminClient, org)
 			for _, group := range tc.initialUserGroups {
 				_, err := runner.AdminClient.PatchGroup(ctx, initialGroups[group].ID, wirtualsdk.PatchGroupRequest{
 					AddUsers: []string{user.ID.String()},
@@ -970,12 +970,12 @@ func TestEnterpriseUserLogin(t *testing.T) {
 	// Login to a user with a custom organization role set.
 	t.Run("CustomRole", func(t *testing.T) {
 		t.Parallel()
-		dv := coderdtest.DeploymentValues(t)
-		ownerClient, owner := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		dv := wirtualdtest.DeploymentValues(t)
+		ownerClient, owner := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				DeploymentValues: dv,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureCustomRoles: 1,
 				},
@@ -991,7 +991,7 @@ func TestEnterpriseUserLogin(t *testing.T) {
 		})
 		require.NoError(t, err, "create custom role")
 
-		anotherClient, anotherUser := coderdtest.CreateAnotherUserMutators(t, ownerClient, owner.OrganizationID, []rbac.RoleIdentifier{
+		anotherClient, anotherUser := wirtualdtest.CreateAnotherUserMutators(t, ownerClient, owner.OrganizationID, []rbac.RoleIdentifier{
 			{
 				Name:           customRole.Name,
 				OrganizationID: owner.OrganizationID,
@@ -1016,19 +1016,19 @@ func TestEnterpriseUserLogin(t *testing.T) {
 		// database directly to corrupt it.
 		rawDB, pubsub := dbtestutil.NewDB(t)
 
-		ownerClient, owner := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		ownerClient, owner := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				Database: rawDB,
 				Pubsub:   pubsub,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureCustomRoles: 1,
 				},
 			},
 		})
 
-		anotherClient, anotherUser := coderdtest.CreateAnotherUserMutators(t, ownerClient, owner.OrganizationID, nil, func(r *wirtualsdk.CreateUserRequestWithOrgs) {
+		anotherClient, anotherUser := wirtualdtest.CreateAnotherUserMutators(t, ownerClient, owner.OrganizationID, nil, func(r *wirtualsdk.CreateUserRequestWithOrgs) {
 			r.Password = "SomeSecurePassword!"
 			r.UserLoginType = wirtualsdk.LoginTypePassword
 		})
@@ -1050,11 +1050,11 @@ func TestEnterpriseUserLogin(t *testing.T) {
 }
 
 // oidcTestRunner is just a helper to setup and run oidc tests.
-// An actual Coderd instance is used to run the tests.
+// An actual Wirtuald instance is used to run the tests.
 type oidcTestRunner struct {
 	AdminClient *wirtualsdk.Client
 	AdminUser   wirtualsdk.User
-	API         *coderden.API
+	API         *wirtualden.API
 
 	// Login will call the OIDC flow with an unauthenticated client.
 	// The IDP will return the idToken claims.
@@ -1070,7 +1070,7 @@ type oidcTestRunner struct {
 type oidcTestConfig struct {
 	Userinfo jwt.MapClaims
 
-	// Config allows modifying the Coderd OIDC configuration.
+	// Config allows modifying the Wirtuald OIDC configuration.
 	Config           func(cfg *wirtuald.OIDCConfig)
 	DeploymentValues func(dv *wirtualsdk.DeploymentValues)
 	FakeOpts         []oidctest.FakeIDPOpt
@@ -1155,16 +1155,16 @@ func setupOIDCTest(t *testing.T, settings oidcTestConfig) *oidcTestRunner {
 
 	ctx := testutil.Context(t, testutil.WaitMedium)
 	cfg := fake.OIDCConfig(t, nil, settings.Config)
-	dv := coderdtest.DeploymentValues(t)
+	dv := wirtualdtest.DeploymentValues(t)
 	if settings.DeploymentValues != nil {
 		settings.DeploymentValues(dv)
 	}
-	owner, _, api, _ := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-		Options: &coderdtest.Options{
+	owner, _, api, _ := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{
+		Options: &wirtualdtest.Options{
 			OIDCConfig:       cfg,
 			DeploymentValues: dv,
 		},
-		LicenseOptions: &coderdenttest.LicenseOptions{
+		LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureUserRoleManagement:    1,
 				wirtualsdk.FeatureTemplateRBAC:          1,

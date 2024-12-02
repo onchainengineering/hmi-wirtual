@@ -8,11 +8,11 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/testutil"
 )
@@ -25,11 +25,11 @@ func TestStart(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		ownerClient, owner := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		ownerClient, owner := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureAccessControl:              1,
 					wirtualsdk.FeatureTemplateRBAC:               1,
@@ -37,37 +37,37 @@ func TestStart(t *testing.T) {
 				},
 			},
 		})
-		templateAdminClient, templateAdmin := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		templateAdminClient, templateAdmin := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 		// Create an initial version.
-		oldVersion := coderdtest.CreateTemplateVersion(t, templateAdminClient, owner.OrganizationID, nil)
+		oldVersion := wirtualdtest.CreateTemplateVersion(t, templateAdminClient, owner.OrganizationID, nil)
 		// Create a template that mandates the promoted version.
 		// This should be enforced for everyone except template admins.
-		template := coderdtest.CreateTemplate(t, templateAdminClient, owner.OrganizationID, oldVersion.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, templateAdminClient, oldVersion.ID)
+		template := wirtualdtest.CreateTemplate(t, templateAdminClient, owner.OrganizationID, oldVersion.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, templateAdminClient, oldVersion.ID)
 		require.Equal(t, oldVersion.ID, template.ActiveVersionID)
-		template = coderdtest.UpdateTemplateMeta(t, templateAdminClient, template.ID, wirtualsdk.UpdateTemplateMeta{
+		template = wirtualdtest.UpdateTemplateMeta(t, templateAdminClient, template.ID, wirtualsdk.UpdateTemplateMeta{
 			RequireActiveVersion: true,
 		})
 		require.True(t, template.RequireActiveVersion)
 
 		// Create a new version that we will promote.
-		activeVersion := coderdtest.CreateTemplateVersion(t, templateAdminClient, owner.OrganizationID, nil, func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
+		activeVersion := wirtualdtest.CreateTemplateVersion(t, templateAdminClient, owner.OrganizationID, nil, func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
 			ctvr.TemplateID = template.ID
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, templateAdminClient, activeVersion.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, templateAdminClient, activeVersion.ID)
 		err := templateAdminClient.UpdateActiveTemplateVersion(ctx, template.ID, wirtualsdk.UpdateActiveTemplateVersion{
 			ID: activeVersion.ID,
 		})
 		require.NoError(t, err)
 
-		templateACLAdminClient, templateACLAdmin := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
-		templateGroupACLAdminClient, templateGroupACLAdmin := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
-		memberClient, member := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+		templateACLAdminClient, templateACLAdmin := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+		templateGroupACLAdminClient, templateGroupACLAdmin := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+		memberClient, member := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
 
 		// Create a group so we can also test group template admin ownership.
 		// Add the user who gains template admin via group membership.
-		group := coderdtest.CreateGroup(t, ownerClient, owner.OrganizationID, "test", templateGroupACLAdmin)
+		group := wirtualdtest.CreateGroup(t, ownerClient, owner.OrganizationID, "test", templateGroupACLAdmin)
 
 		// Update the template for both users and groups.
 		err = ownerClient.UpdateTemplateACL(ctx, template.ID, wirtualsdk.UpdateTemplateACL{
@@ -136,17 +136,17 @@ func TestStart(t *testing.T) {
 						// to force the old version.
 						ws, err := ownerClient.CreateWorkspace(ctx, owner.OrganizationID, c.WorkspaceOwner.String(), wirtualsdk.CreateWorkspaceRequest{
 							TemplateVersionID: oldVersion.ID,
-							Name:              coderdtest.RandomUsername(t),
+							Name:              wirtualdtest.RandomUsername(t),
 							AutomaticUpdates:  wirtualsdk.AutomaticUpdatesNever,
 						})
 						require.NoError(t, err)
-						coderdtest.AwaitWorkspaceBuildJobCompleted(t, c.Client, ws.LatestBuild.ID)
+						wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, c.Client, ws.LatestBuild.ID)
 
 						initialTemplateVersion := ws.LatestBuild.TemplateVersionID
 
 						if cmd == "start" {
 							// Stop the workspace so that we can start it.
-							coderdtest.MustTransitionWorkspace(t, c.Client, ws.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
+							wirtualdtest.MustTransitionWorkspace(t, c.Client, ws.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
 						}
 						// Start the workspace. Every test permutation should
 						// pass.
@@ -157,7 +157,7 @@ func TestStart(t *testing.T) {
 						err = inv.Run()
 						require.NoError(t, err)
 
-						ws = coderdtest.MustWorkspace(t, c.Client, ws.ID)
+						ws = wirtualdtest.MustWorkspace(t, c.Client, ws.ID)
 						require.Equal(t, c.ExpectedVersion, ws.LatestBuild.TemplateVersionID)
 						if initialTemplateVersion == ws.LatestBuild.TemplateVersionID {
 							return
@@ -180,25 +180,25 @@ func TestStart(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		ownerClient, owner := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		ownerClient, owner := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
 			},
 		})
 
-		version := coderdtest.CreateTemplateVersion(t, ownerClient, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, ownerClient, version.ID)
-		template := coderdtest.CreateTemplate(t, ownerClient, owner.OrganizationID, version.ID)
+		version := wirtualdtest.CreateTemplateVersion(t, ownerClient, owner.OrganizationID, nil)
+		_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, ownerClient, version.ID)
+		template := wirtualdtest.CreateTemplate(t, ownerClient, owner.OrganizationID, version.ID)
 
-		memberClient, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
-		workspace := coderdtest.CreateWorkspace(t, memberClient, template.ID)
-		_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, memberClient, workspace.LatestBuild.ID)
-		_ = coderdtest.MustTransitionWorkspace(t, memberClient, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
+		memberClient, _ := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+		workspace := wirtualdtest.CreateWorkspace(t, memberClient, template.ID)
+		_ = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, memberClient, workspace.LatestBuild.ID)
+		_ = wirtualdtest.MustTransitionWorkspace(t, memberClient, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
 		err := memberClient.UpdateWorkspaceDormancy(ctx, workspace.ID, wirtualsdk.UpdateWorkspaceDormancy{
 			Dormant: true,
 		})
@@ -214,7 +214,7 @@ func TestStart(t *testing.T) {
 		require.NoError(t, err)
 		require.Contains(t, buf.String(), "Activating dormant workspace...")
 
-		workspace = coderdtest.MustWorkspace(t, memberClient, workspace.ID)
+		workspace = wirtualdtest.MustWorkspace(t, memberClient, workspace.ID)
 		require.Equal(t, wirtualsdk.WorkspaceTransitionStart, workspace.LatestBuild.Transition)
 	})
 }

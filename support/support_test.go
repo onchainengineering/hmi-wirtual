@@ -19,7 +19,7 @@ import (
 	"cdr.dev/slog/sloggers/slogtest"
 	"github.com/coder/coder/v2/agent"
 	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbfake"
 	"github.com/coder/coder/v2/wirtuald/database/dbtime"
@@ -38,14 +38,14 @@ func TestRun(t *testing.T) {
 
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
-		cfg := coderdtest.DeploymentValues(t)
+		cfg := wirtualdtest.DeploymentValues(t)
 		cfg.Experiments = []string{"foo"}
 		ctx := testutil.Context(t, testutil.WaitLong)
-		client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
+		client, db := wirtualdtest.NewWithDatabase(t, &wirtualdtest.Options{
 			DeploymentValues: cfg,
 			Logger:           ptr.Ref(slog.Make(sloghuman.Sink(io.Discard))),
 		})
-		admin := coderdtest.CreateFirstUser(t, client)
+		admin := wirtualdtest.CreateFirstUser(t, client)
 		ws, agt := setupWorkspaceAndAgent(ctx, t, client, db, admin)
 
 		bun, err := support.Run(ctx, &support.Deps{
@@ -91,14 +91,14 @@ func TestRun(t *testing.T) {
 
 	t.Run("OK_NoWorkspace", func(t *testing.T) {
 		t.Parallel()
-		cfg := coderdtest.DeploymentValues(t)
+		cfg := wirtualdtest.DeploymentValues(t)
 		cfg.Experiments = []string{"foo"}
 		ctx := testutil.Context(t, testutil.WaitLong)
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			DeploymentValues: cfg,
 			Logger:           ptr.Ref(slog.Make(sloghuman.Sink(io.Discard))),
 		})
-		_ = coderdtest.CreateFirstUser(t, client)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 		bun, err := support.Run(ctx, &support.Deps{
 			Client: client,
 			Log:    slogtest.Make(t, &slogtest.Options{IgnoreErrors: true}).Named("bundle").Leveled(slog.LevelDebug),
@@ -124,7 +124,7 @@ func TestRun(t *testing.T) {
 	t.Run("NoAuth", func(t *testing.T) {
 		t.Parallel()
 		ctx := testutil.Context(t, testutil.WaitLong)
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			Logger: ptr.Ref(slog.Make(sloghuman.Sink(io.Discard))),
 		})
 		bun, err := support.Run(ctx, &support.Deps{
@@ -142,11 +142,11 @@ func TestRun(t *testing.T) {
 	t.Run("MissingPrivilege", func(t *testing.T) {
 		t.Parallel()
 		ctx := testutil.Context(t, testutil.WaitLong)
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			Logger: ptr.Ref(slog.Make(sloghuman.Sink(io.Discard))),
 		})
-		admin := coderdtest.CreateFirstUser(t, client)
-		memberClient, _ := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+		admin := wirtualdtest.CreateFirstUser(t, client)
+		memberClient, _ := wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID)
 		bun, err := support.Run(ctx, &support.Deps{
 			Client: memberClient,
 			Log:    testutil.Logger(t).Named("bundle"),
@@ -235,7 +235,7 @@ func setupWorkspaceAndAgent(ctx context.Context, t *testing.T, client *wirtualsd
 	_ = agenttest.New(t, client.URL, wbr.AgentToken, func(o *agent.Options) {
 		o.LogDir = tempDir
 	})
-	coderdtest.NewWorkspaceAgentWaiter(t, client, wbr.Workspace.ID).Wait()
+	wirtualdtest.NewWorkspaceAgentWaiter(t, client, wbr.Workspace.ID).Wait()
 
 	return ws, agt
 }

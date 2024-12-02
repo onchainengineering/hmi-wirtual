@@ -14,7 +14,7 @@ import (
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/slogtest"
 	"github.com/coder/coder/v2/agent"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/httpapi"
 	"github.com/coder/coder/v2/wirtuald/util/ptr"
 	"github.com/coder/coder/v2/wirtualsdk"
@@ -55,13 +55,13 @@ func Test_Runner(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		authToken := uuid.NewString()
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionPlan: []*proto.Response{
 				{
@@ -106,8 +106,8 @@ func Test_Runner(t *testing.T) {
 			},
 		})
 
-		version = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		version = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 		closerCh := goEventuallyStartFakeAgent(ctx, t, client, authToken)
 
@@ -205,13 +205,13 @@ func Test_Runner(t *testing.T) {
 		// need to include our own logger because the provisioner (rightly) drops error logs when we shut down the
 		// test with a build in progress.
 		logger := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true}).Leveled(slog.LevelDebug)
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 			Logger:                   &logger,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionPlan: []*proto.Response{
 				{
@@ -229,8 +229,8 @@ func Test_Runner(t *testing.T) {
 			},
 		})
 
-		version = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(request *wirtualsdk.CreateTemplateRequest) {
+		version = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(request *wirtualsdk.CreateTemplateRequest) {
 			request.AllowUserCancelWorkspaceJobs = ptr.Ref(true)
 		})
 
@@ -343,13 +343,13 @@ func Test_Runner(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		authToken := uuid.NewString()
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionPlan: []*proto.Response{
 				{
@@ -394,8 +394,8 @@ func Test_Runner(t *testing.T) {
 			},
 		})
 
-		version = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		version = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 		closeCh := goEventuallyStartFakeAgent(ctx, t, client, authToken)
 
@@ -488,13 +488,13 @@ func Test_Runner(t *testing.T) {
 		defer cancel()
 
 		logger := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true})
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 			Logger:                   &logger,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionPlan: []*proto.Response{
 				{
@@ -516,8 +516,8 @@ func Test_Runner(t *testing.T) {
 			},
 		})
 
-		version = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		version = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 		runner := createworkspaces.NewRunner(client, createworkspaces.Config{
 			User: createworkspaces.UserConfig{
@@ -568,7 +568,7 @@ func goEventuallyStartFakeAgent(ctx context.Context, t *testing.T, client *wirtu
 			time.Sleep(testutil.IntervalMedium)
 		}
 
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		agentClient := agentsdk.New(client.URL)
 		agentClient.SetSessionToken(agentToken)
@@ -577,7 +577,7 @@ func goEventuallyStartFakeAgent(ctx context.Context, t *testing.T, client *wirtu
 			Logger: slogtest.Make(t, &slogtest.Options{IgnoreErrors: true}).
 				Named("agent").Leveled(slog.LevelWarn),
 		})
-		resources := coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		resources := wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 		assert.GreaterOrEqual(t, len(resources), 1, "workspace %s has no resources", workspace.ID.String())
 		assert.NotEmpty(t, resources[0].Agents, "workspace %s has no agents", workspace.ID.String())
 		agentID := resources[0].Agents[0].ID

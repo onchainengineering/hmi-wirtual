@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/pty/ptytest"
 )
@@ -17,12 +17,12 @@ func TestTemplateVersions(t *testing.T) {
 	t.Parallel()
 	t.Run("ListVersions", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		member, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		inv, root := clitest.New(t, "templates", "versions", "list", template.Name)
 		clitest.SetupConfig(t, member, root)
@@ -47,20 +47,20 @@ func TestTemplateVersionsPromote(t *testing.T) {
 
 	t.Run("PromoteVersion", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
 
 		// Create a template with two versions
-		version1 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithAgent())
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
+		version1 := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithAgent())
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
 
-		version2 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithAgent(), func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
+		version2 := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithAgent(), func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
 			ctvr.TemplateID = template.ID
 			ctvr.Name = "2.0.0"
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version2.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version2.ID)
 
 		// Ensure version1 is active
 		updatedTemplate, err := client.Template(context.Background(), template.ID)
@@ -93,13 +93,13 @@ func TestTemplateVersionsPromote(t *testing.T) {
 
 	t.Run("PromoteNonExistentVersion", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		member, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		inv, root := clitest.New(t, "templates", "versions", "promote", "--template", template.Name, "--template-version", "non-existent-version")
 		clitest.SetupConfig(t, member, root)
@@ -111,9 +111,9 @@ func TestTemplateVersionsPromote(t *testing.T) {
 
 	t.Run("PromoteVersionInvalidTemplate", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		member, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		inv, root := clitest.New(t, "templates", "versions", "promote", "--template", "non-existent-template", "--template-version", "some-version")
 		clitest.SetupConfig(t, member, root)

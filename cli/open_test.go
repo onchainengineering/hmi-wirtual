@@ -12,7 +12,7 @@ import (
 
 	"github.com/coder/coder/v2/agent/agenttest"
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/provisionersdk/proto"
 	"github.com/coder/coder/v2/pty/ptytest"
@@ -33,7 +33,7 @@ func TestOpenVSCode(t *testing.T) {
 	})
 
 	_ = agenttest.New(t, client.URL, agentToken)
-	_ = coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+	_ = wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 	insideWorkspaceEnv := map[string]string{
 		"CODER":                      "true",
@@ -168,7 +168,7 @@ func TestOpenVSCode_NoAgentDirectory(t *testing.T) {
 	})
 
 	_ = agenttest.New(t, client.URL, agentToken)
-	_ = coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+	_ = wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 	insideWorkspaceEnv := map[string]string{
 		"CODER":                      "true",

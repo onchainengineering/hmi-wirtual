@@ -6,10 +6,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/pty/ptytest"
 )
@@ -20,21 +20,21 @@ func TestGroupList(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		client, admin := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, admin := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleUserAdmin())
+		anotherClient, _ := wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleUserAdmin())
 
-		_, user1 := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
-		_, user2 := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+		_, user1 := wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+		_, user2 := wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID)
 
 		// We intentionally create the first group as beta so that we
 		// can assert that things are being sorted by name intentionally
 		// and not by chance (or some other parameter like created_at).
-		group1 := coderdtest.CreateGroup(t, client, admin.OrganizationID, "beta", user1)
-		group2 := coderdtest.CreateGroup(t, client, admin.OrganizationID, "alpha", user2)
+		group1 := wirtualdtest.CreateGroup(t, client, admin.OrganizationID, "beta", user1)
+		group2 := wirtualdtest.CreateGroup(t, client, admin.OrganizationID, "alpha", user2)
 
 		inv, conf := newCLI(t, "groups", "list")
 
@@ -60,12 +60,12 @@ func TestGroupList(t *testing.T) {
 	t.Run("Everyone", func(t *testing.T) {
 		t.Parallel()
 
-		client, admin := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, admin := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleUserAdmin())
+		anotherClient, _ := wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleUserAdmin())
 
 		inv, conf := newCLI(t, "groups", "list")
 
@@ -79,7 +79,7 @@ func TestGroupList(t *testing.T) {
 
 		matches := []string{
 			"NAME", "ORGANIZATION ID", "MEMBERS", " AVATAR URL",
-			"Everyone", admin.OrganizationID.String(), coderdtest.FirstUserParams.Email, "",
+			"Everyone", admin.OrganizationID.String(), wirtualdtest.FirstUserParams.Email, "",
 		}
 
 		for _, match := range matches {

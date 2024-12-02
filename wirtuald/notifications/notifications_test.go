@@ -35,7 +35,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/database/dbgen"
@@ -1061,11 +1061,11 @@ func TestNotificationTemplates_Golden(t *testing.T) {
 
 				// Spin up the DB
 				db, logger, user := func() (*database.Store, *slog.Logger, *wirtualsdk.User) {
-					adminClient, _, api := coderdtest.NewWithAPI(t, nil)
+					adminClient, _, api := wirtualdtest.NewWithAPI(t, nil)
 					db := api.Database
-					firstUser := coderdtest.CreateFirstUser(t, adminClient)
+					firstUser := wirtualdtest.CreateFirstUser(t, adminClient)
 
-					_, user := coderdtest.CreateAnotherUserMutators(
+					_, user := wirtualdtest.CreateAnotherUserMutators(
 						t,
 						adminClient,
 						firstUser.OrganizationID,
@@ -1230,11 +1230,11 @@ func TestNotificationTemplates_Golden(t *testing.T) {
 
 				// Spin up the DB
 				db, logger, user := func() (*database.Store, *slog.Logger, *wirtualsdk.User) {
-					adminClient, _, api := coderdtest.NewWithAPI(t, nil)
+					adminClient, _, api := wirtualdtest.NewWithAPI(t, nil)
 					db := api.Database
-					firstUser := coderdtest.CreateFirstUser(t, adminClient)
+					firstUser := wirtualdtest.CreateFirstUser(t, adminClient)
 
-					_, user := coderdtest.CreateAnotherUserMutators(
+					_, user := wirtualdtest.CreateAnotherUserMutators(
 						t,
 						adminClient,
 						firstUser.OrganizationID,
@@ -1588,11 +1588,11 @@ func TestNotificationsTemplates(t *testing.T) {
 
 	// nolint:gocritic // Unit test.
 	ctx := dbauthz.AsNotifier(testutil.Context(t, testutil.WaitSuperLong))
-	api := coderdtest.New(t, createOpts(t))
+	api := wirtualdtest.New(t, createOpts(t))
 
 	// GIVEN: the first user (owner) and a regular member
-	firstUser := coderdtest.CreateFirstUser(t, api)
-	memberClient, _ := coderdtest.CreateAnotherUser(t, api, firstUser.OrganizationID, rbac.RoleMember())
+	firstUser := wirtualdtest.CreateFirstUser(t, api)
+	memberClient, _ := wirtualdtest.CreateAnotherUser(t, api, firstUser.OrganizationID, rbac.RoleMember())
 
 	// WHEN: requesting system notification templates as owner should work
 	templates, err := api.GetSystemNotificationTemplates(ctx)
@@ -1605,11 +1605,11 @@ func TestNotificationsTemplates(t *testing.T) {
 	require.True(t, len(templates) > 1)
 }
 
-func createOpts(t *testing.T) *coderdtest.Options {
+func createOpts(t *testing.T) *wirtualdtest.Options {
 	t.Helper()
 
-	dt := coderdtest.DeploymentValues(t)
-	return &coderdtest.Options{
+	dt := wirtualdtest.DeploymentValues(t)
+	return &wirtualdtest.Options{
 		DeploymentValues: dt,
 	}
 }

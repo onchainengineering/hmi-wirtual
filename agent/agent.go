@@ -1737,7 +1737,7 @@ func (a *apiConnRoutineManager) startAgentAPI(
 			// Don't propagate context canceled errors to the error group, because we don't want the
 			// graceful context being canceled to halt the work of routines with
 			// gracefulShutdownBehaviorRemain.  Note that we check both that the error is
-			// context.Canceled and that *our* context is currently canceled, because when Coderd
+			// context.Canceled and that *our* context is currently canceled, because when Wirtuald
 			// unilaterally closes the API connection (for example if the build is outdated), it can
 			// sometimes show up as context.Canceled in our RPC calls.
 			return nil
@@ -1774,7 +1774,7 @@ func (a *apiConnRoutineManager) startTailnetAPI(
 			// Don't propagate context canceled errors to the error group, because we don't want the
 			// graceful context being canceled to halt the work of routines with
 			// gracefulShutdownBehaviorRemain.  Note that we check both that the error is
-			// context.Canceled and that *our* context is currently canceled, because when Coderd
+			// context.Canceled and that *our* context is currently canceled, because when Wirtuald
 			// unilaterally closes the API connection (for example if the build is outdated), it can
 			// sometimes show up as context.Canceled in our RPC calls.
 			return nil

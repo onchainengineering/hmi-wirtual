@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"testing"
@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtualsdk"
@@ -18,9 +18,9 @@ func TestAddMember(t *testing.T) {
 
 	t.Run("AlreadyMember", func(t *testing.T) {
 		t.Parallel()
-		owner := coderdtest.New(t, nil)
-		first := coderdtest.CreateFirstUser(t, owner)
-		_, user := coderdtest.CreateAnotherUser(t, owner, first.OrganizationID)
+		owner := wirtualdtest.New(t, nil)
+		first := wirtualdtest.CreateFirstUser(t, owner)
+		_, user := wirtualdtest.CreateAnotherUser(t, owner, first.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		// Add user to org, even though they already exist
@@ -35,9 +35,9 @@ func TestDeleteMember(t *testing.T) {
 
 	t.Run("Allowed", func(t *testing.T) {
 		t.Parallel()
-		owner := coderdtest.New(t, nil)
-		first := coderdtest.CreateFirstUser(t, owner)
-		_, user := coderdtest.CreateAnotherUser(t, owner, first.OrganizationID)
+		owner := wirtualdtest.New(t, nil)
+		first := wirtualdtest.CreateFirstUser(t, owner)
+		_, user := wirtualdtest.CreateAnotherUser(t, owner, first.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		// Deleting members from the default org is not allowed.
@@ -54,10 +54,10 @@ func TestListMembers(t *testing.T) {
 
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
-		owner := coderdtest.New(t, nil)
-		first := coderdtest.CreateFirstUser(t, owner)
+		owner := wirtualdtest.New(t, nil)
+		first := wirtualdtest.CreateFirstUser(t, owner)
 
-		client, user := coderdtest.CreateAnotherUser(t, owner, first.OrganizationID, rbac.ScopedRoleOrgAdmin(first.OrganizationID))
+		client, user := wirtualdtest.CreateAnotherUser(t, owner, first.OrganizationID, rbac.ScopedRoleOrgAdmin(first.OrganizationID))
 
 		ctx := testutil.Context(t, testutil.WaitShort)
 		members, err := client.OrganizationMembers(ctx, first.OrganizationID)

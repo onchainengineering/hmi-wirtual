@@ -78,7 +78,7 @@ func init() {
 	//
 	// Our use case is different: for clients, it's a point-to-point connection
 	// to a single workspace, and lasts only as long as the connection.  For
-	// agents, it's connections to a small number of clients (CLI or Coderd)
+	// agents, it's connections to a small number of clients (CLI or Wirtuald)
 	// that are being actively used by the end user.
 	envknob.Setenv("TS_DEBUG_TRIM_WIREGUARD", "false")
 }

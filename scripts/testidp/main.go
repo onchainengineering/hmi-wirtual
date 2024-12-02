@@ -15,7 +15,7 @@ import (
 
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/sloghuman"
-	"github.com/coder/coder/v2/wirtuald/coderdtest/oidctest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest/oidctest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -109,7 +109,7 @@ func RunIDP() func(t *testing.T) {
 		})
 
 		log.Println("IDP Issuer URL", idp.IssuerURL())
-		log.Println("Coderd Flags")
+		log.Println("Wirtuald Flags")
 
 		deviceCodeURL := ""
 		if coderCfg.DeviceAuth != nil {

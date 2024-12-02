@@ -108,7 +108,7 @@ func NewFactory(registry prometheus.Registerer) *Factory {
 				Namespace: "wirtuald",
 				Subsystem: "oauth2",
 				Name:      "external_requests_rate_limit_total",
-				Help:      "DEPRECATED: use coderd_oauth2_external_requests_rate_limit instead",
+				Help:      "DEPRECATED: use wirtuald_oauth2_external_requests_rate_limit instead",
 			}, []string{
 				"name",
 				"resource",

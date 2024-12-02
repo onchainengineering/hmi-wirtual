@@ -236,7 +236,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "coderd_api_active_users_duration_hour{$filter_key=\"$filter_value\"}",
+					"expr": "wirtuald_api_active_users_duration_hour{$filter_key=\"$filter_value\"}",
 					"legendFormat": "__auto",
 					"range": true,
 					"refId": "A"
@@ -299,7 +299,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "sum(coderd_agents_up{$filter_key=\"$filter_value\"})",
+					"expr": "sum(wirtuald_agents_up{$filter_key=\"$filter_value\"})",
 					"legendFormat": "__auto",
 					"range": true,
 					"refId": "A"
@@ -363,7 +363,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "avg(coderd_agents_connection_latencies_seconds{$filter_key=\"$filter_value\"})",
+					"expr": "avg(wirtuald_agents_connection_latencies_seconds{$filter_key=\"$filter_value\"})",
 					"legendFormat": "__auto",
 					"range": true,
 					"refId": "A"
@@ -431,7 +431,7 @@
 					{
 						"matcher": {
 							"id": "byRegexp",
-							"options": "/coderd_provisionerd_num_daemons/"
+							"options": "/wirtuald_provisionerd_num_daemons/"
 						},
 						"properties": [
 							{
@@ -443,7 +443,7 @@
 					{
 						"matcher": {
 							"id": "byRegexp",
-							"options": "/coderd_provisionerd_jobs_current/"
+							"options": "/wirtuald_provisionerd_jobs_current/"
 						},
 						"properties": [
 							{
@@ -480,7 +480,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "coderd_provisionerd_jobs_current{$filter_key=\"$filter_value\"}",
+					"expr": "wirtuald_provisionerd_jobs_current{$filter_key=\"$filter_value\"}",
 					"legendFormat": "__auto",
 					"range": true,
 					"refId": "A"
@@ -491,7 +491,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "coderd_provisionerd_num_daemons{$filter_key=\"$filter_value\"}",
+					"expr": "wirtuald_provisionerd_num_daemons{$filter_key=\"$filter_value\"}",
 					"hide": false,
 					"legendFormat": "__auto",
 					"range": true,
@@ -561,7 +561,7 @@
 					{
 						"matcher": {
 							"id": "byRegexp",
-							"options": "/.*coderd_db_query_latencies_seconds_count.*/"
+							"options": "/.*wirtuald_db_query_latencies_seconds_count.*/"
 						},
 						"properties": [
 							{
@@ -577,7 +577,7 @@
 					{
 						"matcher": {
 							"id": "byRegexp",
-							"options": "/.*coderd_db_query_latencies_seconds_bucket.*/"
+							"options": "/.*wirtuald_db_query_latencies_seconds_bucket.*/"
 						},
 						"properties": [
 							{
@@ -615,7 +615,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "histogram_quantile(0.95, sum by(le) (rate(coderd_db_query_latencies_seconds_bucket{$filter_key=\"$filter_value\"}[$__rate_interval])))",
+					"expr": "histogram_quantile(0.95, sum by(le) (rate(wirtuald_db_query_latencies_seconds_bucket{$filter_key=\"$filter_value\"}[$__rate_interval])))",
 					"hide": false,
 					"legendFormat": "__auto",
 					"range": true,
@@ -627,7 +627,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "sum(rate(coderd_db_query_latencies_seconds_count{$filter_key=\"$filter_value\"}[$__rate_interval]))",
+					"expr": "sum(rate(wirtuald_db_query_latencies_seconds_count{$filter_key=\"$filter_value\"}[$__rate_interval]))",
 					"hide": false,
 					"legendFormat": "__auto",
 					"range": true,
@@ -834,7 +834,7 @@
 					{
 						"matcher": {
 							"id": "byRegexp",
-							"options": "/coderd_api_requests_processed_total{code=\"500\"}/"
+							"options": "/wirtuald_api_requests_processed_total{code=\"500\"}/"
 						},
 						"properties": [
 							{
@@ -850,7 +850,7 @@
 					{
 						"matcher": {
 							"id": "byRegexp",
-							"options": "/coderd_api_requests_processed_total/"
+							"options": "/wirtuald_api_requests_processed_total/"
 						},
 						"properties": [
 							{
@@ -866,7 +866,7 @@
 					{
 						"matcher": {
 							"id": "byRegexp",
-							"options": "/coderd_api_request_latencies_seconds_bucket/"
+							"options": "/wirtuald_api_request_latencies_seconds_bucket/"
 						},
 						"properties": [
 							{
@@ -907,7 +907,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "sum(rate(coderd_api_requests_processed_total{$filter_key=\"$filter_value\"}[$__rate_interval]))",
+					"expr": "sum(rate(wirtuald_api_requests_processed_total{$filter_key=\"$filter_value\"}[$__rate_interval]))",
 					"interval": "",
 					"legendFormat": "__auto",
 					"range": true,
@@ -919,7 +919,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "sum(rate(coderd_api_requests_processed_total{code=\"500\"}[$__rate_interval]))",
+					"expr": "sum(rate(wirtuald_api_requests_processed_total{code=\"500\"}[$__rate_interval]))",
 					"hide": false,
 					"legendFormat": "__auto",
 					"range": true,
@@ -931,7 +931,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "histogram_quantile(0.95, sum by(le) (rate(coderd_api_request_latencies_seconds_bucket[$__rate_interval])))",
+					"expr": "histogram_quantile(0.95, sum by(le) (rate(wirtuald_api_request_latencies_seconds_bucket[$__rate_interval])))",
 					"hide": false,
 					"legendFormat": "__auto",
 					"range": true,

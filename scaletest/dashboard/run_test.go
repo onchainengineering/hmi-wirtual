@@ -15,7 +15,7 @@ import (
 
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/slogtest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/scaletest/dashboard"
 	"github.com/coder/coder/v2/testutil"
 )
@@ -42,8 +42,8 @@ func Test_Run(t *testing.T) {
 	//nolint: gosec // just for testing
 	rg := rand.New(rand.NewSource(0)) // deterministic for testing
 
-	client := coderdtest.New(t, nil)
-	_ = coderdtest.CreateFirstUser(t, client)
+	client := wirtualdtest.New(t, nil)
+	_ = wirtualdtest.CreateFirstUser(t, client)
 
 	log := slogtest.Make(t, &slogtest.Options{
 		IgnoreErrors: true,

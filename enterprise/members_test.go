@@ -6,11 +6,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/testutil"
 )
@@ -20,8 +20,8 @@ func TestEnterpriseMembers(t *testing.T) {
 
 	t.Run("Remove", func(t *testing.T) {
 		t.Parallel()
-		owner, first := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, first := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 					wirtualsdk.FeatureTemplateRBAC:          1,
@@ -29,10 +29,10 @@ func TestEnterpriseMembers(t *testing.T) {
 			},
 		})
 
-		secondOrg := coderdenttest.CreateOrganization(t, owner, coderdenttest.CreateOrganizationOptions{})
+		secondOrg := wirtualdenttest.CreateOrganization(t, owner, wirtualdenttest.CreateOrganizationOptions{})
 
-		orgAdminClient, orgAdmin := coderdtest.CreateAnotherUser(t, owner, secondOrg.ID, rbac.ScopedRoleOrgAdmin(secondOrg.ID))
-		_, user := coderdtest.CreateAnotherUser(t, owner, secondOrg.ID)
+		orgAdminClient, orgAdmin := wirtualdtest.CreateAnotherUser(t, owner, secondOrg.ID, rbac.ScopedRoleOrgAdmin(secondOrg.ID))
+		_, user := wirtualdtest.CreateAnotherUser(t, owner, secondOrg.ID)
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 
@@ -99,8 +99,8 @@ func TestEnterpriseMembers(t *testing.T) {
 	t.Run("PostUser", func(t *testing.T) {
 		t.Parallel()
 
-		owner, first := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, first := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
@@ -108,13 +108,13 @@ func TestEnterpriseMembers(t *testing.T) {
 		})
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		org := coderdenttest.CreateOrganization(t, owner, coderdenttest.CreateOrganizationOptions{})
+		org := wirtualdenttest.CreateOrganization(t, owner, wirtualdenttest.CreateOrganizationOptions{})
 
 		// Make a user not in the second organization
-		_, user := coderdtest.CreateAnotherUser(t, owner, first.OrganizationID)
+		_, user := wirtualdtest.CreateAnotherUser(t, owner, first.OrganizationID)
 
 		// Use scoped user admin in org to add the user
-		client, userAdmin := coderdtest.CreateAnotherUser(t, owner, org.ID, rbac.ScopedRoleOrgUserAdmin(org.ID))
+		client, userAdmin := wirtualdtest.CreateAnotherUser(t, owner, org.ID, rbac.ScopedRoleOrgUserAdmin(org.ID))
 
 		members, err := client.OrganizationMembers(ctx, org.ID)
 		require.NoError(t, err)
@@ -135,15 +135,15 @@ func TestEnterpriseMembers(t *testing.T) {
 
 	t.Run("PostUserNotExists", func(t *testing.T) {
 		t.Parallel()
-		owner, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
 
-		org := coderdenttest.CreateOrganization(t, owner, coderdenttest.CreateOrganizationOptions{})
+		org := wirtualdenttest.CreateOrganization(t, owner, wirtualdenttest.CreateOrganizationOptions{})
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		// Add user to org
@@ -159,16 +159,16 @@ func TestEnterpriseMembers(t *testing.T) {
 	t.Run("ListNotInOrg", func(t *testing.T) {
 		t.Parallel()
 
-		owner, first := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, first := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
 
-		client, _ := coderdtest.CreateAnotherUser(t, owner, first.OrganizationID, rbac.ScopedRoleOrgAdmin(first.OrganizationID))
-		org := coderdenttest.CreateOrganization(t, owner, coderdenttest.CreateOrganizationOptions{})
+		client, _ := wirtualdtest.CreateAnotherUser(t, owner, first.OrganizationID, rbac.ScopedRoleOrgAdmin(first.OrganizationID))
+		org := wirtualdenttest.CreateOrganization(t, owner, wirtualdenttest.CreateOrganizationOptions{})
 
 		ctx := testutil.Context(t, testutil.WaitShort)
 

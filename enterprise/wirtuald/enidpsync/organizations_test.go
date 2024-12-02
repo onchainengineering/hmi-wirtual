@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cdr.dev/slog/sloggers/slogtest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
@@ -291,7 +291,7 @@ func TestOrganizationSync(t *testing.T) {
 			logger := slogtest.Make(t, &slogtest.Options{})
 
 			rdb, _ := dbtestutil.NewDB(t)
-			db := dbauthz.New(rdb, rbac.NewAuthorizer(prometheus.NewRegistry()), logger, coderdtest.AccessControlStorePointer())
+			db := dbauthz.New(rdb, rbac.NewAuthorizer(prometheus.NewRegistry()), logger, wirtualdtest.AccessControlStorePointer())
 			caseData := tc.Case(t, rdb)
 			if caseData.Entitlements == nil {
 				caseData.Entitlements = entitlements.New()

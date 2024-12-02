@@ -10,7 +10,7 @@ import (
 
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/cli/config"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/pty/ptytest"
 )
 
@@ -164,8 +164,8 @@ func TestLogout(t *testing.T) {
 func login(t *testing.T, pty *ptytest.PTY) config.Root {
 	t.Helper()
 
-	client := coderdtest.New(t, nil)
-	coderdtest.CreateFirstUser(t, client)
+	client := wirtualdtest.New(t, nil)
+	wirtualdtest.CreateFirstUser(t, client)
 
 	doneChan := make(chan struct{})
 	root, cfg := clitest.New(t, "login", "--force-tty", client.URL.String(), "--no-open")

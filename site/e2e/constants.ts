@@ -11,7 +11,7 @@ export const workspaceProxyPort = 3112;
 
 // Use alternate ports in case we're running in a Coder Workspace.
 export const agentPProfPort = 6061;
-export const coderdPProfPort = 6062;
+export const wirtualdPProfPort = 6062;
 
 // The name of the organization that should be used by default when needed.
 export const defaultOrganizationName = "coder";

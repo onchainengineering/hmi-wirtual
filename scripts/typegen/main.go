@@ -26,7 +26,7 @@ import (
 var rbacObjectTemplate string
 
 //go:embed wirtualsdk.gotmpl
-var codersdkTemplate string
+var wirtualsdkTemplate string
 
 //go:embed typescript.tstmpl
 var typescriptTemplate string
@@ -87,7 +87,7 @@ func generateRBAC(tmpl string) ([]byte, error) {
 	var source string
 	switch strings.ToLower(tmpl) {
 	case "wirtualsdk":
-		source = codersdkTemplate
+		source = wirtualsdkTemplate
 	case "object":
 		source = rbacObjectTemplate
 	case "typescript":

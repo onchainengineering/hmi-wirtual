@@ -10,7 +10,7 @@ import (
 
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/testutil"
@@ -22,8 +22,8 @@ func Test_ProxyCRUD(t *testing.T) {
 	t.Run("Create", func(t *testing.T) {
 		t.Parallel()
 
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureWorkspaceProxy: 1,
 				},
@@ -84,8 +84,8 @@ func Test_ProxyCRUD(t *testing.T) {
 
 	t.Run("Delete", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureWorkspaceProxy: 1,
 				},

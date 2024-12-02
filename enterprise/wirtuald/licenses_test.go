@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/testutil"
 )
@@ -22,8 +22,8 @@ func TestPostLicense(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
-		respLic := coderdenttest.AddLicense(t, client, coderdenttest.LicenseOptions{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{DontAddLicense: true})
+		respLic := wirtualdenttest.AddLicense(t, client, wirtualdenttest.LicenseOptions{
 			AccountType: license.AccountTypeSalesforce,
 			AccountID:   "testing",
 			Features: license.Features{
@@ -41,8 +41,8 @@ func TestPostLicense(t *testing.T) {
 	t.Run("InvalidDeploymentID", func(t *testing.T) {
 		t.Parallel()
 		// The generated deployment will start out with a different deployment ID.
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
-		license := coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{DontAddLicense: true})
+		license := wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 			DeploymentIDs: []string{uuid.NewString()},
 		})
 		_, err := client.AddLicense(context.Background(), wirtualsdk.AddLicenseRequest{
@@ -56,7 +56,7 @@ func TestPostLicense(t *testing.T) {
 
 	t.Run("Unauthorized", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{DontAddLicense: true})
 		client.SetSessionToken("")
 		_, err := client.AddLicense(context.Background(), wirtualsdk.AddLicenseRequest{
 			License: "content",
@@ -71,8 +71,8 @@ func TestPostLicense(t *testing.T) {
 
 	t.Run("Corrupted", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
-		coderdenttest.AddLicense(t, client, coderdenttest.LicenseOptions{})
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{DontAddLicense: true})
+		wirtualdenttest.AddLicense(t, client, wirtualdenttest.LicenseOptions{})
 		_, err := client.AddLicense(context.Background(), wirtualsdk.AddLicenseRequest{
 			License: "invalid",
 		})
@@ -88,8 +88,8 @@ func TestPostLicense(t *testing.T) {
 	// operators can upload a license ahead of time.
 	t.Run("NotYet", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
-		respLic := coderdenttest.AddLicense(t, client, coderdenttest.LicenseOptions{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{DontAddLicense: true})
+		respLic := wirtualdenttest.AddLicense(t, client, wirtualdenttest.LicenseOptions{
 			AccountType: license.AccountTypeSalesforce,
 			AccountID:   "testing",
 			Features: license.Features{
@@ -111,8 +111,8 @@ func TestPostLicense(t *testing.T) {
 	// before it starts).
 	t.Run("NotEver", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
-		lic := coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{DontAddLicense: true})
+		lic := wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 			AccountType: license.AccountTypeSalesforce,
 			AccountID:   "testing",
 			Features: license.Features{
@@ -136,11 +136,11 @@ func TestGetLicense(t *testing.T) {
 	t.Parallel()
 	t.Run("Success", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{DontAddLicense: true})
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		coderdenttest.AddLicense(t, client, coderdenttest.LicenseOptions{
+		wirtualdenttest.AddLicense(t, client, wirtualdenttest.LicenseOptions{
 			AccountID: "testing",
 			Features: license.Features{
 				wirtualsdk.FeatureAuditLog:     1,
@@ -150,7 +150,7 @@ func TestGetLicense(t *testing.T) {
 			},
 		})
 
-		coderdenttest.AddLicense(t, client, coderdenttest.LicenseOptions{
+		wirtualdenttest.AddLicense(t, client, wirtualdenttest.LicenseOptions{
 			AccountID: "testing2",
 			Features: license.Features{
 				wirtualsdk.FeatureAuditLog:    1,
@@ -194,7 +194,7 @@ func TestDeleteLicense(t *testing.T) {
 	t.Parallel()
 	t.Run("Empty", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{DontAddLicense: true})
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
@@ -209,7 +209,7 @@ func TestDeleteLicense(t *testing.T) {
 
 	t.Run("BadID", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{DontAddLicense: true})
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
@@ -222,17 +222,17 @@ func TestDeleteLicense(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{DontAddLicense: true})
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		coderdenttest.AddLicense(t, client, coderdenttest.LicenseOptions{
+		wirtualdenttest.AddLicense(t, client, wirtualdenttest.LicenseOptions{
 			AccountID: "testing",
 			Features: license.Features{
 				wirtualsdk.FeatureAuditLog: 1,
 			},
 		})
-		coderdenttest.AddLicense(t, client, coderdenttest.LicenseOptions{
+		wirtualdenttest.AddLicense(t, client, wirtualdenttest.LicenseOptions{
 			AccountID: "testing2",
 			Features: license.Features{
 				wirtualsdk.FeatureAuditLog:  1,

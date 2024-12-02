@@ -12,7 +12,7 @@ import (
 	"github.com/coder/coder/v2/agent/agenttest"
 	agentproto "github.com/coder/coder/v2/agent/proto"
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbfake"
 	"github.com/coder/coder/v2/wirtuald/workspacestats/workspacestatstest"
@@ -26,18 +26,18 @@ import (
 func TestVSCodeSSH(t *testing.T) {
 	t.Parallel()
 	ctx := testutil.Context(t, testutil.WaitLong)
-	dv := coderdtest.DeploymentValues(t)
+	dv := wirtualdtest.DeploymentValues(t)
 	dv.Experiments = []string{string(wirtualsdk.ExperimentWorkspaceUsage)}
 	batcher := &workspacestatstest.StatsBatcher{
 		LastStats: &agentproto.Stats{},
 	}
-	admin, store := coderdtest.NewWithDatabase(t, &coderdtest.Options{
+	admin, store := wirtualdtest.NewWithDatabase(t, &wirtualdtest.Options{
 		DeploymentValues: dv,
 		StatsBatcher:     batcher,
 	})
 	admin.SetLogger(testutil.Logger(t).Named("client"))
-	first := coderdtest.CreateFirstUser(t, admin)
-	client, user := coderdtest.CreateAnotherUser(t, admin, first.OrganizationID)
+	first := wirtualdtest.CreateFirstUser(t, admin)
+	client, user := wirtualdtest.CreateAnotherUser(t, admin, first.OrganizationID)
 	r := dbfake.WorkspaceBuild(t, store, database.WorkspaceTable{
 		OrganizationID: first.OrganizationID,
 		OwnerID:        user.ID,
@@ -49,7 +49,7 @@ func TestVSCodeSSH(t *testing.T) {
 	require.NoError(t, err)
 
 	_ = agenttest.New(t, client.URL, agentToken)
-	_ = coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+	_ = wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 	fs := afero.NewMemMapFs()
 	err = afero.WriteFile(fs, "/url", []byte(client.URL.String()), 0o600)

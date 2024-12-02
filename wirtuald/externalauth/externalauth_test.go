@@ -22,7 +22,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/coder/coder/v2/wirtuald"
-	"github.com/coder/coder/v2/wirtuald/coderdtest/oidctest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest/oidctest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/database/dbmem"
@@ -527,7 +527,7 @@ func TestConstantQueryParams(t *testing.T) {
 	})
 
 	callbackCalled := false
-	fake.SetCoderdCallbackHandler(func(writer http.ResponseWriter, request *http.Request) {
+	fake.SetWirtualdCallbackHandler(func(writer http.ResponseWriter, request *http.Request) {
 		// Just record the callback was hit, and the auth succeeded.
 		callbackCalled = true
 	})

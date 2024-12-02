@@ -51,7 +51,7 @@ func TestCollectLicenseMetrics(t *testing.T) {
 	collected := map[string]int{}
 	for _, metric := range metrics {
 		switch metric.GetName() {
-		case "coderd_license_active_users", "coderd_license_limit_users", "coderd_license_user_limit_enabled":
+		case "wirtuald_license_active_users", "wirtuald_license_limit_users", "wirtuald_license_user_limit_enabled":
 			for _, m := range metric.Metric {
 				collected[metric.GetName()] = int(m.Gauge.GetValue())
 			}

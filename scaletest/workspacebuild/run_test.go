@@ -15,7 +15,7 @@ import (
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/slogtest"
 	"github.com/coder/coder/v2/agent"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
 	"github.com/coder/coder/v2/provisioner/echo"
@@ -36,15 +36,15 @@ func Test_Runner(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		authToken1 := uuid.NewString()
 		authToken2 := uuid.NewString()
 		authToken3 := uuid.NewString()
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse:         echo.ParseComplete,
 			ProvisionPlan: echo.PlanComplete,
 			ProvisionApply: []*proto.Response{
@@ -103,8 +103,8 @@ func Test_Runner(t *testing.T) {
 			},
 		})
 
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		// Since the runner creates the workspace on it's own, we have to keep
 		// listing workspaces until we find it, then wait for the build to
@@ -128,7 +128,7 @@ func Test_Runner(t *testing.T) {
 				time.Sleep(100 * time.Millisecond)
 			}
 
-			coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+			wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 			// Start the three agents.
 			for i, authToken := range []string{authToken1, authToken2, authToken3} {
@@ -147,7 +147,7 @@ func Test_Runner(t *testing.T) {
 				})
 			}
 
-			coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+			wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 		}()
 
 		runner := workspacebuild.NewRunner(client, workspacebuild.Config{
@@ -178,8 +178,8 @@ func Test_Runner(t *testing.T) {
 		workspaces := res.Workspaces
 		require.Len(t, workspaces, 1)
 
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaces[0].LatestBuild.ID)
-		coderdtest.AwaitWorkspaceAgents(t, client, workspaces[0].ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaces[0].LatestBuild.ID)
+		wirtualdtest.AwaitWorkspaceAgents(t, client, workspaces[0].ID)
 
 		cleanupLogs := bytes.NewBuffer(nil)
 		err = runner.Cleanup(ctx, "1", cleanupLogs)
@@ -193,13 +193,13 @@ func Test_Runner(t *testing.T) {
 		defer cancel()
 
 		logger := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true})
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 			Logger:                   &logger,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse:         echo.ParseComplete,
 			ProvisionPlan: echo.PlanComplete,
 			ProvisionApply: []*proto.Response{
@@ -213,8 +213,8 @@ func Test_Runner(t *testing.T) {
 			},
 		})
 
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		runner := workspacebuild.NewRunner(client, workspacebuild.Config{
 			OrganizationID: user.OrganizationID,
@@ -239,13 +239,13 @@ func Test_Runner(t *testing.T) {
 		defer cancel()
 
 		logger := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true})
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 			Logger:                   &logger,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse:         echo.ParseComplete,
 			ProvisionPlan: echo.PlanComplete,
 			ProvisionApply: []*proto.Response{
@@ -259,8 +259,8 @@ func Test_Runner(t *testing.T) {
 			},
 		})
 
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		runner := workspacebuild.NewRunner(client, workspacebuild.Config{
 			OrganizationID: user.OrganizationID,

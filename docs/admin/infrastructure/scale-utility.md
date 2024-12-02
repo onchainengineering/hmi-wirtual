@@ -197,7 +197,7 @@ This dashboard provides insights into various aspects, including:
 
 - Utilization of resources within the Coder control plane (CPU, memory, pods)
 - Database performance metrics (CPU, memory, I/O, connections, queries)
-- Coderd API performance (requests, latency, error rate)
+- Wirtuald API performance (requests, latency, error rate)
 - Resource consumption within Coder workspaces (CPU, memory, network usage)
 - Internal metrics related to provisioner jobs
 
@@ -214,7 +214,7 @@ We generally do not recommend using an autoscaler that modifies the number of
 wirtuald replicas. In particular, scale down events can cause interruptions for a
 large number of users.
 
-Coderd is different from a simple request-response HTTP service in that it
+Wirtuald is different from a simple request-response HTTP service in that it
 services long-lived connections whenever it proxies HTTP applications like IDEs
 or terminals that rely on websockets, or when it relays tunneled connections to
 workspaces. Loss of a wirtuald replica will drop these long-lived connections and

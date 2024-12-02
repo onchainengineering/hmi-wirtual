@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"bytes"
@@ -10,11 +10,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/testutil"
@@ -41,8 +41,8 @@ func TestCustomOrganizationRole(t *testing.T) {
 	// Create, assign, and use a custom role
 	t.Run("Success", func(t *testing.T) {
 		t.Parallel()
-		owner, first := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, first := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureCustomRoles: 1,
 				},
@@ -56,7 +56,7 @@ func TestCustomOrganizationRole(t *testing.T) {
 		require.NoError(t, err, "upsert role")
 
 		// Assign the custom template admin role
-		tmplAdmin, _ := coderdtest.CreateAnotherUser(t, owner, first.OrganizationID, rbac.RoleIdentifier{Name: role.Name, OrganizationID: first.OrganizationID})
+		tmplAdmin, _ := wirtualdtest.CreateAnotherUser(t, owner, first.OrganizationID, rbac.RoleIdentifier{Name: role.Name, OrganizationID: first.OrganizationID})
 
 		// Assert the role exists
 		// TODO: At present user roles are not returned by the user endpoints.
@@ -66,7 +66,7 @@ func TestCustomOrganizationRole(t *testing.T) {
 		// require.Contains(t, db2sdk.List(user.Roles, roleNamesF), role.Name)
 
 		// Try to create a template version
-		coderdtest.CreateTemplateVersion(t, tmplAdmin, first.OrganizationID, nil)
+		wirtualdtest.CreateTemplateVersion(t, tmplAdmin, first.OrganizationID, nil)
 
 		// Verify the role exists in the list
 		allRoles, err := tmplAdmin.ListOrganizationRoles(ctx, first.OrganizationID)
@@ -90,8 +90,8 @@ func TestCustomOrganizationRole(t *testing.T) {
 	// use the existing roles.
 	t.Run("RevokedLicense", func(t *testing.T) {
 		t.Parallel()
-		owner, first := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, first := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureCustomRoles: 1,
 				},
@@ -118,17 +118,17 @@ func TestCustomOrganizationRole(t *testing.T) {
 		require.ErrorContains(t, err, "Custom Roles is a Premium feature")
 
 		// Assign the custom template admin role
-		tmplAdmin, _ := coderdtest.CreateAnotherUser(t, owner, first.OrganizationID, rbac.RoleIdentifier{Name: role.Name, OrganizationID: first.OrganizationID})
+		tmplAdmin, _ := wirtualdtest.CreateAnotherUser(t, owner, first.OrganizationID, rbac.RoleIdentifier{Name: role.Name, OrganizationID: first.OrganizationID})
 
 		// Try to create a template version, eg using the custom role
-		coderdtest.CreateTemplateVersion(t, tmplAdmin, first.OrganizationID, nil)
+		wirtualdtest.CreateTemplateVersion(t, tmplAdmin, first.OrganizationID, nil)
 	})
 
 	// Role patches are complete, as in the request overrides the existing role.
 	t.Run("RoleOverrides", func(t *testing.T) {
 		t.Parallel()
-		owner, first := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, first := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureCustomRoles: 1,
 				},
@@ -141,10 +141,10 @@ func TestCustomOrganizationRole(t *testing.T) {
 		require.NoError(t, err, "upsert role")
 
 		// Assign the custom template admin role
-		tmplAdmin, _ := coderdtest.CreateAnotherUser(t, owner, first.OrganizationID, rbac.RoleIdentifier{Name: role.Name, OrganizationID: first.OrganizationID})
+		tmplAdmin, _ := wirtualdtest.CreateAnotherUser(t, owner, first.OrganizationID, rbac.RoleIdentifier{Name: role.Name, OrganizationID: first.OrganizationID})
 
 		// Try to create a template version, eg using the custom role
-		coderdtest.CreateTemplateVersion(t, tmplAdmin, first.OrganizationID, nil)
+		wirtualdtest.CreateTemplateVersion(t, tmplAdmin, first.OrganizationID, nil)
 
 		//nolint:gocritic // owner is required for this
 		newRole := templateAdminCustom(first.OrganizationID)
@@ -172,8 +172,8 @@ func TestCustomOrganizationRole(t *testing.T) {
 
 	t.Run("InvalidName", func(t *testing.T) {
 		t.Parallel()
-		owner, first := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, first := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureCustomRoles: 1,
 				},
@@ -196,8 +196,8 @@ func TestCustomOrganizationRole(t *testing.T) {
 
 	t.Run("ReservedName", func(t *testing.T) {
 		t.Parallel()
-		owner, first := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, first := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureCustomRoles: 1,
 				},
@@ -221,8 +221,8 @@ func TestCustomOrganizationRole(t *testing.T) {
 	// Attempt to add site & user permissions, which is not allowed
 	t.Run("ExcessPermissions", func(t *testing.T) {
 		t.Parallel()
-		owner, first := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, first := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureCustomRoles: 1,
 				},
@@ -258,8 +258,8 @@ func TestCustomOrganizationRole(t *testing.T) {
 
 	t.Run("NotFound", func(t *testing.T) {
 		t.Parallel()
-		owner, first := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, first := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureCustomRoles: 1,
 				},
@@ -278,15 +278,15 @@ func TestCustomOrganizationRole(t *testing.T) {
 
 	t.Run("Delete", func(t *testing.T) {
 		t.Parallel()
-		owner, first := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, first := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureCustomRoles: 1,
 				},
 			},
 		})
 
-		orgAdmin, orgAdminUser := coderdtest.CreateAnotherUser(t, owner, first.OrganizationID, rbac.ScopedRoleOrgAdmin(first.OrganizationID))
+		orgAdmin, orgAdminUser := wirtualdtest.CreateAnotherUser(t, owner, first.OrganizationID, rbac.ScopedRoleOrgAdmin(first.OrganizationID))
 		ctx := testutil.Context(t, testutil.WaitMedium)
 
 		createdRole, err := orgAdmin.CreateOrganizationRole(ctx, templateAdminCustom(first.OrganizationID))
@@ -333,15 +333,15 @@ func TestCustomOrganizationRole(t *testing.T) {
 	// Verify deleting a custom role cascades to all members
 	t.Run("DeleteRoleCascadeMembers", func(t *testing.T) {
 		t.Parallel()
-		owner, first := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, first := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureCustomRoles: 1,
 				},
 			},
 		})
 
-		orgAdmin, orgAdminUser := coderdtest.CreateAnotherUser(t, owner, first.OrganizationID, rbac.ScopedRoleOrgAdmin(first.OrganizationID))
+		orgAdmin, orgAdminUser := wirtualdtest.CreateAnotherUser(t, owner, first.OrganizationID, rbac.ScopedRoleOrgAdmin(first.OrganizationID))
 		ctx := testutil.Context(t, testutil.WaitMedium)
 
 		createdRole, err := orgAdmin.CreateOrganizationRole(ctx, templateAdminCustom(first.OrganizationID))
@@ -353,9 +353,9 @@ func TestCustomOrganizationRole(t *testing.T) {
 		}
 
 		// Create a few members with the role
-		coderdtest.CreateAnotherUser(t, owner, first.OrganizationID, customRoleIdentifier)
-		coderdtest.CreateAnotherUser(t, owner, first.OrganizationID, rbac.ScopedRoleOrgAdmin(first.OrganizationID), customRoleIdentifier)
-		coderdtest.CreateAnotherUser(t, owner, first.OrganizationID, rbac.ScopedRoleOrgTemplateAdmin(first.OrganizationID), rbac.ScopedRoleOrgAuditor(first.OrganizationID), customRoleIdentifier)
+		wirtualdtest.CreateAnotherUser(t, owner, first.OrganizationID, customRoleIdentifier)
+		wirtualdtest.CreateAnotherUser(t, owner, first.OrganizationID, rbac.ScopedRoleOrgAdmin(first.OrganizationID), customRoleIdentifier)
+		wirtualdtest.CreateAnotherUser(t, owner, first.OrganizationID, rbac.ScopedRoleOrgTemplateAdmin(first.OrganizationID), rbac.ScopedRoleOrgAuditor(first.OrganizationID), customRoleIdentifier)
 
 		// Verify members have the custom role
 		originalMembers, err := orgAdmin.OrganizationMembers(ctx, first.OrganizationID)
@@ -398,8 +398,8 @@ func TestCustomOrganizationRole(t *testing.T) {
 func TestListRoles(t *testing.T) {
 	t.Parallel()
 
-	client, owner := coderdenttest.New(t, &coderdenttest.Options{
-		LicenseOptions: &coderdenttest.LicenseOptions{
+	client, owner := wirtualdenttest.New(t, &wirtualdenttest.Options{
+		LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				wirtualsdk.FeatureMultipleOrganizations:      1,
@@ -408,10 +408,10 @@ func TestListRoles(t *testing.T) {
 	})
 
 	// Create owner, member, and org admin
-	member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-	orgAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.ScopedRoleOrgAdmin(owner.OrganizationID))
+	member, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+	orgAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.ScopedRoleOrgAdmin(owner.OrganizationID))
 
-	otherOrg := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{})
+	otherOrg := wirtualdenttest.CreateOrganization(t, client, wirtualdenttest.CreateOrganizationOptions{})
 
 	const notFound = "Resource not found"
 	testCases := []struct {

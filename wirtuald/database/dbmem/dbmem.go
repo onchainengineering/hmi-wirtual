@@ -809,7 +809,7 @@ func (q *FakeQuerier) getGroupByIDNoLock(_ context.Context, id uuid.UUID) (datab
 // depends on  postgres triggers that announce changes on the pubsub.  Implementing support for this in the fake
 // database would  strongly couple the FakeQuerier to the pubsub, which is undesirable.  Furthermore, it makes little
 // sense to directly  test the pgCoord against anything other than postgres.  The FakeQuerier is designed to allow us to
-// test the Coderd  API, and for that kind of test, the in-memory, AGPL tailnet coordinator is sufficient.  Therefore,
+// test the Wirtuald  API, and for that kind of test, the in-memory, AGPL tailnet coordinator is sufficient.  Therefore,
 // these methods  remain unimplemented in the FakeQuerier.
 var ErrUnimplemented = xerrors.New("unimplemented")
 

@@ -7,7 +7,7 @@ import (
 )
 
 // DRPCAgentClient20 is the Agent API at v2.0.  Notably, it is missing GetAnnouncementBanners, but
-// is useful when you want to be maximally compatible with Coderd Release Versions from 2.9+
+// is useful when you want to be maximally compatible with Wirtuald Release Versions from 2.9+
 type DRPCAgentClient20 interface {
 	DRPCConn() drpc.Conn
 
@@ -22,7 +22,7 @@ type DRPCAgentClient20 interface {
 }
 
 // DRPCAgentClient21 is the Agent API at v2.1. It is useful if you want to be maximally compatible
-// with Coderd Release Versions from 2.12+
+// with Wirtuald Release Versions from 2.12+
 type DRPCAgentClient21 interface {
 	DRPCAgentClient20
 	GetAnnouncementBanners(ctx context.Context, in *GetAnnouncementBannersRequest) (*GetAnnouncementBannersResponse, error)

@@ -23,7 +23,7 @@ import (
 	"github.com/coder/coder/v2/agent"
 	"github.com/coder/coder/v2/agent/agenttest"
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbfake"
 	"github.com/coder/coder/v2/wirtuald/database/dbtime"
@@ -49,10 +49,10 @@ func TestSupportBundle(t *testing.T) {
 		var dc wirtualsdk.DeploymentConfig
 		secretValue := uuid.NewString()
 		seedSecretDeploymentOptions(t, &dc, secretValue)
-		client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
+		client, db := wirtualdtest.NewWithDatabase(t, &wirtualdtest.Options{
 			DeploymentValues: dc.Values,
 		})
-		owner := coderdtest.CreateFirstUser(t, client)
+		owner := wirtualdtest.CreateFirstUser(t, client)
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: owner.OrganizationID,
 			OwnerID:        owner.UserID,
@@ -70,7 +70,7 @@ func TestSupportBundle(t *testing.T) {
 			o.LogDir = tempDir
 		})
 		defer agt.Close()
-		coderdtest.NewWorkspaceAgentWaiter(t, client, r.Workspace.ID).Wait()
+		wirtualdtest.NewWorkspaceAgentWaiter(t, client, r.Workspace.ID).Wait()
 
 		// Insert a provisioner job log
 		_, err = db.InsertProvisionerJobLogs(ctx, database.InsertProvisionerJobLogsParams{
@@ -108,10 +108,10 @@ func TestSupportBundle(t *testing.T) {
 		var dc wirtualsdk.DeploymentConfig
 		secretValue := uuid.NewString()
 		seedSecretDeploymentOptions(t, &dc, secretValue)
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			DeploymentValues: dc.Values,
 		})
-		_ = coderdtest.CreateFirstUser(t, client)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		d := t.TempDir()
 		path := filepath.Join(d, "bundle.zip")
@@ -128,10 +128,10 @@ func TestSupportBundle(t *testing.T) {
 		var dc wirtualsdk.DeploymentConfig
 		secretValue := uuid.NewString()
 		seedSecretDeploymentOptions(t, &dc, secretValue)
-		client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
+		client, db := wirtualdtest.NewWithDatabase(t, &wirtualdtest.Options{
 			DeploymentValues: dc.Values,
 		})
-		admin := coderdtest.CreateFirstUser(t, client)
+		admin := wirtualdtest.CreateFirstUser(t, client)
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: admin.OrganizationID,
 			OwnerID:        admin.UserID,
@@ -148,9 +148,9 @@ func TestSupportBundle(t *testing.T) {
 
 	t.Run("NoPrivilege", func(t *testing.T) {
 		t.Parallel()
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		memberClient, member := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		client, db := wirtualdtest.NewWithDatabase(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		memberClient, member := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: user.OrganizationID,
 			OwnerID:        member.ID,

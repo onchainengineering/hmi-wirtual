@@ -158,7 +158,7 @@ func (c *Client) RewriteDERPMap(derpMap *tailcfg.DERPMap) {
 }
 
 // ConnectRPC20 returns a dRPC client to the Agent API v2.0.  Notably, it is missing
-// GetAnnouncementBanners, but is useful when you want to be maximally compatible with Coderd
+// GetAnnouncementBanners, but is useful when you want to be maximally compatible with Wirtuald
 // Release Versions from 2.9+
 // Deprecated: use ConnectRPC20WithTailnet
 func (c *Client) ConnectRPC20(ctx context.Context) (proto.DRPCAgentClient20, error) {
@@ -170,7 +170,7 @@ func (c *Client) ConnectRPC20(ctx context.Context) (proto.DRPCAgentClient20, err
 }
 
 // ConnectRPC20WithTailnet returns a dRPC client to the Agent API v2.0.  Notably, it is missing
-// GetAnnouncementBanners, but is useful when you want to be maximally compatible with Coderd
+// GetAnnouncementBanners, but is useful when you want to be maximally compatible with Wirtuald
 // Release Versions from 2.9+
 func (c *Client) ConnectRPC20WithTailnet(ctx context.Context) (
 	proto.DRPCAgentClient20, tailnetproto.DRPCTailnetClient20, error,
@@ -183,7 +183,7 @@ func (c *Client) ConnectRPC20WithTailnet(ctx context.Context) (
 }
 
 // ConnectRPC21 returns a dRPC client to the Agent API v2.1.  It is useful when you want to be
-// maximally compatible with Coderd Release Versions from 2.12+
+// maximally compatible with Wirtuald Release Versions from 2.12+
 // Deprecated: use ConnectRPC21WithTailnet
 func (c *Client) ConnectRPC21(ctx context.Context) (proto.DRPCAgentClient21, error) {
 	conn, err := c.connectRPCVersion(ctx, apiversion.New(2, 1))
@@ -194,7 +194,7 @@ func (c *Client) ConnectRPC21(ctx context.Context) (proto.DRPCAgentClient21, err
 }
 
 // ConnectRPC21WithTailnet returns a dRPC client to the Agent API v2.1.  It is useful when you want to be
-// maximally compatible with Coderd Release Versions from 2.12+
+// maximally compatible with Wirtuald Release Versions from 2.12+
 func (c *Client) ConnectRPC21WithTailnet(ctx context.Context) (
 	proto.DRPCAgentClient21, tailnetproto.DRPCTailnetClient21, error,
 ) {
@@ -206,7 +206,7 @@ func (c *Client) ConnectRPC21WithTailnet(ctx context.Context) (
 }
 
 // ConnectRPC22 returns a dRPC client to the Agent API v2.2.  It is useful when you want to be
-// maximally compatible with Coderd Release Versions from 2.13+
+// maximally compatible with Wirtuald Release Versions from 2.13+
 func (c *Client) ConnectRPC22(ctx context.Context) (
 	proto.DRPCAgentClient22, tailnetproto.DRPCTailnetClient22, error,
 ) {
@@ -218,7 +218,7 @@ func (c *Client) ConnectRPC22(ctx context.Context) (
 }
 
 // ConnectRPC23 returns a dRPC client to the Agent API v2.3.  It is useful when you want to be
-// maximally compatible with Coderd Release Versions from 2.18+
+// maximally compatible with Wirtuald Release Versions from 2.18+
 func (c *Client) ConnectRPC23(ctx context.Context) (
 	proto.DRPCAgentClient23, tailnetproto.DRPCTailnetClient23, error,
 ) {

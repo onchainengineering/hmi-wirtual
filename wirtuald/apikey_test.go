@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/wirtuald/audit"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
 	"github.com/coder/coder/v2/wirtuald/database/dbtime"
@@ -27,8 +27,8 @@ func TestTokenCRUD(t *testing.T) {
 	defer cancel()
 	auditor := audit.NewMock()
 	numLogs := len(auditor.AuditLogs())
-	client := coderdtest.New(t, &coderdtest.Options{Auditor: auditor})
-	_ = coderdtest.CreateFirstUser(t, client)
+	client := wirtualdtest.New(t, &wirtualdtest.Options{Auditor: auditor})
+	_ = wirtualdtest.CreateFirstUser(t, client)
 	numLogs++ // add an audit log for user creation
 
 	keys, err := client.Tokens(ctx, wirtualsdk.Me, wirtualsdk.TokensFilter{})
@@ -69,8 +69,8 @@ func TestTokenScoped(t *testing.T) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
-	client := coderdtest.New(t, nil)
-	_ = coderdtest.CreateFirstUser(t, client)
+	client := wirtualdtest.New(t, nil)
+	_ = wirtualdtest.CreateFirstUser(t, client)
 
 	res, err := client.CreateToken(ctx, wirtualsdk.Me, wirtualsdk.CreateTokenRequest{
 		Scope: wirtualsdk.APIKeyScopeApplicationConnect,
@@ -90,8 +90,8 @@ func TestUserSetTokenDuration(t *testing.T) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
-	client := coderdtest.New(t, nil)
-	_ = coderdtest.CreateFirstUser(t, client)
+	client := wirtualdtest.New(t, nil)
+	_ = wirtualdtest.CreateFirstUser(t, client)
 
 	_, err := client.CreateToken(ctx, wirtualsdk.Me, wirtualsdk.CreateTokenRequest{
 		Lifetime: time.Hour * 24 * 7,
@@ -108,8 +108,8 @@ func TestDefaultTokenDuration(t *testing.T) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
-	client := coderdtest.New(t, nil)
-	_ = coderdtest.CreateFirstUser(t, client)
+	client := wirtualdtest.New(t, nil)
+	_ = wirtualdtest.CreateFirstUser(t, client)
 
 	_, err := client.CreateToken(ctx, wirtualsdk.Me, wirtualsdk.CreateTokenRequest{})
 	require.NoError(t, err)
@@ -124,12 +124,12 @@ func TestTokenUserSetMaxLifetime(t *testing.T) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
-	dc := coderdtest.DeploymentValues(t)
+	dc := wirtualdtest.DeploymentValues(t)
 	dc.Sessions.MaximumTokenDuration = serpent.Duration(time.Hour * 24 * 7)
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := wirtualdtest.New(t, &wirtualdtest.Options{
 		DeploymentValues: dc,
 	})
-	_ = coderdtest.CreateFirstUser(t, client)
+	_ = wirtualdtest.CreateFirstUser(t, client)
 
 	// success
 	_, err := client.CreateToken(ctx, wirtualsdk.Me, wirtualsdk.CreateTokenRequest{
@@ -149,12 +149,12 @@ func TestTokenCustomDefaultLifetime(t *testing.T) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
-	dc := coderdtest.DeploymentValues(t)
+	dc := wirtualdtest.DeploymentValues(t)
 	dc.Sessions.DefaultTokenDuration = serpent.Duration(time.Hour * 12)
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := wirtualdtest.New(t, &wirtualdtest.Options{
 		DeploymentValues: dc,
 	})
-	_ = coderdtest.CreateFirstUser(t, client)
+	_ = wirtualdtest.CreateFirstUser(t, client)
 
 	_, err := client.CreateToken(ctx, wirtualsdk.Me, wirtualsdk.CreateTokenRequest{})
 	require.NoError(t, err)
@@ -170,15 +170,15 @@ func TestSessionExpiry(t *testing.T) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
-	dc := coderdtest.DeploymentValues(t)
+	dc := wirtualdtest.DeploymentValues(t)
 
 	db, pubsub := dbtestutil.NewDB(t)
-	adminClient := coderdtest.New(t, &coderdtest.Options{
+	adminClient := wirtualdtest.New(t, &wirtualdtest.Options{
 		DeploymentValues: dc,
 		Database:         db,
 		Pubsub:           pubsub,
 	})
-	adminUser := coderdtest.CreateFirstUser(t, adminClient)
+	adminUser := wirtualdtest.CreateFirstUser(t, adminClient)
 
 	// This is a hack, but we need the admin account to have a long expiry
 	// otherwise the test will flake, so we only update the expiry config after
@@ -188,7 +188,7 @@ func TestSessionExpiry(t *testing.T) {
 	// this test it works because we don't copy the value (and we use pointers).
 	dc.Sessions.DefaultDuration = serpent.Duration(time.Second)
 
-	userClient, _ := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
+	userClient, _ := wirtualdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
 
 	// Find the session cookie, and ensure it has the correct expiry.
 	token := userClient.SessionToken()
@@ -221,8 +221,8 @@ func TestAPIKey_OK(t *testing.T) {
 	t.Parallel()
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
-	client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-	_ = coderdtest.CreateFirstUser(t, client)
+	client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+	_ = wirtualdtest.CreateFirstUser(t, client)
 
 	res, err := client.CreateAPIKey(ctx, wirtualsdk.Me)
 	require.NoError(t, err)
@@ -233,9 +233,9 @@ func TestAPIKey_Deleted(t *testing.T) {
 	t.Parallel()
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
-	client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-	user := coderdtest.CreateFirstUser(t, client)
-	_, anotherUser := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+	client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+	user := wirtualdtest.CreateFirstUser(t, client)
+	_, anotherUser := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 	require.NoError(t, client.DeleteUser(context.Background(), anotherUser.ID))
 
 	// Attempt to create an API key for the deleted user. This should fail.
@@ -250,14 +250,14 @@ func TestAPIKey_SetDefault(t *testing.T) {
 	t.Parallel()
 
 	db, pubsub := dbtestutil.NewDB(t)
-	dc := coderdtest.DeploymentValues(t)
+	dc := wirtualdtest.DeploymentValues(t)
 	dc.Sessions.DefaultTokenDuration = serpent.Duration(time.Hour * 12)
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := wirtualdtest.New(t, &wirtualdtest.Options{
 		Database:         db,
 		Pubsub:           pubsub,
 		DeploymentValues: dc,
 	})
-	owner := coderdtest.CreateFirstUser(t, client)
+	owner := wirtualdtest.CreateFirstUser(t, client)
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()

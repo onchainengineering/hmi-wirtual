@@ -70,7 +70,7 @@ seconds. Here are the resulting metrics:
 
 Coder:
 
-- Median CPU usage for _coderd_: 3 vCPU, peaking at 3.7 vCPU while all tests are
+- Median CPU usage for _wirtuald_: 3 vCPU, peaking at 3.7 vCPU while all tests are
   running concurrently.
 - Median API request rate: 350 RPS during dashboard tests, 250 RPS during Web
   Terminal and workspace apps tests.

@@ -140,7 +140,7 @@ func Workspaces(ctx context.Context, logger slog.Logger, registerer prometheus.R
 		Namespace: "wirtuald",
 		Subsystem: "api",
 		Name:      "workspace_latest_build_total",
-		Help:      "DEPRECATED: use coderd_api_workspace_latest_build instead",
+		Help:      "DEPRECATED: use wirtuald_api_workspace_latest_build instead",
 	}, []string{"status"})
 	if err := registerer.Register(workspaceLatestBuildTotalsDeprecated); err != nil {
 		return nil, err

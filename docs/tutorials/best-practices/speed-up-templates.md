@@ -50,8 +50,8 @@ or our [Kubernetes installation guide](../../install/kubernetes.md).
 
 Coder exposes a variety of
 [application metrics](../../admin/integrations/prometheus.md#available-metrics),
-such as `coderd_provisionerd_job_timings_seconds` and
-`coderd_agentstats_startup_script_seconds`, which measure how long the
+such as `wirtuald_provisionerd_job_timings_seconds` and
+`wirtuald_agentstats_startup_script_seconds`, which measure how long the
 workspaces take to provision and how long the startup scripts take.
 
 To make use of these metrics, you will need to

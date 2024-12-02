@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbfake"
 	"github.com/coder/coder/v2/wirtuald/schedule/cron"
@@ -33,9 +33,9 @@ import (
 func setupTestSchedule(t *testing.T, sched *cron.Schedule) (ownerClient, memberClient *wirtualsdk.Client, db database.Store, ws []wirtualsdk.Workspace) {
 	t.Helper()
 
-	ownerClient, db = coderdtest.NewWithDatabase(t, nil)
-	owner := coderdtest.CreateFirstUser(t, ownerClient)
-	memberClient, memberUser := coderdtest.CreateAnotherUserMutators(t, ownerClient, owner.OrganizationID, nil, func(r *wirtualsdk.CreateUserRequestWithOrgs) {
+	ownerClient, db = wirtualdtest.NewWithDatabase(t, nil)
+	owner := wirtualdtest.CreateFirstUser(t, ownerClient)
+	memberClient, memberUser := wirtualdtest.CreateAnotherUserMutators(t, ownerClient, owner.OrganizationID, nil, func(r *wirtualsdk.CreateUserRequestWithOrgs) {
 		r.Username = "testuser2" // ensure deterministic ordering
 	})
 	_ = dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{

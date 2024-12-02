@@ -9,7 +9,7 @@ import (
 
 	"cdr.dev/slog/sloggers/slogtest"
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/testutil"
 )
@@ -24,20 +24,20 @@ func TestScaleTestWorkspaceTraffic_UseHostLogin(t *testing.T) {
 	defer cancelFunc()
 
 	log := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true})
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := wirtualdtest.New(t, &wirtualdtest.Options{
 		Logger:                   &log,
 		IncludeProvisionerDaemon: true,
-		DeploymentValues: coderdtest.DeploymentValues(t, func(dv *wirtualsdk.DeploymentValues) {
+		DeploymentValues: wirtualdtest.DeploymentValues(t, func(dv *wirtualsdk.DeploymentValues) {
 			dv.DisableOwnerWorkspaceExec = true
 		}),
 	})
-	owner := coderdtest.CreateFirstUser(t, client)
-	tv := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-	_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, tv.ID)
-	tpl := coderdtest.CreateTemplate(t, client, owner.OrganizationID, tv.ID)
+	owner := wirtualdtest.CreateFirstUser(t, client)
+	tv := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+	_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, tv.ID)
+	tpl := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, tv.ID)
 	// Create a workspace owned by a different user
-	memberClient, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-	_ = coderdtest.CreateWorkspace(t, memberClient, tpl.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+	memberClient, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+	_ = wirtualdtest.CreateWorkspace(t, memberClient, tpl.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 		cwr.Name = "scaletest-workspace"
 	})
 

@@ -12,7 +12,7 @@ import (
 	"go.uber.org/goleak"
 	"go.uber.org/mock/gomock"
 
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbfake"
 	"github.com/coder/coder/v2/wirtuald/database/dbmock"
@@ -125,19 +125,19 @@ func TestTracker_MultipleInstances(t *testing.T) {
 		wuFlushA = make(chan int, 1)
 		wuTickB  = make(chan time.Time)
 		wuFlushB = make(chan int, 1)
-		clientA  = coderdtest.New(t, &coderdtest.Options{
+		clientA  = wirtualdtest.New(t, &wirtualdtest.Options{
 			WorkspaceUsageTrackerTick:  wuTickA,
 			WorkspaceUsageTrackerFlush: wuFlushA,
 			Database:                   db,
 			Pubsub:                     ps,
 		})
-		clientB = coderdtest.New(t, &coderdtest.Options{
+		clientB = wirtualdtest.New(t, &wirtualdtest.Options{
 			WorkspaceUsageTrackerTick:  wuTickB,
 			WorkspaceUsageTrackerFlush: wuFlushB,
 			Database:                   db,
 			Pubsub:                     ps,
 		})
-		owner = coderdtest.CreateFirstUser(t, clientA)
+		owner = wirtualdtest.CreateFirstUser(t, clientA)
 		now   = dbtime.Now()
 	)
 

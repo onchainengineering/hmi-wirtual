@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
 	"github.com/coder/coder/v2/wirtuald/database/dbtime"
@@ -35,13 +35,13 @@ func TestTemplatePush(t *testing.T) {
 
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		// Test the cli command.
 		source := clitest.CreateTemplateVersionSource(t, &echo.Responses{
@@ -82,13 +82,13 @@ func TestTemplatePush(t *testing.T) {
 
 	t.Run("Message less than or equal to 72 chars", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 		source := clitest.CreateTemplateVersionSource(t, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionApply: echo.ApplyComplete,
@@ -122,13 +122,13 @@ func TestTemplatePush(t *testing.T) {
 
 	t.Run("Message too long, warn but continue", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 		source := clitest.CreateTemplateVersionSource(t, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionApply: echo.ApplyComplete,
@@ -173,13 +173,13 @@ func TestTemplatePush(t *testing.T) {
 
 	t.Run("NoLockfile", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		// Test the cli command.
 		source := clitest.CreateTemplateVersionSource(t, &echo.Responses{
@@ -221,13 +221,13 @@ func TestTemplatePush(t *testing.T) {
 
 	t.Run("NoLockfileIgnored", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		// Test the cli command.
 		source := clitest.CreateTemplateVersionSource(t, &echo.Responses{
@@ -264,13 +264,13 @@ func TestTemplatePush(t *testing.T) {
 
 	t.Run("PushInactiveTemplateVersion", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		// Test the cli command.
 		source := clitest.CreateTemplateVersionSource(t, &echo.Responses{
@@ -317,11 +317,11 @@ func TestTemplatePush(t *testing.T) {
 			t.Skip(`On Windows this test flakes with: "The process cannot access the file because it is being used by another process"`)
 		}
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		// Test the cli command.
 		source := clitest.CreateTemplateVersionSource(t, &echo.Responses{
@@ -329,7 +329,7 @@ func TestTemplatePush(t *testing.T) {
 			ProvisionApply: echo.ApplyComplete,
 		})
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID,
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID,
 			func(r *wirtualsdk.CreateTemplateRequest) {
 				r.Name = filepath.Base(source)
 			})
@@ -369,11 +369,11 @@ func TestTemplatePush(t *testing.T) {
 
 	t.Run("Stdin", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		source, err := echo.Tar(&echo.Responses{
 			Parse:          echo.ParseComplete,
@@ -381,7 +381,7 @@ func TestTemplatePush(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		inv, root := clitest.New(
 			t, "templates", "push", "--directory", "-",
@@ -494,13 +494,13 @@ func TestTemplatePush(t *testing.T) {
 					// What we test is that a provisioner job is created with the expected
 					// tags based on the __content__ of the Terraform.
 					store, ps := dbtestutil.NewDB(t)
-					client := coderdtest.New(t, &coderdtest.Options{
+					client := wirtualdtest.New(t, &wirtualdtest.Options{
 						Database: store,
 						Pubsub:   ps,
 					})
 
-					owner := coderdtest.CreateFirstUser(t, client)
-					templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+					owner := wirtualdtest.CreateFirstUser(t, client)
+					templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 					// Create a tar file with some pre-defined content
 					tarFile := testutil.CreateTar(t, map[string]string{
@@ -576,7 +576,7 @@ func TestTemplatePush(t *testing.T) {
 			t.Parallel()
 
 			// Start the first provisioner
-			client, provisionerDocker, api := coderdtest.NewWithAPI(t, &coderdtest.Options{
+			client, provisionerDocker, api := wirtualdtest.NewWithAPI(t, &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 				ProvisionerDaemonTags: map[string]string{
 					"docker": "true",
@@ -585,22 +585,22 @@ func TestTemplatePush(t *testing.T) {
 			defer provisionerDocker.Close()
 
 			// Start the second provisioner
-			provisionerFoobar := coderdtest.NewTaggedProvisionerDaemon(t, api, "provisioner-foobar", map[string]string{
+			provisionerFoobar := wirtualdtest.NewTaggedProvisionerDaemon(t, api, "provisioner-foobar", map[string]string{
 				"foobar": "foobaz",
 			})
 			defer provisionerFoobar.Close()
 
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			owner := wirtualdtest.CreateFirstUser(t, client)
+			templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 			// Create the template with initial tagged template version.
-			templateVersion := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
+			templateVersion := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
 				ctvr.ProvisionerTags = map[string]string{
 					"docker": "true",
 				}
 			})
-			templateVersion = coderdtest.AwaitTemplateVersionJobCompleted(t, client, templateVersion.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, templateVersion.ID)
+			templateVersion = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, templateVersion.ID)
+			template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, templateVersion.ID)
 
 			// Push new template version without provisioner tags. CLI should reuse tags from the previous version.
 			source := clitest.CreateTemplateVersionSource(t, &echo.Responses{
@@ -643,23 +643,23 @@ func TestTemplatePush(t *testing.T) {
 			t.Parallel()
 
 			// Start the tagged provisioner
-			client := coderdtest.New(t, &coderdtest.Options{
+			client := wirtualdtest.New(t, &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 				ProvisionerDaemonTags: map[string]string{
 					"docker": "true",
 				},
 			})
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			owner := wirtualdtest.CreateFirstUser(t, client)
+			templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 			// Create the template with initial tagged template version.
-			templateVersion := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
+			templateVersion := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
 				ctvr.ProvisionerTags = map[string]string{
 					"docker": "true",
 				}
 			})
-			templateVersion = coderdtest.AwaitTemplateVersionJobCompleted(t, client, templateVersion.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, templateVersion.ID)
+			templateVersion = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, templateVersion.ID)
+			template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, templateVersion.ID)
 
 			// Push new template version without provisioner tags. CLI should reuse tags from the previous version.
 			source := clitest.CreateTemplateVersionSource(t, &echo.Responses{
@@ -714,13 +714,13 @@ func TestTemplatePush(t *testing.T) {
 
 		t.Run("VariableIsRequired", func(t *testing.T) {
 			t.Parallel()
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+			owner := wirtualdtest.CreateFirstUser(t, client)
+			templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
-			templateVersion := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, createEchoResponsesWithTemplateVariables(initialTemplateVariables))
-			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, templateVersion.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, templateVersion.ID)
+			templateVersion := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, createEchoResponsesWithTemplateVariables(initialTemplateVariables))
+			_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, templateVersion.ID)
+			template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, templateVersion.ID)
 
 			// Test the cli command.
 			modifiedTemplateVariables := append(initialTemplateVariables,
@@ -783,13 +783,13 @@ func TestTemplatePush(t *testing.T) {
 
 		t.Run("VariableIsRequiredButNotProvided", func(t *testing.T) {
 			t.Parallel()
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+			owner := wirtualdtest.CreateFirstUser(t, client)
+			templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
-			templateVersion := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, createEchoResponsesWithTemplateVariables(initialTemplateVariables))
-			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, templateVersion.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, templateVersion.ID)
+			templateVersion := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, createEchoResponsesWithTemplateVariables(initialTemplateVariables))
+			_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, templateVersion.ID)
+			template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, templateVersion.ID)
 
 			// Test the cli command.
 			modifiedTemplateVariables := append(initialTemplateVariables,
@@ -830,13 +830,13 @@ func TestTemplatePush(t *testing.T) {
 
 		t.Run("VariableIsOptionalButNotProvided", func(t *testing.T) {
 			t.Parallel()
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+			owner := wirtualdtest.CreateFirstUser(t, client)
+			templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
-			templateVersion := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, createEchoResponsesWithTemplateVariables(initialTemplateVariables))
-			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, templateVersion.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, templateVersion.ID)
+			templateVersion := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, createEchoResponsesWithTemplateVariables(initialTemplateVariables))
+			_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, templateVersion.ID)
+			template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, templateVersion.ID)
 
 			// Test the cli command.
 			modifiedTemplateVariables := append(initialTemplateVariables,
@@ -896,13 +896,13 @@ func TestTemplatePush(t *testing.T) {
 
 		t.Run("WithVariableOption", func(t *testing.T) {
 			t.Parallel()
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+			owner := wirtualdtest.CreateFirstUser(t, client)
+			templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
-			templateVersion := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, createEchoResponsesWithTemplateVariables(initialTemplateVariables))
-			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, templateVersion.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, templateVersion.ID)
+			templateVersion := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, createEchoResponsesWithTemplateVariables(initialTemplateVariables))
+			_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, templateVersion.ID)
+			template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, templateVersion.ID)
 
 			// Test the cli command.
 			modifiedTemplateVariables := append(initialTemplateVariables,
@@ -962,9 +962,9 @@ func TestTemplatePush(t *testing.T) {
 
 		t.Run("CreateTemplate", func(t *testing.T) {
 			t.Parallel()
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+			owner := wirtualdtest.CreateFirstUser(t, client)
+			templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 			source := clitest.CreateTemplateVersionSource(t, completeWithAgent())
 
 			const templateName = "my-template"

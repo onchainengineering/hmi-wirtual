@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbgen"
 	"github.com/coder/coder/v2/wirtuald/rbac"
@@ -21,9 +21,9 @@ func TestShowOrganizationRoles(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		ownerClient, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{})
-		owner := coderdtest.CreateFirstUser(t, ownerClient)
-		client, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleUserAdmin())
+		ownerClient, db := wirtualdtest.NewWithDatabase(t, &wirtualdtest.Options{})
+		owner := wirtualdtest.CreateFirstUser(t, ownerClient)
+		client, _ := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleUserAdmin())
 
 		const expectedRole = "test-role"
 		dbgen.CustomRole(t, db, database.CustomRole{

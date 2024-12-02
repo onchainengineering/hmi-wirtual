@@ -15,7 +15,7 @@ import (
 
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/testutil"
@@ -25,7 +25,7 @@ func TestLogin(t *testing.T) {
 	t.Parallel()
 	t.Run("InitialUserNoTTY", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
+		client := wirtualdtest.New(t, nil)
 		root, _ := clitest.New(t, "login", client.URL.String())
 		err := root.Run()
 		require.Error(t, err)
@@ -75,7 +75,7 @@ func TestLogin(t *testing.T) {
 
 	t.Run("InitialUserTTY", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
+		client := wirtualdtest.New(t, nil)
 		// The --force-tty flag is required on Windows, because the `isatty` library does not
 		// accurately detect Windows ptys when they are not attached to a process:
 		// https://github.com/mattn/go-isatty/issues/59
@@ -90,17 +90,17 @@ func TestLogin(t *testing.T) {
 
 		matches := []string{
 			"first user?", "yes",
-			"username", coderdtest.FirstUserParams.Username,
-			"name", coderdtest.FirstUserParams.Name,
-			"email", coderdtest.FirstUserParams.Email,
-			"password", coderdtest.FirstUserParams.Password,
-			"password", coderdtest.FirstUserParams.Password, // confirm
+			"username", wirtualdtest.FirstUserParams.Username,
+			"name", wirtualdtest.FirstUserParams.Name,
+			"email", wirtualdtest.FirstUserParams.Email,
+			"password", wirtualdtest.FirstUserParams.Password,
+			"password", wirtualdtest.FirstUserParams.Password, // confirm
 			"trial", "yes",
-			"firstName", coderdtest.TrialUserParams.FirstName,
-			"lastName", coderdtest.TrialUserParams.LastName,
-			"phoneNumber", coderdtest.TrialUserParams.PhoneNumber,
-			"jobTitle", coderdtest.TrialUserParams.JobTitle,
-			"companyName", coderdtest.TrialUserParams.CompanyName,
+			"firstName", wirtualdtest.TrialUserParams.FirstName,
+			"lastName", wirtualdtest.TrialUserParams.LastName,
+			"phoneNumber", wirtualdtest.TrialUserParams.PhoneNumber,
+			"jobTitle", wirtualdtest.TrialUserParams.JobTitle,
+			"companyName", wirtualdtest.TrialUserParams.CompanyName,
 			// `developers` and `country` `cliui.Select` automatically selects the first option during tests.
 		}
 		for i := 0; i < len(matches); i += 2 {
@@ -113,21 +113,21 @@ func TestLogin(t *testing.T) {
 		<-doneChan
 		ctx := testutil.Context(t, testutil.WaitShort)
 		resp, err := client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
-			Email:    coderdtest.FirstUserParams.Email,
-			Password: coderdtest.FirstUserParams.Password,
+			Email:    wirtualdtest.FirstUserParams.Email,
+			Password: wirtualdtest.FirstUserParams.Password,
 		})
 		require.NoError(t, err)
 		client.SetSessionToken(resp.SessionToken)
 		me, err := client.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err)
-		assert.Equal(t, coderdtest.FirstUserParams.Username, me.Username)
-		assert.Equal(t, coderdtest.FirstUserParams.Name, me.Name)
-		assert.Equal(t, coderdtest.FirstUserParams.Email, me.Email)
+		assert.Equal(t, wirtualdtest.FirstUserParams.Username, me.Username)
+		assert.Equal(t, wirtualdtest.FirstUserParams.Name, me.Name)
+		assert.Equal(t, wirtualdtest.FirstUserParams.Email, me.Email)
 	})
 
 	t.Run("InitialUserTTYWithNoTrial", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
+		client := wirtualdtest.New(t, nil)
 		// The --force-tty flag is required on Windows, because the `isatty` library does not
 		// accurately detect Windows ptys when they are not attached to a process:
 		// https://github.com/mattn/go-isatty/issues/59
@@ -142,11 +142,11 @@ func TestLogin(t *testing.T) {
 
 		matches := []string{
 			"first user?", "yes",
-			"username", coderdtest.FirstUserParams.Username,
-			"name", coderdtest.FirstUserParams.Name,
-			"email", coderdtest.FirstUserParams.Email,
-			"password", coderdtest.FirstUserParams.Password,
-			"password", coderdtest.FirstUserParams.Password, // confirm
+			"username", wirtualdtest.FirstUserParams.Username,
+			"name", wirtualdtest.FirstUserParams.Name,
+			"email", wirtualdtest.FirstUserParams.Email,
+			"password", wirtualdtest.FirstUserParams.Password,
+			"password", wirtualdtest.FirstUserParams.Password, // confirm
 			"trial", "no",
 		}
 		for i := 0; i < len(matches); i += 2 {
@@ -159,21 +159,21 @@ func TestLogin(t *testing.T) {
 		<-doneChan
 		ctx := testutil.Context(t, testutil.WaitShort)
 		resp, err := client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
-			Email:    coderdtest.FirstUserParams.Email,
-			Password: coderdtest.FirstUserParams.Password,
+			Email:    wirtualdtest.FirstUserParams.Email,
+			Password: wirtualdtest.FirstUserParams.Password,
 		})
 		require.NoError(t, err)
 		client.SetSessionToken(resp.SessionToken)
 		me, err := client.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err)
-		assert.Equal(t, coderdtest.FirstUserParams.Username, me.Username)
-		assert.Equal(t, coderdtest.FirstUserParams.Name, me.Name)
-		assert.Equal(t, coderdtest.FirstUserParams.Email, me.Email)
+		assert.Equal(t, wirtualdtest.FirstUserParams.Username, me.Username)
+		assert.Equal(t, wirtualdtest.FirstUserParams.Name, me.Name)
+		assert.Equal(t, wirtualdtest.FirstUserParams.Email, me.Email)
 	})
 
 	t.Run("InitialUserTTYNameOptional", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
+		client := wirtualdtest.New(t, nil)
 		// The --force-tty flag is required on Windows, because the `isatty` library does not
 		// accurately detect Windows ptys when they are not attached to a process:
 		// https://github.com/mattn/go-isatty/issues/59
@@ -188,17 +188,17 @@ func TestLogin(t *testing.T) {
 
 		matches := []string{
 			"first user?", "yes",
-			"username", coderdtest.FirstUserParams.Username,
+			"username", wirtualdtest.FirstUserParams.Username,
 			"name", "",
-			"email", coderdtest.FirstUserParams.Email,
-			"password", coderdtest.FirstUserParams.Password,
-			"password", coderdtest.FirstUserParams.Password, // confirm
+			"email", wirtualdtest.FirstUserParams.Email,
+			"password", wirtualdtest.FirstUserParams.Password,
+			"password", wirtualdtest.FirstUserParams.Password, // confirm
 			"trial", "yes",
-			"firstName", coderdtest.TrialUserParams.FirstName,
-			"lastName", coderdtest.TrialUserParams.LastName,
-			"phoneNumber", coderdtest.TrialUserParams.PhoneNumber,
-			"jobTitle", coderdtest.TrialUserParams.JobTitle,
-			"companyName", coderdtest.TrialUserParams.CompanyName,
+			"firstName", wirtualdtest.TrialUserParams.FirstName,
+			"lastName", wirtualdtest.TrialUserParams.LastName,
+			"phoneNumber", wirtualdtest.TrialUserParams.PhoneNumber,
+			"jobTitle", wirtualdtest.TrialUserParams.JobTitle,
+			"companyName", wirtualdtest.TrialUserParams.CompanyName,
 			// `developers` and `country` `cliui.Select` automatically selects the first option during tests.
 		}
 		for i := 0; i < len(matches); i += 2 {
@@ -211,21 +211,21 @@ func TestLogin(t *testing.T) {
 		<-doneChan
 		ctx := testutil.Context(t, testutil.WaitShort)
 		resp, err := client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
-			Email:    coderdtest.FirstUserParams.Email,
-			Password: coderdtest.FirstUserParams.Password,
+			Email:    wirtualdtest.FirstUserParams.Email,
+			Password: wirtualdtest.FirstUserParams.Password,
 		})
 		require.NoError(t, err)
 		client.SetSessionToken(resp.SessionToken)
 		me, err := client.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err)
-		assert.Equal(t, coderdtest.FirstUserParams.Username, me.Username)
-		assert.Equal(t, coderdtest.FirstUserParams.Email, me.Email)
+		assert.Equal(t, wirtualdtest.FirstUserParams.Username, me.Username)
+		assert.Equal(t, wirtualdtest.FirstUserParams.Email, me.Email)
 		assert.Empty(t, me.Name)
 	})
 
 	t.Run("InitialUserTTYFlag", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
+		client := wirtualdtest.New(t, nil)
 		// The --force-tty flag is required on Windows, because the `isatty` library does not
 		// accurately detect Windows ptys when they are not attached to a process:
 		// https://github.com/mattn/go-isatty/issues/59
@@ -237,17 +237,17 @@ func TestLogin(t *testing.T) {
 		pty.ExpectMatch(fmt.Sprintf("Attempting to authenticate with flag URL: '%s'", client.URL.String()))
 		matches := []string{
 			"first user?", "yes",
-			"username", coderdtest.FirstUserParams.Username,
-			"name", coderdtest.FirstUserParams.Name,
-			"email", coderdtest.FirstUserParams.Email,
-			"password", coderdtest.FirstUserParams.Password,
-			"password", coderdtest.FirstUserParams.Password, // confirm
+			"username", wirtualdtest.FirstUserParams.Username,
+			"name", wirtualdtest.FirstUserParams.Name,
+			"email", wirtualdtest.FirstUserParams.Email,
+			"password", wirtualdtest.FirstUserParams.Password,
+			"password", wirtualdtest.FirstUserParams.Password, // confirm
 			"trial", "yes",
-			"firstName", coderdtest.TrialUserParams.FirstName,
-			"lastName", coderdtest.TrialUserParams.LastName,
-			"phoneNumber", coderdtest.TrialUserParams.PhoneNumber,
-			"jobTitle", coderdtest.TrialUserParams.JobTitle,
-			"companyName", coderdtest.TrialUserParams.CompanyName,
+			"firstName", wirtualdtest.TrialUserParams.FirstName,
+			"lastName", wirtualdtest.TrialUserParams.LastName,
+			"phoneNumber", wirtualdtest.TrialUserParams.PhoneNumber,
+			"jobTitle", wirtualdtest.TrialUserParams.JobTitle,
+			"companyName", wirtualdtest.TrialUserParams.CompanyName,
 			// `developers` and `country` `cliui.Select` automatically selects the first option during tests.
 		}
 		for i := 0; i < len(matches); i += 2 {
@@ -259,94 +259,94 @@ func TestLogin(t *testing.T) {
 		pty.ExpectMatch("Welcome to Coder")
 		ctx := testutil.Context(t, testutil.WaitShort)
 		resp, err := client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
-			Email:    coderdtest.FirstUserParams.Email,
-			Password: coderdtest.FirstUserParams.Password,
+			Email:    wirtualdtest.FirstUserParams.Email,
+			Password: wirtualdtest.FirstUserParams.Password,
 		})
 		require.NoError(t, err)
 		client.SetSessionToken(resp.SessionToken)
 		me, err := client.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err)
-		assert.Equal(t, coderdtest.FirstUserParams.Username, me.Username)
-		assert.Equal(t, coderdtest.FirstUserParams.Name, me.Name)
-		assert.Equal(t, coderdtest.FirstUserParams.Email, me.Email)
+		assert.Equal(t, wirtualdtest.FirstUserParams.Username, me.Username)
+		assert.Equal(t, wirtualdtest.FirstUserParams.Name, me.Name)
+		assert.Equal(t, wirtualdtest.FirstUserParams.Email, me.Email)
 	})
 
 	t.Run("InitialUserFlags", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
+		client := wirtualdtest.New(t, nil)
 		inv, _ := clitest.New(
 			t, "login", client.URL.String(),
-			"--first-user-username", coderdtest.FirstUserParams.Username,
-			"--first-user-full-name", coderdtest.FirstUserParams.Name,
-			"--first-user-email", coderdtest.FirstUserParams.Email,
-			"--first-user-password", coderdtest.FirstUserParams.Password,
+			"--first-user-username", wirtualdtest.FirstUserParams.Username,
+			"--first-user-full-name", wirtualdtest.FirstUserParams.Name,
+			"--first-user-email", wirtualdtest.FirstUserParams.Email,
+			"--first-user-password", wirtualdtest.FirstUserParams.Password,
 			"--first-user-trial",
 		)
 		pty := ptytest.New(t).Attach(inv)
 		w := clitest.StartWithWaiter(t, inv)
 		pty.ExpectMatch("firstName")
-		pty.WriteLine(coderdtest.TrialUserParams.FirstName)
+		pty.WriteLine(wirtualdtest.TrialUserParams.FirstName)
 		pty.ExpectMatch("lastName")
-		pty.WriteLine(coderdtest.TrialUserParams.LastName)
+		pty.WriteLine(wirtualdtest.TrialUserParams.LastName)
 		pty.ExpectMatch("phoneNumber")
-		pty.WriteLine(coderdtest.TrialUserParams.PhoneNumber)
+		pty.WriteLine(wirtualdtest.TrialUserParams.PhoneNumber)
 		pty.ExpectMatch("jobTitle")
-		pty.WriteLine(coderdtest.TrialUserParams.JobTitle)
+		pty.WriteLine(wirtualdtest.TrialUserParams.JobTitle)
 		pty.ExpectMatch("companyName")
-		pty.WriteLine(coderdtest.TrialUserParams.CompanyName)
+		pty.WriteLine(wirtualdtest.TrialUserParams.CompanyName)
 		// `developers` and `country` `cliui.Select` automatically selects the first option during tests.
 		pty.ExpectMatch("Welcome to Coder")
 		w.RequireSuccess()
 		ctx := testutil.Context(t, testutil.WaitShort)
 		resp, err := client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
-			Email:    coderdtest.FirstUserParams.Email,
-			Password: coderdtest.FirstUserParams.Password,
+			Email:    wirtualdtest.FirstUserParams.Email,
+			Password: wirtualdtest.FirstUserParams.Password,
 		})
 		require.NoError(t, err)
 		client.SetSessionToken(resp.SessionToken)
 		me, err := client.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err)
-		assert.Equal(t, coderdtest.FirstUserParams.Username, me.Username)
-		assert.Equal(t, coderdtest.FirstUserParams.Name, me.Name)
-		assert.Equal(t, coderdtest.FirstUserParams.Email, me.Email)
+		assert.Equal(t, wirtualdtest.FirstUserParams.Username, me.Username)
+		assert.Equal(t, wirtualdtest.FirstUserParams.Name, me.Name)
+		assert.Equal(t, wirtualdtest.FirstUserParams.Email, me.Email)
 	})
 
 	t.Run("InitialUserFlagsNameOptional", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
+		client := wirtualdtest.New(t, nil)
 		inv, _ := clitest.New(
 			t, "login", client.URL.String(),
-			"--first-user-username", coderdtest.FirstUserParams.Username,
-			"--first-user-email", coderdtest.FirstUserParams.Email,
-			"--first-user-password", coderdtest.FirstUserParams.Password,
+			"--first-user-username", wirtualdtest.FirstUserParams.Username,
+			"--first-user-email", wirtualdtest.FirstUserParams.Email,
+			"--first-user-password", wirtualdtest.FirstUserParams.Password,
 			"--first-user-trial",
 		)
 		pty := ptytest.New(t).Attach(inv)
 		w := clitest.StartWithWaiter(t, inv)
 		pty.ExpectMatch("firstName")
-		pty.WriteLine(coderdtest.TrialUserParams.FirstName)
+		pty.WriteLine(wirtualdtest.TrialUserParams.FirstName)
 		pty.ExpectMatch("lastName")
-		pty.WriteLine(coderdtest.TrialUserParams.LastName)
+		pty.WriteLine(wirtualdtest.TrialUserParams.LastName)
 		pty.ExpectMatch("phoneNumber")
-		pty.WriteLine(coderdtest.TrialUserParams.PhoneNumber)
+		pty.WriteLine(wirtualdtest.TrialUserParams.PhoneNumber)
 		pty.ExpectMatch("jobTitle")
-		pty.WriteLine(coderdtest.TrialUserParams.JobTitle)
+		pty.WriteLine(wirtualdtest.TrialUserParams.JobTitle)
 		pty.ExpectMatch("companyName")
-		pty.WriteLine(coderdtest.TrialUserParams.CompanyName)
+		pty.WriteLine(wirtualdtest.TrialUserParams.CompanyName)
 		// `developers` and `country` `cliui.Select` automatically selects the first option during tests.
 		pty.ExpectMatch("Welcome to Coder")
 		w.RequireSuccess()
 		ctx := testutil.Context(t, testutil.WaitShort)
 		resp, err := client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
-			Email:    coderdtest.FirstUserParams.Email,
-			Password: coderdtest.FirstUserParams.Password,
+			Email:    wirtualdtest.FirstUserParams.Email,
+			Password: wirtualdtest.FirstUserParams.Password,
 		})
 		require.NoError(t, err)
 		client.SetSessionToken(resp.SessionToken)
 		me, err := client.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err)
-		assert.Equal(t, coderdtest.FirstUserParams.Username, me.Username)
-		assert.Equal(t, coderdtest.FirstUserParams.Email, me.Email)
+		assert.Equal(t, wirtualdtest.FirstUserParams.Username, me.Username)
+		assert.Equal(t, wirtualdtest.FirstUserParams.Email, me.Email)
 		assert.Empty(t, me.Name)
 	})
 
@@ -354,7 +354,7 @@ func TestLogin(t *testing.T) {
 		t.Parallel()
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		client := coderdtest.New(t, nil)
+		client := wirtualdtest.New(t, nil)
 		// The --force-tty flag is required on Windows, because the `isatty` library does not
 		// accurately detect Windows ptys when they are not attached to a process:
 		// https://github.com/mattn/go-isatty/issues/59
@@ -369,10 +369,10 @@ func TestLogin(t *testing.T) {
 
 		matches := []string{
 			"first user?", "yes",
-			"username", coderdtest.FirstUserParams.Username,
-			"name", coderdtest.FirstUserParams.Name,
-			"email", coderdtest.FirstUserParams.Email,
-			"password", coderdtest.FirstUserParams.Password,
+			"username", wirtualdtest.FirstUserParams.Username,
+			"name", wirtualdtest.FirstUserParams.Name,
+			"email", wirtualdtest.FirstUserParams.Email,
+			"password", wirtualdtest.FirstUserParams.Password,
 			"password", "something completely different",
 		}
 		for i := 0; i < len(matches); i += 2 {
@@ -385,29 +385,29 @@ func TestLogin(t *testing.T) {
 		// Validate that we reprompt for matching passwords.
 		pty.ExpectMatch("Passwords do not match")
 		pty.ExpectMatch("Enter a " + pretty.Sprint(cliui.DefaultStyles.Field, "password"))
-		pty.WriteLine(coderdtest.FirstUserParams.Password)
+		pty.WriteLine(wirtualdtest.FirstUserParams.Password)
 		pty.ExpectMatch("Confirm")
-		pty.WriteLine(coderdtest.FirstUserParams.Password)
+		pty.WriteLine(wirtualdtest.FirstUserParams.Password)
 		pty.ExpectMatch("trial")
 		pty.WriteLine("yes")
 		pty.ExpectMatch("firstName")
-		pty.WriteLine(coderdtest.TrialUserParams.FirstName)
+		pty.WriteLine(wirtualdtest.TrialUserParams.FirstName)
 		pty.ExpectMatch("lastName")
-		pty.WriteLine(coderdtest.TrialUserParams.LastName)
+		pty.WriteLine(wirtualdtest.TrialUserParams.LastName)
 		pty.ExpectMatch("phoneNumber")
-		pty.WriteLine(coderdtest.TrialUserParams.PhoneNumber)
+		pty.WriteLine(wirtualdtest.TrialUserParams.PhoneNumber)
 		pty.ExpectMatch("jobTitle")
-		pty.WriteLine(coderdtest.TrialUserParams.JobTitle)
+		pty.WriteLine(wirtualdtest.TrialUserParams.JobTitle)
 		pty.ExpectMatch("companyName")
-		pty.WriteLine(coderdtest.TrialUserParams.CompanyName)
+		pty.WriteLine(wirtualdtest.TrialUserParams.CompanyName)
 		pty.ExpectMatch("Welcome to Coder")
 		<-doneChan
 	})
 
 	t.Run("ExistingUserValidTokenTTY", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		wirtualdtest.CreateFirstUser(t, client)
 
 		doneChan := make(chan struct{})
 		root, _ := clitest.New(t, "login", "--force-tty", client.URL.String(), "--no-open")
@@ -431,9 +431,9 @@ func TestLogin(t *testing.T) {
 
 	t.Run("ExistingUserURLSavedInConfig", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
+		client := wirtualdtest.New(t, nil)
 		url := client.URL.String()
-		coderdtest.CreateFirstUser(t, client)
+		wirtualdtest.CreateFirstUser(t, client)
 
 		inv, root := clitest.New(t, "login", "--no-open")
 		clitest.SetupConfig(t, client, root)
@@ -454,9 +454,9 @@ func TestLogin(t *testing.T) {
 
 	t.Run("ExistingUserURLSavedInEnv", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
+		client := wirtualdtest.New(t, nil)
 		url := client.URL.String()
-		coderdtest.CreateFirstUser(t, client)
+		wirtualdtest.CreateFirstUser(t, client)
 
 		inv, _ := clitest.New(t, "login", "--no-open")
 		inv.Environ.Set("CODER_URL", url)
@@ -477,8 +477,8 @@ func TestLogin(t *testing.T) {
 
 	t.Run("ExistingUserInvalidTokenTTY", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancelFunc := context.WithCancel(context.Background())
 		defer cancelFunc()
@@ -506,8 +506,8 @@ func TestLogin(t *testing.T) {
 	// TokenFlag should generate a new session token and store it in the session file.
 	t.Run("TokenFlag", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		wirtualdtest.CreateFirstUser(t, client)
 		root, cfg := clitest.New(t, "login", client.URL.String(), "--token", client.SessionToken())
 		err := root.Run()
 		require.NoError(t, err)
@@ -519,8 +519,8 @@ func TestLogin(t *testing.T) {
 
 	t.Run("KeepOrganizationContext", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		first := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		first := wirtualdtest.CreateFirstUser(t, client)
 		root, cfg := clitest.New(t, "login", client.URL.String(), "--token", client.SessionToken())
 
 		err := cfg.Organization().Write(first.OrganizationID.String())

@@ -19,7 +19,7 @@ import (
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/wirtuald/httpapi"
 	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/serpent"
@@ -117,7 +117,7 @@ func TestLicensesAddReal(t *testing.T) {
 	t.Parallel()
 	t.Run("Fails", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{DontAddLicense: true})
 		inv, conf := newCLI(
 			t,
 			"licenses", "add", "-l", fakeLicenseJWT,
@@ -171,7 +171,7 @@ func TestLicensesListReal(t *testing.T) {
 	t.Parallel()
 	t.Run("Empty", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{DontAddLicense: true})
 		inv, conf := newCLI(
 			t,
 			"licenses", "list", "-o", "json",
@@ -212,7 +212,7 @@ func TestLicensesDeleteReal(t *testing.T) {
 	t.Parallel()
 	t.Run("Empty", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{DontAddLicense: true})
 		inv, conf := newCLI(
 			t,
 			"licenses", "delete", "1")

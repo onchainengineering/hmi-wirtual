@@ -10,7 +10,7 @@ import (
 	"cdr.dev/slog/sloggers/slogtest"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/testutil"
 )
@@ -24,12 +24,12 @@ func TestScaleTestCreateWorkspaces(t *testing.T) {
 	defer cancelFunc()
 
 	log := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true})
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := wirtualdtest.New(t, &wirtualdtest.Options{
 		// We are not including any provisioner daemons because we do not actually
 		// build any workspaces here.
 		Logger: &log,
 	})
-	_ = coderdtest.CreateFirstUser(t, client)
+	_ = wirtualdtest.CreateFirstUser(t, client)
 
 	// Write a parameters file.
 	tDir := t.TempDir()
@@ -69,10 +69,10 @@ func TestScaleTestWorkspaceTraffic(t *testing.T) {
 	defer cancelFunc()
 
 	log := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true})
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := wirtualdtest.New(t, &wirtualdtest.Options{
 		Logger: &log,
 	})
-	_ = coderdtest.CreateFirstUser(t, client)
+	_ = wirtualdtest.CreateFirstUser(t, client)
 
 	inv, root := clitest.New(t, "exp", "scaletest", "workspace-traffic",
 		"--timeout", "1s",
@@ -99,10 +99,10 @@ func TestScaleTestWorkspaceTraffic_Template(t *testing.T) {
 	defer cancelFunc()
 
 	log := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true})
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := wirtualdtest.New(t, &wirtualdtest.Options{
 		Logger: &log,
 	})
-	_ = coderdtest.CreateFirstUser(t, client)
+	_ = wirtualdtest.CreateFirstUser(t, client)
 
 	inv, root := clitest.New(t, "exp", "scaletest", "workspace-traffic",
 		"--template", "doesnotexist",
@@ -124,10 +124,10 @@ func TestScaleTestWorkspaceTraffic_TargetWorkspaces(t *testing.T) {
 	defer cancelFunc()
 
 	log := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true})
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := wirtualdtest.New(t, &wirtualdtest.Options{
 		Logger: &log,
 	})
-	_ = coderdtest.CreateFirstUser(t, client)
+	_ = wirtualdtest.CreateFirstUser(t, client)
 
 	inv, root := clitest.New(t, "exp", "scaletest", "workspace-traffic",
 		"--target-workspaces", "0:0",
@@ -149,10 +149,10 @@ func TestScaleTestCleanup_Template(t *testing.T) {
 	defer cancelFunc()
 
 	log := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true})
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := wirtualdtest.New(t, &wirtualdtest.Options{
 		Logger: &log,
 	})
-	_ = coderdtest.CreateFirstUser(t, client)
+	_ = wirtualdtest.CreateFirstUser(t, client)
 
 	inv, root := clitest.New(t, "exp", "scaletest", "cleanup",
 		"--template", "doesnotexist",
@@ -175,10 +175,10 @@ func TestScaleTestDashboard(t *testing.T) {
 		defer cancelFunc()
 
 		log := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true})
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			Logger: &log,
 		})
-		_ = coderdtest.CreateFirstUser(t, client)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		inv, root := clitest.New(t, "exp", "scaletest", "dashboard",
 			"--interval", "0s",
@@ -198,10 +198,10 @@ func TestScaleTestDashboard(t *testing.T) {
 		defer cancelFunc()
 
 		log := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true})
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			Logger: &log,
 		})
-		_ = coderdtest.CreateFirstUser(t, client)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		inv, root := clitest.New(t, "exp", "scaletest", "dashboard",
 			"--interval", "1s",
@@ -222,10 +222,10 @@ func TestScaleTestDashboard(t *testing.T) {
 		defer cancelFunc()
 
 		log := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true})
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			Logger: &log,
 		})
-		_ = coderdtest.CreateFirstUser(t, client)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		inv, root := clitest.New(t, "exp", "scaletest", "dashboard",
 			"--interval", "1s",
@@ -250,10 +250,10 @@ func TestScaleTestDashboard(t *testing.T) {
 		defer cancelFunc()
 
 		log := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true})
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			Logger: &log,
 		})
-		_ = coderdtest.CreateFirstUser(t, client)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		inv, root := clitest.New(t, "exp", "scaletest", "dashboard",
 			"--target-users", "0:0",

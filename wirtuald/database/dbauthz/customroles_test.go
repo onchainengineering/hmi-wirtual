@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
@@ -222,10 +222,10 @@ func TestInsertCustomRoles(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			db := dbmem.New()
-			rec := &coderdtest.RecordingAuthorizer{
+			rec := &wirtualdtest.RecordingAuthorizer{
 				Wrapped: rbac.NewAuthorizer(prometheus.NewRegistry()),
 			}
-			az := dbauthz.New(db, rec, slog.Make(), coderdtest.AccessControlStorePointer())
+			az := dbauthz.New(db, rec, slog.Make(), wirtualdtest.AccessControlStorePointer())
 
 			subject := subjectFromRoles(tc.subject)
 			ctx := testutil.Context(t, testutil.WaitMedium)

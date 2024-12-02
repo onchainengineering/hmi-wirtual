@@ -2595,7 +2595,7 @@ func TestAgent_Metrics_SSH(t *testing.T) {
 			Value: 0,
 		},
 		{
-			Name:  "coderd_agentstats_currently_reachable_peers",
+			Name:  "wirtuald_agentstats_currently_reachable_peers",
 			Type:  proto.Stats_Metric_GAUGE,
 			Value: 0,
 			Labels: []*proto.Stats_Metric_Label{
@@ -2606,7 +2606,7 @@ func TestAgent_Metrics_SSH(t *testing.T) {
 			},
 		},
 		{
-			Name:  "coderd_agentstats_currently_reachable_peers",
+			Name:  "wirtuald_agentstats_currently_reachable_peers",
 			Type:  proto.Stats_Metric_GAUGE,
 			Value: 1,
 			Labels: []*proto.Stats_Metric_Label{
@@ -2617,7 +2617,7 @@ func TestAgent_Metrics_SSH(t *testing.T) {
 			},
 		},
 		{
-			Name:  "coderd_agentstats_startup_script_seconds",
+			Name:  "wirtuald_agentstats_startup_script_seconds",
 			Type:  proto.Stats_Metric_GAUGE,
 			Value: 1,
 		},

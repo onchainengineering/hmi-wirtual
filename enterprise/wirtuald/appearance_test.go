@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -10,13 +10,13 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbfake"
 	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
-	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/serpent"
@@ -29,14 +29,14 @@ func TestCustomLogoAndCompanyName(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
 
-	adminClient, adminUser := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
-	coderdenttest.AddLicense(t, adminClient, coderdenttest.LicenseOptions{
+	adminClient, adminUser := wirtualdenttest.New(t, &wirtualdenttest.Options{DontAddLicense: true})
+	wirtualdenttest.AddLicense(t, adminClient, wirtualdenttest.LicenseOptions{
 		Features: license.Features{
 			wirtualsdk.FeatureAppearance: 1,
 		},
 	})
 
-	anotherClient, _ := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
+	anotherClient, _ := wirtualdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
 
 	// Update logo and application name
 	uac := wirtualsdk.UpdateAppearanceConfig{
@@ -64,15 +64,15 @@ func TestAnnouncementBanners(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		adminClient, adminUser := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
-		basicUserClient, _ := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
+		adminClient, adminUser := wirtualdenttest.New(t, &wirtualdenttest.Options{DontAddLicense: true})
+		basicUserClient, _ := wirtualdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
 
 		// Without a license, there should be no banners.
 		sb, err := basicUserClient.Appearance(ctx)
 		require.NoError(t, err)
 		require.Empty(t, sb.AnnouncementBanners)
 
-		coderdenttest.AddLicense(t, adminClient, coderdenttest.LicenseOptions{
+		wirtualdenttest.AddLicense(t, adminClient, wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureAppearance: 1,
 			},
@@ -126,14 +126,14 @@ func TestAnnouncementBanners(t *testing.T) {
 		defer cancel()
 
 		store, ps := dbtestutil.NewDB(t)
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				Database: store,
 				Pubsub:   ps,
 			},
 			DontAddLicense: true,
 		})
-		lic := coderdenttest.AddLicense(t, client, coderdenttest.LicenseOptions{
+		lic := wirtualdenttest.AddLicense(t, client, wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureAppearance: 1,
 			},
@@ -158,8 +158,8 @@ func TestAnnouncementBanners(t *testing.T) {
 		banners := requireGetAnnouncementBanners(ctx, t, agentClient)
 		require.Equal(t, cfg.AnnouncementBanners, banners)
 
-		// Create an AGPL Coderd against the same database
-		agplClient := coderdtest.New(t, &coderdtest.Options{Database: store, Pubsub: ps})
+		// Create an AGPL Wirtuald against the same database
+		agplClient := wirtualdtest.New(t, &wirtualdtest.Options{Database: store, Pubsub: ps})
 		agplAgentClient := agentsdk.New(agplClient.URL)
 		agplAgentClient.SetSessionToken(r.AgentToken)
 		banners = requireGetAnnouncementBanners(ctx, t, agplAgentClient)
@@ -204,23 +204,23 @@ func TestCustomSupportLinks(t *testing.T) {
 			Icon:   "bug",
 		},
 	}
-	cfg := coderdtest.DeploymentValues(t)
+	cfg := wirtualdtest.DeploymentValues(t)
 	cfg.Support.Links = serpent.Struct[[]wirtualsdk.LinkConfig]{
 		Value: supportLinks,
 	}
 
-	adminClient, adminUser := coderdenttest.New(t, &coderdenttest.Options{
-		Options: &coderdtest.Options{
+	adminClient, adminUser := wirtualdenttest.New(t, &wirtualdenttest.Options{
+		Options: &wirtualdtest.Options{
 			DeploymentValues: cfg,
 		},
-		LicenseOptions: &coderdenttest.LicenseOptions{
+		LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureAppearance: 1,
 			},
 		},
 	})
 
-	anotherClient, _ := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
+	anotherClient, _ := wirtualdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitMedium)
 	defer cancel()
 
@@ -235,10 +235,10 @@ func TestCustomDocsURL(t *testing.T) {
 	testURLRawString := "http://google.com"
 	testURL, err := url.Parse(testURLRawString)
 	require.NoError(t, err)
-	cfg := coderdtest.DeploymentValues(t)
+	cfg := wirtualdtest.DeploymentValues(t)
 	cfg.DocsURL = *serpent.URLOf(testURL)
-	adminClient, adminUser := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true, Options: &coderdtest.Options{DeploymentValues: cfg}})
-	anotherClient, _ := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
+	adminClient, adminUser := wirtualdenttest.New(t, &wirtualdenttest.Options{DontAddLicense: true, Options: &wirtualdtest.Options{DeploymentValues: cfg}})
+	anotherClient, _ := wirtualdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitMedium)
 	defer cancel()
@@ -255,10 +255,10 @@ func TestDefaultSupportLinksWithCustomDocsUrl(t *testing.T) {
 	testURLRawString := "http://google.com"
 	testURL, err := url.Parse(testURLRawString)
 	require.NoError(t, err)
-	cfg := coderdtest.DeploymentValues(t)
+	cfg := wirtualdtest.DeploymentValues(t)
 	cfg.DocsURL = *serpent.URLOf(testURL)
-	adminClient, adminUser := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true, Options: &coderdtest.Options{DeploymentValues: cfg}})
-	anotherClient, _ := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
+	adminClient, adminUser := wirtualdenttest.New(t, &wirtualdenttest.Options{DontAddLicense: true, Options: &wirtualdtest.Options{DeploymentValues: cfg}})
+	anotherClient, _ := wirtualdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitMedium)
 	defer cancel()
@@ -272,8 +272,8 @@ func TestDefaultSupportLinks(t *testing.T) {
 	t.Parallel()
 
 	// Don't need to set the license, as default links are passed without it.
-	adminClient, adminUser := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
-	anotherClient, _ := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
+	adminClient, adminUser := wirtualdenttest.New(t, &wirtualdenttest.Options{DontAddLicense: true})
+	anotherClient, _ := wirtualdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitMedium)
 	defer cancel()

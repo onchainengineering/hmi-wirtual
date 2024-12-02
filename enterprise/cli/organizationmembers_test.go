@@ -7,10 +7,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/testutil"
 )
@@ -21,17 +21,17 @@ func TestRemoveOrganizationMembers(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		ownerClient, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		ownerClient, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
 
-		secondOrganization := coderdenttest.CreateOrganization(t, ownerClient, coderdenttest.CreateOrganizationOptions{})
-		orgAdminClient, _ := coderdtest.CreateAnotherUser(t, ownerClient, secondOrganization.ID, rbac.ScopedRoleOrgAdmin(secondOrganization.ID))
-		_, user := coderdtest.CreateAnotherUser(t, ownerClient, secondOrganization.ID)
+		secondOrganization := wirtualdenttest.CreateOrganization(t, ownerClient, wirtualdenttest.CreateOrganizationOptions{})
+		orgAdminClient, _ := wirtualdtest.CreateAnotherUser(t, ownerClient, secondOrganization.ID, rbac.ScopedRoleOrgAdmin(secondOrganization.ID))
+		_, user := wirtualdtest.CreateAnotherUser(t, ownerClient, secondOrganization.ID)
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 
@@ -52,9 +52,9 @@ func TestRemoveOrganizationMembers(t *testing.T) {
 	t.Run("UserNotExists", func(t *testing.T) {
 		t.Parallel()
 
-		ownerClient := coderdtest.New(t, &coderdtest.Options{})
-		owner := coderdtest.CreateFirstUser(t, ownerClient)
-		orgAdminClient, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.ScopedRoleOrgAdmin(owner.OrganizationID))
+		ownerClient := wirtualdtest.New(t, &wirtualdtest.Options{})
+		owner := wirtualdtest.CreateFirstUser(t, ownerClient)
+		orgAdminClient, _ := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.ScopedRoleOrgAdmin(owner.OrganizationID))
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 
@@ -74,8 +74,8 @@ func TestEnterpriseListOrganizationMembers(t *testing.T) {
 	t.Run("CustomRole", func(t *testing.T) {
 		t.Parallel()
 
-		ownerClient, owner := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		ownerClient, owner := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureCustomRoles: 1,
 				},
@@ -96,7 +96,7 @@ func TestEnterpriseListOrganizationMembers(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		client, user := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleUserAdmin(), rbac.RoleIdentifier{
+		client, user := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleUserAdmin(), rbac.RoleIdentifier{
 			Name:           customRole.Name,
 			OrganizationID: owner.OrganizationID,
 		}, rbac.ScopedRoleOrgAdmin(owner.OrganizationID))
@@ -120,14 +120,14 @@ func TestAssignOrganizationMemberRole(t *testing.T) {
 
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
-		ownerClient, owner := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		ownerClient, owner := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureCustomRoles: 1,
 				},
 			},
 		})
-		_, user := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleUserAdmin())
+		_, user := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleUserAdmin())
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		// nolint:gocritic // requires owner role to create

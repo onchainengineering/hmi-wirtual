@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"bytes"
@@ -21,7 +21,7 @@ import (
 	"cdr.dev/slog"
 	"github.com/coder/coder/v2/agent/agenttest"
 	"github.com/coder/coder/v2/wirtuald/audit"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/database/dbfake"
@@ -48,13 +48,13 @@ func TestWorkspace(t *testing.T) {
 
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
-		client, _, api := coderdtest.NewWithAPI(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		authz := coderdtest.AssertRBAC(t, api, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
+		client, _, api := wirtualdtest.NewWithAPI(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		authz := wirtualdtest.AssertRBAC(t, api, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -73,13 +73,13 @@ func TestWorkspace(t *testing.T) {
 
 	t.Run("Deleted", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -93,7 +93,7 @@ func TestWorkspace(t *testing.T) {
 			Transition: wirtualsdk.WorkspaceTransitionDelete,
 		})
 		require.NoError(t, err, "delete the workspace")
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
 
 		// Getting with deleted=true should work.
 		workspaceNew, err := client.DeletedWorkspace(ctx, workspace.ID)
@@ -108,18 +108,18 @@ func TestWorkspace(t *testing.T) {
 
 	t.Run("Rename", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 			AllowWorkspaceRenames:    true,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		ws1 := coderdtest.CreateWorkspace(t, client, template.ID)
-		ws2 := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws1.LatestBuild.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws2.LatestBuild.ID)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		ws1 := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		ws2 := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws1.LatestBuild.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws2.LatestBuild.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitMedium)
 		defer cancel()
@@ -147,16 +147,16 @@ func TestWorkspace(t *testing.T) {
 
 	t.Run("RenameDisabled", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 			AllowWorkspaceRenames:    false,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		ws1 := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws1.LatestBuild.ID)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		ws1 := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws1.LatestBuild.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitMedium)
 		defer cancel()
@@ -170,15 +170,15 @@ func TestWorkspace(t *testing.T) {
 
 	t.Run("TemplateProperties", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		const templateIcon = "/img/icon.svg"
 		const templateDisplayName = "This is template"
 		templateAllowUserCancelWorkspaceJobs := false
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			ctr.Icon = templateIcon
 			ctr.DisplayName = templateDisplayName
 			ctr.AllowUserCancelWorkspaceJobs = &templateAllowUserCancelWorkspaceJobs
@@ -187,7 +187,7 @@ func TestWorkspace(t *testing.T) {
 		require.NotEmpty(t, template.DisplayName)
 		require.NotEmpty(t, template.Icon)
 		require.False(t, template.AllowUserCancelWorkspaceJobs)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -207,9 +207,9 @@ func TestWorkspace(t *testing.T) {
 
 		t.Run("Healthy", func(t *testing.T) {
 			t.Parallel()
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			user := coderdtest.CreateFirstUser(t, client)
-			version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+			client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+			user := wirtualdtest.CreateFirstUser(t, client)
+			version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 				Parse: echo.ParseComplete,
 				ProvisionApply: []*proto.Response{{
 					Type: &proto.Response_Apply{
@@ -226,10 +226,10 @@ func TestWorkspace(t *testing.T) {
 					},
 				}},
 			})
-			coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-			template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-			workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-			coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+			wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+			workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+			wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			defer cancel()
@@ -247,9 +247,9 @@ func TestWorkspace(t *testing.T) {
 
 		t.Run("Unhealthy", func(t *testing.T) {
 			t.Parallel()
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			user := coderdtest.CreateFirstUser(t, client)
-			version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+			client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+			user := wirtualdtest.CreateFirstUser(t, client)
+			version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 				Parse: echo.ParseComplete,
 				ProvisionApply: []*proto.Response{{
 					Type: &proto.Response_Apply{
@@ -267,10 +267,10 @@ func TestWorkspace(t *testing.T) {
 					},
 				}},
 			})
-			coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-			template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-			workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-			coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+			wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+			workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+			wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			defer cancel()
@@ -291,9 +291,9 @@ func TestWorkspace(t *testing.T) {
 
 		t.Run("Mixed health", func(t *testing.T) {
 			t.Parallel()
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			user := coderdtest.CreateFirstUser(t, client)
-			version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+			client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+			user := wirtualdtest.CreateFirstUser(t, client)
+			version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 				Parse: echo.ParseComplete,
 				ProvisionApply: []*proto.Response{{
 					Type: &proto.Response_Apply{
@@ -316,10 +316,10 @@ func TestWorkspace(t *testing.T) {
 					},
 				}},
 			})
-			coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-			template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-			workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-			coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+			wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+			workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+			wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			defer cancel()
@@ -346,20 +346,20 @@ func TestWorkspace(t *testing.T) {
 
 	t.Run("Archived", func(t *testing.T) {
 		t.Parallel()
-		ownerClient := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, ownerClient)
+		ownerClient := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, ownerClient)
 
-		client, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		client, _ := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
-		active := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, active.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, active.ID)
+		active := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, active.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, active.ID)
 		// We need another version because the active template version cannot be
 		// archived.
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(request *wirtualsdk.CreateTemplateVersionRequest) {
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(request *wirtualsdk.CreateTemplateVersionRequest) {
 			request.TemplateID = template.ID
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 
@@ -378,8 +378,8 @@ func TestWorkspace(t *testing.T) {
 func TestResolveAutostart(t *testing.T) {
 	t.Parallel()
 
-	ownerClient, db := coderdtest.NewWithDatabase(t, nil)
-	owner := coderdtest.CreateFirstUser(t, ownerClient)
+	ownerClient, db := wirtualdtest.NewWithDatabase(t, nil)
+	owner := wirtualdtest.CreateFirstUser(t, ownerClient)
 
 	param := database.TemplateVersionParameter{
 		Name:         "param",
@@ -390,7 +390,7 @@ func TestResolveAutostart(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
 
-	client, member := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+	client, member := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
 	resp := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 		OwnerID:          member.ID,
 		OrganizationID:   owner.OrganizationID,
@@ -448,9 +448,9 @@ func TestResolveAutostart(t *testing.T) {
 func TestWorkspacesSortOrder(t *testing.T) {
 	t.Parallel()
 
-	client, db := coderdtest.NewWithDatabase(t, nil)
-	firstUser := coderdtest.CreateFirstUser(t, client)
-	secondUserClient, secondUser := coderdtest.CreateAnotherUserMutators(t, client, firstUser.OrganizationID, []rbac.RoleIdentifier{rbac.RoleOwner()}, func(r *wirtualsdk.CreateUserRequestWithOrgs) {
+	client, db := wirtualdtest.NewWithDatabase(t, nil)
+	firstUser := wirtualdtest.CreateFirstUser(t, client)
+	secondUserClient, secondUser := wirtualdtest.CreateAnotherUserMutators(t, client, firstUser.OrganizationID, []rbac.RoleIdentifier{rbac.RoleOwner()}, func(r *wirtualsdk.CreateUserRequestWithOrgs) {
 		r.Username = "zzz"
 	})
 
@@ -533,8 +533,8 @@ func TestPostWorkspacesByOrganization(t *testing.T) {
 	t.Parallel()
 	t.Run("InvalidTemplate", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -551,12 +551,12 @@ func TestPostWorkspacesByOrganization(t *testing.T) {
 
 	t.Run("AlreadyExists", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -574,13 +574,13 @@ func TestPostWorkspacesByOrganization(t *testing.T) {
 	t.Run("CreateWithAuditLogs", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true, Auditor: auditor})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true, Auditor: auditor})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 		assert.True(t, auditor.Contains(t, database.AuditLog{
 			ResourceType:   database.ResourceTypeWorkspace,
 			Action:         database.AuditActionCreate,
@@ -591,21 +591,21 @@ func TestPostWorkspacesByOrganization(t *testing.T) {
 	t.Run("CreateFromVersionWithAuditLogs", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true, Auditor: auditor})
-		user := coderdtest.CreateFirstUser(t, client)
-		versionDefault := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, versionDefault.ID)
-		versionTest := coderdtest.UpdateTemplateVersion(t, client, user.OrganizationID, nil, template.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, versionDefault.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, versionTest.ID)
-		defaultWorkspace := coderdtest.CreateWorkspace(t, client, uuid.Nil,
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true, Auditor: auditor})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		versionDefault := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, versionDefault.ID)
+		versionTest := wirtualdtest.UpdateTemplateVersion(t, client, user.OrganizationID, nil, template.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, versionDefault.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, versionTest.ID)
+		defaultWorkspace := wirtualdtest.CreateWorkspace(t, client, uuid.Nil,
 			func(c *wirtualsdk.CreateWorkspaceRequest) { c.TemplateVersionID = versionDefault.ID },
 		)
-		testWorkspace := coderdtest.CreateWorkspace(t, client, uuid.Nil,
+		testWorkspace := wirtualdtest.CreateWorkspace(t, client, uuid.Nil,
 			func(c *wirtualsdk.CreateWorkspaceRequest) { c.TemplateVersionID = versionTest.ID },
 		)
-		defaultWorkspaceBuild := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, defaultWorkspace.LatestBuild.ID)
-		testWorkspaceBuild := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, testWorkspace.LatestBuild.ID)
+		defaultWorkspaceBuild := wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, defaultWorkspace.LatestBuild.ID)
+		testWorkspaceBuild := wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, testWorkspace.LatestBuild.ID)
 
 		require.Equal(t, testWorkspaceBuild.TemplateVersionID, versionTest.ID)
 		require.Equal(t, defaultWorkspaceBuild.TemplateVersionID, versionDefault.ID)
@@ -619,13 +619,13 @@ func TestPostWorkspacesByOrganization(t *testing.T) {
 	t.Run("InvalidCombinationOfTemplateAndTemplateVersion", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true, Auditor: auditor})
-		user := coderdtest.CreateFirstUser(t, client)
-		versionTest := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		versionDefault := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, versionDefault.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, versionTest.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, versionDefault.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true, Auditor: auditor})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		versionTest := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		versionDefault := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, versionDefault.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, versionTest.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, versionDefault.ID)
 
 		name, se := cryptorand.String(8)
 		require.NoError(t, se)
@@ -645,11 +645,11 @@ func TestPostWorkspacesByOrganization(t *testing.T) {
 
 	t.Run("CreateWithDeletedTemplate", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 		err := client.DeleteTemplate(ctx, template.ID)
@@ -666,21 +666,21 @@ func TestPostWorkspacesByOrganization(t *testing.T) {
 
 	t.Run("TemplateNoTTL", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			ctr.DefaultTTLMillis = ptr.Ref(int64(0))
 		})
 		// Given: the template has no default TTL set
 		require.Zero(t, template.DefaultTTLMillis)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		// When: we create a workspace with autostop not enabled
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 			cwr.TTLMillis = ptr.Ref(int64(0))
 		})
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		// Then: No TTL should be set by the template
 		require.Nil(t, workspace.TTLMillis)
@@ -688,18 +688,18 @@ func TestPostWorkspacesByOrganization(t *testing.T) {
 
 	t.Run("TemplateCustomTTL", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 		templateTTL := 24 * time.Hour.Milliseconds()
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			ctr.DefaultTTLMillis = ptr.Ref(templateTTL)
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 			cwr.TTLMillis = nil // ensure that no default TTL is set
 		})
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		// TTL should be set by the template
 		require.Equal(t, templateTTL, template.DefaultTTLMillis)
@@ -710,11 +710,11 @@ func TestPostWorkspacesByOrganization(t *testing.T) {
 		t.Parallel()
 		t.Run("BelowMin", func(t *testing.T) {
 			t.Parallel()
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			user := coderdtest.CreateFirstUser(t, client)
-			version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-			template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-			coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+			user := wirtualdtest.CreateFirstUser(t, client)
+			version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+			template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+			wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			defer cancel()
@@ -737,14 +737,14 @@ func TestPostWorkspacesByOrganization(t *testing.T) {
 
 	t.Run("TemplateDefaultTTL", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 		exp := 24 * time.Hour.Milliseconds()
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			ctr.DefaultTTLMillis = &exp
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -772,7 +772,7 @@ func TestWorkspaceByOwnerAndName(t *testing.T) {
 	t.Parallel()
 	t.Run("NotFound", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
+		client := wirtualdtest.New(t, nil)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -784,12 +784,12 @@ func TestWorkspaceByOwnerAndName(t *testing.T) {
 	})
 	t.Run("Get", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -799,13 +799,13 @@ func TestWorkspaceByOwnerAndName(t *testing.T) {
 	})
 	t.Run("Deleted", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -816,7 +816,7 @@ func TestWorkspaceByOwnerAndName(t *testing.T) {
 			Transition: wirtualsdk.WorkspaceTransitionDelete,
 		})
 		require.NoError(t, err, "delete the workspace")
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
 
 		// Then:
 		// When we call without includes_deleted, we don't expect to get the workspace back
@@ -839,7 +839,7 @@ func TestWorkspaceByOwnerAndName(t *testing.T) {
 			AutomaticUpdates:  workspace.AutomaticUpdates,
 		})
 		require.NoError(t, err)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		// Then:
 		// We can fetch the most recent workspace
@@ -853,7 +853,7 @@ func TestWorkspaceByOwnerAndName(t *testing.T) {
 			Transition: wirtualsdk.WorkspaceTransitionDelete,
 		})
 		require.NoError(t, err, "delete the workspace")
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
 
 		// Then:
 		// When we fetch the deleted workspace, we get the most recently deleted one
@@ -874,12 +874,12 @@ func TestWorkspaceFilterAllStatus(t *testing.T) {
 	// nolint:gocritic // unit testing
 	ctx := dbauthz.AsSystemRestricted(context.Background())
 	db, pubsub := dbtestutil.NewDB(t)
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := wirtualdtest.New(t, &wirtualdtest.Options{
 		Database: db,
 		Pubsub:   pubsub,
 	})
 
-	owner := coderdtest.CreateFirstUser(t, client)
+	owner := wirtualdtest.CreateFirstUser(t, client)
 
 	file := dbgen.File(t, db, database.File{
 		CreatedBy: owner.UserID,
@@ -1071,15 +1071,15 @@ func TestWorkspaceFilter(t *testing.T) {
 		Org  wirtualsdk.Organization
 	}
 
-	client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-	first := coderdtest.CreateFirstUser(t, client)
+	client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+	first := wirtualdtest.CreateFirstUser(t, client)
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	t.Cleanup(cancel)
 
 	users := make([]coderUser, 0)
 	for i := 0; i < 10; i++ {
-		userClient, user := coderdtest.CreateAnotherUser(t, client, first.OrganizationID, rbac.RoleOwner())
+		userClient, user := wirtualdtest.CreateAnotherUser(t, client, first.OrganizationID, rbac.RoleOwner())
 
 		if i%3 == 0 {
 			var err error
@@ -1114,23 +1114,23 @@ func TestWorkspaceFilter(t *testing.T) {
 	// Create some random workspaces
 	var count int
 	for i, user := range users {
-		version := coderdtest.CreateTemplateVersion(t, client, user.Org.ID, nil)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.Org.ID, nil)
 
 		// Create a template & workspace in the user's org
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		var template wirtualsdk.Template
 		if i%3 == 0 {
-			template = coderdtest.CreateTemplate(t, client, user.Org.ID, version.ID, func(request *wirtualsdk.CreateTemplateRequest) {
+			template = wirtualdtest.CreateTemplate(t, client, user.Org.ID, version.ID, func(request *wirtualsdk.CreateTemplateRequest) {
 				request.Name = strings.ToUpper(request.Name)
 			})
 			upperTemplates = append(upperTemplates, template.Name)
 		} else {
-			template = coderdtest.CreateTemplate(t, client, user.Org.ID, version.ID)
+			template = wirtualdtest.CreateTemplate(t, client, user.Org.ID, version.ID)
 		}
 
 		availTemplates = append(availTemplates, template)
-		workspace := coderdtest.CreateWorkspace(t, user.Client, template.ID, func(request *wirtualsdk.CreateWorkspaceRequest) {
+		workspace := wirtualdtest.CreateWorkspace(t, user.Client, template.ID, func(request *wirtualsdk.CreateWorkspaceRequest) {
 			if count%3 == 0 {
 				request.Name = strings.ToUpper(request.Name)
 			}
@@ -1144,7 +1144,7 @@ func TestWorkspaceFilter(t *testing.T) {
 		// Make a workspace with a random template
 		idx, _ := cryptorand.Intn(len(availTemplates))
 		randTemplate := availTemplates[idx]
-		randWorkspace := coderdtest.CreateWorkspace(t, user.Client, randTemplate.ID)
+		randWorkspace := wirtualdtest.CreateWorkspace(t, user.Client, randTemplate.ID)
 		allWorkspaces = append(allWorkspaces, madeWorkspace{
 			Workspace: randWorkspace,
 			Template:  randTemplate,
@@ -1154,7 +1154,7 @@ func TestWorkspaceFilter(t *testing.T) {
 
 	// Make sure all workspaces are done. Do it after all are made
 	for i, w := range allWorkspaces {
-		latest := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, w.Workspace.LatestBuild.ID)
+		latest := wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, w.Workspace.LatestBuild.ID)
 		allWorkspaces[i].Workspace.LatestBuild = latest
 	}
 
@@ -1279,12 +1279,12 @@ func TestWorkspaceFilterManual(t *testing.T) {
 
 	t.Run("Name", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1314,19 +1314,19 @@ func TestWorkspaceFilterManual(t *testing.T) {
 	})
 	t.Run("Owner", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		otherUser, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleOwner())
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		otherUser, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleOwner())
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 		// Add a non-matching workspace
-		coderdtest.CreateWorkspace(t, otherUser, template.ID)
+		wirtualdtest.CreateWorkspace(t, otherUser, template.ID)
 
 		workspaces := []wirtualsdk.Workspace{
-			coderdtest.CreateWorkspace(t, client, template.ID),
-			coderdtest.CreateWorkspace(t, client, template.ID),
+			wirtualdtest.CreateWorkspace(t, client, template.ID),
+			wirtualdtest.CreateWorkspace(t, client, template.ID),
 		}
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
@@ -1347,13 +1347,13 @@ func TestWorkspaceFilterManual(t *testing.T) {
 	})
 	t.Run("IDs", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		alpha := coderdtest.CreateWorkspace(t, client, template.ID)
-		bravo := coderdtest.CreateWorkspace(t, client, template.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		alpha := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		bravo := wirtualdtest.CreateWorkspace(t, client, template.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1380,16 +1380,16 @@ func TestWorkspaceFilterManual(t *testing.T) {
 	})
 	t.Run("Template", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		version2 := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version2.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		template2 := coderdtest.CreateTemplate(t, client, user.OrganizationID, version2.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		_ = coderdtest.CreateWorkspace(t, client, template2.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		version2 := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version2.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		template2 := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version2.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		_ = wirtualdtest.CreateWorkspace(t, client, template2.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1410,17 +1410,17 @@ func TestWorkspaceFilterManual(t *testing.T) {
 	t.Run("Status", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		workspace1 := coderdtest.CreateWorkspace(t, client, template.ID)
-		workspace2 := coderdtest.CreateWorkspace(t, client, template.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		workspace1 := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		workspace2 := wirtualdtest.CreateWorkspace(t, client, template.ID)
 
 		// wait for workspaces to be "running"
-		_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace1.LatestBuild.ID)
-		_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace2.LatestBuild.ID)
+		_ = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace1.LatestBuild.ID)
+		_ = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace2.LatestBuild.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1431,8 +1431,8 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		require.Len(t, ws1.Workspaces, 2)
 
 		// stop workspace1
-		build1 := coderdtest.CreateWorkspaceBuild(t, client, workspace1, database.WorkspaceTransitionStop)
-		_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, build1.ID)
+		build1 := wirtualdtest.CreateWorkspaceBuild(t, client, workspace1, database.WorkspaceTransitionStop)
+		_ = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, build1.ID)
 
 		// filter finds one running workspace
 		ws2, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
@@ -1443,8 +1443,8 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		require.Equal(t, workspace2.ID, ws2.Workspaces[0].ID)
 
 		// stop workspace2
-		build2 := coderdtest.CreateWorkspaceBuild(t, client, workspace2, database.WorkspaceTransitionStop)
-		_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, build2.ID)
+		build2 := wirtualdtest.CreateWorkspaceBuild(t, client, workspace2, database.WorkspaceTransitionStop)
+		_ = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, build2.ID)
 
 		// filter finds no running workspaces
 		ws3, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
@@ -1455,16 +1455,16 @@ func TestWorkspaceFilterManual(t *testing.T) {
 	})
 	t.Run("FilterQuery", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		version2 := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version2.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		template2 := coderdtest.CreateTemplate(t, client, user.OrganizationID, version2.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		_ = coderdtest.CreateWorkspace(t, client, template2.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		version2 := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version2.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		template2 := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version2.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		_ = wirtualdtest.CreateWorkspace(t, client, template2.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1484,20 +1484,20 @@ func TestWorkspaceFilterManual(t *testing.T) {
 	t.Run("FilterQueryHasAgentConnecting", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		authToken := uuid.NewString()
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionPlan:  echo.PlanComplete,
 			ProvisionApply: echo.ProvisionApplyWithAgent(authToken),
 		})
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1512,23 +1512,23 @@ func TestWorkspaceFilterManual(t *testing.T) {
 	t.Run("FilterQueryHasAgentConnected", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		authToken := uuid.NewString()
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionPlan:  echo.PlanComplete,
 			ProvisionApply: echo.ProvisionApplyWithAgent(authToken),
 		})
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		_ = agenttest.New(t, client.URL, authToken)
-		_ = coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		_ = wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1543,12 +1543,12 @@ func TestWorkspaceFilterManual(t *testing.T) {
 	t.Run("FilterQueryHasAgentTimeout", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		authToken := uuid.NewString()
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse:         echo.ParseComplete,
 			ProvisionPlan: echo.PlanComplete,
 			ProvisionApply: []*proto.Response{{
@@ -1569,10 +1569,10 @@ func TestWorkspaceFilterManual(t *testing.T) {
 				},
 			}},
 		})
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitMedium)
 		defer cancel()
@@ -1588,8 +1588,8 @@ func TestWorkspaceFilterManual(t *testing.T) {
 	t.Run("Dormant", func(t *testing.T) {
 		// this test has a licensed counterpart in enterprise/wirtuald/workspaces_test.go: FilterQueryHasDeletingByAndLicensed
 		t.Parallel()
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client, db := wirtualdtest.NewWithDatabase(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		template := dbfake.TemplateVersion(t, db).Seed(database.TemplateVersion{
 			OrganizationID: user.OrganizationID,
 			CreatedBy:      user.UserID,
@@ -1634,29 +1634,29 @@ func TestWorkspaceFilterManual(t *testing.T) {
 	t.Run("LastUsed", func(t *testing.T) {
 		t.Parallel()
 
-		client, _, api := coderdtest.NewWithAPI(t, &coderdtest.Options{
+		client, _, api := wirtualdtest.NewWithAPI(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		authToken := uuid.NewString()
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionPlan:  echo.PlanComplete,
 			ProvisionApply: echo.ProvisionApplyWithAgent(authToken),
 		})
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		// update template with inactivity ttl
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
 		now := dbtime.Now()
-		before := coderdtest.CreateWorkspace(t, client, template.ID)
-		_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, before.LatestBuild.ID)
+		before := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		_ = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, before.LatestBuild.ID)
 
-		after := coderdtest.CreateWorkspace(t, client, template.ID)
-		_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, after.LatestBuild.ID)
+		after := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		_ = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, after.LatestBuild.ID)
 
 		//nolint:gocritic // Unit testing context
 		err := api.Database.UpdateWorkspaceLastUsedAt(dbauthz.AsSystemRestricted(ctx), database.UpdateWorkspaceLastUsedAtParams{
@@ -1689,12 +1689,12 @@ func TestWorkspaceFilterManual(t *testing.T) {
 	})
 	t.Run("Updated", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1714,10 +1714,10 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		require.Len(t, res.Workspaces, 0)
 
 		// Now make it out of date
-		newTv := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil, func(request *wirtualsdk.CreateTemplateVersionRequest) {
+		newTv := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil, func(request *wirtualsdk.CreateTemplateVersionRequest) {
 			request.TemplateID = template.ID
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, newTv.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, newTv.ID)
 		err = client.UpdateActiveTemplateVersion(ctx, template.ID, wirtualsdk.UpdateActiveTemplateVersion{
 			ID: newTv.ID,
 		})
@@ -1767,18 +1767,18 @@ func TestWorkspaceFilterManual(t *testing.T) {
 			}
 		}
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, makeParameters(&proto.RichParameter{Name: paramOptional, Description: "", Mutable: true, Type: "string"}))
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		noOptionalVersion := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, makeParameters(), func(request *wirtualsdk.CreateTemplateVersionRequest) {
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, makeParameters(&proto.RichParameter{Name: paramOptional, Description: "", Mutable: true, Type: "string"}))
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		noOptionalVersion := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, makeParameters(), func(request *wirtualsdk.CreateTemplateVersionRequest) {
 			request.TemplateID = template.ID
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, noOptionalVersion.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, noOptionalVersion.ID)
 
 		// foo :: one=foo, two=bar, one=baz, optional=optional
-		foo := coderdtest.CreateWorkspace(t, client, uuid.Nil, func(request *wirtualsdk.CreateWorkspaceRequest) {
+		foo := wirtualdtest.CreateWorkspace(t, client, uuid.Nil, func(request *wirtualsdk.CreateWorkspaceRequest) {
 			request.TemplateVersionID = version.ID
 			request.RichParameterValues = []wirtualsdk.WorkspaceBuildParameter{
 				{
@@ -1801,7 +1801,7 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		})
 
 		// bar :: one=foo, two=bar, three=baz, optional=optional
-		bar := coderdtest.CreateWorkspace(t, client, uuid.Nil, func(request *wirtualsdk.CreateWorkspaceRequest) {
+		bar := wirtualdtest.CreateWorkspace(t, client, uuid.Nil, func(request *wirtualsdk.CreateWorkspaceRequest) {
 			request.TemplateVersionID = version.ID
 			request.RichParameterValues = []wirtualsdk.WorkspaceBuildParameter{
 				{
@@ -1824,7 +1824,7 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		})
 
 		// baz :: one=baz, two=baz, three=baz
-		baz := coderdtest.CreateWorkspace(t, client, uuid.Nil, func(request *wirtualsdk.CreateWorkspaceRequest) {
+		baz := wirtualdtest.CreateWorkspace(t, client, uuid.Nil, func(request *wirtualsdk.CreateWorkspaceRequest) {
 			request.TemplateVersionID = noOptionalVersion.ID
 			request.RichParameterValues = []wirtualsdk.WorkspaceBuildParameter{
 				{
@@ -1909,14 +1909,14 @@ func TestOffsetLimit(t *testing.T) {
 	t.Parallel()
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
-	client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-	user := coderdtest.CreateFirstUser(t, client)
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	_ = coderdtest.CreateWorkspace(t, client, template.ID)
-	_ = coderdtest.CreateWorkspace(t, client, template.ID)
-	_ = coderdtest.CreateWorkspace(t, client, template.ID)
+	client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+	user := wirtualdtest.CreateFirstUser(t, client)
+	version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	_ = wirtualdtest.CreateWorkspace(t, client, template.ID)
+	_ = wirtualdtest.CreateWorkspace(t, client, template.ID)
+	_ = wirtualdtest.CreateWorkspace(t, client, template.ID)
 
 	// Case 1: empty finds all workspaces
 	ws, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{})
@@ -2027,19 +2027,19 @@ func TestWorkspaceUpdateAutostart(t *testing.T) {
 			t.Parallel()
 			var (
 				auditor   = audit.NewMock()
-				client    = coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true, Auditor: auditor})
-				user      = coderdtest.CreateFirstUser(t, client)
-				version   = coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-				_         = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-				project   = coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-				workspace = coderdtest.CreateWorkspace(t, client, project.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+				client    = wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true, Auditor: auditor})
+				user      = wirtualdtest.CreateFirstUser(t, client)
+				version   = wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+				_         = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+				project   = wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+				workspace = wirtualdtest.CreateWorkspace(t, client, project.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 					cwr.AutostartSchedule = nil
 					cwr.TTLMillis = nil
 				})
 			)
 
 			// await job to ensure audit logs for workspace_build start are created
-			_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+			_ = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 			// ensure test invariant: new workspaces have no autostart schedule.
 			require.Empty(t, workspace.AutostartSchedule, "expected newly-minted workspace to have no autostart schedule")
@@ -2103,22 +2103,22 @@ func TestWorkspaceUpdateAutostart(t *testing.T) {
 				},
 			}
 
-			client = coderdtest.New(t, &coderdtest.Options{
+			client = wirtualdtest.New(t, &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 				TemplateScheduleStore:    tss,
 			})
-			user      = coderdtest.CreateFirstUser(t, client)
-			version   = coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-			_         = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-			project   = coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-			workspace = coderdtest.CreateWorkspace(t, client, project.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+			user      = wirtualdtest.CreateFirstUser(t, client)
+			version   = wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+			_         = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			project   = wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+			workspace = wirtualdtest.CreateWorkspace(t, client, project.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 				cwr.AutostartSchedule = nil
 				cwr.TTLMillis = nil
 			})
 		)
 
 		// await job to ensure audit logs for workspace_build start are created
-		_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		_ = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		// ensure test invariant: new workspaces have no autostart schedule.
 		require.Empty(t, workspace.AutostartSchedule, "expected newly-minted workspace to have no autostart schedule")
@@ -2135,8 +2135,8 @@ func TestWorkspaceUpdateAutostart(t *testing.T) {
 	t.Run("NotFound", func(t *testing.T) {
 		t.Parallel()
 		var (
-			client = coderdtest.New(t, nil)
-			_      = coderdtest.CreateFirstUser(t, client)
+			client = wirtualdtest.New(t, nil)
+			_      = wirtualdtest.CreateFirstUser(t, client)
 			wsid   = uuid.New()
 			req    = wirtualsdk.UpdateWorkspaceAutostartRequest{
 				Schedule: ptr.Ref("9 30 1-5"),
@@ -2148,9 +2148,9 @@ func TestWorkspaceUpdateAutostart(t *testing.T) {
 
 		err := client.UpdateWorkspaceAutostart(ctx, wsid, req)
 		require.IsType(t, err, &wirtualsdk.Error{}, "expected wirtualsdk.Error")
-		coderSDKErr, _ := err.(*wirtualsdk.Error) //nolint:errorlint
-		require.Equal(t, coderSDKErr.StatusCode(), 404, "expected status code 404")
-		require.Contains(t, coderSDKErr.Message, "Resource not found", "unexpected response code")
+		wirtualSDKErr, _ := err.(*wirtualsdk.Error) //nolint:errorlint
+		require.Equal(t, wirtualSDKErr.StatusCode(), 404, "expected status code 404")
+		require.Contains(t, wirtualSDKErr.Message, "Resource not found", "unexpected response code")
 	})
 }
 
@@ -2212,16 +2212,16 @@ func TestWorkspaceUpdateTTL(t *testing.T) {
 			}
 			var (
 				auditor   = audit.NewMock()
-				client    = coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true, Auditor: auditor})
-				user      = coderdtest.CreateFirstUser(t, client)
-				version   = coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-				_         = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-				project   = coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, mutators...)
-				workspace = coderdtest.CreateWorkspace(t, client, project.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+				client    = wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true, Auditor: auditor})
+				user      = wirtualdtest.CreateFirstUser(t, client)
+				version   = wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+				_         = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+				project   = wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, mutators...)
+				workspace = wirtualdtest.CreateWorkspace(t, client, project.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 					cwr.AutostartSchedule = nil
 					cwr.TTLMillis = nil
 				})
-				_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+				_ = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 			)
 
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
@@ -2270,22 +2270,22 @@ func TestWorkspaceUpdateTTL(t *testing.T) {
 				},
 			}
 
-			client = coderdtest.New(t, &coderdtest.Options{
+			client = wirtualdtest.New(t, &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 				TemplateScheduleStore:    tss,
 			})
-			user      = coderdtest.CreateFirstUser(t, client)
-			version   = coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-			_         = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-			project   = coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-			workspace = coderdtest.CreateWorkspace(t, client, project.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+			user      = wirtualdtest.CreateFirstUser(t, client)
+			version   = wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+			_         = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			project   = wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+			workspace = wirtualdtest.CreateWorkspace(t, client, project.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 				cwr.AutostartSchedule = nil
 				cwr.TTLMillis = nil
 			})
 		)
 
 		// await job to ensure audit logs for workspace_build start are created
-		_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		_ = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		// ensure test invariant: new workspaces have no autostart schedule.
 		require.Empty(t, workspace.AutostartSchedule, "expected newly-minted workspace to have no autostart schedule")
@@ -2302,8 +2302,8 @@ func TestWorkspaceUpdateTTL(t *testing.T) {
 	t.Run("NotFound", func(t *testing.T) {
 		t.Parallel()
 		var (
-			client = coderdtest.New(t, nil)
-			_      = coderdtest.CreateFirstUser(t, client)
+			client = wirtualdtest.New(t, nil)
+			_      = wirtualdtest.CreateFirstUser(t, client)
 			wsid   = uuid.New()
 			req    = wirtualsdk.UpdateWorkspaceTTLRequest{
 				TTLMillis: ptr.Ref(time.Hour.Milliseconds()),
@@ -2315,9 +2315,9 @@ func TestWorkspaceUpdateTTL(t *testing.T) {
 
 		err := client.UpdateWorkspaceTTL(ctx, wsid, req)
 		require.IsType(t, err, &wirtualsdk.Error{}, "expected wirtualsdk.Error")
-		coderSDKErr, _ := err.(*wirtualsdk.Error) //nolint:errorlint
-		require.Equal(t, coderSDKErr.StatusCode(), 404, "expected status code 404")
-		require.Contains(t, coderSDKErr.Message, "Resource not found", "unexpected response code")
+		wirtualSDKErr, _ := err.(*wirtualsdk.Error) //nolint:errorlint
+		require.Equal(t, wirtualSDKErr.StatusCode(), 404, "expected status code 404")
+		require.Contains(t, wirtualSDKErr.Message, "Resource not found", "unexpected response code")
 	})
 }
 
@@ -2326,15 +2326,15 @@ func TestWorkspaceExtend(t *testing.T) {
 	var (
 		ttl         = 8 * time.Hour
 		newDeadline = time.Now().Add(ttl + time.Hour).UTC()
-		client      = coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user        = coderdtest.CreateFirstUser(t, client)
-		version     = coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		_           = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template    = coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		workspace   = coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+		client      = wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user        = wirtualdtest.CreateFirstUser(t, client)
+		version     = wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		_           = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template    = wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		workspace   = wirtualdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 			cwr.TTLMillis = ptr.Ref(ttl.Milliseconds())
 		})
-		_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		_ = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 	)
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
@@ -2393,13 +2393,13 @@ func TestWorkspaceUpdateAutomaticUpdates_OK(t *testing.T) {
 
 	var (
 		auditor      = audit.NewMock()
-		adminClient  = coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true, Auditor: auditor})
-		admin        = coderdtest.CreateFirstUser(t, adminClient)
-		client, user = coderdtest.CreateAnotherUser(t, adminClient, admin.OrganizationID)
-		version      = coderdtest.CreateTemplateVersion(t, adminClient, admin.OrganizationID, nil)
-		_            = coderdtest.AwaitTemplateVersionJobCompleted(t, adminClient, version.ID)
-		project      = coderdtest.CreateTemplate(t, adminClient, admin.OrganizationID, version.ID)
-		workspace    = coderdtest.CreateWorkspace(t, client, project.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+		adminClient  = wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true, Auditor: auditor})
+		admin        = wirtualdtest.CreateFirstUser(t, adminClient)
+		client, user = wirtualdtest.CreateAnotherUser(t, adminClient, admin.OrganizationID)
+		version      = wirtualdtest.CreateTemplateVersion(t, adminClient, admin.OrganizationID, nil)
+		_            = wirtualdtest.AwaitTemplateVersionJobCompleted(t, adminClient, version.ID)
+		project      = wirtualdtest.CreateTemplate(t, adminClient, admin.OrganizationID, version.ID)
+		workspace    = wirtualdtest.CreateWorkspace(t, client, project.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 			cwr.AutostartSchedule = nil
 			cwr.TTLMillis = nil
 			cwr.AutomaticUpdates = wirtualsdk.AutomaticUpdatesNever
@@ -2407,7 +2407,7 @@ func TestWorkspaceUpdateAutomaticUpdates_OK(t *testing.T) {
 	)
 
 	// await job to ensure audit logs for workspace_build start are created
-	_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	_ = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 	// ensure test invariant: new workspaces have automatic updates set to never
 	require.Equal(t, wirtualsdk.AutomaticUpdatesNever, workspace.AutomaticUpdates, "expected newly-minted workspace to automatic updates set to never")
@@ -2441,8 +2441,8 @@ func TestWorkspaceUpdateAutomaticUpdates_OK(t *testing.T) {
 func TestUpdateWorkspaceAutomaticUpdates_NotFound(t *testing.T) {
 	t.Parallel()
 	var (
-		client = coderdtest.New(t, nil)
-		_      = coderdtest.CreateFirstUser(t, client)
+		client = wirtualdtest.New(t, nil)
+		_      = wirtualdtest.CreateFirstUser(t, client)
 		wsid   = uuid.New()
 		req    = wirtualsdk.UpdateWorkspaceAutomaticUpdatesRequest{
 			AutomaticUpdates: wirtualsdk.AutomaticUpdatesNever,
@@ -2454,21 +2454,21 @@ func TestUpdateWorkspaceAutomaticUpdates_NotFound(t *testing.T) {
 
 	err := client.UpdateWorkspaceAutomaticUpdates(ctx, wsid, req)
 	require.IsType(t, err, &wirtualsdk.Error{}, "expected wirtualsdk.Error")
-	coderSDKErr, _ := err.(*wirtualsdk.Error) //nolint:errorlint
-	require.Equal(t, coderSDKErr.StatusCode(), 404, "expected status code 404")
-	require.Contains(t, coderSDKErr.Message, "Resource not found", "unexpected response code")
+	wirtualSDKErr, _ := err.(*wirtualsdk.Error) //nolint:errorlint
+	require.Equal(t, wirtualSDKErr.StatusCode(), 404, "expected status code 404")
+	require.Contains(t, wirtualSDKErr.Message, "Resource not found", "unexpected response code")
 }
 
 func TestWorkspaceWatcher(t *testing.T) {
 	t.Parallel()
-	client, closeFunc := coderdtest.NewWithProvisionerCloser(t, &coderdtest.Options{
+	client, closeFunc := wirtualdtest.NewWithProvisionerCloser(t, &wirtualdtest.Options{
 		IncludeProvisionerDaemon: true,
 		AllowWorkspaceRenames:    true,
 	})
 	defer closeFunc.Close()
-	user := coderdtest.CreateFirstUser(t, client)
+	user := wirtualdtest.CreateFirstUser(t, client)
 	authToken := uuid.NewString()
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse:         echo.ParseComplete,
 		ProvisionPlan: echo.PlanComplete,
 		ProvisionApply: []*proto.Response{{
@@ -2489,10 +2489,10 @@ func TestWorkspaceWatcher(t *testing.T) {
 			},
 		}},
 	})
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+	wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
 
@@ -2521,7 +2521,7 @@ func TestWorkspaceWatcher(t *testing.T) {
 		}
 	}
 
-	coderdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStart)
+	wirtualdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStart)
 	wait("workspace build being created", nil)
 	wait("workspace build being acquired", nil)
 	wait("workspace build completing", nil)
@@ -2530,13 +2530,13 @@ func TestWorkspaceWatcher(t *testing.T) {
 	// of agent timeout seconds. However, if we don't do this we won't know
 	// which trigger we received when waiting for connection.
 	//
-	// Note that the first timeout is from `coderdtest.CreateWorkspace` and
-	// the latter is from `coderdtest.CreateWorkspaceBuild`.
+	// Note that the first timeout is from `wirtualdtest.CreateWorkspace` and
+	// the latter is from `wirtualdtest.CreateWorkspaceBuild`.
 	wait("agent timeout after create", nil)
 	wait("agent timeout after start", nil)
 
 	agt := agenttest.New(t, client.URL, authToken)
-	_ = coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+	_ = wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 	wait("agent connected/ready", func(w wirtualsdk.Workspace) bool {
 		return w.LatestBuild.Resources[0].Agents[0].Status == wirtualsdk.WorkspaceAgentConnected &&
@@ -2554,7 +2554,7 @@ func TestWorkspaceWatcher(t *testing.T) {
 	wait("update workspace name", nil)
 
 	// Add a new version that will fail.
-	badVersion := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	badVersion := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse:         echo.ParseComplete,
 		ProvisionPlan: echo.PlanComplete,
 		ProvisionApply: []*proto.Response{{
@@ -2567,7 +2567,7 @@ func TestWorkspaceWatcher(t *testing.T) {
 	}, func(req *wirtualsdk.CreateTemplateVersionRequest) {
 		req.TemplateID = template.ID
 	})
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, badVersion.ID)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, badVersion.ID)
 	err = client.UpdateActiveTemplateVersion(ctx, template.ID, wirtualsdk.UpdateActiveTemplateVersion{
 		ID: badVersion.ID,
 	})
@@ -2575,7 +2575,7 @@ func TestWorkspaceWatcher(t *testing.T) {
 	wait("update active template version", nil)
 
 	// Build with the new template; should end up with a failure state.
-	_ = coderdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStart, func(req *wirtualsdk.CreateWorkspaceBuildRequest) {
+	_ = wirtualdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStart, func(req *wirtualsdk.CreateWorkspaceBuildRequest) {
 		req.TemplateVersionID = badVersion.ID
 	})
 	// We want to verify pending state here, but it's possible that we reach
@@ -2599,7 +2599,7 @@ func TestWorkspaceWatcher(t *testing.T) {
 	}
 
 	closeFunc.Close()
-	build := coderdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStart)
+	build := wirtualdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStart)
 	wait("first is for the workspace build itself", nil)
 	err = client.CancelWorkspaceBuild(ctx, build.ID)
 	require.NoError(t, err)
@@ -2620,9 +2620,9 @@ func TestWorkspaceResource(t *testing.T) {
 	t.Parallel()
 	t.Run("Get", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionApply: []*proto.Response{{
 				Type: &proto.Response_Apply{
@@ -2648,10 +2648,10 @@ func TestWorkspaceResource(t *testing.T) {
 				},
 			}},
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -2665,10 +2665,10 @@ func TestWorkspaceResource(t *testing.T) {
 
 	t.Run("Apps", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		apps := []*proto.App{
 			{
 				Slug:        "code-server",
@@ -2690,7 +2690,7 @@ func TestWorkspaceResource(t *testing.T) {
 				},
 			},
 		}
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionApply: []*proto.Response{{
 				Type: &proto.Response_Apply{
@@ -2708,10 +2708,10 @@ func TestWorkspaceResource(t *testing.T) {
 				},
 			}},
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -2743,10 +2743,10 @@ func TestWorkspaceResource(t *testing.T) {
 
 	t.Run("Apps_DisplayOrder", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		apps := []*proto.App{
 			{
 				Slug:        "aaa",
@@ -2764,7 +2764,7 @@ func TestWorkspaceResource(t *testing.T) {
 				Slug: "bbb",
 			},
 		}
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionApply: []*proto.Response{{
 				Type: &proto.Response_Apply{
@@ -2782,10 +2782,10 @@ func TestWorkspaceResource(t *testing.T) {
 				},
 			}},
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -2803,11 +2803,11 @@ func TestWorkspaceResource(t *testing.T) {
 
 	t.Run("Metadata", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionApply: []*proto.Response{{
 				Type: &proto.Response_Apply{
@@ -2837,10 +2837,10 @@ func TestWorkspaceResource(t *testing.T) {
 				},
 			}},
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -2878,9 +2878,9 @@ func TestWorkspaceWithRichParameters(t *testing.T) {
 		secondParameterValidationMonotonic = wirtualsdk.MonotonicOrderIncreasing
 	)
 
-	client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-	user := coderdtest.CreateFirstUser(t, client)
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+	user := wirtualdtest.CreateFirstUser(t, client)
+	version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse: echo.ParseComplete,
 		ProvisionPlan: []*proto.Response{
 			{
@@ -2912,7 +2912,7 @@ func TestWorkspaceWithRichParameters(t *testing.T) {
 			},
 		}},
 	})
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
@@ -2942,12 +2942,12 @@ func TestWorkspaceWithRichParameters(t *testing.T) {
 		{Name: secondParameterName, Value: secondParameterValue},
 	}
 
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+	template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	workspace := wirtualdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 		cwr.RichParameterValues = expectedBuildParameters
 	})
 
-	workspaceBuild := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	workspaceBuild := wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 	require.Equal(t, wirtualsdk.WorkspaceStatusRunning, workspaceBuild.Status)
 
 	workspaceBuildParameters, err := client.WorkspaceBuildParameters(ctx, workspaceBuild.ID)
@@ -2971,9 +2971,9 @@ func TestWorkspaceWithOptionalRichParameters(t *testing.T) {
 		secondParameterValue       = "333"
 	)
 
-	client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-	user := coderdtest.CreateFirstUser(t, client)
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+	user := wirtualdtest.CreateFirstUser(t, client)
+	version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse: echo.ParseComplete,
 		ProvisionPlan: []*proto.Response{
 			{
@@ -3003,7 +3003,7 @@ func TestWorkspaceWithOptionalRichParameters(t *testing.T) {
 			},
 		}},
 	})
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
@@ -3020,22 +3020,22 @@ func TestWorkspaceWithOptionalRichParameters(t *testing.T) {
 	require.Equal(t, secondParameterDescription, templateRichParameters[1].Description)
 	require.Equal(t, secondParameterRequired, templateRichParameters[1].Required)
 
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+	template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	workspace := wirtualdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 		cwr.RichParameterValues = []wirtualsdk.WorkspaceBuildParameter{
 			// First parameter is optional, so coder will pick the default value.
 			{Name: secondParameterName, Value: secondParameterValue},
 		}
 	})
 
-	workspaceBuild := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	workspaceBuild := wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 	require.Equal(t, wirtualsdk.WorkspaceStatusRunning, workspaceBuild.Status)
 
 	workspaceBuildParameters, err := client.WorkspaceBuildParameters(ctx, workspaceBuild.ID)
 	require.NoError(t, err)
 
 	expectedBuildParameters := []wirtualsdk.WorkspaceBuildParameter{
-		// Coderd inserts the default for the missing parameter
+		// Wirtuald inserts the default for the missing parameter
 		{Name: firstParameterName, Value: firstParameterDefaultValue},
 		{Name: secondParameterName, Value: secondParameterValue},
 	}
@@ -3062,9 +3062,9 @@ func TestWorkspaceWithEphemeralRichParameters(t *testing.T) {
 	)
 
 	// Create template version with ephemeral parameter
-	client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-	user := coderdtest.CreateFirstUser(t, client)
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+	user := wirtualdtest.CreateFirstUser(t, client)
+	version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse: echo.ParseComplete,
 		ProvisionPlan: []*proto.Response{
 			{
@@ -3097,12 +3097,12 @@ func TestWorkspaceWithEphemeralRichParameters(t *testing.T) {
 			},
 		}},
 	})
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 	// Create workspace with default values
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-	workspaceBuild := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+	workspaceBuild := wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 	require.Equal(t, wirtualsdk.WorkspaceStatusRunning, workspaceBuild.Status)
 
 	// Verify workspace build parameters (default values)
@@ -3129,7 +3129,7 @@ func TestWorkspaceWithEphemeralRichParameters(t *testing.T) {
 		},
 	})
 	require.NoError(t, err)
-	workspaceBuild = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
+	workspaceBuild = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
 	require.Equal(t, wirtualsdk.WorkspaceStatusRunning, workspaceBuild.Status)
 
 	// Verify workspace build parameters (including ephemeral)
@@ -3153,7 +3153,7 @@ func TestWorkspaceWithEphemeralRichParameters(t *testing.T) {
 		},
 	})
 	require.NoError(t, err)
-	workspaceBuild = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
+	workspaceBuild = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
 	require.Equal(t, wirtualsdk.WorkspaceStatusRunning, workspaceBuild.Status)
 
 	// Verify workspace build parameters (ephemeral should be back to default)
@@ -3174,21 +3174,21 @@ func TestWorkspaceDormant(t *testing.T) {
 		t.Parallel()
 		var (
 			auditRecorder = audit.NewMock()
-			client        = coderdtest.New(t, &coderdtest.Options{
+			client        = wirtualdtest.New(t, &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 				Auditor:                  auditRecorder,
 			})
-			user                     = coderdtest.CreateFirstUser(t, client)
-			version                  = coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-			_                        = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			user                     = wirtualdtest.CreateFirstUser(t, client)
+			version                  = wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+			_                        = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 			timeTilDormantAutoDelete = time.Minute
 		)
 
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			ctr.TimeTilDormantAutoDeleteMillis = ptr.Ref[int64](timeTilDormantAutoDelete.Milliseconds())
 		})
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		_ = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -3205,7 +3205,7 @@ func TestWorkspaceDormant(t *testing.T) {
 			ResourceTarget: workspace.Name,
 		}))
 
-		workspace = coderdtest.MustWorkspace(t, client, workspace.ID)
+		workspace = wirtualdtest.MustWorkspace(t, client, workspace.ID)
 		require.NoError(t, err, "fetch provisioned workspace")
 		// The template doesn't have a time_til_dormant_autodelete set so this should be nil.
 		require.Nil(t, workspace.DeletingAt)
@@ -3213,7 +3213,7 @@ func TestWorkspaceDormant(t *testing.T) {
 		require.WithinRange(t, *workspace.DormantAt, time.Now().Add(-time.Second*10), time.Now())
 		require.Equal(t, lastUsedAt, workspace.LastUsedAt)
 
-		workspace = coderdtest.MustWorkspace(t, client, workspace.ID)
+		workspace = wirtualdtest.MustWorkspace(t, client, workspace.ID)
 		lastUsedAt = workspace.LastUsedAt
 		err = client.UpdateWorkspaceDormancy(ctx, workspace.ID, wirtualsdk.UpdateWorkspaceDormancy{
 			Dormant: false,
@@ -3232,13 +3232,13 @@ func TestWorkspaceDormant(t *testing.T) {
 	t.Run("CannotStart", func(t *testing.T) {
 		t.Parallel()
 		var (
-			client    = coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			user      = coderdtest.CreateFirstUser(t, client)
-			version   = coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-			_         = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-			template  = coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-			workspace = coderdtest.CreateWorkspace(t, client, template.ID)
-			_         = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+			client    = wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+			user      = wirtualdtest.CreateFirstUser(t, client)
+			version   = wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+			_         = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			template  = wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+			workspace = wirtualdtest.CreateWorkspace(t, client, template.ID)
+			_         = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 		)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
@@ -3250,7 +3250,7 @@ func TestWorkspaceDormant(t *testing.T) {
 		require.NoError(t, err)
 
 		// Should be able to stop a workspace while it is dormant.
-		coderdtest.MustTransitionWorkspace(t, client, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
+		wirtualdtest.MustTransitionWorkspace(t, client, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
 
 		// Should not be able to start a workspace while it is dormant.
 		_, err = client.CreateWorkspaceBuild(ctx, workspace.ID, wirtualsdk.CreateWorkspaceBuildRequest{
@@ -3263,7 +3263,7 @@ func TestWorkspaceDormant(t *testing.T) {
 			Dormant: false,
 		})
 		require.NoError(t, err)
-		coderdtest.MustTransitionWorkspace(t, client, workspace.ID, database.WorkspaceTransitionStop, database.WorkspaceTransitionStart)
+		wirtualdtest.MustTransitionWorkspace(t, client, workspace.ID, database.WorkspaceTransitionStop, database.WorkspaceTransitionStart)
 	})
 }
 
@@ -3272,11 +3272,11 @@ func TestWorkspaceFavoriteUnfavorite(t *testing.T) {
 	// Given:
 	var (
 		auditRecorder = audit.NewMock()
-		client, db    = coderdtest.NewWithDatabase(t, &coderdtest.Options{
+		client, db    = wirtualdtest.NewWithDatabase(t, &wirtualdtest.Options{
 			Auditor: auditRecorder,
 		})
-		owner                = coderdtest.CreateFirstUser(t, client)
-		memberClient, member = coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		owner                = wirtualdtest.CreateFirstUser(t, client)
+		memberClient, member = wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 		// This will be our 'favorite' workspace
 		wsb1 = dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{OwnerID: member.ID, OrganizationID: owner.OrganizationID}).Do()
 		wsb2 = dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{OwnerID: owner.UserID, OrganizationID: owner.OrganizationID}).Do()
@@ -3353,8 +3353,8 @@ func TestWorkspaceUsageTracking(t *testing.T) {
 	t.Parallel()
 	t.Run("NoExperiment", func(t *testing.T) {
 		t.Parallel()
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client, db := wirtualdtest.NewWithDatabase(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		tmpDir := t.TempDir()
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: user.OrganizationID,
@@ -3377,12 +3377,12 @@ func TestWorkspaceUsageTracking(t *testing.T) {
 		t.Parallel()
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitMedium)
 		defer cancel()
-		dv := coderdtest.DeploymentValues(t)
+		dv := wirtualdtest.DeploymentValues(t)
 		dv.Experiments = []string{string(wirtualsdk.ExperimentWorkspaceUsage)}
-		client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
+		client, db := wirtualdtest.NewWithDatabase(t, &wirtualdtest.Options{
 			DeploymentValues: dv,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		tmpDir := t.TempDir()
 		org := dbgen.Organization(t, db, database.Organization{})
 		_ = dbgen.OrganizationMember(t, db, database.OrganizationMember{
@@ -3485,17 +3485,17 @@ func TestWorkspaceNotifications(t *testing.T) {
 			// Given
 			var (
 				notifyEnq = &notificationstest.FakeEnqueuer{}
-				client    = coderdtest.New(t, &coderdtest.Options{
+				client    = wirtualdtest.New(t, &wirtualdtest.Options{
 					IncludeProvisionerDaemon: true,
 					NotificationsEnqueuer:    notifyEnq,
 				})
-				user            = coderdtest.CreateFirstUser(t, client)
-				memberClient, _ = coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleOwner())
-				version         = coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-				_               = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-				template        = coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-				workspace       = coderdtest.CreateWorkspace(t, client, template.ID)
-				_               = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+				user            = wirtualdtest.CreateFirstUser(t, client)
+				memberClient, _ = wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleOwner())
+				version         = wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+				_               = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+				template        = wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+				workspace       = wirtualdtest.CreateWorkspace(t, client, template.ID)
+				_               = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 			)
 
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
@@ -3525,16 +3525,16 @@ func TestWorkspaceNotifications(t *testing.T) {
 			// Given
 			var (
 				notifyEnq = &notificationstest.FakeEnqueuer{}
-				client    = coderdtest.New(t, &coderdtest.Options{
+				client    = wirtualdtest.New(t, &wirtualdtest.Options{
 					IncludeProvisionerDaemon: true,
 					NotificationsEnqueuer:    notifyEnq,
 				})
-				user      = coderdtest.CreateFirstUser(t, client)
-				version   = coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-				_         = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-				template  = coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-				workspace = coderdtest.CreateWorkspace(t, client, template.ID)
-				_         = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+				user      = wirtualdtest.CreateFirstUser(t, client)
+				version   = wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+				_         = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+				template  = wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+				workspace = wirtualdtest.CreateWorkspace(t, client, template.ID)
+				_         = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 			)
 
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
@@ -3556,16 +3556,16 @@ func TestWorkspaceNotifications(t *testing.T) {
 			// Given
 			var (
 				notifyEnq = &notificationstest.FakeEnqueuer{}
-				client    = coderdtest.New(t, &coderdtest.Options{
+				client    = wirtualdtest.New(t, &wirtualdtest.Options{
 					IncludeProvisionerDaemon: true,
 					NotificationsEnqueuer:    notifyEnq,
 				})
-				user      = coderdtest.CreateFirstUser(t, client)
-				version   = coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-				_         = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-				template  = coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-				workspace = coderdtest.CreateWorkspace(t, client, template.ID)
-				_         = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+				user      = wirtualdtest.CreateFirstUser(t, client)
+				version   = wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+				_         = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+				template  = wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+				workspace = wirtualdtest.CreateWorkspace(t, client, template.ID)
+				_         = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 			)
 
 			// When
@@ -3594,22 +3594,22 @@ func TestWorkspaceTimings(t *testing.T) {
 	t.Parallel()
 
 	db, pubsub := dbtestutil.NewDB(t)
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := wirtualdtest.New(t, &wirtualdtest.Options{
 		Database: db,
 		Pubsub:   pubsub,
 	})
-	coderdtest.CreateFirstUser(t, client)
+	wirtualdtest.CreateFirstUser(t, client)
 
 	t.Run("LatestBuild", func(t *testing.T) {
 		t.Parallel()
 
 		// Given: a workspace with many builds, provisioner, and agent script timings
 		db, pubsub := dbtestutil.NewDB(t)
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			Database: db,
 			Pubsub:   pubsub,
 		})
-		owner := coderdtest.CreateFirstUser(t, client)
+		owner := wirtualdtest.CreateFirstUser(t, client)
 		file := dbgen.File(t, db, database.File{
 			CreatedBy: owner.UserID,
 		})

@@ -12,7 +12,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/database/dbgen"
@@ -100,8 +100,8 @@ func TestWorkspaceAgentParam(t *testing.T) {
 	t.Run("NotAuthorized", func(t *testing.T) {
 		t.Parallel()
 		db := dbmem.New()
-		fakeAuthz := (&coderdtest.FakeAuthorizer{}).AlwaysReturn(xerrors.Errorf("constant failure"))
-		dbFail := dbauthz.New(db, fakeAuthz, slog.Make(), coderdtest.AccessControlStorePointer())
+		fakeAuthz := (&wirtualdtest.FakeAuthorizer{}).AlwaysReturn(xerrors.Errorf("constant failure"))
+		dbFail := dbauthz.New(db, fakeAuthz, slog.Make(), wirtualdtest.AccessControlStorePointer())
 
 		rtr := chi.NewRouter()
 		rtr.Use(

@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"database/sql"
@@ -17,7 +17,7 @@ import (
 
 	"github.com/coder/coder/v2/agent/agenttest"
 	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
 	"github.com/coder/coder/v2/wirtuald/database/dbgen"
@@ -25,7 +25,7 @@ import (
 	"github.com/coder/coder/v2/wirtuald/database/dbtime"
 	"github.com/coder/coder/v2/wirtuald/workspaceapps"
 	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/enterprise/wsproxy/wsproxysdk"
 	"github.com/coder/coder/v2/provisioner/echo"
@@ -42,8 +42,8 @@ func TestRegions(t *testing.T) {
 
 		db, pubsub := dbtestutil.NewDB(t)
 
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				AppHostname: appHostname,
 				Database:    db,
 				Pubsub:      pubsub,
@@ -78,13 +78,13 @@ func TestRegions(t *testing.T) {
 
 		db, pubsub := dbtestutil.NewDB(t)
 
-		client, closer, api, _ := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, closer, api, _ := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				AppHostname: appHostname,
 				Database:    db,
 				Pubsub:      pubsub,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureWorkspaceProxy: 1,
 				},
@@ -102,7 +102,7 @@ func TestRegions(t *testing.T) {
 		require.NoError(t, err)
 
 		const proxyName = "hello"
-		_ = coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
+		_ = wirtualdenttest.NewWorkspaceProxyReplica(t, api, client, &wirtualdenttest.ProxyOptions{
 			Name:        proxyName,
 			AppHostname: appHostname + ".proxy",
 		})
@@ -185,8 +185,8 @@ func TestRegions(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				AppHostname: appHostname,
 			},
 		})
@@ -204,8 +204,8 @@ func TestWorkspaceProxyCRUD(t *testing.T) {
 	t.Run("CreateAndUpdate", func(t *testing.T) {
 		t.Parallel()
 
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureWorkspaceProxy: 1,
 				},
@@ -247,8 +247,8 @@ func TestWorkspaceProxyCRUD(t *testing.T) {
 	t.Run("Delete", func(t *testing.T) {
 		t.Parallel()
 
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureWorkspaceProxy: 1,
 				},
@@ -276,14 +276,14 @@ func TestProxyRegisterDeregister(t *testing.T) {
 
 	setup := func(t *testing.T) (*wirtualsdk.Client, database.Store) {
 		db, pubsub := dbtestutil.NewDB(t)
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				Database:                 db,
 				Pubsub:                   pubsub,
 				IncludeProvisionerDaemon: true,
 			},
 			ReplicaSyncUpdateInterval: time.Minute,
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureWorkspaceProxy: 1,
 				},
@@ -615,11 +615,11 @@ func TestProxyRegisterDeregister(t *testing.T) {
 func TestIssueSignedAppToken(t *testing.T) {
 	t.Parallel()
 
-	client, user := coderdenttest.New(t, &coderdenttest.Options{
-		Options: &coderdtest.Options{
+	client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
+		Options: &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 		},
-		LicenseOptions: &coderdenttest.LicenseOptions{
+		LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureWorkspaceProxy: 1,
 			},
@@ -628,19 +628,19 @@ func TestIssueSignedAppToken(t *testing.T) {
 
 	// Create a workspace + apps
 	authToken := uuid.NewString()
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse:          echo.ParseComplete,
 		ProvisionApply: echo.ProvisionApplyWithAgent(authToken),
 	})
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-	build := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+	build := wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 	workspace.LatestBuild = build
 
 	// Connect an agent to the workspace
 	_ = agenttest.New(t, client.URL, authToken)
-	_ = coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+	_ = wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 	createProxyCtx := testutil.Context(t, testutil.WaitLong)
 	proxyRes, err := client.CreateWorkspaceProxy(createProxyCtx, wirtualsdk.CreateWorkspaceProxyRequest{
@@ -703,13 +703,13 @@ func TestReconnectingPTYSignedToken(t *testing.T) {
 	t.Parallel()
 
 	db, pubsub := dbtestutil.NewDB(t)
-	client, closer, api, user := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-		Options: &coderdtest.Options{
+	client, closer, api, user := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{
+		Options: &wirtualdtest.Options{
 			Database:                 db,
 			Pubsub:                   pubsub,
 			IncludeProvisionerDaemon: true,
 		},
-		LicenseOptions: &coderdenttest.LicenseOptions{
+		LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureWorkspaceProxy: 1,
 			},
@@ -725,25 +725,25 @@ func TestReconnectingPTYSignedToken(t *testing.T) {
 
 	// Create a workspace + apps
 	authToken := uuid.NewString()
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse:          echo.ParseComplete,
 		ProvisionApply: echo.ProvisionApplyWithAgent(authToken),
 	})
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-	build := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+	build := wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 	workspace.LatestBuild = build
 
 	// Connect an agent to the workspace
 	agentID := build.Resources[0].Agents[0].ID
 	_ = agenttest.New(t, client.URL, authToken)
-	_ = coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+	_ = wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 	proxyURL, err := url.Parse(fmt.Sprintf("https://%s.com", testutil.GetRandomName(t)))
 	require.NoError(t, err)
 
-	_ = coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
+	_ = wirtualdenttest.NewWorkspaceProxyReplica(t, api, client, &wirtualdenttest.ProxyOptions{
 		Name:        testutil.GetRandomName(t),
 		ProxyURL:    proxyURL,
 		AppHostname: "*.sub.example.com",
@@ -868,7 +868,7 @@ func TestReconnectingPTYSignedToken(t *testing.T) {
 	t.Run("NoPermissions", func(t *testing.T) {
 		t.Parallel()
 
-		userClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		userClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 		res, err := userClient.IssueReconnectingPTYSignedToken(ctx, wirtualsdk.IssueReconnectingPTYSignedTokenRequest{
@@ -906,13 +906,13 @@ func TestGetCryptoKeys(t *testing.T) {
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		db, pubsub := dbtestutil.NewDB(t)
-		cclient, _, api, _ := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		cclient, _, api, _ := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				Database:                 db,
 				Pubsub:                   pubsub,
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureWorkspaceProxy: 1,
 				},
@@ -946,7 +946,7 @@ func TestGetCryptoKeys(t *testing.T) {
 			Sequence: 4,
 		})
 
-		proxy := coderdenttest.NewWorkspaceProxyReplica(t, api, cclient, &coderdenttest.ProxyOptions{
+		proxy := wirtualdenttest.NewWorkspaceProxyReplica(t, api, cclient, &wirtualdenttest.ProxyOptions{
 			Name: testutil.GetRandomName(t),
 		})
 
@@ -972,20 +972,20 @@ func TestGetCryptoKeys(t *testing.T) {
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		db, pubsub := dbtestutil.NewDB(t)
-		cclient, _, api, _ := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		cclient, _, api, _ := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				Database:                 db,
 				Pubsub:                   pubsub,
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureWorkspaceProxy: 1,
 				},
 			},
 		})
 
-		proxy := coderdenttest.NewWorkspaceProxyReplica(t, api, cclient, &coderdenttest.ProxyOptions{
+		proxy := wirtualdenttest.NewWorkspaceProxyReplica(t, api, cclient, &wirtualdenttest.ProxyOptions{
 			Name: testutil.GetRandomName(t),
 		})
 
@@ -1009,20 +1009,20 @@ func TestGetCryptoKeys(t *testing.T) {
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		db, pubsub := dbtestutil.NewDB(t)
-		cclient, _, api, _ := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		cclient, _, api, _ := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				Database:                 db,
 				Pubsub:                   pubsub,
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureWorkspaceProxy: 1,
 				},
 			},
 		})
 
-		_ = coderdenttest.NewWorkspaceProxyReplica(t, api, cclient, &coderdenttest.ProxyOptions{
+		_ = wirtualdenttest.NewWorkspaceProxyReplica(t, api, cclient, &wirtualdenttest.ProxyOptions{
 			Name: testutil.GetRandomName(t),
 		})
 

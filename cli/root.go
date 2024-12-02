@@ -981,7 +981,7 @@ func cliHumanFormatError(from string, err error, opts *formatOpts) (string, bool
 	// First check for sentinel errors that we want to handle specially.
 	// Order does matter! We want to check for the most specific errors first.
 	if sdkError, ok := err.(*wirtualsdk.Error); ok {
-		return formatCoderSDKError(from, sdkError, opts), true
+		return formatWirtualSDKError(from, sdkError, opts), true
 	}
 
 	if cmdErr, ok := err.(*serpent.RunCommandError); ok {
@@ -1074,9 +1074,9 @@ func formatRunCommandError(err *serpent.RunCommandError, opts *formatOpts) strin
 	return str.String()
 }
 
-// formatCoderSDKError come from API requests. In verbose mode, add the
+// formatWirtualSDKError come from API requests. In verbose mode, add the
 // request debug information.
-func formatCoderSDKError(from string, err *wirtualsdk.Error, opts *formatOpts) string {
+func formatWirtualSDKError(from string, err *wirtualsdk.Error, opts *formatOpts) string {
 	var str strings.Builder
 	if opts.Verbose {
 		// If all these fields are empty, then do not print this information.

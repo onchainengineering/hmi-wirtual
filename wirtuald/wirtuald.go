@@ -260,7 +260,7 @@ type Options struct {
 
 // @title Coder API
 // @version 2.0
-// @description Coderd is the service created by running coder server. It is a thin API that connects workspaces, provisioners and users. wirtuald stores its state in Postgres and is the only service that communicates with Postgres.
+// @description Wirtuald is the service created by running coder server. It is a thin API that connects workspaces, provisioners and users. wirtuald stores its state in Postgres and is the only service that communicates with Postgres.
 // @termsOfService https://coder.com/legal/terms-of-service
 
 // @contact.name API Support
@@ -769,7 +769,7 @@ func New(options *Options) *API {
 	// TODO: export via prometheus
 	expDERPOnce.Do(func() {
 		// We need to do this via a global Once because expvar registry is global and panics if we
-		// register multiple times.  In production there is only one Coderd and one DERP server per
+		// register multiple times.  In production there is only one Wirtuald and one DERP server per
 		// process, but in testing, we create multiple of both, so the Once protects us from
 		// panicking.
 		if options.DERPServer != nil {

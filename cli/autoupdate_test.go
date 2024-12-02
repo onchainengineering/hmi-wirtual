@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -18,14 +18,14 @@ func TestAutoUpdate(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, member, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		member, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, member, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 		require.Equal(t, wirtualsdk.AutomaticUpdatesNever, workspace.AutomaticUpdates)
 
 		expectedPolicy := wirtualsdk.AutomaticUpdatesAlways
@@ -37,7 +37,7 @@ func TestAutoUpdate(t *testing.T) {
 		require.NoError(t, err)
 		require.Contains(t, buf.String(), fmt.Sprintf("Updated workspace %q auto-update policy to %q", workspace.Name, expectedPolicy))
 
-		workspace = coderdtest.MustWorkspace(t, client, workspace.ID)
+		workspace = wirtualdtest.MustWorkspace(t, client, workspace.ID)
 		require.Equal(t, expectedPolicy, workspace.AutomaticUpdates)
 	})
 
@@ -65,8 +65,8 @@ func TestAutoUpdate(t *testing.T) {
 			c := c
 			t.Run(c.Name, func(t *testing.T) {
 				t.Parallel()
-				client := coderdtest.New(t, nil)
-				_ = coderdtest.CreateFirstUser(t, client)
+				client := wirtualdtest.New(t, nil)
+				_ = wirtualdtest.CreateFirstUser(t, client)
 
 				inv, root := clitest.New(t, c.Args...)
 				clitest.SetupConfig(t, client, root)

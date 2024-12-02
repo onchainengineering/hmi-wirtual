@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -11,11 +11,11 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/agent"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
 	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
-	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/provisionersdk/proto"
@@ -33,12 +33,12 @@ func TestBlockNonBrowser(t *testing.T) {
 	t.Parallel()
 	t.Run("Enabled", func(t *testing.T) {
 		t.Parallel()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			BrowserOnly: true,
-			Options: &coderdtest.Options{
+			Options: &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureBrowserOnly: 1,
 				},
@@ -54,11 +54,11 @@ func TestBlockNonBrowser(t *testing.T) {
 	})
 	t.Run("Disabled", func(t *testing.T) {
 		t.Parallel()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureBrowserOnly: 0,
 				},
@@ -81,7 +81,7 @@ type setupResp struct {
 
 func setupWorkspaceAgent(t *testing.T, client *wirtualsdk.Client, user wirtualsdk.CreateFirstUserResponse, appPort uint16) setupResp {
 	authToken := uuid.NewString()
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse: echo.ParseComplete,
 		ProvisionApply: []*proto.Response{{
 			Type: &proto.Response_Apply{
@@ -121,10 +121,10 @@ func setupWorkspaceAgent(t *testing.T, client *wirtualsdk.Client, user wirtualsd
 			},
 		}},
 	})
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+	wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 	agentClient := agentsdk.New(client.URL)
 	agentClient.SDK.HTTPClient = &http.Client{
 		Transport: &http.Transport{
@@ -146,7 +146,7 @@ func setupWorkspaceAgent(t *testing.T, client *wirtualsdk.Client, user wirtualsd
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
 
-	resources := coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+	resources := wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 	sdkAgent, err := client.WorkspaceAgent(ctx, resources[0].Agents[0].ID)
 	require.NoError(t, err)
 

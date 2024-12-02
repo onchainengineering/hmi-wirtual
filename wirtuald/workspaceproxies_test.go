@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/testutil"
@@ -27,12 +27,12 @@ func TestRegions(t *testing.T) {
 		err := db.InsertDeploymentID(ctx, deploymentID.String())
 		require.NoError(t, err)
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			AppHostname: appHostname,
 			Database:    db,
 			Pubsub:      pubsub,
 		})
-		_ = coderdtest.CreateFirstUser(t, client)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		regions, err := client.Regions(ctx)
 		require.NoError(t, err)
@@ -57,8 +57,8 @@ func TestRegions(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		unauthedClient := wirtualsdk.New(client.URL)
 		regions, err := unauthedClient.Regions(ctx)

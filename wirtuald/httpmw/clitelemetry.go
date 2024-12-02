@@ -26,7 +26,7 @@ func ReportCLITelemetry(log slog.Logger, rep telemetry.Reporter) func(http.Handl
 		// We map by timestamp to deduplicate invocations, since one invocation
 		// will send multiple requests, each with a duplicate header. It's still
 		// possible for duplicates to reach the telemetry service since requests
-		// can get processed by different coderds, but our analysis tools
+		// can get processed by different wirtualds, but our analysis tools
 		// will deduplicate by timestamp as well.
 		//
 		// This approach just helps us reduce storage and ingest fees, and doesn't

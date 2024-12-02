@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/database/dbfake"
@@ -19,9 +19,9 @@ func TestPostWorkspaceAgentPortShare(t *testing.T) {
 	t.Parallel()
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
-	ownerClient, db := coderdtest.NewWithDatabase(t, nil)
-	owner := coderdtest.CreateFirstUser(t, ownerClient)
-	client, user := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+	ownerClient, db := wirtualdtest.NewWithDatabase(t, nil)
+	owner := wirtualdtest.CreateFirstUser(t, ownerClient)
+	client, user := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
 
 	tmpDir := t.TempDir()
 	r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
@@ -31,7 +31,7 @@ func TestPostWorkspaceAgentPortShare(t *testing.T) {
 		agents[0].Directory = tmpDir
 		return agents
 	}).Do()
-	agents, err := db.GetWorkspaceAgentsInLatestBuildByWorkspaceID(dbauthz.As(ctx, coderdtest.AuthzUserSubject(user, owner.OrganizationID)), r.Workspace.ID)
+	agents, err := db.GetWorkspaceAgentsInLatestBuildByWorkspaceID(dbauthz.As(ctx, wirtualdtest.AuthzUserSubject(user, owner.OrganizationID)), r.Workspace.ID)
 	require.NoError(t, err)
 
 	// owner level should fail
@@ -136,9 +136,9 @@ func TestGetWorkspaceAgentPortShares(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
 
-	ownerClient, db := coderdtest.NewWithDatabase(t, nil)
-	owner := coderdtest.CreateFirstUser(t, ownerClient)
-	client, user := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+	ownerClient, db := wirtualdtest.NewWithDatabase(t, nil)
+	owner := wirtualdtest.CreateFirstUser(t, ownerClient)
+	client, user := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
 
 	tmpDir := t.TempDir()
 	r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
@@ -148,7 +148,7 @@ func TestGetWorkspaceAgentPortShares(t *testing.T) {
 		agents[0].Directory = tmpDir
 		return agents
 	}).Do()
-	agents, err := db.GetWorkspaceAgentsInLatestBuildByWorkspaceID(dbauthz.As(ctx, coderdtest.AuthzUserSubject(user, owner.OrganizationID)), r.Workspace.ID)
+	agents, err := db.GetWorkspaceAgentsInLatestBuildByWorkspaceID(dbauthz.As(ctx, wirtualdtest.AuthzUserSubject(user, owner.OrganizationID)), r.Workspace.ID)
 	require.NoError(t, err)
 
 	_, err = client.UpsertWorkspaceAgentPortShare(ctx, r.Workspace.ID, wirtualsdk.UpsertWorkspaceAgentPortShareRequest{
@@ -172,9 +172,9 @@ func TestDeleteWorkspaceAgentPortShare(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
 
-	ownerClient, db := coderdtest.NewWithDatabase(t, nil)
-	owner := coderdtest.CreateFirstUser(t, ownerClient)
-	client, user := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+	ownerClient, db := wirtualdtest.NewWithDatabase(t, nil)
+	owner := wirtualdtest.CreateFirstUser(t, ownerClient)
+	client, user := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
 
 	tmpDir := t.TempDir()
 	r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
@@ -184,7 +184,7 @@ func TestDeleteWorkspaceAgentPortShare(t *testing.T) {
 		agents[0].Directory = tmpDir
 		return agents
 	}).Do()
-	agents, err := db.GetWorkspaceAgentsInLatestBuildByWorkspaceID(dbauthz.As(ctx, coderdtest.AuthzUserSubject(user, owner.OrganizationID)), r.Workspace.ID)
+	agents, err := db.GetWorkspaceAgentsInLatestBuildByWorkspaceID(dbauthz.As(ctx, wirtualdtest.AuthzUserSubject(user, owner.OrganizationID)), r.Workspace.ID)
 	require.NoError(t, err)
 
 	// create
@@ -211,7 +211,7 @@ func TestDeleteWorkspaceAgentPortShare(t *testing.T) {
 	})
 	require.Error(t, err)
 
-	_, err = db.GetWorkspaceAgentPortShare(dbauthz.As(ctx, coderdtest.AuthzUserSubject(user, owner.OrganizationID)), database.GetWorkspaceAgentPortShareParams{
+	_, err = db.GetWorkspaceAgentPortShare(dbauthz.As(ctx, wirtualdtest.AuthzUserSubject(user, owner.OrganizationID)), database.GetWorkspaceAgentPortShareParams{
 		WorkspaceID: r.Workspace.ID,
 		AgentName:   agents[0].Name,
 		Port:        8080,

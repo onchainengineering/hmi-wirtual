@@ -53,10 +53,10 @@ management, template definitions, insights, and deployment configuration.
 
 ### Coder control plane
 
-Coder's control plane, also known as _coderd_, is the main service recommended
+Coder's control plane, also known as _wirtuald_, is the main service recommended
 for deployment with multiple replicas to ensure high availability. It provides
 an API for managing workspaces and templates, and serves the dashboard UI. In
-addition, each _coderd_ replica hosts 3 Terraform [provisioners](#provisioner)
+addition, each _wirtuald_ replica hosts 3 Terraform [provisioners](#provisioner)
 by default.
 
 ### User

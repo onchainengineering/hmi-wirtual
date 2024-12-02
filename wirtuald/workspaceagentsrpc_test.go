@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbfake"
 	"github.com/coder/coder/v2/wirtuald/database/dbtime"
@@ -24,11 +24,11 @@ func TestWorkspaceAgentReportStats(t *testing.T) {
 
 	tickCh := make(chan time.Time)
 	flushCh := make(chan int, 1)
-	client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
+	client, db := wirtualdtest.NewWithDatabase(t, &wirtualdtest.Options{
 		WorkspaceUsageTrackerFlush: flushCh,
 		WorkspaceUsageTrackerTick:  tickCh,
 	})
-	user := coderdtest.CreateFirstUser(t, client)
+	user := wirtualdtest.CreateFirstUser(t, client)
 	r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 		OrganizationID: user.OrganizationID,
 		OwnerID:        user.UserID,
@@ -76,8 +76,8 @@ func TestWorkspaceAgentReportStats(t *testing.T) {
 func TestAgentAPI_LargeManifest(t *testing.T) {
 	t.Parallel()
 	ctx := testutil.Context(t, testutil.WaitLong)
-	client, store := coderdtest.NewWithDatabase(t, nil)
-	adminUser := coderdtest.CreateFirstUser(t, client)
+	client, store := wirtualdtest.NewWithDatabase(t, nil)
+	adminUser := wirtualdtest.CreateFirstUser(t, client)
 	n := 512000
 	longScript := make([]byte, n)
 	for i := range longScript {

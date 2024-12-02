@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/httpapi"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/provisioner/echo"
@@ -221,13 +221,13 @@ func Test_Runner_Timing(t *testing.T) {
 func setupRunnerTest(t *testing.T) (client *wirtualsdk.Client, agentID uuid.UUID) {
 	t.Helper()
 
-	client = coderdtest.New(t, &coderdtest.Options{
+	client = wirtualdtest.New(t, &wirtualdtest.Options{
 		IncludeProvisionerDaemon: true,
 	})
-	user := coderdtest.CreateFirstUser(t, client)
+	user := wirtualdtest.CreateFirstUser(t, client)
 
 	authToken := uuid.NewString()
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse:         echo.ParseComplete,
 		ProvisionPlan: echo.PlanComplete,
 		ProvisionApply: []*proto.Response{{
@@ -250,14 +250,14 @@ func setupRunnerTest(t *testing.T) (client *wirtualsdk.Client, agentID uuid.UUID
 		}},
 	})
 
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+	wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 	_ = agenttest.New(t, client.URL, authToken)
-	resources := coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+	resources := wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 	return client, resources[0].Agents[0].ID
 }
 

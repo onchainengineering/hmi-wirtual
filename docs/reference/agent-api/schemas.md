@@ -91,15 +91,15 @@
 | `workspace_name`             | string                                                                                            | true     |              |             |
 | `git_auth_configs`           | int                                                                                               | true     |              |             |
 | `vscode_port_proxy_uri`      | string                                                                                            | true     |              |             |
-| `apps`                       | array of [wirtualsdk.WorkspaceApp](../api/schemas.md#codersdkworkspaceapp)                          | true     |              |             |
+| `apps`                       | array of [wirtualsdk.WorkspaceApp](../api/schemas.md#wirtualsdkworkspaceapp)                          | true     |              |             |
 | `derpmap`                    | [tailcfg.DERPMap](../api/schemas.md#tailcfgderpmap)                                               | true     |              |             |
 | `derp_force_websockets`      | boolean                                                                                           | true     |              |             |
 | `environment_variables`      | object                                                                                            | true     |              |             |
 | `directory`                  | string                                                                                            | true     |              |             |
 | `motd_file`                  | string                                                                                            | true     |              |             |
 | `disable_direct_connections` | boolean                                                                                           | true     |              |             |
-| `metadata`                   | array of [wirtualsdk.WorkspaceAgentMetadataDescription](#codersdkworkspaceagentmetadatadescription) | true     |              |             |
-| `scripts`                    | array of [wirtualsdk.WorkspaceAgentScript](../api/schemas.md#codersdkworkspaceagentscript)          | true     |              |             |
+| `metadata`                   | array of [wirtualsdk.WorkspaceAgentMetadataDescription](#wirtualsdkworkspaceagentmetadatadescription) | true     |              |             |
+| `scripts`                    | array of [wirtualsdk.WorkspaceAgentScript](../api/schemas.md#wirtualsdkworkspaceagentscript)          | true     |              |             |
 
 ## wirtualsdk.WorkspaceAgentMetadataDescription
 

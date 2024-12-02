@@ -6,7 +6,7 @@ import (
 	"go.uber.org/goleak"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/pty/ptytest"
 )
 
@@ -17,7 +17,7 @@ func TestMain(m *testing.M) {
 func TestCli(t *testing.T) {
 	t.Parallel()
 	clitest.CreateTemplateVersionSource(t, nil)
-	client := coderdtest.New(t, nil)
+	client := wirtualdtest.New(t, nil)
 	i, config := clitest.New(t)
 	clitest.SetupConfig(t, client, config)
 	pty := ptytest.New(t).Attach(i)

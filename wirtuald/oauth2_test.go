@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -14,8 +14,8 @@ import (
 	"golang.org/x/oauth2"
 
 	"github.com/coder/coder/v2/wirtuald/apikey"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest/oidctest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest/oidctest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
 	"github.com/coder/coder/v2/wirtuald/database/dbtime"
@@ -32,8 +32,8 @@ func TestOAuth2ProviderApps(t *testing.T) {
 	t.Run("Validation", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		topCtx := testutil.Context(t, testutil.WaitLong)
 
@@ -173,9 +173,9 @@ func TestOAuth2ProviderApps(t *testing.T) {
 	t.Run("DeleteNonExisting", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		another, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := wirtualdtest.New(t, nil)
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		another, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 
@@ -186,9 +186,9 @@ func TestOAuth2ProviderApps(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		another, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := wirtualdtest.New(t, nil)
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		another, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 
@@ -258,9 +258,9 @@ func TestOAuth2ProviderApps(t *testing.T) {
 
 	t.Run("ByUser", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		another, user := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := wirtualdtest.New(t, nil)
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		another, user := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 		ctx := testutil.Context(t, testutil.WaitLong)
 		_ = generateApps(ctx, t, client, "by-user")
 		apps, err := another.OAuth2ProviderApps(ctx, wirtualsdk.OAuth2ProviderAppFilter{
@@ -274,8 +274,8 @@ func TestOAuth2ProviderApps(t *testing.T) {
 func TestOAuth2ProviderAppSecrets(t *testing.T) {
 	t.Parallel()
 
-	client := coderdtest.New(t, nil)
-	_ = coderdtest.CreateFirstUser(t, client)
+	client := wirtualdtest.New(t, nil)
+	_ = wirtualdtest.CreateFirstUser(t, client)
 
 	topCtx := testutil.Context(t, testutil.WaitLong)
 
@@ -366,11 +366,11 @@ func TestOAuth2ProviderTokenExchange(t *testing.T) {
 	t.Parallel()
 
 	db, pubsub := dbtestutil.NewDB(t)
-	ownerClient := coderdtest.New(t, &coderdtest.Options{
+	ownerClient := wirtualdtest.New(t, &wirtualdtest.Options{
 		Database: db,
 		Pubsub:   pubsub,
 	})
-	owner := coderdtest.CreateFirstUser(t, ownerClient)
+	owner := wirtualdtest.CreateFirstUser(t, ownerClient)
 	topCtx := testutil.Context(t, testutil.WaitLong)
 	apps := generateApps(topCtx, t, ownerClient, "token-exchange")
 
@@ -668,7 +668,7 @@ func TestOAuth2ProviderTokenExchange(t *testing.T) {
 
 			// Each test gets its own user, since we allow only one code per user and
 			// app at a time and running tests in parallel could clobber each other.
-			userClient, user := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+			userClient, user := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
 			if test.setup != nil {
 				err := test.setup(ctx, userClient, user)
 				require.NoError(t, err)
@@ -741,11 +741,11 @@ func TestOAuth2ProviderTokenRefresh(t *testing.T) {
 	topCtx := testutil.Context(t, testutil.WaitLong)
 
 	db, pubsub := dbtestutil.NewDB(t)
-	ownerClient := coderdtest.New(t, &coderdtest.Options{
+	ownerClient := wirtualdtest.New(t, &wirtualdtest.Options{
 		Database: db,
 		Pubsub:   pubsub,
 	})
-	owner := coderdtest.CreateFirstUser(t, ownerClient)
+	owner := wirtualdtest.CreateFirstUser(t, ownerClient)
 	apps := generateApps(topCtx, t, ownerClient, "token-refresh")
 
 	//nolint:gocritic // OAauth2 app management requires owner permission.
@@ -809,7 +809,7 @@ func TestOAuth2ProviderTokenRefresh(t *testing.T) {
 			t.Parallel()
 			ctx := testutil.Context(t, testutil.WaitLong)
 
-			userClient, user := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+			userClient, user := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
 
 			// Insert the token and its key.
 			key, sessionToken, err := apikey.Generate(apikey.CreateParams{
@@ -906,8 +906,8 @@ type exchangeSetup struct {
 func TestOAuth2ProviderRevoke(t *testing.T) {
 	t.Parallel()
 
-	client := coderdtest.New(t, nil)
-	owner := coderdtest.CreateFirstUser(t, client)
+	client := wirtualdtest.New(t, nil)
+	owner := wirtualdtest.CreateFirstUser(t, client)
 
 	tests := []struct {
 		name string
@@ -1000,7 +1000,7 @@ func TestOAuth2ProviderRevoke(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 			ctx := testutil.Context(t, testutil.WaitLong)
-			testClient, testUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+			testClient, testUser := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 			testEntities := setup(ctx, testClient, test.name+"-1")
 

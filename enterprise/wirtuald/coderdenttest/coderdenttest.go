@@ -1,4 +1,4 @@
-package coderdenttest
+package wirtualdenttest
 
 import (
 	"context"
@@ -18,7 +18,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbmem"
 	"github.com/coder/coder/v2/wirtuald/database/pubsub"
@@ -56,7 +56,7 @@ func init() {
 }
 
 type Options struct {
-	*coderdtest.Options
+	*wirtualdtest.Options
 	AuditLogging               bool
 	BrowserOnly                bool
 	EntitlementsUpdateInterval time.Duration
@@ -92,10 +92,10 @@ func NewWithAPI(t *testing.T, options *Options) (
 		options = &Options{}
 	}
 	if options.Options == nil {
-		options.Options = &coderdtest.Options{}
+		options.Options = &wirtualdtest.Options{}
 	}
 	require.False(t, options.DontAddFirstUser && !options.DontAddLicense, "DontAddFirstUser requires DontAddLicense")
-	setHandler, cancelFunc, serverURL, oop := coderdtest.NewOptions(t, options.Options)
+	setHandler, cancelFunc, serverURL, oop := wirtualdtest.NewOptions(t, options.Options)
 	coderAPI, err := wirtuald.New(context.Background(), &wirtuald.Options{
 		RBAC:                       true,
 		AuditLogging:               options.AuditLogging,
@@ -117,7 +117,7 @@ func NewWithAPI(t *testing.T, options *Options) (
 	setHandler(coderAPI.AGPL.RootHandler)
 	var provisionerCloser io.Closer = nopcloser{}
 	if options.IncludeProvisionerDaemon {
-		provisionerCloser = coderdtest.NewProvisionerDaemon(t, coderAPI.AGPL)
+		provisionerCloser = wirtualdtest.NewProvisionerDaemon(t, coderAPI.AGPL)
 	}
 
 	t.Cleanup(func() {
@@ -136,7 +136,7 @@ func NewWithAPI(t *testing.T, options *Options) (
 	}
 	var user wirtualsdk.CreateFirstUserResponse
 	if !options.DontAddFirstUser {
-		user = coderdtest.CreateFirstUser(t, client)
+		user = wirtualdtest.CreateFirstUser(t, client)
 		if !options.DontAddLicense {
 			lo := LicenseOptions{}
 			if options.LicenseOptions != nil {
@@ -357,7 +357,7 @@ func NewExternalProvisionerDaemon(t testing.TB, client *wirtualsdk.Client, org u
 			string(database.ProvisionerTypeEcho): sdkproto.NewDRPCProvisionerClient(echoClient),
 		},
 	})
-	closer := coderdtest.NewProvisionerDaemonCloser(daemon)
+	closer := wirtualdtest.NewProvisionerDaemonCloser(daemon)
 	t.Cleanup(func() {
 		_ = closer.Close()
 	})

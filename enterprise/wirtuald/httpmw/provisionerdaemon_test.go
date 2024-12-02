@@ -16,7 +16,7 @@ import (
 	"github.com/coder/coder/v2/wirtuald/database/dbmock"
 	"github.com/coder/coder/v2/wirtuald/httpmw"
 	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/testutil"
 )
@@ -157,8 +157,8 @@ func TestExtractProvisionerDaemonAuthenticated(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitShort)
-		client, db, user := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, db, user := wirtualdenttest.NewWithDatabase(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
@@ -192,8 +192,8 @@ func TestExtractProvisionerDaemonAuthenticated(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitShort)
-		client, db, user := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, db, user := wirtualdenttest.NewWithDatabase(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},

@@ -11,9 +11,9 @@ import (
 
 type postgresBackend struct {
 	// internal indicates if the exporter is exporting to the Postgres database
-	// that the rest of Coderd uses. Since this is a generic Postgres exporter,
+	// that the rest of Wirtuald uses. Since this is a generic Postgres exporter,
 	// we make different decisions to store the audit log based on if it's
-	// pointing to the Coderd database.
+	// pointing to the Wirtuald database.
 	internal bool
 	db       database.Store
 }

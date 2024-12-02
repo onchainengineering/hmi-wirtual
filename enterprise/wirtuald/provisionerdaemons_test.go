@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"bytes"
@@ -17,7 +17,7 @@ import (
 	"cdr.dev/slog/sloggers/slogtest"
 	"github.com/coder/coder/v2/apiversion"
 	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
@@ -26,7 +26,7 @@ import (
 	"github.com/coder/coder/v2/wirtuald/util/ptr"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/wirtualsdk/drpc"
-	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/provisionerd"
@@ -40,12 +40,12 @@ func TestProvisionerDaemonServe(t *testing.T) {
 	t.Parallel()
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 			},
 		}})
-		templateAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin())
+		templateAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin())
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 		daemonName := testutil.MustRandString(t, 63)
@@ -78,14 +78,14 @@ func TestProvisionerDaemonServe(t *testing.T) {
 
 		// Sending a HTTP request triggers an error log, which would otherwise fail the test.
 		logger := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true})
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 			ProvisionerDaemonPSK: "provisionersftw",
-			Options: &coderdtest.Options{
+			Options: &wirtualdtest.Options{
 				Logger: &logger,
 			},
 		})
@@ -131,14 +131,14 @@ func TestProvisionerDaemonServe(t *testing.T) {
 
 		// Sending a HTTP request triggers an error log, which would otherwise fail the test.
 		logger := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true})
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 			ProvisionerDaemonPSK: "provisionersftw",
-			Options: &coderdtest.Options{
+			Options: &wirtualdtest.Options{
 				Logger: &logger,
 			},
 		})
@@ -174,8 +174,8 @@ func TestProvisionerDaemonServe(t *testing.T) {
 
 	t.Run("NoLicense", func(t *testing.T) {
 		t.Parallel()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
-		templateAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin())
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{DontAddLicense: true})
+		templateAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin())
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 		daemonName := testutil.MustRandString(t, 63)
@@ -196,12 +196,12 @@ func TestProvisionerDaemonServe(t *testing.T) {
 
 	t.Run("Organization", func(t *testing.T) {
 		t.Parallel()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 			},
 		}})
-		another, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.ScopedRoleOrgAdmin(user.OrganizationID))
+		another, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.ScopedRoleOrgAdmin(user.OrganizationID))
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 		_, err := another.ServeProvisionerDaemon(ctx, wirtualsdk.ServeProvisionerDaemonRequest{
@@ -220,12 +220,12 @@ func TestProvisionerDaemonServe(t *testing.T) {
 
 	t.Run("OrganizationNoPerms", func(t *testing.T) {
 		t.Parallel()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 			},
 		}})
-		another, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		another, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 		_, err := another.ServeProvisionerDaemon(ctx, wirtualsdk.ServeProvisionerDaemonRequest{
@@ -247,12 +247,12 @@ func TestProvisionerDaemonServe(t *testing.T) {
 
 	t.Run("UserLocal", func(t *testing.T) {
 		t.Parallel()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 			},
 		}})
-		closer := coderdenttest.NewExternalProvisionerDaemon(t, client, user.OrganizationID, map[string]string{
+		closer := wirtualdenttest.NewExternalProvisionerDaemon(t, client, user.OrganizationID, map[string]string{
 			provisionersdk.TagScope: provisionersdk.ScopeUser,
 		})
 		defer closer.Close()
@@ -300,22 +300,22 @@ func TestProvisionerDaemonServe(t *testing.T) {
 			},
 		})
 		require.NoError(t, err)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		another, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		another, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 		_ = closer.Close()
-		closer = coderdenttest.NewExternalProvisionerDaemon(t, another, user.OrganizationID, map[string]string{
+		closer = wirtualdenttest.NewExternalProvisionerDaemon(t, another, user.OrganizationID, map[string]string{
 			provisionersdk.TagScope: provisionersdk.ScopeUser,
 		})
 		defer closer.Close()
-		workspace := coderdtest.CreateWorkspace(t, another, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, another, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 	})
 
 	t.Run("PSK", func(t *testing.T) {
 		t.Parallel()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
@@ -351,12 +351,12 @@ func TestProvisionerDaemonServe(t *testing.T) {
 
 	t.Run("ChangeTags", func(t *testing.T) {
 		t.Parallel()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 			},
 		}})
-		another, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.ScopedRoleOrgAdmin(user.OrganizationID))
+		another, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.ScopedRoleOrgAdmin(user.OrganizationID))
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 		req := wirtualsdk.ServeProvisionerDaemonRequest{
@@ -387,9 +387,9 @@ func TestProvisionerDaemonServe(t *testing.T) {
 	t.Run("PSK_daily_cost", func(t *testing.T) {
 		t.Parallel()
 		const provPSK = `provisionersftw`
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			UserWorkspaceQuota: 10,
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 					wirtualsdk.FeatureTemplateRBAC:               1,
@@ -450,7 +450,7 @@ func TestProvisionerDaemonServe(t *testing.T) {
 		require.NoError(t, err)
 
 		authToken := uuid.NewString()
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionApply: []*sdkproto.Response{{
 				Type: &sdkproto.Response_Apply{
@@ -471,10 +471,10 @@ func TestProvisionerDaemonServe(t *testing.T) {
 				},
 			}},
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		build := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		build := wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 		require.Equal(t, wirtualsdk.WorkspaceStatusRunning, build.Status)
 
 		err = pd.Shutdown(ctx, false)
@@ -491,8 +491,8 @@ func TestProvisionerDaemonServe(t *testing.T) {
 
 	t.Run("BadPSK", func(t *testing.T) {
 		t.Parallel()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
@@ -526,8 +526,8 @@ func TestProvisionerDaemonServe(t *testing.T) {
 
 	t.Run("NoAuth", func(t *testing.T) {
 		t.Parallel()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
@@ -560,8 +560,8 @@ func TestProvisionerDaemonServe(t *testing.T) {
 
 	t.Run("NoPSK", func(t *testing.T) {
 		t.Parallel()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
@@ -676,13 +676,13 @@ func TestProvisionerDaemonServe(t *testing.T) {
 				if tc.multiOrgFeatureEnabled {
 					features[wirtualsdk.FeatureMultipleOrganizations] = 1
 				}
-				dv := coderdtest.DeploymentValues(t)
-				client, db, user := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
-					LicenseOptions: &coderdenttest.LicenseOptions{
+				dv := wirtualdtest.DeploymentValues(t)
+				client, db, user := wirtualdenttest.NewWithDatabase(t, &wirtualdenttest.Options{
+					LicenseOptions: &wirtualdenttest.LicenseOptions{
 						Features: features,
 					},
 					ProvisionerDaemonPSK: tc.psk,
-					Options: &coderdtest.Options{
+					Options: &wirtualdtest.Options{
 						DeploymentValues: dv,
 					},
 				})
@@ -728,22 +728,22 @@ func TestGetProvisionerDaemons(t *testing.T) {
 
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
-		dv := coderdtest.DeploymentValues(t)
-		client, first := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		dv := wirtualdtest.DeploymentValues(t)
+		client, first := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				DeploymentValues: dv,
 			},
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 					wirtualsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
-		org := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{})
-		orgAdmin, _ := coderdtest.CreateAnotherUser(t, client, org.ID, rbac.ScopedRoleOrgAdmin(org.ID))
-		outsideOrg, _ := coderdtest.CreateAnotherUser(t, client, first.OrganizationID)
+		org := wirtualdenttest.CreateOrganization(t, client, wirtualdenttest.CreateOrganizationOptions{})
+		orgAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, org.ID, rbac.ScopedRoleOrgAdmin(org.ID))
+		outsideOrg, _ := wirtualdtest.CreateAnotherUser(t, client, first.OrganizationID)
 
 		res, err := orgAdmin.CreateProvisionerKey(context.Background(), org.ID, wirtualsdk.CreateProvisionerKeyRequest{
 			Name: "my-key",
@@ -931,13 +931,13 @@ func TestGetProvisionerDaemons(t *testing.T) {
 			tt := tt
 			t.Run(tt.name, func(t *testing.T) {
 				t.Parallel()
-				dv := coderdtest.DeploymentValues(t)
-				client, db, _ := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
-					Options: &coderdtest.Options{
+				dv := wirtualdtest.DeploymentValues(t)
+				client, db, _ := wirtualdenttest.NewWithDatabase(t, &wirtualdenttest.Options{
+					Options: &wirtualdtest.Options{
 						DeploymentValues: dv,
 					},
 					ProvisionerDaemonPSK: "provisionersftw",
-					LicenseOptions: &coderdenttest.LicenseOptions{
+					LicenseOptions: &wirtualdenttest.LicenseOptions{
 						Features: license.Features{
 							wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 							wirtualsdk.FeatureMultipleOrganizations:      1,
@@ -946,10 +946,10 @@ func TestGetProvisionerDaemons(t *testing.T) {
 				})
 				ctx := testutil.Context(t, testutil.WaitShort)
 
-				org := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{
+				org := wirtualdenttest.CreateOrganization(t, client, wirtualdenttest.CreateOrganizationOptions{
 					IncludeProvisionerDaemon: false,
 				})
-				orgAdmin, _ := coderdtest.CreateAnotherUser(t, client, org.ID, rbac.ScopedRoleOrgMember(org.ID))
+				orgAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, org.ID, rbac.ScopedRoleOrgMember(org.ID))
 
 				daemonCreatedAt := time.Now()
 

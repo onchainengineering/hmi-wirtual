@@ -83,7 +83,7 @@ configuration. To see the full list of configuration options:
 ```bash
 # Proxy specific configuration. These are REQUIRED
 # Example: https://wirtuald.example.com
-CODER_PRIMARY_ACCESS_URL="https://<url_of_coderd_dashboard>"
+CODER_PRIMARY_ACCESS_URL="https://<url_of_wirtuald_dashboard>"
 CODER_PROXY_SESSION_TOKEN="<session_token_from_proxy_create>"
 
 # Runtime variables for "coder start".
@@ -113,7 +113,7 @@ Make a `values-wsproxy.yaml` with the workspace proxy configuration:
 coder:
   env:
     - name: CODER_PRIMARY_ACCESS_URL
-      value: "https://<url_of_coderd_dashboard>"
+      value: "https://<url_of_wirtuald_dashboard>"
     - name: CODER_PROXY_SESSION_TOKEN
       value: "<session_token_from_proxy_create>"
     # Example: https://east.wirtuald.example.com

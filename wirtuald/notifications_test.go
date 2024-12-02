@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"net/http"
@@ -9,18 +9,18 @@ import (
 
 	"github.com/coder/serpent"
 
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/notifications"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/testutil"
 )
 
-func createOpts(t *testing.T) *coderdtest.Options {
+func createOpts(t *testing.T) *wirtualdtest.Options {
 	t.Helper()
 
-	dt := coderdtest.DeploymentValues(t)
-	return &coderdtest.Options{
+	dt := wirtualdtest.DeploymentValues(t)
+	return &wirtualdtest.Options{
 		DeploymentValues: dt,
 	}
 }
@@ -31,9 +31,9 @@ func TestUpdateNotificationsSettings(t *testing.T) {
 	t.Run("Permissions denied", func(t *testing.T) {
 		t.Parallel()
 
-		api := coderdtest.New(t, createOpts(t))
-		firstUser := coderdtest.CreateFirstUser(t, api)
-		anotherClient, _ := coderdtest.CreateAnotherUser(t, api, firstUser.OrganizationID)
+		api := wirtualdtest.New(t, createOpts(t))
+		firstUser := wirtualdtest.CreateFirstUser(t, api)
+		anotherClient, _ := wirtualdtest.CreateAnotherUser(t, api, firstUser.OrganizationID)
 
 		// given
 		expected := wirtualsdk.NotificationsSettings{
@@ -55,8 +55,8 @@ func TestUpdateNotificationsSettings(t *testing.T) {
 	t.Run("Settings modified", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, createOpts(t))
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, createOpts(t))
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		// given
 		expected := wirtualsdk.NotificationsSettings{
@@ -79,8 +79,8 @@ func TestUpdateNotificationsSettings(t *testing.T) {
 		t.Parallel()
 
 		// Empty state: notifications Settings are undefined now (default).
-		client := coderdtest.New(t, createOpts(t))
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, createOpts(t))
+		_ = wirtualdtest.CreateFirstUser(t, client)
 		ctx := testutil.Context(t, testutil.WaitShort)
 
 		// Change the state: pause notifications
@@ -115,11 +115,11 @@ func TestNotificationPreferences(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitSuperLong)
-		api := coderdtest.New(t, createOpts(t))
-		firstUser := coderdtest.CreateFirstUser(t, api)
+		api := wirtualdtest.New(t, createOpts(t))
+		firstUser := wirtualdtest.CreateFirstUser(t, api)
 
 		// Given: a member in its initial state.
-		memberClient, member := coderdtest.CreateAnotherUser(t, api, firstUser.OrganizationID)
+		memberClient, member := wirtualdtest.CreateAnotherUser(t, api, firstUser.OrganizationID)
 
 		// When: calling the API.
 		prefs, err := memberClient.GetUserNotificationPreferences(ctx, member.ID)
@@ -133,12 +133,12 @@ func TestNotificationPreferences(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitSuperLong)
-		api := coderdtest.New(t, createOpts(t))
-		firstUser := coderdtest.CreateFirstUser(t, api)
+		api := wirtualdtest.New(t, createOpts(t))
+		firstUser := wirtualdtest.CreateFirstUser(t, api)
 
 		// Given: 2 members.
-		_, member1 := coderdtest.CreateAnotherUser(t, api, firstUser.OrganizationID)
-		member2Client, _ := coderdtest.CreateAnotherUser(t, api, firstUser.OrganizationID)
+		_, member1 := wirtualdtest.CreateAnotherUser(t, api, firstUser.OrganizationID)
+		member2Client, _ := wirtualdtest.CreateAnotherUser(t, api, firstUser.OrganizationID)
 
 		// When: attempting to retrieve the preferences of another member.
 		_, err := member2Client.GetUserNotificationPreferences(ctx, member1.ID)
@@ -156,11 +156,11 @@ func TestNotificationPreferences(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitSuperLong)
-		api := coderdtest.New(t, createOpts(t))
-		firstUser := coderdtest.CreateFirstUser(t, api)
+		api := wirtualdtest.New(t, createOpts(t))
+		firstUser := wirtualdtest.CreateFirstUser(t, api)
 
 		// Given: a member.
-		_, member := coderdtest.CreateAnotherUser(t, api, firstUser.OrganizationID)
+		_, member := wirtualdtest.CreateAnotherUser(t, api, firstUser.OrganizationID)
 
 		// When: attempting to retrieve the preferences of another member as an admin.
 		prefs, err := api.GetUserNotificationPreferences(ctx, member.ID)
@@ -174,11 +174,11 @@ func TestNotificationPreferences(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitSuperLong)
-		api := coderdtest.New(t, createOpts(t))
-		firstUser := coderdtest.CreateFirstUser(t, api)
+		api := wirtualdtest.New(t, createOpts(t))
+		firstUser := wirtualdtest.CreateFirstUser(t, api)
 
 		// Given: a member.
-		memberClient, member := coderdtest.CreateAnotherUser(t, api, firstUser.OrganizationID)
+		memberClient, member := wirtualdtest.CreateAnotherUser(t, api, firstUser.OrganizationID)
 
 		// When: attempting to modify and subsequently retrieve the preferences of another member as an admin.
 		prefs, err := api.UpdateUserNotificationPreferences(ctx, member.ID, wirtualsdk.UpdateUserNotificationPreferences{
@@ -202,11 +202,11 @@ func TestNotificationPreferences(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitSuperLong)
-		api := coderdtest.New(t, createOpts(t))
-		firstUser := coderdtest.CreateFirstUser(t, api)
+		api := wirtualdtest.New(t, createOpts(t))
+		firstUser := wirtualdtest.CreateFirstUser(t, api)
 
 		// Given: a member with no preferences.
-		memberClient, member := coderdtest.CreateAnotherUser(t, api, firstUser.OrganizationID)
+		memberClient, member := wirtualdtest.CreateAnotherUser(t, api, firstUser.OrganizationID)
 		prefs, err := memberClient.GetUserNotificationPreferences(ctx, member.ID)
 		require.NoError(t, err)
 		require.Len(t, prefs, 0)
@@ -230,11 +230,11 @@ func TestNotificationPreferences(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitSuperLong)
-		api := coderdtest.New(t, createOpts(t))
-		firstUser := coderdtest.CreateFirstUser(t, api)
+		api := wirtualdtest.New(t, createOpts(t))
+		firstUser := wirtualdtest.CreateFirstUser(t, api)
 
 		// Given: a member with preferences.
-		memberClient, member := coderdtest.CreateAnotherUser(t, api, firstUser.OrganizationID)
+		memberClient, member := wirtualdtest.CreateAnotherUser(t, api, firstUser.OrganizationID)
 		prefs, err := memberClient.UpdateUserNotificationPreferences(ctx, member.ID, wirtualsdk.UpdateUserNotificationPreferences{
 			TemplateDisabledMap: map[string]bool{
 				notifications.TemplateWorkspaceDeleted.String(): true,
@@ -278,7 +278,7 @@ func TestNotificationDispatchMethods(t *testing.T) {
 
 	tests := []struct {
 		name            string
-		opts            *coderdtest.Options
+		opts            *wirtualdtest.Options
 		expectedDefault string
 	}{
 		{
@@ -305,8 +305,8 @@ func TestNotificationDispatchMethods(t *testing.T) {
 			t.Parallel()
 
 			ctx := testutil.Context(t, testutil.WaitSuperLong)
-			api := coderdtest.New(t, tc.opts)
-			_ = coderdtest.CreateFirstUser(t, api)
+			api := wirtualdtest.New(t, tc.opts)
+			_ = wirtualdtest.CreateFirstUser(t, api)
 
 			resp, err := api.GetNotificationDispatchMethods(ctx)
 			require.NoError(t, err)

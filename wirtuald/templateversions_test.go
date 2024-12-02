@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"bytes"
@@ -14,7 +14,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/coder/coder/v2/wirtuald/audit"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
@@ -33,11 +33,11 @@ func TestTemplateVersion(t *testing.T) {
 	t.Parallel()
 	t.Run("Get", func(t *testing.T) {
 		t.Parallel()
-		client, _, api := coderdtest.NewWithAPI(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		authz := coderdtest.AssertRBAC(t, api, client).Reset()
+		client, _, api := wirtualdtest.NewWithAPI(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		authz := wirtualdtest.AssertRBAC(t, api, client).Reset()
 
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil, func(req *wirtualsdk.CreateTemplateVersionRequest) {
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil, func(req *wirtualsdk.CreateTemplateVersionRequest) {
 			req.Name = "bananas"
 			req.Message = "first try"
 		})
@@ -57,8 +57,8 @@ func TestTemplateVersion(t *testing.T) {
 
 	t.Run("Message limit exceeded", func(t *testing.T) {
 		t.Parallel()
-		client, _, _ := coderdtest.NewWithAPI(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client, _, _ := wirtualdtest.NewWithAPI(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -78,14 +78,14 @@ func TestTemplateVersion(t *testing.T) {
 	t.Run("MemberCanRead", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		_ = coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		_ = wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 
-		client1, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		client1, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		_, err := client1.TemplateVersion(ctx, version.ID)
 		require.NoError(t, err)
@@ -96,8 +96,8 @@ func TestPostTemplateVersionsByOrganization(t *testing.T) {
 	t.Parallel()
 	t.Run("InvalidTemplate", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -116,8 +116,8 @@ func TestPostTemplateVersionsByOrganization(t *testing.T) {
 
 	t.Run("FileNotFound", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -135,8 +135,8 @@ func TestPostTemplateVersionsByOrganization(t *testing.T) {
 	t.Run("WithParameters", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{IncludeProvisionerDaemon: true, Auditor: auditor})
-		user := coderdtest.CreateFirstUser(t, client)
+		client, db := wirtualdtest.NewWithDatabase(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true, Auditor: auditor})
+		user := wirtualdtest.CreateFirstUser(t, client)
 		data, err := echo.Tar(&echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionApply: echo.ApplyComplete,
@@ -164,15 +164,15 @@ func TestPostTemplateVersionsByOrganization(t *testing.T) {
 
 		admin, err := client.User(ctx, user.UserID.String())
 		require.NoError(t, err)
-		tvDB, err := db.GetTemplateVersionByID(dbauthz.As(ctx, coderdtest.AuthzUserSubject(admin, user.OrganizationID)), version.ID)
+		tvDB, err := db.GetTemplateVersionByID(dbauthz.As(ctx, wirtualdtest.AuthzUserSubject(admin, user.OrganizationID)), version.ID)
 		require.NoError(t, err)
 		require.False(t, tvDB.SourceExampleID.Valid)
 	})
 
 	t.Run("Example", func(t *testing.T) {
 		t.Parallel()
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client, db := wirtualdtest.NewWithDatabase(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -214,7 +214,7 @@ func TestPostTemplateVersionsByOrganization(t *testing.T) {
 
 		admin, err := client.User(ctx, user.UserID.String())
 		require.NoError(t, err)
-		tvDB, err := db.GetTemplateVersionByID(dbauthz.As(ctx, coderdtest.AuthzUserSubject(admin, user.OrganizationID)), tv.ID)
+		tvDB, err := db.GetTemplateVersionByID(dbauthz.As(ctx, wirtualdtest.AuthzUserSubject(admin, user.OrganizationID)), tv.ID)
 		require.NoError(t, err)
 		require.Equal(t, ls[0].ID, tvDB.SourceExampleID.String)
 
@@ -245,12 +245,12 @@ func TestPostTemplateVersionsByOrganization(t *testing.T) {
 		//             but in order to do this, we need to actually run the job! This isn't straightforward right now.
 
 		store, ps := dbtestutil.NewDB(t)
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			Database: store,
 			Pubsub:   ps,
 		})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, templateAdminUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		templateAdmin, templateAdminUser := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 		for _, tt := range []struct {
 			name        string
@@ -487,10 +487,10 @@ func TestPatchCancelTemplateVersion(t *testing.T) {
 	t.Parallel()
 	t.Run("AlreadyCompleted", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -502,11 +502,11 @@ func TestPatchCancelTemplateVersion(t *testing.T) {
 	})
 	t.Run("AlreadyCanceled", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionApply: []*proto.Response{{
 				Type: &proto.Response_Log{
@@ -518,7 +518,7 @@ func TestPatchCancelTemplateVersion(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		coderdtest.AwaitTemplateVersionJobRunning(t, client, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobRunning(t, client, version.ID)
 		err := client.CancelTemplateVersion(ctx, version.ID)
 		require.NoError(t, err)
 		err = client.CancelTemplateVersion(ctx, version.ID)
@@ -535,11 +535,11 @@ func TestPatchCancelTemplateVersion(t *testing.T) {
 	// Running -> Canceling is the best we can do for now.
 	t.Run("Canceling", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionApply: []*proto.Response{{
 				Type: &proto.Response_Log{
@@ -580,10 +580,10 @@ func TestTemplateVersionsExternalAuth(t *testing.T) {
 	t.Parallel()
 	t.Run("Empty", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -593,7 +593,7 @@ func TestTemplateVersionsExternalAuth(t *testing.T) {
 	})
 	t.Run("Authenticated", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 			ExternalAuthConfigs: []*externalauth.Config{{
 				InstrumentedOAuth2Config: &testutil.OAuth2Config{},
@@ -602,8 +602,8 @@ func TestTemplateVersionsExternalAuth(t *testing.T) {
 				Type:                     wirtualsdk.EnhancedExternalAuthProviderGitHub.String(),
 			}},
 		})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionPlan: []*proto.Response{{
 				Type: &proto.Response_Plan{
@@ -613,7 +613,7 @@ func TestTemplateVersionsExternalAuth(t *testing.T) {
 				},
 			}},
 		})
-		version = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		version = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 		require.Empty(t, version.Job.Error)
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -625,7 +625,7 @@ func TestTemplateVersionsExternalAuth(t *testing.T) {
 		require.False(t, providers[0].Authenticated)
 
 		// Perform the Git auth callback to authenticate the user...
-		resp := coderdtest.RequestExternalAuthCallback(t, "github", client)
+		resp := wirtualdtest.RequestExternalAuthCallback(t, "github", client)
 		_ = resp.Body.Close()
 		require.Equal(t, http.StatusTemporaryRedirect, resp.StatusCode)
 
@@ -642,9 +642,9 @@ func TestTemplateVersionResources(t *testing.T) {
 	t.Parallel()
 	t.Run("ListRunning", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -656,9 +656,9 @@ func TestTemplateVersionResources(t *testing.T) {
 	})
 	t.Run("List", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionApply: []*proto.Response{{
 				Type: &proto.Response_Apply{
@@ -678,7 +678,7 @@ func TestTemplateVersionResources(t *testing.T) {
 				},
 			}},
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -695,9 +695,9 @@ func TestTemplateVersionResources(t *testing.T) {
 
 func TestTemplateVersionLogs(t *testing.T) {
 	t.Parallel()
-	client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-	user := coderdtest.CreateFirstUser(t, client)
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+	user := wirtualdtest.CreateFirstUser(t, client)
+	version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse:         echo.ParseComplete,
 		ProvisionPlan: echo.PlanComplete,
 		ProvisionApply: []*proto.Response{{
@@ -746,10 +746,10 @@ func TestTemplateVersionsByTemplate(t *testing.T) {
 	t.Parallel()
 	t.Run("Get", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -766,10 +766,10 @@ func TestTemplateVersionByName(t *testing.T) {
 	t.Parallel()
 	t.Run("NotFound", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -782,10 +782,10 @@ func TestTemplateVersionByName(t *testing.T) {
 
 	t.Run("Found", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -799,10 +799,10 @@ func TestPatchActiveTemplateVersion(t *testing.T) {
 	t.Parallel()
 	t.Run("NotFound", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -817,18 +817,18 @@ func TestPatchActiveTemplateVersion(t *testing.T) {
 
 	t.Run("CanceledBuild", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		version = coderdtest.UpdateTemplateVersion(t, client, user.OrganizationID, nil, template.ID)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		version = wirtualdtest.UpdateTemplateVersion(t, client, user.OrganizationID, nil, template.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
 		err := client.CancelTemplateVersion(ctx, version.ID)
 		require.NoError(t, err)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 		err = client.UpdateActiveTemplateVersion(ctx, template.ID, wirtualsdk.UpdateActiveTemplateVersion{
 			ID: version.ID,
 		})
@@ -840,11 +840,11 @@ func TestPatchActiveTemplateVersion(t *testing.T) {
 
 	t.Run("PendingBuild", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		version = coderdtest.UpdateTemplateVersion(t, client, user.OrganizationID, nil, template.ID)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		version = wirtualdtest.UpdateTemplateVersion(t, client, user.OrganizationID, nil, template.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -860,15 +860,15 @@ func TestPatchActiveTemplateVersion(t *testing.T) {
 
 	t.Run("DoesNotBelong", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		version = coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		_ = coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		version = wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		_ = wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -884,17 +884,17 @@ func TestPatchActiveTemplateVersion(t *testing.T) {
 	t.Run("Archived", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		ownerClient := coderdtest.New(t, &coderdtest.Options{
+		ownerClient := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 			Auditor:                  auditor,
 		})
-		owner := coderdtest.CreateFirstUser(t, ownerClient)
-		client, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		owner := wirtualdtest.CreateFirstUser(t, ownerClient)
+		client, _ := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		version = coderdtest.UpdateTemplateVersion(t, client, owner.OrganizationID, nil, template.ID)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		version = wirtualdtest.UpdateTemplateVersion(t, client, owner.OrganizationID, nil, template.ID)
+		_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -912,15 +912,15 @@ func TestPatchActiveTemplateVersion(t *testing.T) {
 	t.Run("SuccessfulBuild", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 			Auditor:                  auditor,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		version = coderdtest.UpdateTemplateVersion(t, client, user.OrganizationID, nil, template.ID)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		version = wirtualdtest.UpdateTemplateVersion(t, client, user.OrganizationID, nil, template.ID)
+		_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -946,9 +946,9 @@ func TestTemplateVersionDryRun(t *testing.T) {
 			Type: "cool_resource_type",
 		}
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionApply: []*proto.Response{
 				{
@@ -965,7 +965,7 @@ func TestTemplateVersionDryRun(t *testing.T) {
 				},
 			},
 		})
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1012,10 +1012,10 @@ func TestTemplateVersionDryRun(t *testing.T) {
 
 	t.Run("ImportNotFinished", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
 		// This import job will never finish
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionApply: []*proto.Response{{
 				Type: &proto.Response_Log{
@@ -1038,12 +1038,12 @@ func TestTemplateVersionDryRun(t *testing.T) {
 
 		t.Run("OK", func(t *testing.T) {
 			t.Parallel()
-			client, closer := coderdtest.NewWithProvisionerCloser(t, nil)
+			client, closer := wirtualdtest.NewWithProvisionerCloser(t, nil)
 			defer closer.Close()
 
-			user := coderdtest.CreateFirstUser(t, client)
+			user := wirtualdtest.CreateFirstUser(t, client)
 
-			version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+			version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 				Parse: echo.ParseComplete,
 				ProvisionApply: []*proto.Response{
 					{
@@ -1059,7 +1059,7 @@ func TestTemplateVersionDryRun(t *testing.T) {
 				},
 			})
 
-			version = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			version = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 			require.Equal(t, wirtualsdk.ProvisionerJobSucceeded, version.Job.Status)
 
 			closer.Close()
@@ -1080,10 +1080,10 @@ func TestTemplateVersionDryRun(t *testing.T) {
 
 		t.Run("AlreadyCompleted", func(t *testing.T) {
 			t.Parallel()
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			user := coderdtest.CreateFirstUser(t, client)
-			version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-			coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+			user := wirtualdtest.CreateFirstUser(t, client)
+			version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+			wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			defer cancel()
@@ -1110,11 +1110,11 @@ func TestTemplateVersionDryRun(t *testing.T) {
 
 		t.Run("AlreadyCanceled", func(t *testing.T) {
 			t.Parallel()
-			client, closer := coderdtest.NewWithProvisionerCloser(t, nil)
+			client, closer := wirtualdtest.NewWithProvisionerCloser(t, nil)
 			defer closer.Close()
 
-			user := coderdtest.CreateFirstUser(t, client)
-			version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+			user := wirtualdtest.CreateFirstUser(t, client)
+			version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 				Parse: echo.ParseComplete,
 				ProvisionApply: []*proto.Response{
 					{
@@ -1130,7 +1130,7 @@ func TestTemplateVersionDryRun(t *testing.T) {
 				},
 			})
 
-			version = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			version = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 			require.Equal(t, wirtualsdk.ProvisionerJobSucceeded, version.Job.Status)
 
 			closer.Close()
@@ -1157,10 +1157,10 @@ func TestTemplateVersionDryRun(t *testing.T) {
 func TestPaginatedTemplateVersions(t *testing.T) {
 	t.Parallel()
 
-	client := coderdtest.New(t, nil)
-	user := coderdtest.CreateFirstUser(t, client)
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	client := wirtualdtest.New(t, nil)
+	user := wirtualdtest.CreateFirstUser(t, client)
+	version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+	template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	t.Cleanup(cancel)
@@ -1272,10 +1272,10 @@ func TestTemplateVersionByOrganizationTemplateAndName(t *testing.T) {
 	t.Parallel()
 	t.Run("NotFound", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1288,10 +1288,10 @@ func TestTemplateVersionByOrganizationTemplateAndName(t *testing.T) {
 
 	t.Run("Found", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1305,21 +1305,21 @@ func TestPreviousTemplateVersion(t *testing.T) {
 	t.Parallel()
 	t.Run("Previous version not found", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		// Create two templates to be sure it is not returning a previous version
 		// from another template
-		templateAVersion1 := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.CreateTemplate(t, client, user.OrganizationID, templateAVersion1.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, templateAVersion1.ID)
+		templateAVersion1 := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		wirtualdtest.CreateTemplate(t, client, user.OrganizationID, templateAVersion1.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, templateAVersion1.ID)
 		// Create two versions for the template B to be sure if we try to get the
 		// previous version of the first version it will returns a 404
-		templateBVersion1 := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		templateB := coderdtest.CreateTemplate(t, client, user.OrganizationID, templateBVersion1.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, templateBVersion1.ID)
-		templateBVersion2 := coderdtest.UpdateTemplateVersion(t, client, user.OrganizationID, nil, templateB.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, templateBVersion2.ID)
+		templateBVersion1 := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		templateB := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, templateBVersion1.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, templateBVersion1.ID)
+		templateBVersion2 := wirtualdtest.UpdateTemplateVersion(t, client, user.OrganizationID, nil, templateB.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, templateBVersion2.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1332,21 +1332,21 @@ func TestPreviousTemplateVersion(t *testing.T) {
 
 	t.Run("Previous version found", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		// Create two templates to be sure it is not returning a previous version
 		// from another template
-		templateAVersion1 := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.CreateTemplate(t, client, user.OrganizationID, templateAVersion1.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, templateAVersion1.ID)
+		templateAVersion1 := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		wirtualdtest.CreateTemplate(t, client, user.OrganizationID, templateAVersion1.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, templateAVersion1.ID)
 		// Create two versions for the template B so we can try to get the previous
 		// version of version 2
-		templateBVersion1 := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		templateB := coderdtest.CreateTemplate(t, client, user.OrganizationID, templateBVersion1.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, templateBVersion1.ID)
-		templateBVersion2 := coderdtest.UpdateTemplateVersion(t, client, user.OrganizationID, nil, templateB.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, templateBVersion2.ID)
+		templateBVersion1 := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		templateB := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, templateBVersion1.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, templateBVersion1.ID)
+		templateBVersion2 := wirtualdtest.UpdateTemplateVersion(t, client, user.OrganizationID, nil, templateB.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, templateBVersion2.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1361,8 +1361,8 @@ func TestStarterTemplates(t *testing.T) {
 	t.Parallel()
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1407,9 +1407,9 @@ func TestTemplateVersionVariables(t *testing.T) {
 		}
 		const firstVariableValue = "foobar"
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID,
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID,
 			createEchoResponses(templateVariables),
 			func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
 				ctvr.UserVariableValues = []wirtualsdk.VariableValue{
@@ -1420,7 +1420,7 @@ func TestTemplateVersionVariables(t *testing.T) {
 				}
 			},
 		)
-		templateVersion := coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		templateVersion := wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		// As user passed the value for the first parameter, the job will succeed.
 		require.Empty(t, templateVersion.Job.Error)
@@ -1459,10 +1459,10 @@ func TestTemplateVersionVariables(t *testing.T) {
 			},
 		}
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, createEchoResponses(templateVariables))
-		templateVersion := coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, createEchoResponses(templateVariables))
+		templateVersion := wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		// As the first variable is marked as required and misses the default value,
 		// the job will fail, but will populate the template_version_variables table with existing variables.
@@ -1502,9 +1502,9 @@ func TestTemplateVersionVariables(t *testing.T) {
 		}
 		const firstVariableValue = "foobar"
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID,
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID,
 			createEchoResponses(templateVariables),
 			func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
 				ctvr.UserVariableValues = []wirtualsdk.VariableValue{
@@ -1515,7 +1515,7 @@ func TestTemplateVersionVariables(t *testing.T) {
 				}
 			},
 		)
-		templateVersion := coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		templateVersion := wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		// As user passed the value for the first parameter, the job will succeed.
 		require.Empty(t, templateVersion.Job.Error)
@@ -1541,10 +1541,10 @@ func TestTemplateVersionPatch(t *testing.T) {
 	t.Parallel()
 	t.Run("Update the name", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1561,12 +1561,12 @@ func TestTemplateVersionPatch(t *testing.T) {
 
 	t.Run("Update the message", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil, func(req *wirtualsdk.CreateTemplateVersionRequest) {
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil, func(req *wirtualsdk.CreateTemplateVersionRequest) {
 			req.Message = "Example message"
 		})
-		coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1582,12 +1582,12 @@ func TestTemplateVersionPatch(t *testing.T) {
 
 	t.Run("Remove the message", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil, func(req *wirtualsdk.CreateTemplateVersionRequest) {
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil, func(req *wirtualsdk.CreateTemplateVersionRequest) {
 			req.Message = "Example message"
 		})
-		coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1603,13 +1603,13 @@ func TestTemplateVersionPatch(t *testing.T) {
 
 	t.Run("Keep the message", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		wantMessage := "Example message"
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil, func(req *wirtualsdk.CreateTemplateVersionRequest) {
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil, func(req *wirtualsdk.CreateTemplateVersionRequest) {
 			req.Message = wantMessage
 		})
-		coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 		t.Log(version.Message)
 
@@ -1626,10 +1626,10 @@ func TestTemplateVersionPatch(t *testing.T) {
 
 	t.Run("Use the same name if a new name is not passed", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1641,13 +1641,13 @@ func TestTemplateVersionPatch(t *testing.T) {
 
 	t.Run("Use the same name for two different templates", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
-		version1 := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.CreateTemplate(t, client, user.OrganizationID, version1.ID)
-		version2 := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.CreateTemplate(t, client, user.OrganizationID, version2.ID)
+		version1 := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version1.ID)
+		version2 := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version2.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1669,12 +1669,12 @@ func TestTemplateVersionPatch(t *testing.T) {
 
 	t.Run("Use the same name for two versions for the same templates", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		version1 := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version1.ID)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version1 := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version1.ID)
 
-		version2 := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil, func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
+		version2 := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil, func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
 			ctvr.TemplateID = template.ID
 		})
 
@@ -1688,9 +1688,9 @@ func TestTemplateVersionPatch(t *testing.T) {
 
 	t.Run("Rename the unassigned template", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		version1 := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version1 := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1705,9 +1705,9 @@ func TestTemplateVersionPatch(t *testing.T) {
 
 	t.Run("Use incorrect template version name", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		version1 := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version1 := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1750,9 +1750,9 @@ func TestTemplateVersionParameters_Order(t *testing.T) {
 		// no order
 	)
 
-	client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-	user := coderdtest.CreateFirstUser(t, client)
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+	user := wirtualdtest.CreateFirstUser(t, client)
+	version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse: echo.ParseComplete,
 		ProvisionPlan: []*proto.Response{
 			{
@@ -1791,7 +1791,7 @@ func TestTemplateVersionParameters_Order(t *testing.T) {
 		},
 		ProvisionApply: echo.ApplyComplete,
 	})
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
@@ -1809,21 +1809,21 @@ func TestTemplateVersionParameters_Order(t *testing.T) {
 func TestTemplateArchiveVersions(t *testing.T) {
 	t.Parallel()
 
-	ownerClient := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-	owner := coderdtest.CreateFirstUser(t, ownerClient)
-	client, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
+	ownerClient := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+	owner := wirtualdtest.CreateFirstUser(t, ownerClient)
+	client, _ := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 	var totalVersions int
 	// Create a template to archive
-	initialVersion := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+	initialVersion := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
 	totalVersions++
-	template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, initialVersion.ID)
+	template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, initialVersion.ID)
 
 	allFailed := make([]uuid.UUID, 0)
 	expArchived := make([]uuid.UUID, 0)
 	// create some failed versions
 	for i := 0; i < 2; i++ {
-		failed := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, &echo.Responses{
+		failed := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionPlan:  echo.PlanFailed,
 			ProvisionApply: echo.ApplyFailed,
@@ -1836,7 +1836,7 @@ func TestTemplateArchiveVersions(t *testing.T) {
 
 	// Create some unused versions
 	for i := 0; i < 2; i++ {
-		unused := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, &echo.Responses{
+		unused := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionPlan:  echo.PlanComplete,
 			ProvisionApply: echo.ApplyComplete,
@@ -1849,18 +1849,18 @@ func TestTemplateArchiveVersions(t *testing.T) {
 
 	// Create some used template versions
 	for i := 0; i < 2; i++ {
-		used := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, &echo.Responses{
+		used := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionPlan:  echo.PlanComplete,
 			ProvisionApply: echo.ApplyComplete,
 		}, func(req *wirtualsdk.CreateTemplateVersionRequest) {
 			req.TemplateID = template.ID
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, used.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, uuid.Nil, func(request *wirtualsdk.CreateWorkspaceRequest) {
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, used.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, uuid.Nil, func(request *wirtualsdk.CreateWorkspaceRequest) {
 			request.TemplateVersionID = used.ID
 		})
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 		totalVersions++
 	}
 

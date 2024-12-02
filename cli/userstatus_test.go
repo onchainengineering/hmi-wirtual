@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
@@ -19,8 +19,8 @@ func TestUserStatus(t *testing.T) {
 	t.Run("StatusSelf", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		wirtualdtest.CreateFirstUser(t, client)
 
 		inv, root := clitest.New(t, "users", "suspend", "me")
 		clitest.SetupConfig(t, client, root)
@@ -35,10 +35,10 @@ func TestUserStatus(t *testing.T) {
 	t.Run("StatusOther", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		userAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleUserAdmin())
-		other, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := wirtualdtest.New(t, nil)
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		userAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleUserAdmin())
+		other, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 		otherUser, err := other.User(context.Background(), wirtualsdk.Me)
 		require.NoError(t, err, "fetch user")
 

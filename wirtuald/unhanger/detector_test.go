@@ -15,7 +15,7 @@ import (
 	"go.uber.org/goleak"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/database/dbgen"
@@ -829,6 +829,6 @@ func wrapDBAuthz(db database.Store, logger slog.Logger) database.Store {
 		db,
 		rbac.NewStrictCachingAuthorizer(prometheus.NewRegistry()),
 		logger,
-		coderdtest.AccessControlStorePointer(),
+		wirtualdtest.AccessControlStorePointer(),
 	)
 }

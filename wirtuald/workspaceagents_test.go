@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -28,8 +28,8 @@ import (
 	"github.com/coder/coder/v2/agent"
 	"github.com/coder/coder/v2/agent/agenttest"
 	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest/oidctest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest/oidctest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/database/dbfake"
@@ -56,10 +56,10 @@ func TestWorkspaceAgent(t *testing.T) {
 	t.Parallel()
 	t.Run("Connect", func(t *testing.T) {
 		t.Parallel()
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client, db := wirtualdtest.NewWithDatabase(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		tmpDir := t.TempDir()
-		anotherClient, anotherUser := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		anotherClient, anotherUser := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: user.OrganizationID,
@@ -80,8 +80,8 @@ func TestWorkspaceAgent(t *testing.T) {
 	})
 	t.Run("HasFallbackTroubleshootingURL", func(t *testing.T) {
 		t.Parallel()
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client, db := wirtualdtest.NewWithDatabase(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		tmpDir := t.TempDir()
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: user.OrganizationID,
@@ -103,10 +103,10 @@ func TestWorkspaceAgent(t *testing.T) {
 		t.Parallel()
 		// timeouts can cause error logs to be dropped on shutdown
 		logger := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true}).Leveled(slog.LevelDebug)
-		client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
+		client, db := wirtualdtest.NewWithDatabase(t, &wirtualdtest.Options{
 			Logger: &logger,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		tmpDir := t.TempDir()
 
 		wantTroubleshootingURL := "https://example.com/troubleshoot"
@@ -141,8 +141,8 @@ func TestWorkspaceAgent(t *testing.T) {
 
 	t.Run("DisplayApps", func(t *testing.T) {
 		t.Parallel()
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client, db := wirtualdtest.NewWithDatabase(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		tmpDir := t.TempDir()
 		apps := &proto.DisplayApps{
@@ -207,8 +207,8 @@ func TestWorkspaceAgentLogs(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Parallel()
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client, db := wirtualdtest.NewWithDatabase(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: user.OrganizationID,
 			OwnerID:        user.UserID,
@@ -249,8 +249,8 @@ func TestWorkspaceAgentLogs(t *testing.T) {
 	t.Run("Close logs on outdated build", func(t *testing.T) {
 		t.Parallel()
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client, db := wirtualdtest.NewWithDatabase(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: user.OrganizationID,
 			OwnerID:        user.UserID,
@@ -280,7 +280,7 @@ func TestWorkspaceAgentLogs(t *testing.T) {
 		case <-logs:
 		}
 
-		_ = coderdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStart)
+		_ = wirtualdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStart)
 
 		select {
 		case <-ctx.Done():
@@ -291,8 +291,8 @@ func TestWorkspaceAgentLogs(t *testing.T) {
 	t.Run("PublishesOnOverflow", func(t *testing.T) {
 		t.Parallel()
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client, db := wirtualdtest.NewWithDatabase(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: user.OrganizationID,
 			OwnerID:        user.UserID,
@@ -334,14 +334,14 @@ func TestWorkspaceAgentConnectRPC(t *testing.T) {
 	t.Run("Connect", func(t *testing.T) {
 		t.Parallel()
 
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client, db := wirtualdtest.NewWithDatabase(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: user.OrganizationID,
 			OwnerID:        user.UserID,
 		}).WithAgent().Do()
 		_ = agenttest.New(t, client.URL, r.AgentToken)
-		resources := coderdtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
+		resources := wirtualdtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -358,24 +358,24 @@ func TestWorkspaceAgentConnectRPC(t *testing.T) {
 	t.Run("FailNonLatestBuild", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 		})
 
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		authToken := uuid.NewString()
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionPlan:  echo.PlanComplete,
 			ProvisionApply: echo.ProvisionApplyWithAgent(authToken),
 		})
 
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
-		version = coderdtest.UpdateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version = wirtualdtest.UpdateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse:         echo.ParseComplete,
 			ProvisionPlan: echo.PlanComplete,
 			ProvisionApply: []*proto.Response{{
@@ -395,7 +395,7 @@ func TestWorkspaceAgentConnectRPC(t *testing.T) {
 				},
 			}},
 		}, template.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -405,7 +405,7 @@ func TestWorkspaceAgentConnectRPC(t *testing.T) {
 			Transition:        wirtualsdk.WorkspaceTransitionStop,
 		})
 		require.NoError(t, err)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, stopBuild.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, stopBuild.ID)
 
 		agentClient := agentsdk.New(client.URL)
 		agentClient.SetSessionToken(authToken)
@@ -421,8 +421,8 @@ func TestWorkspaceAgentConnectRPC(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client, db := wirtualdtest.NewWithDatabase(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		// Given: a workspace exists
 		seed := database.WorkspaceTable{OrganizationID: user.OrganizationID, OwnerID: user.UserID}
 		wsb := dbfake.WorkspaceBuild(t, db, seed).WithAgent().Do()
@@ -447,8 +447,8 @@ func TestWorkspaceAgentConnectRPC(t *testing.T) {
 
 func TestWorkspaceAgentTailnet(t *testing.T) {
 	t.Parallel()
-	client, db := coderdtest.NewWithDatabase(t, nil)
-	user := coderdtest.CreateFirstUser(t, client)
+	client, db := wirtualdtest.NewWithDatabase(t, nil)
+	user := wirtualdtest.CreateFirstUser(t, client)
 
 	r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 		OrganizationID: user.OrganizationID,
@@ -456,7 +456,7 @@ func TestWorkspaceAgentTailnet(t *testing.T) {
 	}).WithAgent().Do()
 
 	_ = agenttest.New(t, client.URL, r.AgentToken)
-	resources := coderdtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
+	resources := wirtualdtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
 
 	conn, err := func() (*workspacesdk.AgentConn, error) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
@@ -487,8 +487,8 @@ func TestWorkspaceAgentTailnet(t *testing.T) {
 
 func TestWorkspaceAgentClientCoordinate_BadVersion(t *testing.T) {
 	t.Parallel()
-	client, db := coderdtest.NewWithDatabase(t, nil)
-	user := coderdtest.CreateFirstUser(t, client)
+	client, db := wirtualdtest.NewWithDatabase(t, nil)
+	user := wirtualdtest.CreateFirstUser(t, client)
 
 	r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 		OrganizationID: user.OrganizationID,
@@ -573,12 +573,12 @@ func TestWorkspaceAgentClientCoordinate_ResumeToken(t *testing.T) {
 			t,
 			tailnet.NewResumeTokenKeyProvider(mgr, clock, time.Hour),
 		)
-		client, closer, api := coderdtest.NewWithAPI(t, &coderdtest.Options{
+		client, closer, api := wirtualdtest.NewWithAPI(t, &wirtualdtest.Options{
 			Coordinator:                    tailnet.NewCoordinator(logger),
 			CoordinatorResumeTokenProvider: resumeTokenProvider,
 		})
 		defer closer.Close()
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		// Create a workspace with an agent. No need to connect it since clients can
 		// still connect to the coordinator while the agent isn't connected.
@@ -645,12 +645,12 @@ func TestWorkspaceAgentClientCoordinate_ResumeToken(t *testing.T) {
 			t,
 			tailnet.NewResumeTokenKeyProvider(mgr, clock, time.Hour),
 		)
-		client, closer, api := coderdtest.NewWithAPI(t, &coderdtest.Options{
+		client, closer, api := wirtualdtest.NewWithAPI(t, &wirtualdtest.Options{
 			Coordinator:                    tailnet.NewCoordinator(logger),
 			CoordinatorResumeTokenProvider: resumeTokenProvider,
 		})
 		defer closer.Close()
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		// Create a workspace with an agent. No need to connect it since clients can
 		// still connect to the coordinator while the agent isn't connected.
@@ -741,15 +741,15 @@ func connectToCoordinatorAndFetchResumeToken(ctx context.Context, logger slog.Lo
 func TestWorkspaceAgentTailnetDirectDisabled(t *testing.T) {
 	t.Parallel()
 
-	dv := coderdtest.DeploymentValues(t)
+	dv := wirtualdtest.DeploymentValues(t)
 	err := dv.DERP.Config.BlockDirect.Set("true")
 	require.NoError(t, err)
 	require.True(t, dv.DERP.Config.BlockDirect.Value())
 
-	client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
+	client, db := wirtualdtest.NewWithDatabase(t, &wirtualdtest.Options{
 		DeploymentValues: dv,
 	})
-	user := coderdtest.CreateFirstUser(t, client)
+	user := wirtualdtest.CreateFirstUser(t, client)
 	r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 		OrganizationID: user.OrganizationID,
 		OwnerID:        user.UserID,
@@ -770,7 +770,7 @@ func TestWorkspaceAgentTailnetDirectDisabled(t *testing.T) {
 	require.True(t, manifest.DisableDirectConnections)
 
 	_ = agenttest.New(t, client.URL, r.AgentToken)
-	resources := coderdtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
+	resources := wirtualdtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
 	agentID := resources[0].Agents[0].ID
 
 	// Verify that the connection data has no STUN ports and
@@ -814,13 +814,13 @@ func TestWorkspaceAgentListeningPorts(t *testing.T) {
 	setup := func(t *testing.T, apps []*proto.App, dv *wirtualsdk.DeploymentValues) (*wirtualsdk.Client, uint16, uuid.UUID) {
 		t.Helper()
 
-		client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
+		client, db := wirtualdtest.NewWithDatabase(t, &wirtualdtest.Options{
 			DeploymentValues: dv,
 		})
-		coderdPort, err := strconv.Atoi(client.URL.Port())
+		wirtualdPort, err := strconv.Atoi(client.URL.Port())
 		require.NoError(t, err)
 
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: user.OrganizationID,
 			OwnerID:        user.UserID,
@@ -831,8 +831,8 @@ func TestWorkspaceAgentListeningPorts(t *testing.T) {
 		_ = agenttest.New(t, client.URL, r.AgentToken, func(o *agent.Options) {
 			o.PortCacheDuration = time.Millisecond
 		})
-		resources := coderdtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
-		return client, uint16(coderdPort), resources[0].Agents[0].ID
+		resources := wirtualdtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
+		return client, uint16(wirtualdPort), resources[0].Agents[0].ID
 	}
 
 	willFilterPort := func(port int) bool {
@@ -931,9 +931,9 @@ func TestWorkspaceAgentListeningPorts(t *testing.T) {
 			t.Run("OK_"+tc.name, func(t *testing.T) {
 				t.Parallel()
 
-				dv := coderdtest.DeploymentValues(t)
+				dv := wirtualdtest.DeploymentValues(t)
 				tc.setDV(t, dv)
-				client, coderdPort, agentID := setup(t, nil, dv)
+				client, wirtualdPort, agentID := setup(t, nil, dv)
 
 				ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 				defer cancel()
@@ -948,8 +948,8 @@ func TestWorkspaceAgentListeningPorts(t *testing.T) {
 				expected := map[uint16]bool{
 					// expect the listener we made
 					lPort: false,
-					// expect the coderdtest server
-					coderdPort: false,
+					// expect the wirtualdtest server
+					wirtualdPort: false,
 				}
 				for _, port := range res.Ports {
 					if port.Network == "tcp" {
@@ -1001,7 +1001,7 @@ func TestWorkspaceAgentListeningPorts(t *testing.T) {
 			// Generate a filtered port that should not exist in the response.
 			_, filteredLPort := generateFilteredPort(t)
 
-			client, coderdPort, agentID := setup(t, []*proto.App{app}, nil)
+			client, wirtualdPort, agentID := setup(t, []*proto.App{app}, nil)
 
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			defer cancel()
@@ -1009,7 +1009,7 @@ func TestWorkspaceAgentListeningPorts(t *testing.T) {
 			res, err := client.WorkspaceAgentListeningPorts(ctx, agentID)
 			require.NoError(t, err)
 
-			sawCoderdPort := false
+			sawWirtualdPort := false
 			for _, port := range res.Ports {
 				if port.Network == "tcp" {
 					if port.Port == appLPort {
@@ -1018,13 +1018,13 @@ func TestWorkspaceAgentListeningPorts(t *testing.T) {
 					if port.Port == filteredLPort {
 						t.Fatalf("expected to not find TCP port (filtered port) %d in response", filteredLPort)
 					}
-					if port.Port == coderdPort {
-						sawCoderdPort = true
+					if port.Port == wirtualdPort {
+						sawWirtualdPort = true
 					}
 				}
 			}
-			if !sawCoderdPort {
-				t.Fatalf("expected to find TCP port (wirtuald port) %d in response", coderdPort)
+			if !sawWirtualdPort {
+				t.Fatalf("expected to find TCP port (wirtuald port) %d in response", wirtualdPort)
 			}
 		})
 	})
@@ -1055,8 +1055,8 @@ func TestWorkspaceAgentListeningPorts(t *testing.T) {
 
 func TestWorkspaceAgentAppHealth(t *testing.T) {
 	t.Parallel()
-	client, db := coderdtest.NewWithDatabase(t, nil)
-	user := coderdtest.CreateFirstUser(t, client)
+	client, db := wirtualdtest.NewWithDatabase(t, nil)
+	user := wirtualdtest.CreateFirstUser(t, client)
 	apps := []*proto.App{
 		{
 			Slug:    "code-server",
@@ -1155,8 +1155,8 @@ func TestWorkspaceAgentPostLogSource(t *testing.T) {
 
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client, db := wirtualdtest.NewWithDatabase(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		ctx := testutil.Context(t, testutil.WaitShort)
 
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
@@ -1199,8 +1199,8 @@ func TestWorkspaceAgent_LifecycleState(t *testing.T) {
 		t.Parallel()
 		ctx := testutil.Context(t, testutil.WaitLong)
 
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client, db := wirtualdtest.NewWithDatabase(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: user.OrganizationID,
 			OwnerID:        user.UserID,
@@ -1272,8 +1272,8 @@ func TestWorkspaceAgent_LifecycleState(t *testing.T) {
 func TestWorkspaceAgent_Metadata(t *testing.T) {
 	t.Parallel()
 
-	client, db := coderdtest.NewWithDatabase(t, nil)
-	user := coderdtest.CreateFirstUser(t, client)
+	client, db := wirtualdtest.NewWithDatabase(t, nil)
+	user := wirtualdtest.CreateFirstUser(t, client)
 	r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 		OrganizationID: user.OrganizationID,
 		OwnerID:        user.UserID,
@@ -1437,8 +1437,8 @@ func TestWorkspaceAgent_Metadata(t *testing.T) {
 func TestWorkspaceAgent_Metadata_DisplayOrder(t *testing.T) {
 	t.Parallel()
 
-	client, db := coderdtest.NewWithDatabase(t, nil)
-	user := coderdtest.CreateFirstUser(t, client)
+	client, db := wirtualdtest.NewWithDatabase(t, nil)
+	user := wirtualdtest.CreateFirstUser(t, client)
 	r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 		OrganizationID: user.OrganizationID,
 		OwnerID:        user.UserID,
@@ -1539,13 +1539,13 @@ func TestWorkspaceAgent_Metadata_CatchMemoryLeak(t *testing.T) {
 	db := &testWAMErrorStore{Store: dbmem.New()}
 	psub := pubsub.NewInMemory()
 	logger := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true}).Named("wirtuald").Leveled(slog.LevelDebug)
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := wirtualdtest.New(t, &wirtualdtest.Options{
 		Database:                 db,
 		Pubsub:                   psub,
 		IncludeProvisionerDaemon: true,
 		Logger:                   &logger,
 	})
-	user := coderdtest.CreateFirstUser(t, client)
+	user := wirtualdtest.CreateFirstUser(t, client)
 	r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 		OrganizationID: user.OrganizationID,
 		OwnerID:        user.UserID,
@@ -1676,8 +1676,8 @@ func TestWorkspaceAgent_Startup(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client, db := wirtualdtest.NewWithDatabase(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: user.OrganizationID,
 			OwnerID:        user.UserID,
@@ -1722,8 +1722,8 @@ func TestWorkspaceAgent_Startup(t *testing.T) {
 	t.Run("InvalidSemver", func(t *testing.T) {
 		t.Parallel()
 
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client, db := wirtualdtest.NewWithDatabase(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: user.OrganizationID,
 			OwnerID:        user.UserID,
@@ -1749,15 +1749,15 @@ func TestWorkspaceAgent_UpdatedDERP(t *testing.T) {
 
 	logger := testutil.Logger(t)
 
-	dv := coderdtest.DeploymentValues(t)
+	dv := wirtualdtest.DeploymentValues(t)
 	err := dv.DERP.Config.BlockDirect.Set("true")
 	require.NoError(t, err)
 
-	client, closer, api := coderdtest.NewWithAPI(t, &coderdtest.Options{
+	client, closer, api := wirtualdtest.NewWithAPI(t, &wirtualdtest.Options{
 		DeploymentValues: dv,
 	})
 	defer closer.Close()
-	user := coderdtest.CreateFirstUser(t, client)
+	user := wirtualdtest.CreateFirstUser(t, client)
 
 	// Change the DERP mapper to our custom one.
 	var currentDerpMap atomic.Pointer[tailcfg.DERPMap]
@@ -1775,7 +1775,7 @@ func TestWorkspaceAgent_UpdatedDERP(t *testing.T) {
 	}).WithAgent().Do()
 
 	agentCloser := agenttest.New(t, client.URL, r.AgentToken)
-	resources := coderdtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
+	resources := wirtualdtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
 	agentID := resources[0].Agents[0].ID
 
 	// Connect from a client.
@@ -1872,7 +1872,7 @@ func TestWorkspaceAgentExternalAuthListen(t *testing.T) {
 
 		ticks := make(chan time.Time)
 		// setup
-		ownerClient, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
+		ownerClient, db := wirtualdtest.NewWithDatabase(t, &wirtualdtest.Options{
 			NewTicker: func(duration time.Duration) (<-chan time.Time, func()) {
 				return ticks, func() {}
 			},
@@ -1882,9 +1882,9 @@ func TestWorkspaceAgentExternalAuthListen(t *testing.T) {
 				}),
 			},
 		})
-		first := coderdtest.CreateFirstUser(t, ownerClient)
+		first := wirtualdtest.CreateFirstUser(t, ownerClient)
 		tmpDir := t.TempDir()
-		client, user := coderdtest.CreateAnotherUser(t, ownerClient, first.OrganizationID)
+		client, user := wirtualdtest.CreateAnotherUser(t, ownerClient, first.OrganizationID)
 
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: first.OrganizationID,
@@ -1937,11 +1937,11 @@ func TestOwnedWorkspacesCoordinate(t *testing.T) {
 
 	ctx := testutil.Context(t, testutil.WaitLong)
 	logger := testutil.Logger(t)
-	firstClient, _, api := coderdtest.NewWithAPI(t, &coderdtest.Options{
+	firstClient, _, api := wirtualdtest.NewWithAPI(t, &wirtualdtest.Options{
 		Coordinator: tailnet.NewCoordinator(logger),
 	})
-	firstUser := coderdtest.CreateFirstUser(t, firstClient)
-	member, memberUser := coderdtest.CreateAnotherUser(t, firstClient, firstUser.OrganizationID, rbac.RoleTemplateAdmin())
+	firstUser := wirtualdtest.CreateFirstUser(t, firstClient)
+	member, memberUser := wirtualdtest.CreateAnotherUser(t, firstClient, firstUser.OrganizationID, rbac.RoleTemplateAdmin())
 
 	// Create a workspace with an agent
 	firstWorkspace := buildWorkspaceWithAgent(t, member, firstUser.OrganizationID, memberUser.ID, api.Database, api.Pubsub)
@@ -2028,7 +2028,7 @@ func buildWorkspaceWithAgent(
 		OwnerID:        ownerID,
 	}).WithAgent().Pubsub(ps).Do()
 	_ = agenttest.New(t, client.URL, r.AgentToken)
-	coderdtest.NewWorkspaceAgentWaiter(t, client, r.Workspace.ID).Wait()
+	wirtualdtest.NewWorkspaceAgentWaiter(t, client, r.Workspace.ID).Wait()
 	return r.Workspace
 }
 

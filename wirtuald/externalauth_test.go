@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -17,8 +17,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/oauth2"
 
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest/oidctest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest/oidctest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/database/dbtime"
@@ -37,14 +37,14 @@ func TestExternalAuthByID(t *testing.T) {
 		const providerID = "fake-github"
 		fake := oidctest.NewFakeIDP(t, oidctest.WithServing())
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			ExternalAuthConfigs: []*externalauth.Config{
 				fake.ExternalAuthConfig(t, providerID, nil, func(cfg *externalauth.Config) {
 					cfg.Type = wirtualsdk.EnhancedExternalAuthProviderGitHub.String()
 				}),
 			},
 		})
-		coderdtest.CreateFirstUser(t, client)
+		wirtualdtest.CreateFirstUser(t, client)
 		auth, err := client.ExternalAuthByID(context.Background(), providerID)
 		require.NoError(t, err)
 		require.False(t, auth.Authenticated)
@@ -56,7 +56,7 @@ func TestExternalAuthByID(t *testing.T) {
 		const providerID = "fake-azure"
 		fake := oidctest.NewFakeIDP(t, oidctest.WithServing())
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			ExternalAuthConfigs: []*externalauth.Config{
 				// AzureDevops doesn't have a user endpoint!
 				fake.ExternalAuthConfig(t, providerID, nil, func(cfg *externalauth.Config) {
@@ -65,7 +65,7 @@ func TestExternalAuthByID(t *testing.T) {
 			},
 		})
 
-		coderdtest.CreateFirstUser(t, client)
+		wirtualdtest.CreateFirstUser(t, client)
 		fake.ExternalLogin(t, client)
 
 		auth, err := client.ExternalAuthByID(context.Background(), providerID)
@@ -76,7 +76,7 @@ func TestExternalAuthByID(t *testing.T) {
 		t.Parallel()
 		const providerID = "fake-github"
 		fake := oidctest.NewFakeIDP(t, oidctest.WithServing())
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			ExternalAuthConfigs: []*externalauth.Config{
 				fake.ExternalAuthConfig(t, providerID, &oidctest.ExternalAuthConfigOptions{
 					ValidatePayload: func(_ string) (interface{}, int, error) {
@@ -91,7 +91,7 @@ func TestExternalAuthByID(t *testing.T) {
 			},
 		})
 
-		coderdtest.CreateFirstUser(t, client)
+		wirtualdtest.CreateFirstUser(t, client)
 		// Login to external auth provider
 		fake.ExternalLogin(t, client)
 
@@ -126,7 +126,7 @@ func TestExternalAuthByID(t *testing.T) {
 				}},
 			})
 		})
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			ExternalAuthConfigs: []*externalauth.Config{
 				fake.ExternalAuthConfig(t, providerID, routes, func(cfg *externalauth.Config) {
 					cfg.AppInstallationsURL = strings.TrimSuffix(cfg.ValidateURL, "/") + "/installs"
@@ -135,7 +135,7 @@ func TestExternalAuthByID(t *testing.T) {
 			},
 		})
 
-		coderdtest.CreateFirstUser(t, client)
+		wirtualdtest.CreateFirstUser(t, client)
 		fake.ExternalLogin(t, client)
 
 		auth, err := client.ExternalAuthByID(context.Background(), providerID)
@@ -162,7 +162,7 @@ func TestExternalAuthManagement(t *testing.T) {
 		github := oidctest.NewFakeIDP(t, oidctest.WithServing())
 		gitlab := oidctest.NewFakeIDP(t, oidctest.WithServing())
 
-		owner := coderdtest.New(t, &coderdtest.Options{
+		owner := wirtualdtest.New(t, &wirtualdtest.Options{
 			ExternalAuthConfigs: []*externalauth.Config{
 				github.ExternalAuthConfig(t, githubID, nil, func(cfg *externalauth.Config) {
 					cfg.Type = wirtualsdk.EnhancedExternalAuthProviderGitHub.String()
@@ -172,9 +172,9 @@ func TestExternalAuthManagement(t *testing.T) {
 				}),
 			},
 		})
-		ownerUser := coderdtest.CreateFirstUser(t, owner)
+		ownerUser := wirtualdtest.CreateFirstUser(t, owner)
 		// Just a regular user
-		client, _ := coderdtest.CreateAnotherUser(t, owner, ownerUser.OrganizationID)
+		client, _ := wirtualdtest.CreateAnotherUser(t, owner, ownerUser.OrganizationID)
 		ctx := testutil.Context(t, testutil.WaitLong)
 
 		// List auths without any links.
@@ -217,7 +217,7 @@ func TestExternalAuthManagement(t *testing.T) {
 			return nil
 		}))
 
-		owner, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
+		owner, db := wirtualdtest.NewWithDatabase(t, &wirtualdtest.Options{
 			ExternalAuthConfigs: []*externalauth.Config{
 				githubApp.ExternalAuthConfig(t, githubID, nil, func(cfg *externalauth.Config) {
 					cfg.Type = wirtualsdk.EnhancedExternalAuthProviderGitHub.String()
@@ -227,9 +227,9 @@ func TestExternalAuthManagement(t *testing.T) {
 				}),
 			},
 		})
-		ownerUser := coderdtest.CreateFirstUser(t, owner)
+		ownerUser := wirtualdtest.CreateFirstUser(t, owner)
 		// Just a regular user
-		client, user := coderdtest.CreateAnotherUser(t, owner, ownerUser.OrganizationID)
+		client, user := wirtualdtest.CreateAnotherUser(t, owner, ownerUser.OrganizationID)
 		ctx := testutil.Context(t, testutil.WaitLong)
 
 		// Log into github & gitlab
@@ -237,13 +237,13 @@ func TestExternalAuthManagement(t *testing.T) {
 		gitlab.ExternalLogin(t, client)
 
 		links, err := db.GetExternalAuthLinksByUserID(
-			dbauthz.As(ctx, coderdtest.AuthzUserSubject(user, ownerUser.OrganizationID)), user.ID)
+			dbauthz.As(ctx, wirtualdtest.AuthzUserSubject(user, ownerUser.OrganizationID)), user.ID)
 		require.NoError(t, err)
 		require.Len(t, links, 2)
 
 		// Expire the links
 		for _, l := range links {
-			_, err := db.UpdateExternalAuthLink(dbauthz.As(ctx, coderdtest.AuthzUserSubject(user, ownerUser.OrganizationID)), database.UpdateExternalAuthLinkParams{
+			_, err := db.UpdateExternalAuthLink(dbauthz.As(ctx, wirtualdtest.AuthzUserSubject(user, ownerUser.OrganizationID)), database.UpdateExternalAuthLinkParams{
 				ProviderID:        l.ProviderID,
 				UserID:            l.UserID,
 				UpdatedAt:         dbtime.Now(),
@@ -274,10 +274,10 @@ func TestExternalAuthDevice(t *testing.T) {
 			UseDeviceAuth: true,
 		})
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			ExternalAuthConfigs: []*externalauth.Config{cfg},
 		})
-		coderdtest.CreateFirstUser(t, client)
+		wirtualdtest.CreateFirstUser(t, client)
 		// Login!
 		fake.DeviceLogin(t, client, externalID)
 
@@ -288,12 +288,12 @@ func TestExternalAuthDevice(t *testing.T) {
 
 	t.Run("NotSupported", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			ExternalAuthConfigs: []*externalauth.Config{{
 				ID: "test",
 			}},
 		})
-		coderdtest.CreateFirstUser(t, client)
+		wirtualdtest.CreateFirstUser(t, client)
 		_, err := client.ExternalAuthDeviceByID(context.Background(), "test")
 		var sdkErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &sdkErr)
@@ -307,7 +307,7 @@ func TestExternalAuthDevice(t *testing.T) {
 			})
 		}))
 		defer srv.Close()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			ExternalAuthConfigs: []*externalauth.Config{{
 				ID: "test",
 				DeviceAuth: &externalauth.DeviceAuth{
@@ -317,7 +317,7 @@ func TestExternalAuthDevice(t *testing.T) {
 				},
 			}},
 		})
-		coderdtest.CreateFirstUser(t, client)
+		wirtualdtest.CreateFirstUser(t, client)
 		device, err := client.ExternalAuthDeviceByID(context.Background(), "test")
 		require.NoError(t, err)
 		require.Equal(t, "hey", device.UserCode)
@@ -331,7 +331,7 @@ func TestExternalAuthDevice(t *testing.T) {
 			httpapi.Write(r.Context(), w, http.StatusOK, resp)
 		}))
 		defer srv.Close()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			ExternalAuthConfigs: []*externalauth.Config{{
 				ID: "test",
 				DeviceAuth: &externalauth.DeviceAuth{
@@ -341,7 +341,7 @@ func TestExternalAuthDevice(t *testing.T) {
 				},
 			}},
 		})
-		coderdtest.CreateFirstUser(t, client)
+		wirtualdtest.CreateFirstUser(t, client)
 		err := client.ExternalAuthDeviceExchange(context.Background(), "test", wirtualsdk.ExternalAuthDeviceExchange{
 			DeviceCode: "hey",
 		})
@@ -371,7 +371,7 @@ func TestExternalAuthDevice(t *testing.T) {
 			_, _ = w.Write([]byte(`Please wait a few minutes before you try again`))
 		}))
 		defer srv.Close()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			ExternalAuthConfigs: []*externalauth.Config{{
 				ID: "test",
 				DeviceAuth: &externalauth.DeviceAuth{
@@ -381,7 +381,7 @@ func TestExternalAuthDevice(t *testing.T) {
 				},
 			}},
 		})
-		coderdtest.CreateFirstUser(t, client)
+		wirtualdtest.CreateFirstUser(t, client)
 		_, err := client.ExternalAuthDeviceByID(context.Background(), "test")
 		require.ErrorContains(t, err, "rate limit hit")
 	})
@@ -394,7 +394,7 @@ func TestExternalAuthDevice(t *testing.T) {
 			_, _ = w.Write([]byte(url.Values{"access_token": {"hey"}}.Encode()))
 		}))
 		defer srv.Close()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			ExternalAuthConfigs: []*externalauth.Config{{
 				ID: "test",
 				DeviceAuth: &externalauth.DeviceAuth{
@@ -404,7 +404,7 @@ func TestExternalAuthDevice(t *testing.T) {
 				},
 			}},
 		})
-		coderdtest.CreateFirstUser(t, client)
+		wirtualdtest.CreateFirstUser(t, client)
 		_, err := client.ExternalAuthDeviceByID(context.Background(), "test")
 		require.Error(t, err)
 		require.ErrorContains(t, err, "is form-url encoded")
@@ -416,21 +416,21 @@ func TestExternalAuthCallback(t *testing.T) {
 	t.Parallel()
 	t.Run("NoMatchingConfig", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 			ExternalAuthConfigs:      []*externalauth.Config{},
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		authToken := uuid.NewString()
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionPlan:  echo.PlanComplete,
 			ProvisionApply: echo.ProvisionApplyWithAgent(authToken),
 		})
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		agentClient := agentsdk.New(client.URL)
 		agentClient.SetSessionToken(authToken)
@@ -443,7 +443,7 @@ func TestExternalAuthCallback(t *testing.T) {
 	})
 	t.Run("ReturnsURL", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 			ExternalAuthConfigs: []*externalauth.Config{{
 				InstrumentedOAuth2Config: &testutil.OAuth2Config{},
@@ -452,17 +452,17 @@ func TestExternalAuthCallback(t *testing.T) {
 				Type:                     wirtualsdk.EnhancedExternalAuthProviderGitHub.String(),
 			}},
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		authToken := uuid.NewString()
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionPlan:  echo.PlanComplete,
 			ProvisionApply: echo.ProvisionApplyWithAgent(authToken),
 		})
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		agentClient := agentsdk.New(client.URL)
 		agentClient.SetSessionToken(authToken)
@@ -474,7 +474,7 @@ func TestExternalAuthCallback(t *testing.T) {
 	})
 	t.Run("UnauthorizedCallback", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 			ExternalAuthConfigs: []*externalauth.Config{{
 				InstrumentedOAuth2Config: &testutil.OAuth2Config{},
@@ -483,12 +483,12 @@ func TestExternalAuthCallback(t *testing.T) {
 				Type:                     wirtualsdk.EnhancedExternalAuthProviderGitHub.String(),
 			}},
 		})
-		resp := coderdtest.RequestExternalAuthCallback(t, "github", client)
+		resp := wirtualdtest.RequestExternalAuthCallback(t, "github", client)
 		require.Equal(t, http.StatusSeeOther, resp.StatusCode)
 	})
 	t.Run("AuthorizedCallback", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 			ExternalAuthConfigs: []*externalauth.Config{{
 				InstrumentedOAuth2Config: &testutil.OAuth2Config{},
@@ -497,21 +497,21 @@ func TestExternalAuthCallback(t *testing.T) {
 				Type:                     wirtualsdk.EnhancedExternalAuthProviderGitHub.String(),
 			}},
 		})
-		_ = coderdtest.CreateFirstUser(t, client)
-		resp := coderdtest.RequestExternalAuthCallback(t, "github", client)
+		_ = wirtualdtest.CreateFirstUser(t, client)
+		resp := wirtualdtest.RequestExternalAuthCallback(t, "github", client)
 		require.Equal(t, http.StatusTemporaryRedirect, resp.StatusCode)
 		location, err := resp.Location()
 		require.NoError(t, err)
 		require.Equal(t, "/external-auth/github", location.Path)
 
 		// Callback again to simulate updating the token.
-		resp = coderdtest.RequestExternalAuthCallback(t, "github", client)
+		resp = wirtualdtest.RequestExternalAuthCallback(t, "github", client)
 		require.Equal(t, http.StatusTemporaryRedirect, resp.StatusCode)
 	})
 
 	t.Run("CustomRedirect", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 			ExternalAuthConfigs: []*externalauth.Config{{
 				InstrumentedOAuth2Config: &testutil.OAuth2Config{},
@@ -522,8 +522,8 @@ func TestExternalAuthCallback(t *testing.T) {
 		})
 		maliciousHost := "https://malicious.com"
 		expectedURI := "/some/path?param=1"
-		_ = coderdtest.CreateFirstUser(t, client)
-		resp := coderdtest.RequestExternalAuthCallback(t, "github", client, func(req *http.Request) {
+		_ = wirtualdtest.CreateFirstUser(t, client)
+		resp := wirtualdtest.RequestExternalAuthCallback(t, "github", client, func(req *http.Request) {
 			req.AddCookie(&http.Cookie{
 				Name:  wirtualsdk.OAuth2RedirectCookie,
 				Value: maliciousHost + expectedURI,
@@ -543,7 +543,7 @@ func TestExternalAuthCallback(t *testing.T) {
 
 		srv := httptest.NewServer(nil)
 		defer srv.Close()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 			ExternalAuthConfigs: []*externalauth.Config{{
 				ValidateURL:              srv.URL,
@@ -553,22 +553,22 @@ func TestExternalAuthCallback(t *testing.T) {
 				Type:                     wirtualsdk.EnhancedExternalAuthProviderGitHub.String(),
 			}},
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		authToken := uuid.NewString()
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionPlan:  echo.PlanComplete,
 			ProvisionApply: echo.ProvisionApplyWithAgent(authToken),
 		})
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		agentClient := agentsdk.New(client.URL)
 		agentClient.SetSessionToken(authToken)
 
-		resp := coderdtest.RequestExternalAuthCallback(t, "github", client)
+		resp := wirtualdtest.RequestExternalAuthCallback(t, "github", client)
 		require.Equal(t, http.StatusTemporaryRedirect, resp.StatusCode)
 
 		// If the validation URL says unauthorized, the callback
@@ -599,7 +599,7 @@ func TestExternalAuthCallback(t *testing.T) {
 
 	t.Run("ExpiredNoRefresh", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 			ExternalAuthConfigs: []*externalauth.Config{{
 				InstrumentedOAuth2Config: &testutil.OAuth2Config{
@@ -615,17 +615,17 @@ func TestExternalAuthCallback(t *testing.T) {
 				NoRefresh: true,
 			}},
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		authToken := uuid.NewString()
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionPlan:  echo.PlanComplete,
 			ProvisionApply: echo.ProvisionApplyWithAgent(authToken),
 		})
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		agentClient := agentsdk.New(client.URL)
 		agentClient.SetSessionToken(authToken)
@@ -639,7 +639,7 @@ func TestExternalAuthCallback(t *testing.T) {
 		// In the configuration, we set our OAuth provider
 		// to return an expired token. Coder consumes this
 		// and stores it.
-		resp := coderdtest.RequestExternalAuthCallback(t, "github", client)
+		resp := wirtualdtest.RequestExternalAuthCallback(t, "github", client)
 		require.Equal(t, http.StatusTemporaryRedirect, resp.StatusCode)
 
 		// Because the token is expired and `NoRefresh` is specified,
@@ -653,7 +653,7 @@ func TestExternalAuthCallback(t *testing.T) {
 
 	t.Run("FullFlow", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 			ExternalAuthConfigs: []*externalauth.Config{{
 				InstrumentedOAuth2Config: &testutil.OAuth2Config{},
@@ -662,17 +662,17 @@ func TestExternalAuthCallback(t *testing.T) {
 				Type:                     wirtualsdk.EnhancedExternalAuthProviderGitHub.String(),
 			}},
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		authToken := uuid.NewString()
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionPlan:  echo.PlanComplete,
 			ProvisionApply: echo.ProvisionApplyWithAgent(authToken),
 		})
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		agentClient := agentsdk.New(client.URL)
 		agentClient.SetSessionToken(authToken)
@@ -696,7 +696,7 @@ func TestExternalAuthCallback(t *testing.T) {
 
 		time.Sleep(250 * time.Millisecond)
 
-		resp := coderdtest.RequestExternalAuthCallback(t, "github", client)
+		resp := wirtualdtest.RequestExternalAuthCallback(t, "github", client)
 		require.Equal(t, http.StatusTemporaryRedirect, resp.StatusCode)
 		token = <-tokenChan
 		require.Equal(t, "access_token", token.Username)

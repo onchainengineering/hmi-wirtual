@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -21,7 +21,7 @@ import (
 	"cdr.dev/slog/sloggers/slogtest"
 	"github.com/coder/coder/v2/agent/agenttest"
 	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/database/dbgen"
@@ -48,7 +48,7 @@ func TestDeploymentInsights(t *testing.T) {
 	db, ps := dbtestutil.NewDB(t, dbtestutil.WithDumpOnFailure())
 	logger := testutil.Logger(t)
 	rollupEvents := make(chan dbrollup.Event)
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := wirtualdtest.New(t, &wirtualdtest.Options{
 		Database:                  db,
 		Pubsub:                    ps,
 		Logger:                    &logger,
@@ -62,19 +62,19 @@ func TestDeploymentInsights(t *testing.T) {
 		),
 	})
 
-	user := coderdtest.CreateFirstUser(t, client)
+	user := wirtualdtest.CreateFirstUser(t, client)
 	authToken := uuid.NewString()
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse:          echo.ParseComplete,
 		ProvisionPlan:  echo.PlanComplete,
 		ProvisionApply: echo.ProvisionApplyWithAgent(authToken),
 	})
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 	require.Empty(t, template.BuildTimeStats[wirtualsdk.WorkspaceTransitionStart])
 
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+	wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 	ctx := testutil.Context(t, testutil.WaitLong)
 
@@ -83,7 +83,7 @@ func TestDeploymentInsights(t *testing.T) {
 	require.NoError(t, err)
 
 	_ = agenttest.New(t, client.URL, authToken)
-	resources := coderdtest.NewWorkspaceAgentWaiter(t, client, workspace.ID).Wait()
+	resources := wirtualdtest.NewWorkspaceAgentWaiter(t, client, workspace.ID).Wait()
 
 	conn, err := workspacesdk.New(client).
 		DialAgent(ctx, resources[0].Agents[0].ID, &workspacesdk.DialAgentOptions{
@@ -128,7 +128,7 @@ func TestUserActivityInsights_SanityCheck(t *testing.T) {
 
 	db, ps := dbtestutil.NewDB(t)
 	logger := testutil.Logger(t)
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := wirtualdtest.New(t, &wirtualdtest.Options{
 		Database:                  db,
 		Pubsub:                    ps,
 		Logger:                    &logger,
@@ -143,24 +143,24 @@ func TestUserActivityInsights_SanityCheck(t *testing.T) {
 
 	// Create two users, one that will appear in the report and another that
 	// won't (due to not having/using a workspace).
-	user := coderdtest.CreateFirstUser(t, client)
-	_, _ = coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+	user := wirtualdtest.CreateFirstUser(t, client)
+	_, _ = wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 	authToken := uuid.NewString()
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse:          echo.ParseComplete,
 		ProvisionPlan:  echo.PlanComplete,
 		ProvisionApply: echo.ProvisionApplyWithAgent(authToken),
 	})
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 	require.Empty(t, template.BuildTimeStats[wirtualsdk.WorkspaceTransitionStart])
 
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+	wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 	// Start an agent so that we can generate stats.
 	_ = agenttest.New(t, client.URL, authToken)
-	resources := coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+	resources := wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 	// Start must be at the beginning of the day, initialize it early in case
 	// the day changes so that we get the relevant stats faster.
@@ -226,7 +226,7 @@ func TestUserLatencyInsights(t *testing.T) {
 
 	db, ps := dbtestutil.NewDB(t)
 	logger := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true}).Leveled(slog.LevelDebug)
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := wirtualdtest.New(t, &wirtualdtest.Options{
 		Database:                  db,
 		Pubsub:                    ps,
 		Logger:                    &logger,
@@ -241,24 +241,24 @@ func TestUserLatencyInsights(t *testing.T) {
 
 	// Create two users, one that will appear in the report and another that
 	// won't (due to not having/using a workspace).
-	user := coderdtest.CreateFirstUser(t, client)
-	_, _ = coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+	user := wirtualdtest.CreateFirstUser(t, client)
+	_, _ = wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 	authToken := uuid.NewString()
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse:          echo.ParseComplete,
 		ProvisionPlan:  echo.PlanComplete,
 		ProvisionApply: echo.ProvisionApplyWithAgent(authToken),
 	})
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 	require.Empty(t, template.BuildTimeStats[wirtualsdk.WorkspaceTransitionStart])
 
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+	wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 	// Start an agent so that we can generate stats.
 	_ = agenttest.New(t, client.URL, authToken)
-	resources := coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+	resources := wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 	// Start must be at the beginning of the day, initialize it early in case
 	// the day changes so that we get the relevant stats faster.
@@ -323,8 +323,8 @@ func TestUserLatencyInsights(t *testing.T) {
 func TestUserLatencyInsights_BadRequest(t *testing.T) {
 	t.Parallel()
 
-	client := coderdtest.New(t, &coderdtest.Options{})
-	_ = coderdtest.CreateFirstUser(t, client)
+	client := wirtualdtest.New(t, &wirtualdtest.Options{})
+	_ = wirtualdtest.CreateFirstUser(t, client)
 
 	y, m, d := time.Now().UTC().Date()
 	today := time.Date(y, m, d, 0, 0, 0, 0, time.UTC)
@@ -348,8 +348,8 @@ func TestUserActivityInsights_BadRequest(t *testing.T) {
 	today := time.Date(y, m, d, 0, 0, 0, 0, saoPaulo)
 
 	// Prepare
-	client := coderdtest.New(t, &coderdtest.Options{})
-	_ = coderdtest.CreateFirstUser(t, client)
+	client := wirtualdtest.New(t, &wirtualdtest.Options{})
+	_ = wirtualdtest.CreateFirstUser(t, client)
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
@@ -505,7 +505,7 @@ func TestTemplateInsights_Golden(t *testing.T) {
 		logger := testutil.Logger(t)
 		db, ps := dbtestutil.NewDB(t)
 		events := make(chan dbrollup.Event)
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			Database:                  db,
 			Pubsub:                    ps,
 			Logger:                    &logger,
@@ -519,11 +519,11 @@ func TestTemplateInsights_Golden(t *testing.T) {
 			),
 		})
 
-		firstUser := coderdtest.CreateFirstUser(t, client)
+		firstUser := wirtualdtest.CreateFirstUser(t, client)
 
 		// Prepare all test users.
 		for _, user := range users {
-			user.client, user.sdk = coderdtest.CreateAnotherUserMutators(t, client, firstUser.OrganizationID, nil, func(r *wirtualsdk.CreateUserRequestWithOrgs) {
+			user.client, user.sdk = wirtualdtest.CreateAnotherUserMutators(t, client, firstUser.OrganizationID, nil, func(r *wirtualsdk.CreateUserRequestWithOrgs) {
 				r.Username = user.name
 			})
 			user.client.SetLogger(logger.Named("user").With(slog.Field{Name: "name", Value: user.name}))
@@ -609,12 +609,12 @@ func TestTemplateInsights_Golden(t *testing.T) {
 
 					createWorkspaces = append(createWorkspaces, func(templateID uuid.UUID) {
 						// Create workspace using the users client.
-						createdWorkspace := coderdtest.CreateWorkspace(t, user.client, templateID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+						createdWorkspace := wirtualdtest.CreateWorkspace(t, user.client, templateID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 							cwr.RichParameterValues = buildParameters
 						})
 						workspace.id = createdWorkspace.ID
 						waitWorkspaces = append(waitWorkspaces, func() {
-							coderdtest.AwaitWorkspaceBuildJobCompleted(t, user.client, createdWorkspace.LatestBuild.ID)
+							wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, user.client, createdWorkspace.LatestBuild.ID)
 							ctx := testutil.Context(t, testutil.WaitShort)
 							ws, err := user.client.Workspace(ctx, workspace.id)
 							require.NoError(t, err, "want no error getting workspace")
@@ -626,7 +626,7 @@ func TestTemplateInsights_Golden(t *testing.T) {
 			}
 
 			// Create the template version and template.
-			version := coderdtest.CreateTemplateVersion(t, client, firstUser.OrganizationID, &echo.Responses{
+			version := wirtualdtest.CreateTemplateVersion(t, client, firstUser.OrganizationID, &echo.Responses{
 				Parse: echo.ParseComplete,
 				ProvisionPlan: []*proto.Response{
 					{
@@ -645,11 +645,11 @@ func TestTemplateInsights_Golden(t *testing.T) {
 					},
 				}},
 			})
-			coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 			// Create template, essentially a modified version of CreateTemplate
 			// where we can control the template ID.
-			// 	createdTemplate := coderdtest.CreateTemplate(t, client, firstUser.OrganizationID, version.ID)
+			// 	createdTemplate := wirtualdtest.CreateTemplate(t, client, firstUser.OrganizationID, version.ID)
 			createdTemplate := dbgen.Template(t, db, database.Template{
 				ID:              template.id,
 				ActiveVersionID: version.ID,
@@ -1424,7 +1424,7 @@ func TestUserActivityInsights_Golden(t *testing.T) {
 		logger := testutil.Logger(t)
 		db, ps := dbtestutil.NewDB(t)
 		events := make(chan dbrollup.Event)
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			Database:                  db,
 			Pubsub:                    ps,
 			Logger:                    &logger,
@@ -1437,7 +1437,7 @@ func TestUserActivityInsights_Golden(t *testing.T) {
 				dbrollup.WithEventChannel(events),
 			),
 		})
-		firstUser := coderdtest.CreateFirstUser(t, client)
+		firstUser := wirtualdtest.CreateFirstUser(t, client)
 
 		// Prepare all test users.
 		for _, user := range users {
@@ -1517,10 +1517,10 @@ func TestUserActivityInsights_Golden(t *testing.T) {
 
 					createWorkspaces = append(createWorkspaces, func(templateID uuid.UUID) {
 						// Create workspace using the users client.
-						createdWorkspace := coderdtest.CreateWorkspace(t, user.client, templateID)
+						createdWorkspace := wirtualdtest.CreateWorkspace(t, user.client, templateID)
 						workspace.id = createdWorkspace.ID
 						waitWorkspaces = append(waitWorkspaces, func() {
-							coderdtest.AwaitWorkspaceBuildJobCompleted(t, user.client, createdWorkspace.LatestBuild.ID)
+							wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, user.client, createdWorkspace.LatestBuild.ID)
 							ctx := testutil.Context(t, testutil.WaitShort)
 							ws, err := user.client.Workspace(ctx, workspace.id)
 							require.NoError(t, err, "want no error getting workspace")
@@ -1532,7 +1532,7 @@ func TestUserActivityInsights_Golden(t *testing.T) {
 			}
 
 			// Create the template version and template.
-			version := coderdtest.CreateTemplateVersion(t, client, firstUser.OrganizationID, &echo.Responses{
+			version := wirtualdtest.CreateTemplateVersion(t, client, firstUser.OrganizationID, &echo.Responses{
 				Parse:         echo.ParseComplete,
 				ProvisionPlan: echo.PlanComplete,
 				ProvisionApply: []*proto.Response{{
@@ -1543,11 +1543,11 @@ func TestUserActivityInsights_Golden(t *testing.T) {
 					},
 				}},
 			})
-			coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 			// Create template, essentially a modified version of CreateTemplate
 			// where we can control the template ID.
-			// 	createdTemplate := coderdtest.CreateTemplate(t, client, firstUser.OrganizationID, version.ID)
+			// 	createdTemplate := wirtualdtest.CreateTemplate(t, client, firstUser.OrganizationID, version.ID)
 			createdTemplate := dbgen.Template(t, db, database.Template{
 				ID:              template.id,
 				ActiveVersionID: version.ID,
@@ -2083,8 +2083,8 @@ func TestUserActivityInsights_Golden(t *testing.T) {
 func TestTemplateInsights_BadRequest(t *testing.T) {
 	t.Parallel()
 
-	client := coderdtest.New(t, &coderdtest.Options{})
-	_ = coderdtest.CreateFirstUser(t, client)
+	client := wirtualdtest.New(t, &wirtualdtest.Options{})
+	_ = wirtualdtest.CreateFirstUser(t, client)
 
 	y, m, d := time.Now().UTC().Date()
 	today := time.Date(y, m, d, 0, 0, 0, 0, time.UTC)
@@ -2148,16 +2148,16 @@ func TestTemplateInsights_RBAC(t *testing.T) {
 			t.Run("AsOwner", func(t *testing.T) {
 				t.Parallel()
 
-				client := coderdtest.New(t, nil)
-				owner := coderdtest.CreateFirstUser(t, client)
+				client := wirtualdtest.New(t, nil)
+				owner := wirtualdtest.CreateFirstUser(t, client)
 
 				ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 				defer cancel()
 
 				var templateIDs []uuid.UUID
 				if tt.withTemplate {
-					version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-					template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+					version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+					template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 					templateIDs = append(templateIDs, template.ID)
 				}
 
@@ -2172,18 +2172,18 @@ func TestTemplateInsights_RBAC(t *testing.T) {
 			t.Run("AsTemplateAdmin", func(t *testing.T) {
 				t.Parallel()
 
-				client := coderdtest.New(t, nil)
-				owner := coderdtest.CreateFirstUser(t, client)
+				client := wirtualdtest.New(t, nil)
+				owner := wirtualdtest.CreateFirstUser(t, client)
 
-				templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+				templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 				ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 				defer cancel()
 
 				var templateIDs []uuid.UUID
 				if tt.withTemplate {
-					version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-					template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+					version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+					template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 					templateIDs = append(templateIDs, template.ID)
 				}
 
@@ -2198,18 +2198,18 @@ func TestTemplateInsights_RBAC(t *testing.T) {
 			t.Run("AsRegularUser", func(t *testing.T) {
 				t.Parallel()
 
-				client := coderdtest.New(t, nil)
-				owner := coderdtest.CreateFirstUser(t, client)
+				client := wirtualdtest.New(t, nil)
+				owner := wirtualdtest.CreateFirstUser(t, client)
 
-				regular, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+				regular, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 				ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 				defer cancel()
 
 				var templateIDs []uuid.UUID
 				if tt.withTemplate {
-					version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-					template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+					version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+					template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 					templateIDs = append(templateIDs, template.ID)
 				}
 
@@ -2277,16 +2277,16 @@ func TestGenericInsights_RBAC(t *testing.T) {
 				t.Run("AsOwner", func(t *testing.T) {
 					t.Parallel()
 
-					client := coderdtest.New(t, nil)
-					owner := coderdtest.CreateFirstUser(t, client)
+					client := wirtualdtest.New(t, nil)
+					owner := wirtualdtest.CreateFirstUser(t, client)
 
 					ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 					defer cancel()
 
 					var templateIDs []uuid.UUID
 					if tt.withTemplate {
-						version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-						template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+						version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+						template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 						templateIDs = append(templateIDs, template.ID)
 					}
 
@@ -2299,18 +2299,18 @@ func TestGenericInsights_RBAC(t *testing.T) {
 				t.Run("AsTemplateAdmin", func(t *testing.T) {
 					t.Parallel()
 
-					client := coderdtest.New(t, nil)
-					owner := coderdtest.CreateFirstUser(t, client)
+					client := wirtualdtest.New(t, nil)
+					owner := wirtualdtest.CreateFirstUser(t, client)
 
-					templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+					templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 					ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 					defer cancel()
 
 					var templateIDs []uuid.UUID
 					if tt.withTemplate {
-						version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-						template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+						version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+						template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 						templateIDs = append(templateIDs, template.ID)
 					}
 
@@ -2323,18 +2323,18 @@ func TestGenericInsights_RBAC(t *testing.T) {
 				t.Run("AsRegularUser", func(t *testing.T) {
 					t.Parallel()
 
-					client := coderdtest.New(t, nil)
-					owner := coderdtest.CreateFirstUser(t, client)
+					client := wirtualdtest.New(t, nil)
+					owner := wirtualdtest.CreateFirstUser(t, client)
 
-					regular, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+					regular, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 					ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 					defer cancel()
 
 					var templateIDs []uuid.UUID
 					if tt.withTemplate {
-						version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-						template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+						version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+						template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 						templateIDs = append(templateIDs, template.ID)
 					}
 

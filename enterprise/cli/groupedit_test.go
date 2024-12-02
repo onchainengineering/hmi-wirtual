@@ -10,10 +10,10 @@ import (
 
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/pty/ptytest"
 )
@@ -24,18 +24,18 @@ func TestGroupEdit(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		client, admin := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, admin := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleUserAdmin())
+		anotherClient, _ := wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleUserAdmin())
 
-		_, user1 := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
-		_, user2 := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
-		_, user3 := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+		_, user1 := wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+		_, user2 := wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+		_, user3 := wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID)
 
-		group := coderdtest.CreateGroup(t, client, admin.OrganizationID, "alpha", user3)
+		group := wirtualdtest.CreateGroup(t, client, admin.OrganizationID, "alpha", user3)
 
 		expectedName := "beta"
 
@@ -63,14 +63,14 @@ func TestGroupEdit(t *testing.T) {
 	t.Run("InvalidUserInput", func(t *testing.T) {
 		t.Parallel()
 
-		client, admin := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, admin := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 
 		// Create a group with no members.
-		group := coderdtest.CreateGroup(t, client, admin.OrganizationID, "alpha")
+		group := wirtualdtest.CreateGroup(t, client, admin.OrganizationID, "alpha")
 
 		inv, conf := newCLI(
 			t,
@@ -87,12 +87,12 @@ func TestGroupEdit(t *testing.T) {
 	t.Run("NoArg", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		anotherClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 
 		inv, conf := newCLI(t, "groups", "edit")
 		clitest.SetupConfig(t, anotherClient, conf)

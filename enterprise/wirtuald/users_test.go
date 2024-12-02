@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -9,12 +9,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtuald/schedule/cron"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/enterprise/wirtuald"
-	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/testutil"
 )
@@ -27,15 +27,15 @@ func TestUserQuietHours(t *testing.T) {
 	t.Run("DefaultToUTC", func(t *testing.T) {
 		t.Parallel()
 
-		adminClient, adminUser := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		adminClient, adminUser := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
 			},
 		})
 
-		client, user := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
+		client, user := wirtualdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
 		ctx := testutil.Context(t, testutil.WaitLong)
 		res, err := client.UserQuietHoursSchedule(ctx, user.ID.String())
 		require.NoError(t, err)
@@ -61,14 +61,14 @@ func TestUserQuietHours(t *testing.T) {
 			require.NoError(t, err)
 		}
 
-		dv := coderdtest.DeploymentValues(t)
+		dv := wirtualdtest.DeploymentValues(t)
 		dv.UserQuietHoursSchedule.DefaultSchedule.Set(defaultQuietHoursSchedule)
 
-		adminClient, adminUser := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		adminClient, adminUser := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				DeploymentValues: dv,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
@@ -77,7 +77,7 @@ func TestUserQuietHours(t *testing.T) {
 
 		// Do it with another user to make sure that we're not hitting RBAC
 		// errors.
-		client, user := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
+		client, user := wirtualdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
 
 		// Get quiet hours for a user that doesn't have them set.
 		ctx := testutil.Context(t, testutil.WaitLong)
@@ -161,14 +161,14 @@ func TestUserQuietHours(t *testing.T) {
 	t.Run("NotEntitled", func(t *testing.T) {
 		t.Parallel()
 
-		dv := coderdtest.DeploymentValues(t)
+		dv := wirtualdtest.DeploymentValues(t)
 		dv.UserQuietHoursSchedule.DefaultSchedule.Set("CRON_TZ=America/Chicago 0 0 * * *")
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				DeploymentValues: dv,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					// Not entitled.
 					// wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
@@ -188,15 +188,15 @@ func TestUserQuietHours(t *testing.T) {
 	t.Run("UserCannotSet", func(t *testing.T) {
 		t.Parallel()
 
-		dv := coderdtest.DeploymentValues(t)
+		dv := wirtualdtest.DeploymentValues(t)
 		dv.UserQuietHoursSchedule.DefaultSchedule.Set("CRON_TZ=America/Chicago 0 0 * * *")
 		dv.UserQuietHoursSchedule.AllowUserCustom.Set("false")
 
-		adminClient, adminUser := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		adminClient, adminUser := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				DeploymentValues: dv,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
@@ -205,7 +205,7 @@ func TestUserQuietHours(t *testing.T) {
 
 		// Do it with another user to make sure that we're not hitting RBAC
 		// errors.
-		client, user := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
+		client, user := wirtualdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
 
 		// Get the schedule
 		ctx := testutil.Context(t, testutil.WaitLong)
@@ -230,8 +230,8 @@ func TestUserQuietHours(t *testing.T) {
 func TestCreateFirstUser_Entitlements_Trial(t *testing.T) {
 	t.Parallel()
 
-	adminClient, _ := coderdenttest.New(t, &coderdenttest.Options{
-		LicenseOptions: &coderdenttest.LicenseOptions{
+	adminClient, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+		LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Trial: true,
 		},
 	})
@@ -250,20 +250,20 @@ func TestCreateFirstUser_Entitlements_Trial(t *testing.T) {
 func TestAssignCustomOrgRoles(t *testing.T) {
 	t.Parallel()
 
-	ownerClient, owner := coderdenttest.New(t, &coderdenttest.Options{
-		Options: &coderdtest.Options{
+	ownerClient, owner := wirtualdenttest.New(t, &wirtualdenttest.Options{
+		Options: &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 		},
-		LicenseOptions: &coderdenttest.LicenseOptions{
+		LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureCustomRoles: 1,
 			},
 		},
 	})
 
-	client, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.ScopedRoleOrgAdmin(owner.OrganizationID))
-	tv := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, tv.ID)
+	client, _ := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.ScopedRoleOrgAdmin(owner.OrganizationID))
+	tv := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, tv.ID)
 
 	ctx := testutil.Context(t, testutil.WaitShort)
 	// Create a custom role as an organization admin that allows making templates.
@@ -284,7 +284,7 @@ func TestAssignCustomOrgRoles(t *testing.T) {
 		DisplayName: "Template",
 		VersionID:   tv.ID,
 	}
-	memberClient, member := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+	memberClient, member := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
 	// Check the member cannot create a template
 	_, err = memberClient.CreateTemplate(ctx, owner.OrganizationID, createTemplateReq)
 	require.Error(t, err)
@@ -310,12 +310,12 @@ func TestGrantSiteRoles(t *testing.T) {
 		require.Equal(t, statusCode, e.StatusCode(), "correct status code")
 	}
 
-	dv := coderdtest.DeploymentValues(t)
-	admin, first := coderdenttest.New(t, &coderdenttest.Options{
-		Options: &coderdtest.Options{
+	dv := wirtualdtest.DeploymentValues(t)
+	admin, first := wirtualdenttest.New(t, &wirtualdenttest.Options{
+		Options: &wirtualdtest.Options{
 			DeploymentValues: dv,
 		},
-		LicenseOptions: &coderdenttest.LicenseOptions{
+		LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureMultipleOrganizations:      1,
 				wirtualsdk.FeatureExternalProvisionerDaemons: 1,
@@ -323,12 +323,12 @@ func TestGrantSiteRoles(t *testing.T) {
 		},
 	})
 
-	member, _ := coderdtest.CreateAnotherUser(t, admin, first.OrganizationID)
-	orgAdmin, _ := coderdtest.CreateAnotherUser(t, admin, first.OrganizationID, rbac.ScopedRoleOrgAdmin(first.OrganizationID))
-	randOrg := coderdenttest.CreateOrganization(t, admin, coderdenttest.CreateOrganizationOptions{})
+	member, _ := wirtualdtest.CreateAnotherUser(t, admin, first.OrganizationID)
+	orgAdmin, _ := wirtualdtest.CreateAnotherUser(t, admin, first.OrganizationID, rbac.ScopedRoleOrgAdmin(first.OrganizationID))
+	randOrg := wirtualdenttest.CreateOrganization(t, admin, wirtualdenttest.CreateOrganizationOptions{})
 
-	_, randOrgUser := coderdtest.CreateAnotherUser(t, admin, randOrg.ID, rbac.ScopedRoleOrgAdmin(randOrg.ID))
-	userAdmin, _ := coderdtest.CreateAnotherUser(t, admin, first.OrganizationID, rbac.RoleUserAdmin())
+	_, randOrgUser := wirtualdtest.CreateAnotherUser(t, admin, randOrg.ID, rbac.ScopedRoleOrgAdmin(randOrg.ID))
+	userAdmin, _ := wirtualdtest.CreateAnotherUser(t, admin, first.OrganizationID, rbac.RoleUserAdmin())
 
 	const newUser = "newUser"
 
@@ -438,7 +438,7 @@ func TestGrantSiteRoles(t *testing.T) {
 				if c.OrgID != uuid.Nil {
 					orgID = c.OrgID
 				}
-				_, newUser := coderdtest.CreateAnotherUser(t, admin, orgID)
+				_, newUser := wirtualdtest.CreateAnotherUser(t, admin, orgID)
 				c.AssignToUser = newUser.ID.String()
 			}
 
@@ -480,25 +480,25 @@ func TestEnterprisePostUser(t *testing.T) {
 	t.Run("OrganizationNoAccess", func(t *testing.T) {
 		t.Parallel()
 
-		dv := coderdtest.DeploymentValues(t)
-		client, first := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		dv := wirtualdtest.DeploymentValues(t)
+		client, first := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				DeploymentValues: dv,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
 
-		notInOrg, _ := coderdtest.CreateAnotherUser(t, client, first.OrganizationID)
-		other, _ := coderdtest.CreateAnotherUser(t, client, first.OrganizationID, rbac.RoleOwner(), rbac.RoleMember())
+		notInOrg, _ := wirtualdtest.CreateAnotherUser(t, client, first.OrganizationID)
+		other, _ := wirtualdtest.CreateAnotherUser(t, client, first.OrganizationID, rbac.RoleOwner(), rbac.RoleMember())
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		org := coderdenttest.CreateOrganization(t, other, coderdenttest.CreateOrganizationOptions{}, func(request *wirtualsdk.CreateOrganizationRequest) {
+		org := wirtualdenttest.CreateOrganization(t, other, wirtualdenttest.CreateOrganizationOptions{}, func(request *wirtualsdk.CreateOrganizationRequest) {
 			request.Name = "another"
 		})
 
@@ -515,24 +515,24 @@ func TestEnterprisePostUser(t *testing.T) {
 
 	t.Run("OrganizationNoAccess", func(t *testing.T) {
 		t.Parallel()
-		dv := coderdtest.DeploymentValues(t)
-		client, first := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		dv := wirtualdtest.DeploymentValues(t)
+		client, first := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				DeploymentValues: dv,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
-		notInOrg, _ := coderdtest.CreateAnotherUser(t, client, first.OrganizationID)
-		other, _ := coderdtest.CreateAnotherUser(t, client, first.OrganizationID, rbac.RoleOwner(), rbac.RoleMember())
+		notInOrg, _ := wirtualdtest.CreateAnotherUser(t, client, first.OrganizationID)
+		other, _ := wirtualdtest.CreateAnotherUser(t, client, first.OrganizationID, rbac.RoleOwner(), rbac.RoleMember())
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		org := coderdenttest.CreateOrganization(t, other, coderdenttest.CreateOrganizationOptions{})
+		org := wirtualdenttest.CreateOrganization(t, other, wirtualdenttest.CreateOrganizationOptions{})
 
 		_, err := notInOrg.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			Email:           "some@domain.com",
@@ -547,12 +547,12 @@ func TestEnterprisePostUser(t *testing.T) {
 
 	t.Run("CreateWithoutOrg", func(t *testing.T) {
 		t.Parallel()
-		dv := coderdtest.DeploymentValues(t)
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		dv := wirtualdtest.DeploymentValues(t)
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				DeploymentValues: dv,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
@@ -563,10 +563,10 @@ func TestEnterprisePostUser(t *testing.T) {
 		defer cancel()
 
 		// Add an extra org to try and confuse user creation
-		coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{})
+		wirtualdenttest.CreateOrganization(t, client, wirtualdenttest.CreateOrganizationOptions{})
 
 		// nolint:gocritic // intentional using the owner.
-		// Manually making a user with the request instead of the coderdtest util
+		// Manually making a user with the request instead of the wirtualdtest util
 		_, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			Email:    "another@user.org",
 			Username: "someone-else",
@@ -577,12 +577,12 @@ func TestEnterprisePostUser(t *testing.T) {
 
 	t.Run("MultipleOrganizations", func(t *testing.T) {
 		t.Parallel()
-		dv := coderdtest.DeploymentValues(t)
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		dv := wirtualdtest.DeploymentValues(t)
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				DeploymentValues: dv,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
@@ -590,14 +590,14 @@ func TestEnterprisePostUser(t *testing.T) {
 		})
 
 		// Add an extra org to assign member into
-		second := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{})
-		third := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{})
+		second := wirtualdenttest.CreateOrganization(t, client, wirtualdenttest.CreateOrganizationOptions{})
+		third := wirtualdenttest.CreateOrganization(t, client, wirtualdenttest.CreateOrganizationOptions{})
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
 		// nolint:gocritic // intentional using the owner.
-		// Manually making a user with the request instead of the coderdtest util
+		// Manually making a user with the request instead of the wirtualdtest util
 		user, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			Email:    "another@user.org",
 			Username: "someone-else",

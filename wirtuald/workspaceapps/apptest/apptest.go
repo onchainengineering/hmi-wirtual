@@ -26,7 +26,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtuald/workspaceapps"
@@ -196,7 +196,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 			t.Parallel()
 
 			appDetails := setupProxyTest(t, nil)
-			userClient, _ := coderdtest.CreateAnotherUser(t, appDetails.SDKClient, appDetails.FirstUser.OrganizationID, rbac.RoleMember())
+			userClient, _ := wirtualdtest.CreateAnotherUser(t, appDetails.SDKClient, appDetails.FirstUser.OrganizationID, rbac.RoleMember())
 			userAppClient := appDetails.AppClient(t)
 			userAppClient.SetSessionToken(userClient.SessionToken())
 
@@ -862,7 +862,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 			t.Parallel()
 
 			appDetails := setupProxyTest(t, nil)
-			userClient, _ := coderdtest.CreateAnotherUser(t, appDetails.SDKClient, appDetails.FirstUser.OrganizationID, rbac.RoleMember())
+			userClient, _ := wirtualdtest.CreateAnotherUser(t, appDetails.SDKClient, appDetails.FirstUser.OrganizationID, rbac.RoleMember())
 			userAppClient := appDetails.AppClient(t)
 			userAppClient.SetSessionToken(userClient.SessionToken())
 
@@ -1243,7 +1243,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 			defer cancel()
 
 			appDetails := setupProxyTest(t, nil)
-			userClient, _ := coderdtest.CreateAnotherUser(t, appDetails.SDKClient, appDetails.FirstUser.OrganizationID, rbac.RoleMember())
+			userClient, _ := wirtualdtest.CreateAnotherUser(t, appDetails.SDKClient, appDetails.FirstUser.OrganizationID, rbac.RoleMember())
 			userAppClient := appDetails.AppClient(t)
 			userAppClient.SetSessionToken(userClient.SessionToken())
 
@@ -1272,7 +1272,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 			})
 			require.NoError(t, err)
 
-			userClient, _ := coderdtest.CreateAnotherUser(t, appDetails.SDKClient, appDetails.FirstUser.OrganizationID, rbac.RoleMember())
+			userClient, _ := wirtualdtest.CreateAnotherUser(t, appDetails.SDKClient, appDetails.FirstUser.OrganizationID, rbac.RoleMember())
 			userAppClient := appDetails.AppClient(t)
 			userAppClient.SetSessionToken(userClient.SessionToken())
 
@@ -1822,7 +1822,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_ = coderdtest.MustTransitionWorkspace(t, appDetails.SDKClient, appDetails.Workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
+		_ = wirtualdtest.MustTransitionWorkspace(t, appDetails.SDKClient, appDetails.Workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
 
 		u := appDetails.PathAppURL(appDetails.Apps.Owner)
 		resp, err := appDetails.AppClient(t).Request(ctx, http.MethodGet, u.String(), nil)

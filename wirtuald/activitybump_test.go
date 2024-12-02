@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
 	"github.com/coder/coder/v2/wirtuald/database/dbtime"
@@ -33,7 +33,7 @@ func TestWorkspaceActivityBump(t *testing.T) {
 		const ttl = time.Hour
 
 		db, pubsub := dbtestutil.NewDB(t)
-		client = coderdtest.New(t, &coderdtest.Options{
+		client = wirtualdtest.New(t, &wirtualdtest.Options{
 			Database:                 db,
 			Pubsub:                   pubsub,
 			IncludeProvisionerDaemon: true,
@@ -51,21 +51,21 @@ func TestWorkspaceActivityBump(t *testing.T) {
 				},
 			},
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		ttlMillis := int64(ttl / time.Millisecond)
 		agentToken := uuid.NewString()
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionPlan:  echo.PlanComplete,
 			ProvisionApply: echo.ProvisionApplyWithAgent(agentToken),
 		})
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		workspace = coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		workspace = wirtualdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 			cwr.TTLMillis = &ttlMillis
 		})
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		var maxDeadline time.Time
 		// Update the max deadline.
@@ -83,7 +83,7 @@ func TestWorkspaceActivityBump(t *testing.T) {
 		require.NoError(t, err)
 
 		_ = agenttest.New(t, client.URL, agentToken)
-		coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 		// Sanity-check that deadline is nearing requiring a bump.
 		workspace, err = client.Workspace(ctx, workspace.ID)
@@ -105,7 +105,7 @@ func TestWorkspaceActivityBump(t *testing.T) {
 			require.True(t, workspace.LatestBuild.MaxDeadline.Time.IsZero())
 		}
 
-		_ = coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		_ = wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 		return client, workspace, func(want bool) {
 			t.Helper()
@@ -199,7 +199,7 @@ func TestWorkspaceActivityBump(t *testing.T) {
 
 		client, workspace, assertBumped := setupActivityTest(t)
 
-		resources := coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		resources := wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 		conn, err := workspacesdk.New(client).
 			DialAgent(ctx, resources[0].Agents[0].ID, &workspacesdk.DialAgentOptions{
 				Logger: testutil.Logger(t),
@@ -237,7 +237,7 @@ func TestWorkspaceActivityBump(t *testing.T) {
 		client, workspace, assertBumped := setupActivityTest(t, time.Minute*30)
 
 		// Bump by dialing the workspace and sending traffic.
-		resources := coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		resources := wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 		conn, err := workspacesdk.New(client).
 			DialAgent(ctx, resources[0].Agents[0].ID, &workspacesdk.DialAgentOptions{
 				Logger: testutil.Logger(t),

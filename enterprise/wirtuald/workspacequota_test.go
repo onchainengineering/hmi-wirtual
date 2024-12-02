@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/database/dbfake"
@@ -25,7 +25,7 @@ import (
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtuald/util/ptr"
 	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/provisionersdk/proto"
@@ -74,15 +74,15 @@ func TestWorkspaceQuota(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 		max := 1
-		client, _, api, user := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
+		client, _, api, user := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{
 			UserWorkspaceQuota: max,
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureTemplateRBAC: 1,
 				},
 			},
 		})
-		coderdtest.NewProvisionerDaemon(t, api.AGPL)
+		wirtualdtest.NewProvisionerDaemon(t, api.AGPL)
 
 		verifyQuota(ctx, t, client, user.OrganizationID.String(), 0, 0)
 
@@ -119,7 +119,7 @@ func TestWorkspaceQuota(t *testing.T) {
 		verifyQuota(ctx, t, client, user.OrganizationID.String(), 0, 4)
 
 		authToken := uuid.NewString()
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionApply: []*proto.Response{{
 				Type: &proto.Response_Apply{
@@ -140,8 +140,8 @@ func TestWorkspaceQuota(t *testing.T) {
 				},
 			}},
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 		// Spin up three workspaces fine
 		var wg sync.WaitGroup
@@ -149,8 +149,8 @@ func TestWorkspaceQuota(t *testing.T) {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-				build := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+				workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+				build := wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 				assert.Equal(t, wirtualsdk.WorkspaceStatusRunning, build.Status)
 			}()
 		}
@@ -158,8 +158,8 @@ func TestWorkspaceQuota(t *testing.T) {
 		verifyQuota(ctx, t, client, user.OrganizationID.String(), 4, 4)
 
 		// Next one must fail
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		build := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		build := wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		// Consumed shouldn't bump
 		verifyQuota(ctx, t, client, user.OrganizationID.String(), 4, 4)
@@ -177,14 +177,14 @@ func TestWorkspaceQuota(t *testing.T) {
 				Transition: wirtualsdk.WorkspaceTransitionDelete,
 			})
 			require.NoError(t, err)
-			coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
+			wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
 			verifyQuota(ctx, t, client, user.OrganizationID.String(), 3, 4)
 			break
 		}
 
 		// Next one should now succeed
-		workspace = coderdtest.CreateWorkspace(t, client, template.ID)
-		build = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		workspace = wirtualdtest.CreateWorkspace(t, client, template.ID)
+		build = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		verifyQuota(ctx, t, client, user.OrganizationID.String(), 4, 4)
 		require.Equal(t, wirtualsdk.WorkspaceStatusRunning, build.Status)
@@ -196,15 +196,15 @@ func TestWorkspaceQuota(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 		max := 1
-		client, _, api, user := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
+		client, _, api, user := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{
 			UserWorkspaceQuota: max,
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureTemplateRBAC: 1,
 				},
 			},
 		})
-		coderdtest.NewProvisionerDaemon(t, api.AGPL)
+		wirtualdtest.NewProvisionerDaemon(t, api.AGPL)
 
 		verifyQuota(ctx, t, client, user.OrganizationID.String(), 0, 0)
 
@@ -215,7 +215,7 @@ func TestWorkspaceQuota(t *testing.T) {
 		require.NoError(t, err)
 		verifyQuota(ctx, t, client, user.OrganizationID.String(), 0, 4)
 
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionPlanMap: map[proto.WorkspaceTransition][]*proto.Response{
 				proto.WorkspaceTransition_START: planWithCost(2),
@@ -227,39 +227,39 @@ func TestWorkspaceQuota(t *testing.T) {
 			},
 		})
 
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 		// Spin up two workspaces.
 		var wg sync.WaitGroup
 		var workspaces []wirtualsdk.Workspace
 		for i := 0; i < 2; i++ {
-			workspace := coderdtest.CreateWorkspace(t, client, template.ID)
+			workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
 			workspaces = append(workspaces, workspace)
-			build := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+			build := wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 			assert.Equal(t, wirtualsdk.WorkspaceStatusRunning, build.Status)
 		}
 		wg.Wait()
 		verifyQuota(ctx, t, client, user.OrganizationID.String(), 4, 4)
 
 		// Next one must fail
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		build := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		build := wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 		require.Contains(t, build.Job.Error, "quota")
 
 		// Consumed shouldn't bump
 		verifyQuota(ctx, t, client, user.OrganizationID.String(), 4, 4)
 		require.Equal(t, wirtualsdk.WorkspaceStatusFailed, build.Status)
 
-		build = coderdtest.CreateWorkspaceBuild(t, client, workspaces[0], database.WorkspaceTransitionStop)
-		build = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
+		build = wirtualdtest.CreateWorkspaceBuild(t, client, workspaces[0], database.WorkspaceTransitionStop)
+		build = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
 
 		// Quota goes down one
 		verifyQuota(ctx, t, client, user.OrganizationID.String(), 3, 4)
 		require.Equal(t, wirtualsdk.WorkspaceStatusStopped, build.Status)
 
-		build = coderdtest.CreateWorkspaceBuild(t, client, workspaces[0], database.WorkspaceTransitionStart)
-		build = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
+		build = wirtualdtest.CreateWorkspaceBuild(t, client, workspaces[0], database.WorkspaceTransitionStart)
+		build = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
 
 		// Quota goes back up
 		verifyQuota(ctx, t, client, user.OrganizationID.String(), 4, 4)
@@ -272,18 +272,18 @@ func TestWorkspaceQuota(t *testing.T) {
 	t.Run("AllowanceEveryone", func(t *testing.T) {
 		t.Parallel()
 
-		owner, first := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, first := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureTemplateRBAC:          1,
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
-		member, _ := coderdtest.CreateAnotherUser(t, owner, first.OrganizationID)
+		member, _ := wirtualdtest.CreateAnotherUser(t, owner, first.OrganizationID)
 
 		// Create a second organization
-		second := coderdenttest.CreateOrganization(t, owner, coderdenttest.CreateOrganizationOptions{})
+		second := wirtualdenttest.CreateOrganization(t, owner, wirtualdenttest.CreateOrganizationOptions{})
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -311,15 +311,15 @@ func TestWorkspaceQuota(t *testing.T) {
 	t.Run("ManyWorkspaces", func(t *testing.T) {
 		t.Parallel()
 
-		owner, db, first := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, db, first := wirtualdenttest.NewWithDatabase(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureTemplateRBAC:          1,
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
-		client, _ := coderdtest.CreateAnotherUser(t, owner, first.OrganizationID, rbac.RoleOwner())
+		client, _ := wirtualdtest.CreateAnotherUser(t, owner, first.OrganizationID, rbac.RoleOwner())
 
 		// Prepopulate database. Use dbfake as it is quicker and
 		// easier than the api.

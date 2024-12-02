@@ -15,7 +15,7 @@ deployment reliability under load.
 
 ## Hardware recommendations
 
-### Coderd nodes
+### Wirtuald nodes
 
 | Users       | Node capacity        | Replicas                | GCP             | AWS         | Azure             |
 | ----------- | -------------------- | ----------------------- | --------------- | ----------- | ----------------- |

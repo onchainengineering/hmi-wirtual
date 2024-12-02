@@ -13,10 +13,10 @@ import (
 
 	"github.com/coder/coder/v2/buildinfo"
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/provisionerd/proto"
 	"github.com/coder/coder/v2/provisionersdk"
@@ -30,9 +30,9 @@ func TestProvisionerDaemon_PSK(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 					wirtualsdk.FeatureMultipleOrganizations:      1,
@@ -65,17 +65,17 @@ func TestProvisionerDaemon_PSK(t *testing.T) {
 
 	t.Run("AnotherOrgByNameWithUser", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 					wirtualsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
-		anotherOrg := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{})
-		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, anotherOrg.ID, rbac.RoleTemplateAdmin())
+		anotherOrg := wirtualdenttest.CreateOrganization(t, client, wirtualdenttest.CreateOrganizationOptions{})
+		anotherClient, _ := wirtualdtest.CreateAnotherUser(t, client, anotherOrg.ID, rbac.RoleTemplateAdmin())
 		inv, conf := newCLI(t, "provisionerd", "start", "--name", "org-daemon", "--org", anotherOrg.Name)
 		clitest.SetupConfig(t, anotherClient, conf)
 		pty := ptytest.New(t).Attach(inv)
@@ -87,9 +87,9 @@ func TestProvisionerDaemon_PSK(t *testing.T) {
 
 	t.Run("NoUserNoPSK", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
@@ -109,15 +109,15 @@ func TestProvisionerDaemon_SessionToken(t *testing.T) {
 	t.Parallel()
 	t.Run("ScopeUser", func(t *testing.T) {
 		t.Parallel()
-		client, admin := coderdenttest.New(t, &coderdenttest.Options{
+		client, admin := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 		})
-		anotherClient, anotherUser := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+		anotherClient, anotherUser := wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID)
 		inv, conf := newCLI(t, "provisionerd", "start", "--tag", "scope=user", "--name", "my-daemon")
 		clitest.SetupConfig(t, anotherClient, conf)
 		pty := ptytest.New(t).Attach(inv)
@@ -144,15 +144,15 @@ func TestProvisionerDaemon_SessionToken(t *testing.T) {
 
 	t.Run("ScopeAnotherUser", func(t *testing.T) {
 		t.Parallel()
-		client, admin := coderdenttest.New(t, &coderdenttest.Options{
+		client, admin := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 		})
-		anotherClient, anotherUser := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+		anotherClient, anotherUser := wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID)
 		inv, conf := newCLI(t, "provisionerd", "start", "--tag", "scope=user", "--tag", "owner="+admin.UserID.String(), "--name", "my-daemon")
 		clitest.SetupConfig(t, anotherClient, conf)
 		pty := ptytest.New(t).Attach(inv)
@@ -180,15 +180,15 @@ func TestProvisionerDaemon_SessionToken(t *testing.T) {
 
 	t.Run("ScopeOrg", func(t *testing.T) {
 		t.Parallel()
-		client, admin := coderdenttest.New(t, &coderdenttest.Options{
+		client, admin := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 		})
-		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleTemplateAdmin())
+		anotherClient, _ := wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleTemplateAdmin())
 		inv, conf := newCLI(t, "provisionerd", "start", "--tag", "scope=organization", "--name", "org-daemon")
 		clitest.SetupConfig(t, anotherClient, conf)
 		pty := ptytest.New(t).Attach(inv)
@@ -214,17 +214,17 @@ func TestProvisionerDaemon_SessionToken(t *testing.T) {
 
 	t.Run("ScopeUserAnotherOrg", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 					wirtualsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
-		anotherOrg := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{})
-		anotherClient, anotherUser := coderdtest.CreateAnotherUser(t, client, anotherOrg.ID, rbac.RoleTemplateAdmin())
+		anotherOrg := wirtualdenttest.CreateOrganization(t, client, wirtualdenttest.CreateOrganizationOptions{})
+		anotherClient, anotherUser := wirtualdtest.CreateAnotherUser(t, client, anotherOrg.ID, rbac.RoleTemplateAdmin())
 		inv, conf := newCLI(t, "provisionerd", "start", "--tag", "scope=user", "--name", "org-daemon", "--org", anotherOrg.ID.String())
 		clitest.SetupConfig(t, anotherClient, conf)
 		pty := ptytest.New(t).Attach(inv)
@@ -258,9 +258,9 @@ func TestProvisionerDaemon_ProvisionerKey(t *testing.T) {
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 					wirtualsdk.FeatureMultipleOrganizations:      1,
@@ -299,9 +299,9 @@ func TestProvisionerDaemon_ProvisionerKey(t *testing.T) {
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 					wirtualsdk.FeatureMultipleOrganizations:      1,
@@ -344,9 +344,9 @@ func TestProvisionerDaemon_ProvisionerKey(t *testing.T) {
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 					wirtualsdk.FeatureMultipleOrganizations:      1,
@@ -366,9 +366,9 @@ func TestProvisionerDaemon_ProvisionerKey(t *testing.T) {
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 					wirtualsdk.FeatureMultipleOrganizations:      1,
@@ -392,9 +392,9 @@ func TestProvisionerDaemon_ProvisionerKey(t *testing.T) {
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 					wirtualsdk.FeatureMultipleOrganizations:      1,
@@ -418,16 +418,16 @@ func TestProvisionerDaemon_ProvisionerKey(t *testing.T) {
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 					wirtualsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
-		anotherOrg := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{})
+		anotherOrg := wirtualdenttest.CreateOrganization(t, client, wirtualdenttest.CreateOrganizationOptions{})
 		// nolint:gocritic // test
 		res, err := client.CreateProvisionerKey(ctx, anotherOrg.ID, wirtualsdk.CreateProvisionerKeyRequest{
 			Name: "dont-TEST-me",
@@ -463,15 +463,15 @@ func TestProvisionerDaemon_PrometheusEnabled(t *testing.T) {
 	prometheusPort := 32001
 
 	// Configure CLI client
-	client, admin := coderdenttest.New(t, &coderdenttest.Options{
+	client, admin := wirtualdenttest.New(t, &wirtualdenttest.Options{
 		ProvisionerDaemonPSK: "provisionersftw",
-		LicenseOptions: &coderdenttest.LicenseOptions{
+		LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 			},
 		},
 	})
-	anotherClient, _ := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleTemplateAdmin())
+	anotherClient, _ := wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleTemplateAdmin())
 	inv, conf := newCLI(t, "provisionerd", "start", "--name", "daemon-with-prometheus", "--prometheus-enable", "--prometheus-address", fmt.Sprintf("127.0.0.1:%d", prometheusPort))
 	clitest.SetupConfig(t, anotherClient, conf)
 	pty := ptytest.New(t).Attach(inv)
@@ -519,7 +519,7 @@ func TestProvisionerDaemon_PrometheusEnabled(t *testing.T) {
 	hasGoStats := false
 	hasPromHTTP := false
 	for scanner.Scan() {
-		if strings.HasPrefix(scanner.Text(), "coderd_provisionerd_num_daemons 1") {
+		if strings.HasPrefix(scanner.Text(), "wirtuald_provisionerd_num_daemons 1") {
 			hasOneDaemon = true
 			continue
 		}

@@ -8,13 +8,13 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbfake"
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtuald/util/ptr"
 	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/testutil"
 )
@@ -25,21 +25,21 @@ func TestTemplateEdit(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		ownerClient, owner := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		ownerClient, owner := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureAccessControl: 1,
 				},
 			},
-			Options: &coderdtest.Options{
+			Options: &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
 		})
 
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, templateAdmin, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, templateAdmin, version.ID)
-		template := coderdtest.CreateTemplate(t, templateAdmin, owner.OrganizationID, version.ID)
+		templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := wirtualdtest.CreateTemplateVersion(t, templateAdmin, owner.OrganizationID, nil)
+		_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, templateAdmin, version.ID)
+		template := wirtualdtest.CreateTemplate(t, templateAdmin, owner.OrganizationID, version.ID)
 		require.False(t, template.RequireActiveVersion)
 
 		inv, conf := newCLI(t, "templates",
@@ -62,19 +62,19 @@ func TestTemplateEdit(t *testing.T) {
 	t.Run("NotEntitled", func(t *testing.T) {
 		t.Parallel()
 
-		client, owner := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, owner := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{},
 			},
-			Options: &coderdtest.Options{
+			Options: &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
 		})
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 		require.False(t, template.RequireActiveVersion)
 
 		inv, conf := newCLI(t, "templates",
@@ -93,21 +93,21 @@ func TestTemplateEdit(t *testing.T) {
 	t.Run("WorkspaceCleanup", func(t *testing.T) {
 		t.Parallel()
 
-		ownerClient, owner := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		ownerClient, owner := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
 			},
-			Options: &coderdtest.Options{
+			Options: &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
 		})
 
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, templateAdmin, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, templateAdmin, version.ID)
-		template := coderdtest.CreateTemplate(t, templateAdmin, owner.OrganizationID, version.ID)
+		templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := wirtualdtest.CreateTemplateVersion(t, templateAdmin, owner.OrganizationID, nil)
+		_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, templateAdmin, version.ID)
+		template := wirtualdtest.CreateTemplate(t, templateAdmin, owner.OrganizationID, version.ID)
 		require.False(t, template.RequireActiveVersion)
 		const (
 			expectedFailureTTL           = time.Hour * 3
@@ -160,8 +160,8 @@ func TestTemplateEdit(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		ownerClient, db, owner := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		ownerClient, db, owner := wirtualdenttest.NewWithDatabase(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
 					wirtualsdk.FeatureAccessControl:              1,

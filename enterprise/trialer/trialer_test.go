@@ -10,13 +10,13 @@ import (
 
 	"github.com/coder/coder/v2/wirtuald/database/dbmem"
 	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/enterprise/trialer"
 )
 
 func TestTrialer(t *testing.T) {
 	t.Parallel()
-	license := coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+	license := wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 		Trial: true,
 	})
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -26,7 +26,7 @@ func TestTrialer(t *testing.T) {
 	defer srv.Close()
 	db := dbmem.New()
 
-	gen := trialer.New(db, srv.URL, coderdenttest.Keys)
+	gen := trialer.New(db, srv.URL, wirtualdenttest.Keys)
 	err := gen(context.Background(), wirtualsdk.LicensorTrialRequest{Email: "kyle+colin@coder.com"})
 	require.NoError(t, err)
 	licenses, err := db.GetLicenses(context.Background())

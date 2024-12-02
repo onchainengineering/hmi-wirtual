@@ -158,7 +158,7 @@ message TelemetryEvent {
 	enum ClientType {
 		CLI = 0;
 		AGENT = 1;
-		CODERD = 2;
+		WIRTUALD = 2;
 		WSPROXY = 3;
 	}
 

@@ -1,4 +1,4 @@
-package coderdtest_test
+package wirtualdtest_test
 
 import (
 	"go/ast"
@@ -10,18 +10,18 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 )
 
 func TestEndpointsDocumented(t *testing.T) {
 	t.Parallel()
 
-	swaggerComments, err := coderdtest.ParseSwaggerComments("..")
+	swaggerComments, err := wirtualdtest.ParseSwaggerComments("..")
 	require.NoError(t, err, "can't parse swagger comments")
 	require.NotEmpty(t, swaggerComments, "swagger comments must be present")
 
-	_, _, api := coderdtest.NewWithAPI(t, nil)
-	coderdtest.VerifySwaggerDefinitions(t, api.APIHandler, swaggerComments)
+	_, _, api := wirtualdtest.NewWithAPI(t, nil)
+	wirtualdtest.VerifySwaggerDefinitions(t, api.APIHandler, swaggerComments)
 }
 
 func TestSDKFieldsFormatted(t *testing.T) {

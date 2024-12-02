@@ -1512,7 +1512,7 @@ var defaultCipherSuites = func() []uint16 {
 	return ret
 }()
 
-// configureServerTLS returns the TLS config used for the Coderd server
+// configureServerTLS returns the TLS config used for the Wirtuald server
 // connections to clients. A logger is passed in to allow printing warning
 // messages that do not block startup.
 //
@@ -2039,7 +2039,7 @@ func redirectToAccessURL(handler http.Handler, accessURL *url.URL, tunnel bool, 
 
 		// Exception: DERP
 		// We use this endpoint when creating a DERP-mesh in the enterprise version to directly
-		// dial other Coderd derpers.  Redirecting to the access URL breaks direct dial since the
+		// dial other Wirtuald derpers.  Redirecting to the access URL breaks direct dial since the
 		// access URL will be load-balanced in a multi-replica deployment.
 		//
 		// It's totally fine to access DERP over TLS, but we also don't need to redirect HTTP to

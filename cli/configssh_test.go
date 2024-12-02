@@ -22,7 +22,7 @@ import (
 
 	"github.com/coder/coder/v2/agent/agenttest"
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbfake"
 	"github.com/coder/coder/v2/wirtualsdk"
@@ -71,7 +71,7 @@ func TestConfigSSH(t *testing.T) {
 	const hostname = "test-coder."
 	const expectedKey = "ConnectionAttempts"
 	const removeKey = "ConnectTimeout"
-	client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
+	client, db := wirtualdtest.NewWithDatabase(t, &wirtualdtest.Options{
 		ConfigSSH: wirtualsdk.SSHConfigResponse{
 			HostnamePrefix: hostname,
 			SSHConfigOptions: map[string]string{
@@ -81,14 +81,14 @@ func TestConfigSSH(t *testing.T) {
 			},
 		},
 	})
-	owner := coderdtest.CreateFirstUser(t, client)
-	member, memberUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+	owner := wirtualdtest.CreateFirstUser(t, client)
+	member, memberUser := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 	r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 		OrganizationID: owner.OrganizationID,
 		OwnerID:        memberUser.ID,
 	}).WithAgent().Do()
 	_ = agenttest.New(t, client.URL, r.AgentToken)
-	resources := coderdtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
+	resources := wirtualdtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
 	agentConn, err := workspacesdk.New(client).
 		DialAgent(context.Background(), resources[0].Agents[0].ID, nil)
 	require.NoError(t, err)
@@ -644,8 +644,8 @@ func TestConfigSSH_FileWriteAndOptionsFlow(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			client, db := coderdtest.NewWithDatabase(t, nil)
-			user := coderdtest.CreateFirstUser(t, client)
+			client, db := wirtualdtest.NewWithDatabase(t, nil)
+			user := wirtualdtest.CreateFirstUser(t, client)
 			if tt.hasAgent {
 				_ = dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 					OrganizationID: user.OrganizationID,
@@ -763,9 +763,9 @@ func TestConfigSSH_Hostnames(t *testing.T) {
 				resources = append(resources, resource)
 			}
 
-			client, db := coderdtest.NewWithDatabase(t, nil)
-			owner := coderdtest.CreateFirstUser(t, client)
-			member, memberUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+			client, db := wirtualdtest.NewWithDatabase(t, nil)
+			owner := wirtualdtest.CreateFirstUser(t, client)
+			member, memberUser := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 			r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 				OrganizationID: owner.OrganizationID,
