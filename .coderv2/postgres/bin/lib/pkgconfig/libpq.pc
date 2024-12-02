@@ -1,9 +1,0 @@
-Name: libpq
-Description: PostgreSQL libpq library
-Url: https://www.postgresql.org/
-Version: 13.16
-Requires: 
-Requires.private: 
-Cflags: -I/usr/local/pg-build/include
-Libs: -L/usr/local/pg-build/lib -lpq
-Libs.private:  -lpgcommon -lpgport -lssl -lcrypto -lm

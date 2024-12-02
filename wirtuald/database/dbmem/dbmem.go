@@ -24,6 +24,7 @@ import (
 
 	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications/types"
 
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk"
 	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
 	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbtime"
 	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac"
@@ -31,7 +32,6 @@ import (
 	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/slice"
 	"github.com/onchainengineering/hmi-wirtual/wirtuald/workspaceapps/appurl"
 	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
-	"github.com/onchainengineering/hmi-wirtual/provisionersdk"
 )
 
 var validProxyByHostnameRegex = regexp.MustCompile(`^[a-zA-Z0-9._-]+$`)

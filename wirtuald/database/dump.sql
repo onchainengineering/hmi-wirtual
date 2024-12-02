@@ -699,9 +699,9 @@ COMMENT ON COLUMN users.quiet_hours_schedule IS 'Daily (!) cron schedule (with o
 
 COMMENT ON COLUMN users.theme_preference IS '"" can be interpreted as "the user does not care", falling back to the default theme';
 
-COMMENT ON COLUMN users.name IS 'Name of the Coder user';
+COMMENT ON COLUMN users.name IS 'Name of the Wirtual user';
 
-COMMENT ON COLUMN users.github_com_user_id IS 'The GitHub.com numerical user ID. At time of implementation, this is used to check if the user has starred the Coder repository.';
+COMMENT ON COLUMN users.github_com_user_id IS 'The GitHub.com numerical user ID. At time of implementation, this is used to check if the user has starred the Wirtual repository.';
 
 COMMENT ON COLUMN users.hashed_one_time_passcode IS 'A hash of the one-time-passcode given to the user.';
 
@@ -868,7 +868,7 @@ CREATE TABLE oauth2_provider_apps (
     callback_url text NOT NULL
 );
 
-COMMENT ON TABLE oauth2_provider_apps IS 'A table used to configure apps that can use Coder as an OAuth2 provider, the reverse of what we are calling external authentication.';
+COMMENT ON TABLE oauth2_provider_apps IS 'A table used to configure apps that can use Wirtual as an OAuth2 provider, the reverse of what we are calling external authentication.';
 
 CREATE TABLE organizations (
     id uuid NOT NULL,
@@ -1507,7 +1507,7 @@ COMMENT ON COLUMN workspace_agents.motd_file IS 'Path to file inside workspace c
 
 COMMENT ON COLUMN workspace_agents.lifecycle_state IS 'The current lifecycle state reported by the workspace agent.';
 
-COMMENT ON COLUMN workspace_agents.expanded_directory IS 'The resolved path of a user-specified directory. e.g. ~/coder -> /home/coder/coder';
+COMMENT ON COLUMN workspace_agents.expanded_directory IS 'The resolved path of a user-specified directory. e.g. ~/wirtual -> /home/wirtual/wirtual';
 
 COMMENT ON COLUMN workspace_agents.logs_length IS 'Total length of startup logs';
 

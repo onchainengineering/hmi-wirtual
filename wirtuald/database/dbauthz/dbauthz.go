@@ -21,12 +21,12 @@ import (
 	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac/policy"
 	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac/rolestore"
 
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk"
 	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
 	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbtime"
 	"github.com/onchainengineering/hmi-wirtual/wirtuald/httpapi/httpapiconstraints"
 	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac"
 	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/slice"
-	"github.com/onchainengineering/hmi-wirtual/provisionersdk"
 )
 
 var _ database.Store = (*querier)(nil)

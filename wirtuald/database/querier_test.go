@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cdr.dev/slog/sloggers/slogtest"
-	"github.com/onchainengineering/hmi-wirtual/wirtuald/wirtualdtest"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
 	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/db2sdk"
 	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbauthz"
@@ -27,7 +27,7 @@ import (
 	"github.com/onchainengineering/hmi-wirtual/wirtuald/httpmw"
 	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac"
 	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac/policy"
-	"github.com/onchainengineering/hmi-wirtual/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/wirtualdtest"
 )
 
 func TestGetDeploymentWorkspaceAgentStats(t *testing.T) {

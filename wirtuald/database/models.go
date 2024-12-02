@@ -2414,7 +2414,7 @@ type NotificationTemplate struct {
 	Kind   NotificationTemplateKind `db:"kind" json:"kind"`
 }
 
-// A table used to configure apps that can use Coder as an OAuth2 provider, the reverse of what we are calling external authentication.
+// A table used to configure apps that can use Wirtual as an OAuth2 provider, the reverse of what we are calling external authentication.
 type OAuth2ProviderApp struct {
 	ID          uuid.UUID `db:"id" json:"id"`
 	CreatedAt   time.Time `db:"created_at" json:"created_at"`
@@ -2873,9 +2873,9 @@ type User struct {
 	QuietHoursSchedule string `db:"quiet_hours_schedule" json:"quiet_hours_schedule"`
 	// "" can be interpreted as "the user does not care", falling back to the default theme
 	ThemePreference string `db:"theme_preference" json:"theme_preference"`
-	// Name of the Coder user
+	// Name of the Wirtual user
 	Name string `db:"name" json:"name"`
-	// The GitHub.com numerical user ID. At time of implementation, this is used to check if the user has starred the Coder repository.
+	// The GitHub.com numerical user ID. At time of implementation, this is used to check if the user has starred the Wirtual repository.
 	GithubComUserID sql.NullInt64 `db:"github_com_user_id" json:"github_com_user_id"`
 	// A hash of the one-time-passcode given to the user.
 	HashedOneTimePasscode []byte `db:"hashed_one_time_passcode" json:"hashed_one_time_passcode"`
@@ -2962,7 +2962,7 @@ type WorkspaceAgent struct {
 	MOTDFile string `db:"motd_file" json:"motd_file"`
 	// The current lifecycle state reported by the workspace agent.
 	LifecycleState WorkspaceAgentLifecycleState `db:"lifecycle_state" json:"lifecycle_state"`
-	// The resolved path of a user-specified directory. e.g. ~/coder -> /home/coder/coder
+	// The resolved path of a user-specified directory. e.g. ~/wirtual -> /home/wirtual/wirtual
 	ExpandedDirectory string `db:"expanded_directory" json:"expanded_directory"`
 	// Total length of startup logs
 	LogsLength int32 `db:"logs_length" json:"logs_length"`
