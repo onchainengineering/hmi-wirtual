@@ -61,45 +61,45 @@ import (
 	"github.com/coder/serpent"
 	"github.com/coder/wgtunnel/tunnelsdk"
 
-	"github.com/coder/coder/v2/coderd/entitlements"
-	"github.com/coder/coder/v2/coderd/notifications/reports"
-	"github.com/coder/coder/v2/coderd/runtimeconfig"
+	"github.com/coder/coder/v2/wirtuald/entitlements"
+	"github.com/coder/coder/v2/wirtuald/notifications/reports"
+	"github.com/coder/coder/v2/wirtuald/runtimeconfig"
 
 	"github.com/coder/coder/v2/buildinfo"
 	"github.com/coder/coder/v2/cli/clilog"
 	"github.com/coder/coder/v2/cli/cliui"
 	"github.com/coder/coder/v2/cli/cliutil"
 	"github.com/coder/coder/v2/cli/config"
-	"github.com/coder/coder/v2/coderd"
-	"github.com/coder/coder/v2/coderd/autobuild"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/awsiamrds"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/database/dbmem"
-	"github.com/coder/coder/v2/coderd/database/dbmetrics"
-	"github.com/coder/coder/v2/coderd/database/dbpurge"
-	"github.com/coder/coder/v2/coderd/database/migrations"
-	"github.com/coder/coder/v2/coderd/database/pubsub"
-	"github.com/coder/coder/v2/coderd/devtunnel"
-	"github.com/coder/coder/v2/coderd/externalauth"
-	"github.com/coder/coder/v2/coderd/gitsshkey"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/notifications"
-	"github.com/coder/coder/v2/coderd/oauthpki"
-	"github.com/coder/coder/v2/coderd/prometheusmetrics"
-	"github.com/coder/coder/v2/coderd/prometheusmetrics/insights"
-	"github.com/coder/coder/v2/coderd/promoauth"
-	"github.com/coder/coder/v2/coderd/schedule"
-	"github.com/coder/coder/v2/coderd/telemetry"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/coderd/unhanger"
-	"github.com/coder/coder/v2/coderd/updatecheck"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	stringutil "github.com/coder/coder/v2/coderd/util/strings"
-	"github.com/coder/coder/v2/coderd/workspaceapps/appurl"
-	"github.com/coder/coder/v2/coderd/workspacestats"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/drpc"
+	"github.com/coder/coder/v2/wirtuald"
+	"github.com/coder/coder/v2/wirtuald/autobuild"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/awsiamrds"
+	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/coder/coder/v2/wirtuald/database/dbmem"
+	"github.com/coder/coder/v2/wirtuald/database/dbmetrics"
+	"github.com/coder/coder/v2/wirtuald/database/dbpurge"
+	"github.com/coder/coder/v2/wirtuald/database/migrations"
+	"github.com/coder/coder/v2/wirtuald/database/pubsub"
+	"github.com/coder/coder/v2/wirtuald/devtunnel"
+	"github.com/coder/coder/v2/wirtuald/externalauth"
+	"github.com/coder/coder/v2/wirtuald/gitsshkey"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtuald/notifications"
+	"github.com/coder/coder/v2/wirtuald/oauthpki"
+	"github.com/coder/coder/v2/wirtuald/prometheusmetrics"
+	"github.com/coder/coder/v2/wirtuald/prometheusmetrics/insights"
+	"github.com/coder/coder/v2/wirtuald/promoauth"
+	"github.com/coder/coder/v2/wirtuald/schedule"
+	"github.com/coder/coder/v2/wirtuald/telemetry"
+	"github.com/coder/coder/v2/wirtuald/tracing"
+	"github.com/coder/coder/v2/wirtuald/unhanger"
+	"github.com/coder/coder/v2/wirtuald/updatecheck"
+	"github.com/coder/coder/v2/wirtuald/util/slice"
+	stringutil "github.com/coder/coder/v2/wirtuald/util/strings"
+	"github.com/coder/coder/v2/wirtuald/workspaceapps/appurl"
+	"github.com/coder/coder/v2/wirtuald/workspacestats"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/drpc"
 	"github.com/coder/coder/v2/cryptorand"
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/provisioner/terraform"
@@ -110,7 +110,7 @@ import (
 	"github.com/coder/coder/v2/tailnet"
 )
 
-func createOIDCConfig(ctx context.Context, logger slog.Logger, vals *codersdk.DeploymentValues) (*coderd.OIDCConfig, error) {
+func createOIDCConfig(ctx context.Context, logger slog.Logger, vals *wirtualsdk.DeploymentValues) (*wirtuald.OIDCConfig, error) {
 	if vals.OIDC.ClientID == "" {
 		return nil, xerrors.Errorf("OIDC client ID must be set!")
 	}
@@ -172,7 +172,7 @@ func createOIDCConfig(ctx context.Context, logger slog.Logger, vals *codersdk.De
 		groupAllowList[group] = true
 	}
 
-	return &coderd.OIDCConfig{
+	return &wirtuald.OIDCConfig{
 		OAuth2Config: useCfg,
 		Provider:     oidcProvider,
 		Verifier: oidcProvider.Verifier(&oidc.Config{
@@ -205,8 +205,8 @@ func afterCtx(ctx context.Context, fn func()) {
 func enablePrometheus(
 	ctx context.Context,
 	logger slog.Logger,
-	vals *codersdk.DeploymentValues,
-	options *coderd.Options,
+	vals *wirtualsdk.DeploymentValues,
+	options *wirtuald.Options,
 ) (closeFn func(), err error) {
 	options.PrometheusRegistry.MustRegister(collectors.NewGoCollector())
 	options.PrometheusRegistry.MustRegister(collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}))
@@ -245,8 +245,8 @@ func enablePrometheus(
 	afterCtx(ctx, closeInsightsMetricsCollector)
 
 	if vals.Prometheus.CollectAgentStats {
-		experiments := coderd.ReadExperiments(options.Logger, options.DeploymentValues.Experiments.Value())
-		closeAgentStatsFunc, err := prometheusmetrics.AgentStats(ctx, logger, options.PrometheusRegistry, options.Database, time.Now(), 0, options.DeploymentValues.Prometheus.AggregateAgentStatsBy.Value(), experiments.Enabled(codersdk.ExperimentWorkspaceUsage))
+		experiments := wirtuald.ReadExperiments(options.Logger, options.DeploymentValues.Experiments.Value())
+		closeAgentStatsFunc, err := prometheusmetrics.AgentStats(ctx, logger, options.PrometheusRegistry, options.Database, time.Now(), 0, options.DeploymentValues.Prometheus.AggregateAgentStatsBy.Value(), experiments.Enabled(wirtualsdk.ExperimentWorkspaceUsage))
 		if err != nil {
 			return nil, xerrors.Errorf("register agent stats prometheus metric: %w", err)
 		}
@@ -276,16 +276,16 @@ func enablePrometheus(
 }
 
 //nolint:gocognit // TODO(dannyk): reduce complexity of this function
-func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.API, io.Closer, error)) *serpent.Command {
+func (r *RootCmd) Server(newAPI func(context.Context, *wirtuald.Options) (*wirtuald.API, io.Closer, error)) *serpent.Command {
 	if newAPI == nil {
-		newAPI = func(_ context.Context, o *coderd.Options) (*coderd.API, io.Closer, error) {
-			api := coderd.New(o)
+		newAPI = func(_ context.Context, o *wirtuald.Options) (*wirtuald.API, io.Closer, error) {
+			api := wirtuald.New(o)
 			return api, api, nil
 		}
 	}
 
 	var (
-		vals = new(codersdk.DeploymentValues)
+		vals = new(wirtualsdk.DeploymentValues)
 		opts = vals.Options()
 	)
 	serverCmd := &serpent.Command{
@@ -306,7 +306,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				cliui.Warnf(inv.Stderr, "YAML support is experimental and offers no compatibility guarantees.")
 			}
 
-			go DumpHandler(ctx, "coderd")
+			go DumpHandler(ctx, "wirtuald")
 
 			// Validate bind addresses.
 			if vals.Address.String() != "" {
@@ -583,11 +583,11 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				return xerrors.Errorf("parse ssh config options %q: %w", vals.SSHConfig.SSHConfigOptions.String(), err)
 			}
 
-			options := &coderd.Options{
+			options := &wirtuald.Options{
 				AccessURL:                   vals.AccessURL.Value(),
 				AppHostname:                 appHostname,
 				AppHostnameRegex:            appHostnameRegex,
-				Logger:                      logger.Named("coderd"),
+				Logger:                      logger.Named("wirtuald"),
 				Database:                    dbmem.New(),
 				BaseDERPMap:                 derpMap,
 				Pubsub:                      pubsub.NewInMemory(),
@@ -605,7 +605,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				// Do not pass secret values to DeploymentOptions. All values should be read from
 				// the DeploymentValues instead, this just serves to indicate the source of each
 				// option. This is just defensive to prevent accidentally leaking.
-				DeploymentOptions:           codersdk.DeploymentOptionsWithoutSecrets(opts),
+				DeploymentOptions:           wirtualsdk.DeploymentOptionsWithoutSecrets(opts),
 				PrometheusRegistry:          promRegistry,
 				APIRateLimit:                int(vals.RateLimit.API.Value()),
 				LoginRateLimit:              loginRateLimit,
@@ -613,7 +613,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				HTTPClient:                  httpClient,
 				TemplateScheduleStore:       &atomic.Pointer[schedule.TemplateScheduleStore]{},
 				UserQuietHoursScheduleStore: &atomic.Pointer[schedule.UserQuietHoursScheduleStore]{},
-				SSHConfig: codersdk.SSHConfigResponse{
+				SSHConfig: wirtualsdk.SSHConfigResponse{
 					HostnamePrefix:   vals.SSHConfig.DeploymentName.String(),
 					SSHConfigOptions: configSSHOptions,
 				},
@@ -630,7 +630,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 					int(vals.StrictTransportSecurity.Value()), vals.StrictTransportSecurityOptions,
 				)
 				if err != nil {
-					return xerrors.Errorf("coderd: setting hsts header failed (options: %v): %w", vals.StrictTransportSecurityOptions, err)
+					return xerrors.Errorf("wirtuald: setting hsts header failed (options: %v): %w", vals.StrictTransportSecurityOptions, err)
 				}
 			}
 
@@ -697,7 +697,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				options.Database = dbmem.New()
 				options.Pubsub = pubsub.NewInMemory()
 			} else {
-				sqlDB, dbURL, err := getPostgresDB(ctx, logger, vals.PostgresURL.String(), codersdk.PostgresAuth(vals.PostgresAuth), sqlDriver)
+				sqlDB, dbURL, err := getPostgresDB(ctx, logger, vals.PostgresURL.String(), wirtualsdk.PostgresAuth(vals.PostgresAuth), sqlDriver)
 				if err != nil {
 					return xerrors.Errorf("connect to postgres: %w", err)
 				}
@@ -844,9 +844,9 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				}
 				defer closeAgentsFunc()
 
-				var active codersdk.Experiments
+				var active wirtualsdk.Experiments
 				for _, exp := range options.DeploymentValues.Experiments.Value() {
-					active = append(active, codersdk.Experiment(exp))
+					active = append(active, wirtualsdk.Experiment(exp))
 				}
 
 				if err = prometheusmetrics.Experiments(options.PrometheusRegistry, active); err != nil {
@@ -854,7 +854,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				}
 			}
 
-			client := codersdk.New(localURL)
+			client := wirtualsdk.New(localURL)
 			if localURL.Scheme == "https" && IsLocalhost(localURL.Hostname()) {
 				// The certificate will likely be self-signed or for a different
 				// hostname, so we need to skip verification.
@@ -931,9 +931,9 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 
 			// Built in provisioner daemons will support the same types.
 			// By default, this is the slice {"terraform"}
-			provisionerTypes := make([]codersdk.ProvisionerType, 0)
+			provisionerTypes := make([]wirtualsdk.ProvisionerType, 0)
 			for _, pt := range vals.Provisioner.DaemonTypes {
-				provisionerTypes = append(provisionerTypes, codersdk.ProvisionerType(pt))
+				provisionerTypes = append(provisionerTypes, wirtualsdk.ProvisionerType(pt))
 			}
 			for i := int64(0); i < vals.Provisioner.Daemons.Value(); i++ {
 				suffix := fmt.Sprintf("%d", i)
@@ -1240,9 +1240,9 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 }
 
 // templateHelpers builds a set of functions which can be called in templates.
-// We build them here to avoid an import cycle by using coderd.Options in notifications.Manager.
+// We build them here to avoid an import cycle by using wirtuald.Options in notifications.Manager.
 // We can later use this to inject whitelabel fields when app name / logo URL are overridden.
-func templateHelpers(options *coderd.Options) map[string]any {
+func templateHelpers(options *wirtuald.Options) map[string]any {
 	return map[string]any{
 		"base_url":     func() string { return options.AccessURL.String() },
 		"current_year": func() string { return strconv.Itoa(time.Now().Year()) },
@@ -1252,7 +1252,7 @@ func templateHelpers(options *coderd.Options) map[string]any {
 // writeConfigMW will prevent the main command from running if the write-config
 // flag is set. Instead, it will marshal the command options to YAML and write
 // them to stdout.
-func WriteConfigMW(cfg *codersdk.DeploymentValues) serpent.MiddlewareFunc {
+func WriteConfigMW(cfg *wirtualsdk.DeploymentValues) serpent.MiddlewareFunc {
 	return func(next serpent.HandlerFunc) serpent.HandlerFunc {
 		return func(inv *serpent.Invocation) error {
 			if !cfg.WriteConfig {
@@ -1313,15 +1313,15 @@ func shutdownWithTimeout(shutdown func(context.Context) error, timeout time.Dura
 // nolint:revive
 func newProvisionerDaemon(
 	ctx context.Context,
-	coderAPI *coderd.API,
+	coderAPI *wirtuald.API,
 	metrics provisionerd.Metrics,
 	logger slog.Logger,
-	cfg *codersdk.DeploymentValues,
+	cfg *wirtualsdk.DeploymentValues,
 	cacheDir string,
 	errCh chan error,
 	wg *sync.WaitGroup,
 	name string,
-	provisionerTypes []codersdk.ProvisionerType,
+	provisionerTypes []wirtualsdk.ProvisionerType,
 ) (srv *provisionerd.Server, err error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer func() {
@@ -1349,7 +1349,7 @@ func newProvisionerDaemon(
 	connector := provisionerd.LocalProvisioners{}
 	for _, provisionerType := range provisionerTypes {
 		switch provisionerType {
-		case codersdk.ProvisionerTypeEcho:
+		case wirtualsdk.ProvisionerTypeEcho:
 			echoClient, echoServer := drpc.MemTransportPipe()
 			wg.Add(1)
 			go func() {
@@ -1376,7 +1376,7 @@ func newProvisionerDaemon(
 				}
 			}()
 			connector[string(database.ProvisionerTypeEcho)] = sdkproto.NewDRPCProvisionerClient(echoClient)
-		case codersdk.ProvisionerTypeTerraform:
+		case wirtualsdk.ProvisionerTypeTerraform:
 			tfDir := filepath.Join(cacheDir, "tf")
 			err = os.MkdirAll(tfDir, 0o700)
 			if err != nil {
@@ -1801,7 +1801,7 @@ func configureCAPool(tlsClientCAFile string, tlsConfig *tls.Config) error {
 }
 
 //nolint:revive // Ignore flag-parameter: parameter 'allowEveryone' seems to be a control flag, avoid control coupling (revive)
-func configureGithubOAuth2(instrument *promoauth.Factory, accessURL *url.URL, clientID, clientSecret string, allowSignups, allowEveryone bool, allowOrgs []string, rawTeams []string, enterpriseBaseURL string) (*coderd.GithubOAuth2Config, error) {
+func configureGithubOAuth2(instrument *promoauth.Factory, accessURL *url.URL, clientID, clientSecret string, allowSignups, allowEveryone bool, allowOrgs []string, rawTeams []string, enterpriseBaseURL string) (*wirtuald.GithubOAuth2Config, error) {
 	redirectURL, err := accessURL.Parse("/api/v2/users/oauth2/github/callback")
 	if err != nil {
 		return nil, xerrors.Errorf("parse github oauth callback url: %w", err)
@@ -1815,13 +1815,13 @@ func configureGithubOAuth2(instrument *promoauth.Factory, accessURL *url.URL, cl
 	if !allowEveryone && len(allowOrgs) == 0 {
 		return nil, xerrors.New("allowed orgs is empty: must specify at least one org or allow everyone")
 	}
-	allowTeams := make([]coderd.GithubOAuth2Team, 0, len(rawTeams))
+	allowTeams := make([]wirtuald.GithubOAuth2Team, 0, len(rawTeams))
 	for _, rawTeam := range rawTeams {
 		parts := strings.SplitN(rawTeam, "/", 2)
 		if len(parts) != 2 {
 			return nil, xerrors.Errorf("github team allowlist is formatted incorrectly. got %s; wanted <organization>/<team>", rawTeam)
 		}
-		allowTeams = append(allowTeams, coderd.GithubOAuth2Team{
+		allowTeams = append(allowTeams, wirtuald.GithubOAuth2Team{
 			Organization: parts[0],
 			Slug:         parts[1],
 		})
@@ -1867,7 +1867,7 @@ func configureGithubOAuth2(instrument *promoauth.Factory, accessURL *url.URL, cl
 		return github.NewClient(client), nil
 	}
 
-	return &coderd.GithubOAuth2Config{
+	return &wirtuald.GithubOAuth2Config{
 		OAuth2Config:       instrumentedOauth,
 		AllowSignups:       allowSignups,
 		AllowEveryone:      allowEveryone,
@@ -2227,7 +2227,7 @@ func (s *HTTPServers) Close() {
 func ConfigureTraceProvider(
 	ctx context.Context,
 	logger slog.Logger,
-	cfg *codersdk.DeploymentValues,
+	cfg *wirtualsdk.DeploymentValues,
 ) (trace.TracerProvider, string, func(context.Context) error) {
 	var (
 		tracerProvider = trace.NewNoopTracerProvider()
@@ -2243,7 +2243,7 @@ func ConfigureTraceProvider(
 	)
 
 	if cfg.Trace.Enable.Value() || cfg.Trace.DataDog.Value() || cfg.Trace.HoneycombAPIKey != "" {
-		sdkTracerProvider, _closeTracing, err := tracing.TracerProvider(ctx, "coderd", tracing.TracerOpts{
+		sdkTracerProvider, _closeTracing, err := tracing.TracerProvider(ctx, "wirtuald", tracing.TracerOpts{
 			Default:   cfg.Trace.Enable.Value(),
 			DataDog:   cfg.Trace.DataDog.Value(),
 			Honeycomb: cfg.Trace.HoneycombAPIKey.String(),
@@ -2251,7 +2251,7 @@ func ConfigureTraceProvider(
 		if err != nil {
 			logger.Warn(ctx, "start telemetry exporter", slog.Error(err))
 		} else {
-			d, err := tracing.PostgresDriver(sdkTracerProvider, "coderd.database")
+			d, err := tracing.PostgresDriver(sdkTracerProvider, "wirtuald.database")
 			if err != nil {
 				logger.Warn(ctx, "start postgres tracing driver", slog.Error(err))
 			} else {
@@ -2265,7 +2265,7 @@ func ConfigureTraceProvider(
 	return tracerProvider, sqlDriver, closeTracing
 }
 
-func ConfigureHTTPServers(logger slog.Logger, inv *serpent.Invocation, cfg *codersdk.DeploymentValues) (_ *HTTPServers, err error) {
+func ConfigureHTTPServers(logger slog.Logger, inv *serpent.Invocation, cfg *wirtualsdk.DeploymentValues) (_ *HTTPServers, err error) {
 	ctx := inv.Context()
 	httpServers := &HTTPServers{}
 	defer func() {
@@ -2398,7 +2398,7 @@ func ConfigureHTTPServers(logger slog.Logger, inv *serpent.Invocation, cfg *code
 // Also, for a while we have been accepting the environment variable (but not the
 // corresponding flag!) "CODER_TLS_REDIRECT_HTTP", and it appeared in a configuration
 // example, so we keep accepting it to not break backward compat.
-func redirectHTTPToHTTPSDeprecation(ctx context.Context, logger slog.Logger, inv *serpent.Invocation, cfg *codersdk.DeploymentValues) {
+func redirectHTTPToHTTPSDeprecation(ctx context.Context, logger slog.Logger, inv *serpent.Invocation, cfg *wirtualsdk.DeploymentValues) {
 	truthy := func(s string) bool {
 		b, err := strconv.ParseBool(s)
 		if err != nil {
@@ -2416,7 +2416,7 @@ func redirectHTTPToHTTPSDeprecation(ctx context.Context, logger slog.Logger, inv
 
 // ReadExternalAuthProvidersFromEnv is provided for compatibility purposes with
 // the viper CLI.
-func ReadExternalAuthProvidersFromEnv(environ []string) ([]codersdk.ExternalAuthConfig, error) {
+func ReadExternalAuthProvidersFromEnv(environ []string) ([]wirtualsdk.ExternalAuthConfig, error) {
 	providers, err := parseExternalAuthProvidersFromEnv("CODER_EXTERNAL_AUTH_", environ)
 	if err != nil {
 		return nil, err
@@ -2432,11 +2432,11 @@ func ReadExternalAuthProvidersFromEnv(environ []string) ([]codersdk.ExternalAuth
 // parseExternalAuthProvidersFromEnv consumes environment variables to parse
 // external auth providers. A prefix is provided to support the legacy
 // parsing of `GITAUTH` environment variables.
-func parseExternalAuthProvidersFromEnv(prefix string, environ []string) ([]codersdk.ExternalAuthConfig, error) {
+func parseExternalAuthProvidersFromEnv(prefix string, environ []string) ([]wirtualsdk.ExternalAuthConfig, error) {
 	// The index numbers must be in-order.
 	sort.Strings(environ)
 
-	var providers []codersdk.ExternalAuthConfig
+	var providers []wirtualsdk.ExternalAuthConfig
 	for _, v := range serpent.ParseEnviron(environ, prefix) {
 		tokens := strings.SplitN(v.Name, "_", 2)
 		if len(tokens) != 2 {
@@ -2448,7 +2448,7 @@ func parseExternalAuthProvidersFromEnv(prefix string, environ []string) ([]coder
 			return nil, xerrors.Errorf("parse number: %s", v.Name)
 		}
 
-		var provider codersdk.ExternalAuthConfig
+		var provider wirtualsdk.ExternalAuthConfig
 		switch {
 		case len(providers) < providerNum:
 			return nil, xerrors.Errorf(
@@ -2561,13 +2561,13 @@ func signalNotifyContext(ctx context.Context, inv *serpent.Invocation, sig ...os
 	return inv.SignalNotifyContext(ctx, sig...)
 }
 
-func getPostgresDB(ctx context.Context, logger slog.Logger, postgresURL string, auth codersdk.PostgresAuth, sqlDriver string) (*sql.DB, string, error) {
+func getPostgresDB(ctx context.Context, logger slog.Logger, postgresURL string, auth wirtualsdk.PostgresAuth, sqlDriver string) (*sql.DB, string, error) {
 	dbURL, err := escapePostgresURLUserInfo(postgresURL)
 	if err != nil {
 		return nil, "", xerrors.Errorf("escaping postgres URL: %w", err)
 	}
 
-	if auth == codersdk.PostgresAuthAWSIAMRDS {
+	if auth == wirtualsdk.PostgresAuthAWSIAMRDS {
 		sqlDriver, err = awsiamrds.Register(ctx, sqlDriver)
 		if err != nil {
 			return nil, "", xerrors.Errorf("register aws rds iam auth: %w", err)

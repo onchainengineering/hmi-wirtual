@@ -21,19 +21,19 @@ import (
 	"cdr.dev/slog/sloggers/slogtest"
 	"github.com/coder/coder/v2/agent/agenttest"
 	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbrollup"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/rbac/policy"
-	"github.com/coder/coder/v2/coderd/workspaceapps"
-	"github.com/coder/coder/v2/coderd/workspacestats"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/coder/coder/v2/wirtuald/database/dbgen"
+	"github.com/coder/coder/v2/wirtuald/database/dbrollup"
+	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/rbac/policy"
+	"github.com/coder/coder/v2/wirtuald/workspaceapps"
+	"github.com/coder/coder/v2/wirtuald/workspacestats"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
+	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/provisionersdk/proto"
 	"github.com/coder/coder/v2/testutil"
@@ -70,7 +70,7 @@ func TestDeploymentInsights(t *testing.T) {
 		ProvisionApply: echo.ProvisionApplyWithAgent(authToken),
 	})
 	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	require.Empty(t, template.BuildTimeStats[codersdk.WorkspaceTransitionStart])
+	require.Empty(t, template.BuildTimeStats[wirtualsdk.WorkspaceTransitionStart])
 
 	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
@@ -79,7 +79,7 @@ func TestDeploymentInsights(t *testing.T) {
 	ctx := testutil.Context(t, testutil.WaitLong)
 
 	// Pre-check, no  permission issues.
-	daus, err := client.DeploymentDAUs(ctx, codersdk.TimezoneOffsetHour(clientTz))
+	daus, err := client.DeploymentDAUs(ctx, wirtualsdk.TimezoneOffsetHour(clientTz))
 	require.NoError(t, err)
 
 	_ = agenttest.New(t, client.URL, authToken)
@@ -115,7 +115,7 @@ func TestDeploymentInsights(t *testing.T) {
 		case <-rollupEvents:
 		}
 
-		daus, err = client.DeploymentDAUs(ctx, codersdk.TimezoneOffsetHour(clientTz))
+		daus, err = client.DeploymentDAUs(ctx, wirtualsdk.TimezoneOffsetHour(clientTz))
 		require.NoError(t, err)
 		if len(daus.Entries) > 0 && daus.Entries[len(daus.Entries)-1].Amount > 0 {
 			break
@@ -152,7 +152,7 @@ func TestUserActivityInsights_SanityCheck(t *testing.T) {
 		ProvisionApply: echo.ProvisionApplyWithAgent(authToken),
 	})
 	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	require.Empty(t, template.BuildTimeStats[codersdk.WorkspaceTransitionStart])
+	require.Empty(t, template.BuildTimeStats[wirtualsdk.WorkspaceTransitionStart])
 
 	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
@@ -194,14 +194,14 @@ func TestUserActivityInsights_SanityCheck(t *testing.T) {
 	err = sess.Start("cat")
 	require.NoError(t, err)
 
-	var userActivities codersdk.UserActivityInsightsResponse
+	var userActivities wirtualsdk.UserActivityInsightsResponse
 	require.Eventuallyf(t, func() bool {
 		// Keep connection active.
 		_, err := w.Write([]byte("hello world\n"))
 		if !assert.NoError(t, err) {
 			return false
 		}
-		userActivities, err = client.UserActivityInsights(ctx, codersdk.UserActivityInsightsRequest{
+		userActivities, err = client.UserActivityInsights(ctx, wirtualsdk.UserActivityInsightsRequest{
 			StartTime:   today,
 			EndTime:     time.Now().UTC().Truncate(time.Hour).Add(time.Hour), // Round up to include the current hour.
 			TemplateIDs: []uuid.UUID{template.ID},
@@ -250,7 +250,7 @@ func TestUserLatencyInsights(t *testing.T) {
 		ProvisionApply: echo.ProvisionApplyWithAgent(authToken),
 	})
 	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	require.Empty(t, template.BuildTimeStats[codersdk.WorkspaceTransitionStart])
+	require.Empty(t, template.BuildTimeStats[wirtualsdk.WorkspaceTransitionStart])
 
 	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
@@ -292,14 +292,14 @@ func TestUserLatencyInsights(t *testing.T) {
 	err = sess.Start("cat")
 	require.NoError(t, err)
 
-	var userLatencies codersdk.UserLatencyInsightsResponse
+	var userLatencies wirtualsdk.UserLatencyInsightsResponse
 	require.Eventuallyf(t, func() bool {
 		// Keep connection active.
 		_, err := w.Write([]byte("hello world\n"))
 		if !assert.NoError(t, err) {
 			return false
 		}
-		userLatencies, err = client.UserLatencyInsights(ctx, codersdk.UserLatencyInsightsRequest{
+		userLatencies, err = client.UserLatencyInsights(ctx, wirtualsdk.UserLatencyInsightsRequest{
 			StartTime:   today,
 			EndTime:     time.Now().UTC().Truncate(time.Hour).Add(time.Hour), // Round up to include the current hour.
 			TemplateIDs: []uuid.UUID{template.ID},
@@ -332,7 +332,7 @@ func TestUserLatencyInsights_BadRequest(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
 
-	_, err := client.UserLatencyInsights(ctx, codersdk.UserLatencyInsightsRequest{
+	_, err := client.UserLatencyInsights(ctx, wirtualsdk.UserLatencyInsightsRequest{
 		StartTime: today,
 		EndTime:   today.AddDate(0, 0, -1),
 	})
@@ -355,7 +355,7 @@ func TestUserActivityInsights_BadRequest(t *testing.T) {
 	defer cancel()
 
 	// Send insights request
-	_, err = client.UserActivityInsights(ctx, codersdk.UserActivityInsightsRequest{
+	_, err = client.UserActivityInsights(ctx, wirtualsdk.UserActivityInsightsRequest{
 		StartTime: today,
 		EndTime:   today.AddDate(0, 0, -1),
 	})
@@ -408,8 +408,8 @@ func TestTemplateInsights_Golden(t *testing.T) {
 		name       string
 		workspaces []*testWorkspace
 
-		client *codersdk.Client
-		sdk    codersdk.User
+		client *wirtualsdk.Client
+		sdk    wirtualsdk.User
 	}
 
 	// Represent agent stats, to be inserted via stats batcher.
@@ -501,7 +501,7 @@ func TestTemplateInsights_Golden(t *testing.T) {
 		return templates, users, testData
 	}
 
-	prepare := func(t *testing.T, templates []*testTemplate, users []*testUser, testData map[*testWorkspace]testDataGen) (*codersdk.Client, chan dbrollup.Event) {
+	prepare := func(t *testing.T, templates []*testTemplate, users []*testUser, testData map[*testWorkspace]testDataGen) (*wirtualsdk.Client, chan dbrollup.Event) {
 		logger := testutil.Logger(t)
 		db, ps := dbtestutil.NewDB(t)
 		events := make(chan dbrollup.Event)
@@ -523,7 +523,7 @@ func TestTemplateInsights_Golden(t *testing.T) {
 
 		// Prepare all test users.
 		for _, user := range users {
-			user.client, user.sdk = coderdtest.CreateAnotherUserMutators(t, client, firstUser.OrganizationID, nil, func(r *codersdk.CreateUserRequestWithOrgs) {
+			user.client, user.sdk = coderdtest.CreateAnotherUserMutators(t, client, firstUser.OrganizationID, nil, func(r *wirtualsdk.CreateUserRequestWithOrgs) {
 				r.Username = user.name
 			})
 			user.client.SetLogger(logger.Named("user").With(slog.Field{Name: "name", Value: user.name}))
@@ -599,9 +599,9 @@ func TestTemplateInsights_Golden(t *testing.T) {
 						}},
 					})
 
-					var buildParameters []codersdk.WorkspaceBuildParameter
+					var buildParameters []wirtualsdk.WorkspaceBuildParameter
 					for _, buildParameter := range workspace.buildParameters {
-						buildParameters = append(buildParameters, codersdk.WorkspaceBuildParameter{
+						buildParameters = append(buildParameters, wirtualsdk.WorkspaceBuildParameter{
 							Name:  buildParameter.templateParameter.name,
 							Value: buildParameter.value,
 						})
@@ -609,7 +609,7 @@ func TestTemplateInsights_Golden(t *testing.T) {
 
 					createWorkspaces = append(createWorkspaces, func(templateID uuid.UUID) {
 						// Create workspace using the users client.
-						createdWorkspace := coderdtest.CreateWorkspace(t, user.client, templateID, func(cwr *codersdk.CreateWorkspaceRequest) {
+						createdWorkspace := coderdtest.CreateWorkspace(t, user.client, templateID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 							cwr.RichParameterValues = buildParameters
 						})
 						workspace.id = createdWorkspace.ID
@@ -680,7 +680,7 @@ func TestTemplateInsights_Golden(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitSuperLong)
 
 		// Use agent stats batcher to insert agent stats, similar to live system.
-		// NOTE(mafredri): Ideally we would pass batcher as a coderd option and
+		// NOTE(mafredri): Ideally we would pass batcher as a wirtuald option and
 		// insert using the agentClient, but we have a circular dependency on
 		// the database.
 		batcher, batcherCloser, err := workspacestats.NewBatcher(
@@ -1040,7 +1040,7 @@ func TestTemplateInsights_Golden(t *testing.T) {
 	}
 	type testRequest struct {
 		name        string
-		makeRequest func([]*testTemplate) codersdk.TemplateInsightsRequest
+		makeRequest func([]*testTemplate) wirtualsdk.TemplateInsightsRequest
 		ignoreTimes bool
 	}
 	tests := []struct {
@@ -1056,98 +1056,98 @@ func TestTemplateInsights_Golden(t *testing.T) {
 			requests: []testRequest{
 				{
 					name: "week deployment wide",
-					makeRequest: func(templates []*testTemplate) codersdk.TemplateInsightsRequest {
-						return codersdk.TemplateInsightsRequest{
+					makeRequest: func(templates []*testTemplate) wirtualsdk.TemplateInsightsRequest {
+						return wirtualsdk.TemplateInsightsRequest{
 							StartTime: frozenWeekAgo,
 							EndTime:   frozenWeekAgo.AddDate(0, 0, 7),
-							Interval:  codersdk.InsightsReportIntervalDay,
+							Interval:  wirtualsdk.InsightsReportIntervalDay,
 						}
 					},
 				},
 				{
 					name: "weekly aggregated deployment wide",
-					makeRequest: func(templates []*testTemplate) codersdk.TemplateInsightsRequest {
-						return codersdk.TemplateInsightsRequest{
+					makeRequest: func(templates []*testTemplate) wirtualsdk.TemplateInsightsRequest {
+						return wirtualsdk.TemplateInsightsRequest{
 							StartTime: frozenWeekAgo.AddDate(0, 0, -3),
 							EndTime:   frozenWeekAgo.AddDate(0, 0, 4),
-							Interval:  codersdk.InsightsReportIntervalWeek,
+							Interval:  wirtualsdk.InsightsReportIntervalWeek,
 						}
 					},
 				},
 				{
 					name: "week all templates",
-					makeRequest: func(templates []*testTemplate) codersdk.TemplateInsightsRequest {
-						return codersdk.TemplateInsightsRequest{
+					makeRequest: func(templates []*testTemplate) wirtualsdk.TemplateInsightsRequest {
+						return wirtualsdk.TemplateInsightsRequest{
 							TemplateIDs: []uuid.UUID{templates[0].id, templates[1].id, templates[2].id},
 							StartTime:   frozenWeekAgo,
 							EndTime:     frozenWeekAgo.AddDate(0, 0, 7),
-							Interval:    codersdk.InsightsReportIntervalDay,
+							Interval:    wirtualsdk.InsightsReportIntervalDay,
 						}
 					},
 				},
 				{
 					name: "weekly aggregated templates",
-					makeRequest: func(templates []*testTemplate) codersdk.TemplateInsightsRequest {
-						return codersdk.TemplateInsightsRequest{
+					makeRequest: func(templates []*testTemplate) wirtualsdk.TemplateInsightsRequest {
+						return wirtualsdk.TemplateInsightsRequest{
 							TemplateIDs: []uuid.UUID{templates[0].id, templates[1].id, templates[2].id},
 							StartTime:   frozenWeekAgo.AddDate(0, 0, -1),
 							EndTime:     frozenWeekAgo.AddDate(0, 0, 6),
-							Interval:    codersdk.InsightsReportIntervalWeek,
+							Interval:    wirtualsdk.InsightsReportIntervalWeek,
 						}
 					},
 				},
 				{
 					name: "week first template",
-					makeRequest: func(templates []*testTemplate) codersdk.TemplateInsightsRequest {
-						return codersdk.TemplateInsightsRequest{
+					makeRequest: func(templates []*testTemplate) wirtualsdk.TemplateInsightsRequest {
+						return wirtualsdk.TemplateInsightsRequest{
 							TemplateIDs: []uuid.UUID{templates[0].id},
 							StartTime:   frozenWeekAgo,
 							EndTime:     frozenWeekAgo.AddDate(0, 0, 7),
-							Interval:    codersdk.InsightsReportIntervalDay,
+							Interval:    wirtualsdk.InsightsReportIntervalDay,
 						}
 					},
 				},
 				{
 					name: "weekly aggregated first template",
-					makeRequest: func(templates []*testTemplate) codersdk.TemplateInsightsRequest {
-						return codersdk.TemplateInsightsRequest{
+					makeRequest: func(templates []*testTemplate) wirtualsdk.TemplateInsightsRequest {
+						return wirtualsdk.TemplateInsightsRequest{
 							TemplateIDs: []uuid.UUID{templates[0].id},
 							StartTime:   frozenWeekAgo,
 							EndTime:     frozenWeekAgo.AddDate(0, 0, 7),
-							Interval:    codersdk.InsightsReportIntervalWeek,
+							Interval:    wirtualsdk.InsightsReportIntervalWeek,
 						}
 					},
 				},
 				{
 					name: "week second template",
-					makeRequest: func(templates []*testTemplate) codersdk.TemplateInsightsRequest {
-						return codersdk.TemplateInsightsRequest{
+					makeRequest: func(templates []*testTemplate) wirtualsdk.TemplateInsightsRequest {
+						return wirtualsdk.TemplateInsightsRequest{
 							TemplateIDs: []uuid.UUID{templates[1].id},
 							StartTime:   frozenWeekAgo,
 							EndTime:     frozenWeekAgo.AddDate(0, 0, 7),
-							Interval:    codersdk.InsightsReportIntervalDay,
+							Interval:    wirtualsdk.InsightsReportIntervalDay,
 						}
 					},
 				},
 				{
 					name: "three weeks second template",
-					makeRequest: func(templates []*testTemplate) codersdk.TemplateInsightsRequest {
-						return codersdk.TemplateInsightsRequest{
+					makeRequest: func(templates []*testTemplate) wirtualsdk.TemplateInsightsRequest {
+						return wirtualsdk.TemplateInsightsRequest{
 							TemplateIDs: []uuid.UUID{templates[1].id},
 							StartTime:   frozenWeekAgo.AddDate(0, 0, -14),
 							EndTime:     frozenWeekAgo.AddDate(0, 0, 7),
-							Interval:    codersdk.InsightsReportIntervalWeek,
+							Interval:    wirtualsdk.InsightsReportIntervalWeek,
 						}
 					},
 				},
 				{
 					name: "week third template",
-					makeRequest: func(templates []*testTemplate) codersdk.TemplateInsightsRequest {
-						return codersdk.TemplateInsightsRequest{
+					makeRequest: func(templates []*testTemplate) wirtualsdk.TemplateInsightsRequest {
+						return wirtualsdk.TemplateInsightsRequest{
 							TemplateIDs: []uuid.UUID{templates[2].id},
 							StartTime:   frozenWeekAgo,
 							EndTime:     frozenWeekAgo.AddDate(0, 0, 7),
-							Interval:    codersdk.InsightsReportIntervalDay,
+							Interval:    wirtualsdk.InsightsReportIntervalDay,
 						}
 					},
 				},
@@ -1155,35 +1155,35 @@ func TestTemplateInsights_Golden(t *testing.T) {
 					// São Paulo is three hours behind UTC, so we should not see
 					// any data between weekAgo and weekAgo.Add(3 * time.Hour).
 					name: "week other timezone (São Paulo)",
-					makeRequest: func(templates []*testTemplate) codersdk.TemplateInsightsRequest {
-						return codersdk.TemplateInsightsRequest{
+					makeRequest: func(templates []*testTemplate) wirtualsdk.TemplateInsightsRequest {
+						return wirtualsdk.TemplateInsightsRequest{
 							StartTime: frozenWeekAgoSaoPaulo,
 							EndTime:   frozenWeekAgoSaoPaulo.AddDate(0, 0, 7),
-							Interval:  codersdk.InsightsReportIntervalDay,
+							Interval:  wirtualsdk.InsightsReportIntervalDay,
 						}
 					},
 				},
 				{
 					name: "three weeks second template only report",
-					makeRequest: func(templates []*testTemplate) codersdk.TemplateInsightsRequest {
-						return codersdk.TemplateInsightsRequest{
+					makeRequest: func(templates []*testTemplate) wirtualsdk.TemplateInsightsRequest {
+						return wirtualsdk.TemplateInsightsRequest{
 							TemplateIDs: []uuid.UUID{templates[1].id},
 							StartTime:   frozenWeekAgo.AddDate(0, 0, -14),
 							EndTime:     frozenWeekAgo.AddDate(0, 0, 7),
-							Interval:    codersdk.InsightsReportIntervalWeek,
-							Sections:    []codersdk.TemplateInsightsSection{codersdk.TemplateInsightsSectionReport},
+							Interval:    wirtualsdk.InsightsReportIntervalWeek,
+							Sections:    []wirtualsdk.TemplateInsightsSection{wirtualsdk.TemplateInsightsSectionReport},
 						}
 					},
 				},
 				{
 					name: "three weeks second template only interval reports",
-					makeRequest: func(templates []*testTemplate) codersdk.TemplateInsightsRequest {
-						return codersdk.TemplateInsightsRequest{
+					makeRequest: func(templates []*testTemplate) wirtualsdk.TemplateInsightsRequest {
+						return wirtualsdk.TemplateInsightsRequest{
 							TemplateIDs: []uuid.UUID{templates[1].id},
 							StartTime:   frozenWeekAgo.AddDate(0, 0, -14),
 							EndTime:     frozenWeekAgo.AddDate(0, 0, 7),
-							Interval:    codersdk.InsightsReportIntervalWeek,
-							Sections:    []codersdk.TemplateInsightsSection{codersdk.TemplateInsightsSectionIntervalReports},
+							Interval:    wirtualsdk.InsightsReportIntervalWeek,
+							Sections:    []wirtualsdk.TemplateInsightsSection{wirtualsdk.TemplateInsightsSectionIntervalReports},
 						}
 					},
 				},
@@ -1203,9 +1203,9 @@ func TestTemplateInsights_Golden(t *testing.T) {
 					// the test runs at UTC midnight.
 					name:        "yesterday and today deployment wide",
 					ignoreTimes: true,
-					makeRequest: func(_ []*testTemplate) codersdk.TemplateInsightsRequest {
+					makeRequest: func(_ []*testTemplate) wirtualsdk.TemplateInsightsRequest {
 						now := time.Now().UTC()
-						return codersdk.TemplateInsightsRequest{
+						return wirtualsdk.TemplateInsightsRequest{
 							StartTime: now.Truncate(24*time.Hour).AddDate(0, 0, -1),
 							EndTime:   now.Truncate(time.Hour).Add(time.Hour),
 						}
@@ -1214,9 +1214,9 @@ func TestTemplateInsights_Golden(t *testing.T) {
 				{
 					name:        "two days ago, no data",
 					ignoreTimes: true,
-					makeRequest: func(_ []*testTemplate) codersdk.TemplateInsightsRequest {
+					makeRequest: func(_ []*testTemplate) wirtualsdk.TemplateInsightsRequest {
 						twoDaysAgo := time.Now().UTC().Truncate(24*time.Hour).AddDate(0, 0, -2)
-						return codersdk.TemplateInsightsRequest{
+						return wirtualsdk.TemplateInsightsRequest{
 							StartTime: twoDaysAgo,
 							EndTime:   twoDaysAgo.AddDate(0, 0, 1),
 						}
@@ -1278,7 +1278,7 @@ func TestTemplateInsights_Golden(t *testing.T) {
 					f, err := os.Open(goldenFile)
 					require.NoError(t, err, "open golden file, run \"make update-golden-files\" and commit the changes")
 					defer f.Close()
-					var want codersdk.TemplateInsightsResponse
+					var want wirtualsdk.TemplateInsightsResponse
 					err = json.NewDecoder(f).Decode(&want)
 					require.NoError(t, err, "want no error decoding golden file")
 
@@ -1330,8 +1330,8 @@ func TestUserActivityInsights_Golden(t *testing.T) {
 		name       string
 		workspaces []*testWorkspace
 
-		client *codersdk.Client
-		sdk    codersdk.User
+		client *wirtualsdk.Client
+		sdk    wirtualsdk.User
 
 		// Filled later.
 		id uuid.UUID
@@ -1420,7 +1420,7 @@ func TestUserActivityInsights_Golden(t *testing.T) {
 		return templates, users, testData
 	}
 
-	prepare := func(t *testing.T, templates []*testTemplate, users []*testUser, testData map[*testWorkspace]testDataGen) (*codersdk.Client, chan dbrollup.Event) {
+	prepare := func(t *testing.T, templates []*testTemplate, users []*testUser, testData map[*testWorkspace]testDataGen) (*wirtualsdk.Client, chan dbrollup.Event) {
 		logger := testutil.Logger(t)
 		db, ps := dbtestutil.NewDB(t)
 		events := make(chan dbrollup.Event)
@@ -1450,13 +1450,13 @@ func TestUserActivityInsights_Golden(t *testing.T) {
 				UserID:         user.id,
 				OrganizationID: firstUser.OrganizationID,
 			})
-			token, err := client.CreateToken(context.Background(), user.id.String(), codersdk.CreateTokenRequest{
+			token, err := client.CreateToken(context.Background(), user.id.String(), wirtualsdk.CreateTokenRequest{
 				Lifetime:  time.Hour * 24,
-				Scope:     codersdk.APIKeyScopeAll,
+				Scope:     wirtualsdk.APIKeyScopeAll,
 				TokenName: "no-password-user-token",
 			})
 			require.NoError(t, err)
-			userClient := codersdk.New(client.URL)
+			userClient := wirtualsdk.New(client.URL)
 			userClient.SetSessionToken(token.Key)
 
 			coderUser, err := userClient.User(context.Background(), user.id.String())
@@ -1578,7 +1578,7 @@ func TestUserActivityInsights_Golden(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitSuperLong)
 
 		// Use agent stats batcher to insert agent stats, similar to live system.
-		// NOTE(mafredri): Ideally we would pass batcher as a coderd option and
+		// NOTE(mafredri): Ideally we would pass batcher as a wirtuald option and
 		// insert using the agentClient, but we have a circular dependency on
 		// the database.
 		batcher, batcherCloser, err := workspacestats.NewBatcher(
@@ -1894,7 +1894,7 @@ func TestUserActivityInsights_Golden(t *testing.T) {
 	}
 	type testRequest struct {
 		name        string
-		makeRequest func([]*testTemplate) codersdk.UserActivityInsightsRequest
+		makeRequest func([]*testTemplate) wirtualsdk.UserActivityInsightsRequest
 		ignoreTimes bool
 	}
 	tests := []struct {
@@ -1910,8 +1910,8 @@ func TestUserActivityInsights_Golden(t *testing.T) {
 			requests: []testRequest{
 				{
 					name: "week deployment wide",
-					makeRequest: func(templates []*testTemplate) codersdk.UserActivityInsightsRequest {
-						return codersdk.UserActivityInsightsRequest{
+					makeRequest: func(templates []*testTemplate) wirtualsdk.UserActivityInsightsRequest {
+						return wirtualsdk.UserActivityInsightsRequest{
 							StartTime: frozenWeekAgo,
 							EndTime:   frozenWeekAgo.AddDate(0, 0, 7),
 						}
@@ -1919,8 +1919,8 @@ func TestUserActivityInsights_Golden(t *testing.T) {
 				},
 				{
 					name: "weekly aggregated deployment wide",
-					makeRequest: func(templates []*testTemplate) codersdk.UserActivityInsightsRequest {
-						return codersdk.UserActivityInsightsRequest{
+					makeRequest: func(templates []*testTemplate) wirtualsdk.UserActivityInsightsRequest {
+						return wirtualsdk.UserActivityInsightsRequest{
 							StartTime: frozenWeekAgo.AddDate(0, 0, -3),
 							EndTime:   frozenWeekAgo.AddDate(0, 0, 4),
 						}
@@ -1928,8 +1928,8 @@ func TestUserActivityInsights_Golden(t *testing.T) {
 				},
 				{
 					name: "week all templates",
-					makeRequest: func(templates []*testTemplate) codersdk.UserActivityInsightsRequest {
-						return codersdk.UserActivityInsightsRequest{
+					makeRequest: func(templates []*testTemplate) wirtualsdk.UserActivityInsightsRequest {
+						return wirtualsdk.UserActivityInsightsRequest{
 							TemplateIDs: []uuid.UUID{templates[0].id, templates[1].id, templates[2].id},
 							StartTime:   frozenWeekAgo,
 							EndTime:     frozenWeekAgo.AddDate(0, 0, 7),
@@ -1938,8 +1938,8 @@ func TestUserActivityInsights_Golden(t *testing.T) {
 				},
 				{
 					name: "weekly aggregated templates",
-					makeRequest: func(templates []*testTemplate) codersdk.UserActivityInsightsRequest {
-						return codersdk.UserActivityInsightsRequest{
+					makeRequest: func(templates []*testTemplate) wirtualsdk.UserActivityInsightsRequest {
+						return wirtualsdk.UserActivityInsightsRequest{
 							TemplateIDs: []uuid.UUID{templates[0].id, templates[1].id, templates[2].id},
 							StartTime:   frozenWeekAgo.AddDate(0, 0, -1),
 							EndTime:     frozenWeekAgo.AddDate(0, 0, 6),
@@ -1948,8 +1948,8 @@ func TestUserActivityInsights_Golden(t *testing.T) {
 				},
 				{
 					name: "week first template",
-					makeRequest: func(templates []*testTemplate) codersdk.UserActivityInsightsRequest {
-						return codersdk.UserActivityInsightsRequest{
+					makeRequest: func(templates []*testTemplate) wirtualsdk.UserActivityInsightsRequest {
+						return wirtualsdk.UserActivityInsightsRequest{
 							TemplateIDs: []uuid.UUID{templates[0].id},
 							StartTime:   frozenWeekAgo,
 							EndTime:     frozenWeekAgo.AddDate(0, 0, 7),
@@ -1958,8 +1958,8 @@ func TestUserActivityInsights_Golden(t *testing.T) {
 				},
 				{
 					name: "weekly aggregated first template",
-					makeRequest: func(templates []*testTemplate) codersdk.UserActivityInsightsRequest {
-						return codersdk.UserActivityInsightsRequest{
+					makeRequest: func(templates []*testTemplate) wirtualsdk.UserActivityInsightsRequest {
+						return wirtualsdk.UserActivityInsightsRequest{
 							TemplateIDs: []uuid.UUID{templates[0].id},
 							StartTime:   frozenWeekAgo,
 							EndTime:     frozenWeekAgo.AddDate(0, 0, 7),
@@ -1968,8 +1968,8 @@ func TestUserActivityInsights_Golden(t *testing.T) {
 				},
 				{
 					name: "week second template",
-					makeRequest: func(templates []*testTemplate) codersdk.UserActivityInsightsRequest {
-						return codersdk.UserActivityInsightsRequest{
+					makeRequest: func(templates []*testTemplate) wirtualsdk.UserActivityInsightsRequest {
+						return wirtualsdk.UserActivityInsightsRequest{
 							TemplateIDs: []uuid.UUID{templates[1].id},
 							StartTime:   frozenWeekAgo,
 							EndTime:     frozenWeekAgo.AddDate(0, 0, 7),
@@ -1978,8 +1978,8 @@ func TestUserActivityInsights_Golden(t *testing.T) {
 				},
 				{
 					name: "three weeks second template",
-					makeRequest: func(templates []*testTemplate) codersdk.UserActivityInsightsRequest {
-						return codersdk.UserActivityInsightsRequest{
+					makeRequest: func(templates []*testTemplate) wirtualsdk.UserActivityInsightsRequest {
+						return wirtualsdk.UserActivityInsightsRequest{
 							TemplateIDs: []uuid.UUID{templates[1].id},
 							StartTime:   frozenWeekAgo.AddDate(0, 0, -14),
 							EndTime:     frozenWeekAgo.AddDate(0, 0, 7),
@@ -1988,8 +1988,8 @@ func TestUserActivityInsights_Golden(t *testing.T) {
 				},
 				{
 					name: "week third template",
-					makeRequest: func(templates []*testTemplate) codersdk.UserActivityInsightsRequest {
-						return codersdk.UserActivityInsightsRequest{
+					makeRequest: func(templates []*testTemplate) wirtualsdk.UserActivityInsightsRequest {
+						return wirtualsdk.UserActivityInsightsRequest{
 							TemplateIDs: []uuid.UUID{templates[2].id},
 							StartTime:   frozenWeekAgo,
 							EndTime:     frozenWeekAgo.AddDate(0, 0, 7),
@@ -2000,8 +2000,8 @@ func TestUserActivityInsights_Golden(t *testing.T) {
 					// São Paulo is three hours behind UTC, so we should not see
 					// any data between weekAgo and weekAgo.Add(3 * time.Hour).
 					name: "week other timezone (São Paulo)",
-					makeRequest: func(templates []*testTemplate) codersdk.UserActivityInsightsRequest {
-						return codersdk.UserActivityInsightsRequest{
+					makeRequest: func(templates []*testTemplate) wirtualsdk.UserActivityInsightsRequest {
+						return wirtualsdk.UserActivityInsightsRequest{
 							StartTime: frozenWeekAgoSaoPaulo,
 							EndTime:   frozenWeekAgoSaoPaulo.AddDate(0, 0, 7),
 						}
@@ -2059,7 +2059,7 @@ func TestUserActivityInsights_Golden(t *testing.T) {
 					f, err := os.Open(goldenFile)
 					require.NoError(t, err, "open golden file, run \"make update-golden-files\" and commit the changes")
 					defer f.Close()
-					var want codersdk.UserActivityInsightsResponse
+					var want wirtualsdk.UserActivityInsightsResponse
 					err = json.NewDecoder(f).Decode(&want)
 					require.NoError(t, err, "want no error decoding golden file")
 
@@ -2092,31 +2092,31 @@ func TestTemplateInsights_BadRequest(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
 
-	_, err := client.TemplateInsights(ctx, codersdk.TemplateInsightsRequest{
+	_, err := client.TemplateInsights(ctx, wirtualsdk.TemplateInsightsRequest{
 		StartTime: today,
 		EndTime:   today.AddDate(0, 0, -1),
 	})
 	assert.Error(t, err, "want error for end time before start time")
 
-	_, err = client.TemplateInsights(ctx, codersdk.TemplateInsightsRequest{
+	_, err = client.TemplateInsights(ctx, wirtualsdk.TemplateInsightsRequest{
 		StartTime: today.AddDate(0, 0, -1),
 		EndTime:   today,
 		Interval:  "invalid",
 	})
 	assert.Error(t, err, "want error for bad interval")
 
-	_, err = client.TemplateInsights(ctx, codersdk.TemplateInsightsRequest{
+	_, err = client.TemplateInsights(ctx, wirtualsdk.TemplateInsightsRequest{
 		StartTime: today.AddDate(0, 0, -5),
 		EndTime:   today,
-		Interval:  codersdk.InsightsReportIntervalWeek,
+		Interval:  wirtualsdk.InsightsReportIntervalWeek,
 	})
 	assert.Error(t, err, "last report interval must have at least 6 days")
 
-	_, err = client.TemplateInsights(ctx, codersdk.TemplateInsightsRequest{
+	_, err = client.TemplateInsights(ctx, wirtualsdk.TemplateInsightsRequest{
 		StartTime: today.AddDate(0, 0, -1),
 		EndTime:   today,
-		Interval:  codersdk.InsightsReportIntervalWeek,
-		Sections:  []codersdk.TemplateInsightsSection{"invalid"},
+		Interval:  wirtualsdk.InsightsReportIntervalWeek,
+		Sections:  []wirtualsdk.TemplateInsightsSection{"invalid"},
 	})
 	assert.Error(t, err, "want error for bad section")
 }
@@ -2128,13 +2128,13 @@ func TestTemplateInsights_RBAC(t *testing.T) {
 	today := time.Date(y, m, d, 0, 0, 0, 0, time.UTC)
 
 	type test struct {
-		interval     codersdk.InsightsReportInterval
+		interval     wirtualsdk.InsightsReportInterval
 		withTemplate bool
 	}
 
 	tests := []test{
-		{codersdk.InsightsReportIntervalDay, true},
-		{codersdk.InsightsReportIntervalDay, false},
+		{wirtualsdk.InsightsReportIntervalDay, true},
+		{wirtualsdk.InsightsReportIntervalDay, false},
 		{"", true},
 		{"", false},
 	}
@@ -2161,7 +2161,7 @@ func TestTemplateInsights_RBAC(t *testing.T) {
 					templateIDs = append(templateIDs, template.ID)
 				}
 
-				_, err := client.TemplateInsights(ctx, codersdk.TemplateInsightsRequest{
+				_, err := client.TemplateInsights(ctx, wirtualsdk.TemplateInsightsRequest{
 					StartTime:   today.AddDate(0, 0, -1),
 					EndTime:     today,
 					Interval:    tt.interval,
@@ -2187,7 +2187,7 @@ func TestTemplateInsights_RBAC(t *testing.T) {
 					templateIDs = append(templateIDs, template.ID)
 				}
 
-				_, err := templateAdmin.TemplateInsights(ctx, codersdk.TemplateInsightsRequest{
+				_, err := templateAdmin.TemplateInsights(ctx, wirtualsdk.TemplateInsightsRequest{
 					StartTime:   today.AddDate(0, 0, -1),
 					EndTime:     today,
 					Interval:    tt.interval,
@@ -2213,14 +2213,14 @@ func TestTemplateInsights_RBAC(t *testing.T) {
 					templateIDs = append(templateIDs, template.ID)
 				}
 
-				_, err := regular.TemplateInsights(ctx, codersdk.TemplateInsightsRequest{
+				_, err := regular.TemplateInsights(ctx, wirtualsdk.TemplateInsightsRequest{
 					StartTime:   today.AddDate(0, 0, -1),
 					EndTime:     today,
 					Interval:    tt.interval,
 					TemplateIDs: templateIDs,
 				})
 				require.Error(t, err)
-				var apiErr *codersdk.Error
+				var apiErr *wirtualsdk.Error
 				require.ErrorAs(t, err, &apiErr)
 				require.Equal(t, http.StatusNotFound, apiErr.StatusCode())
 			})
@@ -2234,23 +2234,23 @@ func TestGenericInsights_RBAC(t *testing.T) {
 	y, m, d := time.Now().UTC().Date()
 	today := time.Date(y, m, d, 0, 0, 0, 0, time.UTC)
 
-	type fetchInsightsFunc func(ctx context.Context, client *codersdk.Client, startTime, endTime time.Time, templateIDs ...uuid.UUID) error
+	type fetchInsightsFunc func(ctx context.Context, client *wirtualsdk.Client, startTime, endTime time.Time, templateIDs ...uuid.UUID) error
 
 	type test struct {
 		withTemplate bool
 	}
 
 	endpoints := map[string]fetchInsightsFunc{
-		"UserLatency": func(ctx context.Context, client *codersdk.Client, startTime, endTime time.Time, templateIDs ...uuid.UUID) error {
-			_, err := client.UserLatencyInsights(ctx, codersdk.UserLatencyInsightsRequest{
+		"UserLatency": func(ctx context.Context, client *wirtualsdk.Client, startTime, endTime time.Time, templateIDs ...uuid.UUID) error {
+			_, err := client.UserLatencyInsights(ctx, wirtualsdk.UserLatencyInsightsRequest{
 				StartTime:   startTime,
 				EndTime:     endTime,
 				TemplateIDs: templateIDs,
 			})
 			return err
 		},
-		"UserActivity": func(ctx context.Context, client *codersdk.Client, startTime, endTime time.Time, templateIDs ...uuid.UUID) error {
-			_, err := client.UserActivityInsights(ctx, codersdk.UserActivityInsightsRequest{
+		"UserActivity": func(ctx context.Context, client *wirtualsdk.Client, startTime, endTime time.Time, templateIDs ...uuid.UUID) error {
+			_, err := client.UserActivityInsights(ctx, wirtualsdk.UserActivityInsightsRequest{
 				StartTime:   startTime,
 				EndTime:     endTime,
 				TemplateIDs: templateIDs,
@@ -2343,7 +2343,7 @@ func TestGenericInsights_RBAC(t *testing.T) {
 						time.Now().UTC().Truncate(time.Hour).Add(time.Hour), // Round up to include the current hour.
 						templateIDs...)
 					require.Error(t, err)
-					var apiErr *codersdk.Error
+					var apiErr *wirtualsdk.Error
 					require.ErrorAs(t, err, &apiErr)
 					require.Equal(t, http.StatusNotFound, apiErr.StatusCode())
 				})

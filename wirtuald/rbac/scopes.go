@@ -7,7 +7,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/rbac/policy"
+	"github.com/coder/coder/v2/wirtuald/rbac/policy"
 )
 
 type WorkspaceAgentScopeParams struct {

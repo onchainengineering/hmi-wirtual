@@ -9,7 +9,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -51,7 +51,7 @@ func (r *RootCmd) templateVersionsList() *serpent.Command {
 		cliui.TableFormat([]templateVersionRow{}, defaultColumns),
 		cliui.JSONFormat(),
 	)
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	orgContext := NewOrganizationContext()
 
 	var includeArchived serpent.Bool
@@ -103,7 +103,7 @@ func (r *RootCmd) templateVersionsList() *serpent.Command {
 			if err != nil {
 				return xerrors.Errorf("get template by name: %w", err)
 			}
-			req := codersdk.TemplateVersionsByTemplateRequest{
+			req := wirtualsdk.TemplateVersionsByTemplateRequest{
 				TemplateID:      template.ID,
 				IncludeArchived: includeArchived.Value(),
 			}
@@ -131,7 +131,7 @@ func (r *RootCmd) templateVersionsList() *serpent.Command {
 
 type templateVersionRow struct {
 	// For json format:
-	TemplateVersion codersdk.TemplateVersion `table:"-"`
+	TemplateVersion wirtualsdk.TemplateVersion `table:"-"`
 
 	// For table format:
 	Name      string    `json:"-" table:"name,default_sort"`
@@ -144,7 +144,7 @@ type templateVersionRow struct {
 
 // templateVersionsToRows converts a list of template versions to a list of rows
 // for outputting.
-func templateVersionsToRows(activeVersionID uuid.UUID, templateVersions ...codersdk.TemplateVersion) []templateVersionRow {
+func templateVersionsToRows(activeVersionID uuid.UUID, templateVersions ...wirtualsdk.TemplateVersion) []templateVersionRow {
 	rows := make([]templateVersionRow, len(templateVersions))
 	for i, templateVersion := range templateVersions {
 		activeStatus := ""
@@ -177,7 +177,7 @@ func (r *RootCmd) templateVersionsPromote() *serpent.Command {
 		templateVersionName string
 		orgContext          = NewOrganizationContext()
 	)
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "promote --template=<template_name> --template-version=<template_version_name>",
 		Short: "Promote a template version to active.",
@@ -201,7 +201,7 @@ func (r *RootCmd) templateVersionsPromote() *serpent.Command {
 				return xerrors.Errorf("get template version by name: %w", err)
 			}
 
-			err = client.UpdateActiveTemplateVersion(inv.Context(), template.ID, codersdk.UpdateActiveTemplateVersion{
+			err = client.UpdateActiveTemplateVersion(inv.Context(), template.ID, wirtualsdk.UpdateActiveTemplateVersion{
 				ID: version.ID,
 			})
 			if err != nil {

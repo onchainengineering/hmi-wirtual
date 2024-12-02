@@ -1,4 +1,4 @@
-package coderd
+package wirtuald
 
 import (
 	"fmt"
@@ -7,20 +7,20 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/coderd/audit"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/db2sdk"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/identityprovider"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/audit"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtuald/identityprovider"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 func (*API) oAuth2ProviderMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		if !buildinfo.IsDev() {
-			httpapi.Write(r.Context(), rw, http.StatusForbidden, codersdk.Response{
+			httpapi.Write(r.Context(), rw, http.StatusForbidden, wirtualsdk.Response{
 				Message: "OAuth2 provider is under development.",
 			})
 			return
@@ -36,7 +36,7 @@ func (*API) oAuth2ProviderMiddleware(next http.Handler) http.Handler {
 // @Produce json
 // @Tags Enterprise
 // @Param user_id query string false "Filter by applications authorized for a user"
-// @Success 200 {array} codersdk.OAuth2ProviderApp
+// @Success 200 {array} wirtualsdk.OAuth2ProviderApp
 // @Router /oauth2-provider/apps [get]
 func (api *API) oAuth2ProviderApps(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -54,7 +54,7 @@ func (api *API) oAuth2ProviderApps(rw http.ResponseWriter, r *http.Request) {
 
 	userID, err := uuid.Parse(rawUserID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Invalid user UUID",
 			Detail:  fmt.Sprintf("queried user_id=%q", userID),
 		})
@@ -67,7 +67,7 @@ func (api *API) oAuth2ProviderApps(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var sdkApps []codersdk.OAuth2ProviderApp
+	var sdkApps []wirtualsdk.OAuth2ProviderApp
 	for _, app := range userApps {
 		sdkApps = append(sdkApps, db2sdk.OAuth2ProviderApp(api.AccessURL, app.OAuth2ProviderApp))
 	}
@@ -80,7 +80,7 @@ func (api *API) oAuth2ProviderApps(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Enterprise
 // @Param app path string true "App ID"
-// @Success 200 {object} codersdk.OAuth2ProviderApp
+// @Success 200 {object} wirtualsdk.OAuth2ProviderApp
 // @Router /oauth2-provider/apps/{app} [get]
 func (api *API) oAuth2ProviderApp(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -94,8 +94,8 @@ func (api *API) oAuth2ProviderApp(rw http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Tags Enterprise
-// @Param request body codersdk.PostOAuth2ProviderAppRequest true "The OAuth2 application to create."
-// @Success 200 {object} codersdk.OAuth2ProviderApp
+// @Param request body wirtualsdk.PostOAuth2ProviderAppRequest true "The OAuth2 application to create."
+// @Success 200 {object} wirtualsdk.OAuth2ProviderApp
 // @Router /oauth2-provider/apps [post]
 func (api *API) postOAuth2ProviderApp(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -109,7 +109,7 @@ func (api *API) postOAuth2ProviderApp(rw http.ResponseWriter, r *http.Request) {
 		})
 	)
 	defer commitAudit()
-	var req codersdk.PostOAuth2ProviderAppRequest
+	var req wirtualsdk.PostOAuth2ProviderAppRequest
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
@@ -122,7 +122,7 @@ func (api *API) postOAuth2ProviderApp(rw http.ResponseWriter, r *http.Request) {
 		CallbackURL: req.CallbackURL,
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error creating OAuth2 application.",
 			Detail:  err.Error(),
 		})
@@ -139,8 +139,8 @@ func (api *API) postOAuth2ProviderApp(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Enterprise
 // @Param app path string true "App ID"
-// @Param request body codersdk.PutOAuth2ProviderAppRequest true "Update an OAuth2 application."
-// @Success 200 {object} codersdk.OAuth2ProviderApp
+// @Param request body wirtualsdk.PutOAuth2ProviderAppRequest true "Update an OAuth2 application."
+// @Success 200 {object} wirtualsdk.OAuth2ProviderApp
 // @Router /oauth2-provider/apps/{app} [put]
 func (api *API) putOAuth2ProviderApp(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -156,7 +156,7 @@ func (api *API) putOAuth2ProviderApp(rw http.ResponseWriter, r *http.Request) {
 	)
 	aReq.Old = app
 	defer commitAudit()
-	var req codersdk.PutOAuth2ProviderAppRequest
+	var req wirtualsdk.PutOAuth2ProviderAppRequest
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
@@ -168,7 +168,7 @@ func (api *API) putOAuth2ProviderApp(rw http.ResponseWriter, r *http.Request) {
 		CallbackURL: req.CallbackURL,
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error updating OAuth2 application.",
 			Detail:  err.Error(),
 		})
@@ -201,7 +201,7 @@ func (api *API) deleteOAuth2ProviderApp(rw http.ResponseWriter, r *http.Request)
 	defer commitAudit()
 	err := api.Database.DeleteOAuth2ProviderAppByID(ctx, app.ID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error deleting OAuth2 application.",
 			Detail:  err.Error(),
 		})
@@ -216,24 +216,24 @@ func (api *API) deleteOAuth2ProviderApp(rw http.ResponseWriter, r *http.Request)
 // @Produce json
 // @Tags Enterprise
 // @Param app path string true "App ID"
-// @Success 200 {array} codersdk.OAuth2ProviderAppSecret
+// @Success 200 {array} wirtualsdk.OAuth2ProviderAppSecret
 // @Router /oauth2-provider/apps/{app}/secrets [get]
 func (api *API) oAuth2ProviderAppSecrets(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	app := httpmw.OAuth2ProviderApp(r)
 	dbSecrets, err := api.Database.GetOAuth2ProviderAppSecretsByAppID(ctx, app.ID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error getting OAuth2 client secrets.",
 			Detail:  err.Error(),
 		})
 		return
 	}
-	secrets := []codersdk.OAuth2ProviderAppSecret{}
+	secrets := []wirtualsdk.OAuth2ProviderAppSecret{}
 	for _, secret := range dbSecrets {
-		secrets = append(secrets, codersdk.OAuth2ProviderAppSecret{
+		secrets = append(secrets, wirtualsdk.OAuth2ProviderAppSecret{
 			ID:                    secret.ID,
-			LastUsedAt:            codersdk.NullTime{NullTime: secret.LastUsedAt},
+			LastUsedAt:            wirtualsdk.NullTime{NullTime: secret.LastUsedAt},
 			ClientSecretTruncated: secret.DisplaySecret,
 		})
 	}
@@ -246,7 +246,7 @@ func (api *API) oAuth2ProviderAppSecrets(rw http.ResponseWriter, r *http.Request
 // @Produce json
 // @Tags Enterprise
 // @Param app path string true "App ID"
-// @Success 200 {array} codersdk.OAuth2ProviderAppSecretFull
+// @Success 200 {array} wirtualsdk.OAuth2ProviderAppSecretFull
 // @Router /oauth2-provider/apps/{app}/secrets [post]
 func (api *API) postOAuth2ProviderAppSecret(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -263,7 +263,7 @@ func (api *API) postOAuth2ProviderAppSecret(rw http.ResponseWriter, r *http.Requ
 	defer commitAudit()
 	secret, err := identityprovider.GenerateSecret()
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to generate OAuth2 client secret.",
 			Detail:  err.Error(),
 		})
@@ -281,14 +281,14 @@ func (api *API) postOAuth2ProviderAppSecret(rw http.ResponseWriter, r *http.Requ
 		AppID:         app.ID,
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error creating OAuth2 client secret.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 	aReq.New = dbSecret
-	httpapi.Write(ctx, rw, http.StatusCreated, codersdk.OAuth2ProviderAppSecretFull{
+	httpapi.Write(ctx, rw, http.StatusCreated, wirtualsdk.OAuth2ProviderAppSecretFull{
 		ID:               dbSecret.ID,
 		ClientSecretFull: secret.Formatted,
 	})
@@ -318,7 +318,7 @@ func (api *API) deleteOAuth2ProviderAppSecret(rw http.ResponseWriter, r *http.Re
 	defer commitAudit()
 	err := api.Database.DeleteOAuth2ProviderAppSecretByID(ctx, secret.ID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error deleting OAuth2 client secret.",
 			Detail:  err.Error(),
 		})
@@ -333,7 +333,7 @@ func (api *API) deleteOAuth2ProviderAppSecret(rw http.ResponseWriter, r *http.Re
 // @Tags Enterprise
 // @Param client_id query string true "Client ID"
 // @Param state query string true "A random unguessable string"
-// @Param response_type query codersdk.OAuth2ProviderResponseType true "Response type"
+// @Param response_type query wirtualsdk.OAuth2ProviderResponseType true "Response type"
 // @Param redirect_uri query string false "Redirect here after authorization"
 // @Param scope query string false "Token scopes (currently ignored)"
 // @Success 302
@@ -350,7 +350,7 @@ func (api *API) getOAuth2ProviderAppAuthorize() http.HandlerFunc {
 // @Param client_secret formData string false "Client secret, required if grant_type=authorization_code"
 // @Param code formData string false "Authorization code, required if grant_type=authorization_code"
 // @Param refresh_token formData string false "Refresh token, required if grant_type=refresh_token"
-// @Param grant_type formData codersdk.OAuth2ProviderGrantType true "Grant type"
+// @Param grant_type formData wirtualsdk.OAuth2ProviderGrantType true "Grant type"
 // @Success 200 {object} oauth2.Token
 // @Router /oauth2/tokens [post]
 func (api *API) postOAuth2ProviderAppToken() http.HandlerFunc {

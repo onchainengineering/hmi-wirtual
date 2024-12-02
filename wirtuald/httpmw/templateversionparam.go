@@ -8,9 +8,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 type templateVersionParamContextKey struct{}
@@ -39,7 +39,7 @@ func ExtractTemplateVersionParam(db database.Store) func(http.Handler) http.Hand
 				return
 			}
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error fetching template version.",
 					Detail:  err.Error(),
 				})
@@ -48,7 +48,7 @@ func ExtractTemplateVersionParam(db database.Store) func(http.Handler) http.Hand
 
 			template, err := db.GetTemplateByID(r.Context(), templateVersion.TemplateID.UUID)
 			if err != nil && !xerrors.Is(err, sql.ErrNoRows) {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error fetching template.",
 					Detail:  err.Error(),
 				})

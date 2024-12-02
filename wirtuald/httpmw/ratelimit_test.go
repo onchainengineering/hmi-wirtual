@@ -12,11 +12,11 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbmem"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbgen"
+	"github.com/coder/coder/v2/wirtuald/database/dbmem"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 func randRemoteAddr() string {
@@ -87,8 +87,8 @@ func TestRateLimit(t *testing.T) {
 
 		// Bypass must fail
 		req := httptest.NewRequest("GET", "/", nil)
-		req.Header.Set(codersdk.SessionTokenHeader, key)
-		req.Header.Set(codersdk.BypassRatelimitHeader, "true")
+		req.Header.Set(wirtualsdk.SessionTokenHeader, key)
+		req.Header.Set(wirtualsdk.BypassRatelimitHeader, "true")
 		rec := httptest.NewRecorder()
 		// Assert we're not using IP address.
 		req.RemoteAddr = randRemoteAddr()
@@ -99,7 +99,7 @@ func TestRateLimit(t *testing.T) {
 
 		for i := 0; i < 5; i++ {
 			req := httptest.NewRequest("GET", "/", nil)
-			req.Header.Set(codersdk.SessionTokenHeader, key)
+			req.Header.Set(wirtualsdk.SessionTokenHeader, key)
 			rec := httptest.NewRecorder()
 			// Assert we're not using IP address.
 			req.RemoteAddr = randRemoteAddr()
@@ -116,7 +116,7 @@ func TestRateLimit(t *testing.T) {
 		db := dbmem.New()
 
 		u := dbgen.User(t, db, database.User{
-			RBACRoles: []string{codersdk.RoleOwner},
+			RBACRoles: []string{wirtualsdk.RoleOwner},
 		})
 		_, key := dbgen.APIKey(t, db, database.APIKey{UserID: u.ID})
 
@@ -133,8 +133,8 @@ func TestRateLimit(t *testing.T) {
 
 		for i := 0; i < 5; i++ {
 			req := httptest.NewRequest("GET", "/", nil)
-			req.Header.Set(codersdk.SessionTokenHeader, key)
-			req.Header.Set(codersdk.BypassRatelimitHeader, "true")
+			req.Header.Set(wirtualsdk.SessionTokenHeader, key)
+			req.Header.Set(wirtualsdk.BypassRatelimitHeader, "true")
 			rec := httptest.NewRecorder()
 			// Assert we're not using IP address.
 			req.RemoteAddr = randRemoteAddr()

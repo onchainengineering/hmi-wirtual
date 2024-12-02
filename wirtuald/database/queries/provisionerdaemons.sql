@@ -18,7 +18,7 @@ WHERE
 
 -- name: DeleteOldProvisionerDaemons :exec
 -- Delete provisioner daemons that have been created at least a week ago
--- and have not connected to coderd since a week.
+-- and have not connected to wirtuald since a week.
 -- A provisioner daemon with "zeroed" last_seen_at column indicates possible
 -- connectivity issues (no provisioner daemon activity since registration).
 DELETE FROM provisioner_daemons WHERE (

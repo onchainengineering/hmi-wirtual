@@ -10,7 +10,7 @@ import (
 	"go.uber.org/mock/gomock"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/database/dbmock"
+	"github.com/coder/coder/v2/wirtuald/database/dbmock"
 )
 
 func TestNotifier_FetchHelpers(t *testing.T) {

@@ -14,17 +14,17 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 
 	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/coderd/agentapi"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbmock"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/database/pubsub"
-	"github.com/coder/coder/v2/coderd/prometheusmetrics"
-	"github.com/coder/coder/v2/coderd/schedule"
-	"github.com/coder/coder/v2/coderd/workspacestats"
-	"github.com/coder/coder/v2/coderd/workspacestats/workspacestatstest"
-	"github.com/coder/coder/v2/coderd/wspubsub"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/agentapi"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbmock"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/database/pubsub"
+	"github.com/coder/coder/v2/wirtuald/prometheusmetrics"
+	"github.com/coder/coder/v2/wirtuald/schedule"
+	"github.com/coder/coder/v2/wirtuald/workspacestats"
+	"github.com/coder/coder/v2/wirtuald/workspacestats/workspacestatstest"
+	"github.com/coder/coder/v2/wirtuald/wspubsub"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/testutil"
 )
 
@@ -478,8 +478,8 @@ func TestUpdateStates(t *testing.T) {
 			TimeNowFn: func() time.Time {
 				return now
 			},
-			Experiments: codersdk.Experiments{
-				codersdk.ExperimentWorkspaceUsage,
+			Experiments: wirtualsdk.Experiments{
+				wirtualsdk.ExperimentWorkspaceUsage,
 			},
 		}
 

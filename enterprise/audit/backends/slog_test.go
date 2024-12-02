@@ -18,7 +18,7 @@ import (
 
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/slogjson"
-	"github.com/coder/coder/v2/coderd/database"
+	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/enterprise/audit"
 	"github.com/coder/coder/v2/enterprise/audit/audittest"
 	"github.com/coder/coder/v2/enterprise/audit/backends"

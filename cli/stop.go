@@ -5,13 +5,13 @@ import (
 	"time"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 )
 
 func (r *RootCmd) stop() *serpent.Command {
 	var bflags buildFlags
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Annotations: workspaceCommand,
 		Use:         "stop <workspace>",
@@ -36,11 +36,11 @@ func (r *RootCmd) stop() *serpent.Command {
 			if err != nil {
 				return err
 			}
-			wbr := codersdk.CreateWorkspaceBuildRequest{
-				Transition: codersdk.WorkspaceTransitionStop,
+			wbr := wirtualsdk.CreateWorkspaceBuildRequest{
+				Transition: wirtualsdk.WorkspaceTransitionStop,
 			}
 			if bflags.provisionerLogDebug {
-				wbr.LogLevel = codersdk.ProvisionerLogLevelDebug
+				wbr.LogLevel = wirtualsdk.ProvisionerLogLevelDebug
 			}
 			build, err := client.CreateWorkspaceBuild(inv.Context(), workspace.ID, wbr)
 			if err != nil {

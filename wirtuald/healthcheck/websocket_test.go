@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/healthcheck"
-	"github.com/coder/coder/v2/coderd/healthcheck/health"
+	"github.com/coder/coder/v2/wirtuald/healthcheck"
+	"github.com/coder/coder/v2/wirtuald/healthcheck/health"
 	"github.com/coder/coder/v2/testutil"
 )
 

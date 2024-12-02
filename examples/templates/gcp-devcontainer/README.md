@@ -15,9 +15,9 @@ tags: [vm, linux, gcp, devcontainer]
 
 ### Authentication
 
-This template assumes that coderd is run in an environment that is authenticated
+This template assumes that wirtuald is run in an environment that is authenticated
 with Google Cloud. For example, run `gcloud auth application-default login` to
-import credentials on the system and user running coderd. For other ways to
+import credentials on the system and user running wirtuald. For other ways to
 authenticate [consult the Terraform
 docs](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/getting_started#adding-credentials).
 

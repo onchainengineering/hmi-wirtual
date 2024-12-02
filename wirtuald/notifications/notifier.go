@@ -11,16 +11,16 @@ import (
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/notifications/dispatch"
-	"github.com/coder/coder/v2/coderd/notifications/render"
-	"github.com/coder/coder/v2/coderd/notifications/types"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/notifications/dispatch"
+	"github.com/coder/coder/v2/wirtuald/notifications/render"
+	"github.com/coder/coder/v2/wirtuald/notifications/types"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/quartz"
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/coderd/database"
+	"github.com/coder/coder/v2/wirtuald/database"
 )
 
 const (
@@ -49,7 +49,7 @@ func (decorateHelpersError) Is(other error) bool {
 // through a pipeline of fetch -> prepare -> render -> acquire handler -> deliver.
 type notifier struct {
 	id    uuid.UUID
-	cfg   codersdk.NotificationsConfig
+	cfg   wirtualsdk.NotificationsConfig
 	log   slog.Logger
 	store Store
 
@@ -67,7 +67,7 @@ type notifier struct {
 	clock quartz.Clock
 }
 
-func newNotifier(outerCtx context.Context, cfg codersdk.NotificationsConfig, id uuid.UUID, log slog.Logger, db Store,
+func newNotifier(outerCtx context.Context, cfg wirtualsdk.NotificationsConfig, id uuid.UUID, log slog.Logger, db Store,
 	hr map[database.NotificationMethod]Handler, helpers template.FuncMap, metrics *Metrics, clock quartz.Clock,
 ) *notifier {
 	gracefulCtx, gracefulCancel := context.WithCancel(outerCtx)
@@ -135,7 +135,7 @@ func (n *notifier) ensureRunning(ctx context.Context) (bool, error) {
 		return false, xerrors.Errorf("get notifications settings: %w", err)
 	}
 
-	var settings codersdk.NotificationsSettings
+	var settings wirtualsdk.NotificationsSettings
 	if len(settingsJSON) == 0 {
 		return true, nil // settings.NotifierPaused is false by default
 	}

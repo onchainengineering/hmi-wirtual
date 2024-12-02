@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/tools/txtar"
 
-	"github.com/coder/coder/v2/coderd/database"
+	"github.com/coder/coder/v2/wirtuald/database"
 	terraform_internal "github.com/coder/coder/v2/provisioner/terraform/internal"
 	"github.com/coder/coder/v2/provisionersdk/proto"
 )

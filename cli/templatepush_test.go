@@ -16,12 +16,12 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/provisioner/terraform/tfparse"
 	"github.com/coder/coder/v2/provisionersdk"
@@ -71,7 +71,7 @@ func TestTemplatePush(t *testing.T) {
 		require.NoError(t, <-execDone)
 
 		// Assert that the template version changed.
-		templateVersions, err := client.TemplateVersionsByTemplate(context.Background(), codersdk.TemplateVersionsByTemplateRequest{
+		templateVersions, err := client.TemplateVersionsByTemplate(context.Background(), wirtualsdk.TemplateVersionsByTemplateRequest{
 			TemplateID: template.ID,
 		})
 		require.NoError(t, err)
@@ -111,7 +111,7 @@ func TestTemplatePush(t *testing.T) {
 		w.RequireSuccess()
 
 		// Assert that the template version changed.
-		templateVersions, err := client.TemplateVersionsByTemplate(ctx, codersdk.TemplateVersionsByTemplateRequest{
+		templateVersions, err := client.TemplateVersionsByTemplate(ctx, wirtualsdk.TemplateVersionsByTemplateRequest{
 			TemplateID: template.ID,
 		})
 		require.NoError(t, err)
@@ -161,7 +161,7 @@ func TestTemplatePush(t *testing.T) {
 			w.RequireSuccess()
 
 			// Assert that the template version changed.
-			templateVersions, err := client.TemplateVersionsByTemplate(ctx, codersdk.TemplateVersionsByTemplateRequest{
+			templateVersions, err := client.TemplateVersionsByTemplate(ctx, wirtualsdk.TemplateVersionsByTemplateRequest{
 				TemplateID: template.ID,
 			})
 			require.NoError(t, err)
@@ -301,7 +301,7 @@ func TestTemplatePush(t *testing.T) {
 		w.RequireSuccess()
 
 		// Assert that the template version didn't change.
-		templateVersions, err := client.TemplateVersionsByTemplate(context.Background(), codersdk.TemplateVersionsByTemplateRequest{
+		templateVersions, err := client.TemplateVersionsByTemplate(context.Background(), wirtualsdk.TemplateVersionsByTemplateRequest{
 			TemplateID: template.ID,
 		})
 		require.NoError(t, err)
@@ -330,7 +330,7 @@ func TestTemplatePush(t *testing.T) {
 		})
 
 		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID,
-			func(r *codersdk.CreateTemplateRequest) {
+			func(r *wirtualsdk.CreateTemplateRequest) {
 				r.Name = filepath.Base(source)
 			})
 
@@ -359,7 +359,7 @@ func TestTemplatePush(t *testing.T) {
 		waiter.RequireSuccess()
 
 		// Assert that the template version changed.
-		templateVersions, err := client.TemplateVersionsByTemplate(context.Background(), codersdk.TemplateVersionsByTemplateRequest{
+		templateVersions, err := client.TemplateVersionsByTemplate(context.Background(), wirtualsdk.TemplateVersionsByTemplateRequest{
 			TemplateID: template.ID,
 		})
 		require.NoError(t, err)
@@ -401,7 +401,7 @@ func TestTemplatePush(t *testing.T) {
 		require.NoError(t, <-execDone)
 
 		// Assert that the template version changed.
-		templateVersions, err := client.TemplateVersionsByTemplate(context.Background(), codersdk.TemplateVersionsByTemplateRequest{
+		templateVersions, err := client.TemplateVersionsByTemplate(context.Background(), wirtualsdk.TemplateVersionsByTemplateRequest{
 			TemplateID: template.ID,
 		})
 		require.NoError(t, err)
@@ -417,19 +417,19 @@ func TestTemplatePush(t *testing.T) {
 
 			tests := []struct {
 				name         string
-				setupDaemon  func(ctx context.Context, store database.Store, owner codersdk.CreateFirstUserResponse, tags database.StringMap, now time.Time) error
+				setupDaemon  func(ctx context.Context, store database.Store, owner wirtualsdk.CreateFirstUserResponse, tags database.StringMap, now time.Time) error
 				expectOutput string
 			}{
 				{
 					name: "no provisioners available",
-					setupDaemon: func(_ context.Context, _ database.Store, _ codersdk.CreateFirstUserResponse, _ database.StringMap, _ time.Time) error {
+					setupDaemon: func(_ context.Context, _ database.Store, _ wirtualsdk.CreateFirstUserResponse, _ database.StringMap, _ time.Time) error {
 						return nil
 					},
 					expectOutput: "there are no provisioners that accept the required tags",
 				},
 				{
 					name: "provisioner stale",
-					setupDaemon: func(ctx context.Context, store database.Store, owner codersdk.CreateFirstUserResponse, tags database.StringMap, now time.Time) error {
+					setupDaemon: func(ctx context.Context, store database.Store, owner wirtualsdk.CreateFirstUserResponse, tags database.StringMap, now time.Time) error {
 						pk, err := store.InsertProvisionerKey(ctx, database.InsertProvisionerKeyParams{
 							ID:             uuid.New(),
 							CreatedAt:      now,
@@ -457,7 +457,7 @@ func TestTemplatePush(t *testing.T) {
 				},
 				{
 					name: "active provisioner",
-					setupDaemon: func(ctx context.Context, store database.Store, owner codersdk.CreateFirstUserResponse, tags database.StringMap, now time.Time) error {
+					setupDaemon: func(ctx context.Context, store database.Store, owner wirtualsdk.CreateFirstUserResponse, tags database.StringMap, now time.Time) error {
 						pk, err := store.InsertProvisionerKey(ctx, database.InsertProvisionerKeyParams{
 							ID:             uuid.New(),
 							CreatedAt:      now,
@@ -594,7 +594,7 @@ func TestTemplatePush(t *testing.T) {
 			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 			// Create the template with initial tagged template version.
-			templateVersion := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(ctvr *codersdk.CreateTemplateVersionRequest) {
+			templateVersion := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
 				ctvr.ProvisionerTags = map[string]string{
 					"docker": "true",
 				}
@@ -653,7 +653,7 @@ func TestTemplatePush(t *testing.T) {
 			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 			// Create the template with initial tagged template version.
-			templateVersion := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(ctvr *codersdk.CreateTemplateVersionRequest) {
+			templateVersion := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
 				ctvr.ProvisionerTags = map[string]string{
 					"docker": "true",
 				}
@@ -766,7 +766,7 @@ func TestTemplatePush(t *testing.T) {
 			require.NoError(t, <-execDone)
 
 			// Assert that the template version changed.
-			templateVersions, err := client.TemplateVersionsByTemplate(context.Background(), codersdk.TemplateVersionsByTemplateRequest{
+			templateVersions, err := client.TemplateVersionsByTemplate(context.Background(), wirtualsdk.TemplateVersionsByTemplateRequest{
 				TemplateID: template.ID,
 			})
 			require.NoError(t, err)
@@ -878,7 +878,7 @@ func TestTemplatePush(t *testing.T) {
 			require.NoError(t, <-execDone)
 
 			// Assert that the template version changed.
-			templateVersions, err := client.TemplateVersionsByTemplate(context.Background(), codersdk.TemplateVersionsByTemplateRequest{
+			templateVersions, err := client.TemplateVersionsByTemplate(context.Background(), wirtualsdk.TemplateVersionsByTemplateRequest{
 				TemplateID: template.ID,
 			})
 			require.NoError(t, err)
@@ -945,7 +945,7 @@ func TestTemplatePush(t *testing.T) {
 			require.NoError(t, <-execDone)
 
 			// Assert that the template version changed.
-			templateVersions, err := client.TemplateVersionsByTemplate(context.Background(), codersdk.TemplateVersionsByTemplateRequest{
+			templateVersions, err := client.TemplateVersionsByTemplate(context.Background(), wirtualsdk.TemplateVersionsByTemplateRequest{
 				TemplateID: template.ID,
 			})
 			require.NoError(t, err)

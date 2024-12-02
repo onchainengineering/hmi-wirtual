@@ -1,11 +1,11 @@
-package coderd
+package wirtuald
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/database"
+	"github.com/coder/coder/v2/wirtuald/database"
 )
 
 func TestAuditLogDescription(t *testing.T) {

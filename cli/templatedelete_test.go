@@ -12,9 +12,9 @@ import (
 
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/pty/ptytest"
 )
 
@@ -56,7 +56,7 @@ func TestTemplateDelete(t *testing.T) {
 		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
 		owner := coderdtest.CreateFirstUser(t, client)
 		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		templates := []codersdk.Template{}
+		templates := []wirtualsdk.Template{}
 		templateNames := []string{}
 		for i := 0; i < 3; i++ {
 			version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
@@ -82,7 +82,7 @@ func TestTemplateDelete(t *testing.T) {
 		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
 		owner := coderdtest.CreateFirstUser(t, client)
 		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		templates := []codersdk.Template{}
+		templates := []wirtualsdk.Template{}
 		templateNames := []string{}
 		for i := 0; i < 3; i++ {
 			version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)

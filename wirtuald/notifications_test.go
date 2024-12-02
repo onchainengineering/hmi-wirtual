@@ -9,10 +9,10 @@ import (
 
 	"github.com/coder/serpent"
 
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/notifications"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/notifications"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/testutil"
 )
 
@@ -36,7 +36,7 @@ func TestUpdateNotificationsSettings(t *testing.T) {
 		anotherClient, _ := coderdtest.CreateAnotherUser(t, api, firstUser.OrganizationID)
 
 		// given
-		expected := codersdk.NotificationsSettings{
+		expected := wirtualsdk.NotificationsSettings{
 			NotifierPaused: true,
 		}
 
@@ -46,9 +46,9 @@ func TestUpdateNotificationsSettings(t *testing.T) {
 		err := anotherClient.PutNotificationsSettings(ctx, expected)
 
 		// then
-		var sdkError *codersdk.Error
+		var sdkError *wirtualsdk.Error
 		require.Error(t, err)
-		require.ErrorAsf(t, err, &sdkError, "error should be of type *codersdk.Error")
+		require.ErrorAsf(t, err, &sdkError, "error should be of type *wirtualsdk.Error")
 		require.Equal(t, http.StatusForbidden, sdkError.StatusCode())
 	})
 
@@ -59,7 +59,7 @@ func TestUpdateNotificationsSettings(t *testing.T) {
 		_ = coderdtest.CreateFirstUser(t, client)
 
 		// given
-		expected := codersdk.NotificationsSettings{
+		expected := wirtualsdk.NotificationsSettings{
 			NotifierPaused: true,
 		}
 
@@ -84,7 +84,7 @@ func TestUpdateNotificationsSettings(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitShort)
 
 		// Change the state: pause notifications
-		err := client.PutNotificationsSettings(ctx, codersdk.NotificationsSettings{
+		err := client.PutNotificationsSettings(ctx, wirtualsdk.NotificationsSettings{
 			NotifierPaused: true,
 		})
 		require.NoError(t, err)
@@ -96,7 +96,7 @@ func TestUpdateNotificationsSettings(t *testing.T) {
 
 		// Change the stage again: notifications are paused.
 		expected := actual
-		err = client.PutNotificationsSettings(ctx, codersdk.NotificationsSettings{
+		err = client.PutNotificationsSettings(ctx, wirtualsdk.NotificationsSettings{
 			NotifierPaused: true,
 		})
 		require.NoError(t, err)
@@ -144,9 +144,9 @@ func TestNotificationPreferences(t *testing.T) {
 		_, err := member2Client.GetUserNotificationPreferences(ctx, member1.ID)
 
 		// Then: the API should reject the request.
-		var sdkError *codersdk.Error
+		var sdkError *wirtualsdk.Error
 		require.Error(t, err)
-		require.ErrorAsf(t, err, &sdkError, "error should be of type *codersdk.Error")
+		require.ErrorAsf(t, err, &sdkError, "error should be of type *wirtualsdk.Error")
 		// NOTE: ExtractUserParam gets in the way here, and returns a 400 Bad Request instead of a 403 Forbidden.
 		// This is not ideal, and we should probably change this behavior.
 		require.Equal(t, http.StatusBadRequest, sdkError.StatusCode())
@@ -181,7 +181,7 @@ func TestNotificationPreferences(t *testing.T) {
 		memberClient, member := coderdtest.CreateAnotherUser(t, api, firstUser.OrganizationID)
 
 		// When: attempting to modify and subsequently retrieve the preferences of another member as an admin.
-		prefs, err := api.UpdateUserNotificationPreferences(ctx, member.ID, codersdk.UpdateUserNotificationPreferences{
+		prefs, err := api.UpdateUserNotificationPreferences(ctx, member.ID, wirtualsdk.UpdateUserNotificationPreferences{
 			TemplateDisabledMap: map[string]bool{
 				notifications.TemplateWorkspaceMarkedForDeletion.String(): true,
 			},
@@ -213,7 +213,7 @@ func TestNotificationPreferences(t *testing.T) {
 
 		// When: attempting to add new preferences.
 		template := notifications.TemplateWorkspaceDeleted
-		prefs, err = memberClient.UpdateUserNotificationPreferences(ctx, member.ID, codersdk.UpdateUserNotificationPreferences{
+		prefs, err = memberClient.UpdateUserNotificationPreferences(ctx, member.ID, wirtualsdk.UpdateUserNotificationPreferences{
 			TemplateDisabledMap: map[string]bool{
 				template.String(): true,
 			},
@@ -235,7 +235,7 @@ func TestNotificationPreferences(t *testing.T) {
 
 		// Given: a member with preferences.
 		memberClient, member := coderdtest.CreateAnotherUser(t, api, firstUser.OrganizationID)
-		prefs, err := memberClient.UpdateUserNotificationPreferences(ctx, member.ID, codersdk.UpdateUserNotificationPreferences{
+		prefs, err := memberClient.UpdateUserNotificationPreferences(ctx, member.ID, wirtualsdk.UpdateUserNotificationPreferences{
 			TemplateDisabledMap: map[string]bool{
 				notifications.TemplateWorkspaceDeleted.String(): true,
 				notifications.TemplateWorkspaceDormant.String(): true,
@@ -245,7 +245,7 @@ func TestNotificationPreferences(t *testing.T) {
 		require.Len(t, prefs, 2)
 
 		// When: attempting to modify their preferences.
-		prefs, err = memberClient.UpdateUserNotificationPreferences(ctx, member.ID, codersdk.UpdateUserNotificationPreferences{
+		prefs, err = memberClient.UpdateUserNotificationPreferences(ctx, member.ID, wirtualsdk.UpdateUserNotificationPreferences{
 			TemplateDisabledMap: map[string]bool{
 				notifications.TemplateWorkspaceDeleted.String(): true,
 				notifications.TemplateWorkspaceDormant.String(): false, // <--- this one was changed

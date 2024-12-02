@@ -8,7 +8,7 @@ import (
 
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/slogtest"
-	"github.com/coder/coder/v2/coderd/database/pubsub"
+	"github.com/coder/coder/v2/wirtuald/database/pubsub"
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/quartz"
 )

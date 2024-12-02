@@ -1,13 +1,13 @@
-package coderd
+package wirtuald
 
 import (
 	"net/http"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/db2sdk"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Get organizations
@@ -15,7 +15,7 @@ import (
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Organizations
-// @Success 200 {object} []codersdk.Organization
+// @Success 200 {object} []wirtualsdk.Organization
 // @Router /organizations [get]
 func (api *API) organizations(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -25,7 +25,7 @@ func (api *API) organizations(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching organizations.",
 			Detail:  err.Error(),
 		})
@@ -41,7 +41,7 @@ func (api *API) organizations(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Organizations
 // @Param organization path string true "Organization ID" format(uuid)
-// @Success 200 {object} codersdk.Organization
+// @Success 200 {object} wirtualsdk.Organization
 // @Router /organizations/{organization} [get]
 func (*API) organization(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

@@ -21,16 +21,16 @@ import (
 
 	"cdr.dev/slog"
 	"github.com/coder/coder/v2/agent/agentssh"
-	"github.com/coder/coder/v2/coderd/cryptokeys"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/jwtutils"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/coderd/workspaceapps/appurl"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/coder/coder/v2/wirtuald/cryptokeys"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtuald/jwtutils"
+	"github.com/coder/coder/v2/wirtuald/tracing"
+	"github.com/coder/coder/v2/wirtuald/util/slice"
+	"github.com/coder/coder/v2/wirtuald/workspaceapps/appurl"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 	"github.com/coder/coder/v2/site"
 )
 
@@ -87,7 +87,7 @@ type AgentProvider interface {
 type Server struct {
 	Logger slog.Logger
 
-	// DashboardURL should be a url to the coderd dashboard. This can be the
+	// DashboardURL should be a url to the wirtuald dashboard. This can be the
 	// same as the AccessURL if the Server is embedded.
 	DashboardURL *url.URL
 	AccessURL    *url.URL
@@ -273,7 +273,7 @@ func (s *Server) workspaceAppsProxyPath(rw http.ResponseWriter, r *http.Request)
 
 	// We don't support @me in path apps since it requires the database to
 	// lookup the username from token. We used to redirect by doing this lookup.
-	if chi.URLParam(r, "user") == codersdk.Me {
+	if chi.URLParam(r, "user") == wirtualsdk.Me {
 		site.RenderStaticErrorPage(rw, r, site.ErrorPageData{
 			Status:       http.StatusNotFound,
 			Title:        "Application Not Found",
@@ -376,14 +376,14 @@ func (s *Server) HandleSubdomain(middlewares ...func(http.Handler) http.Handler)
 			if host == "" {
 				if r.URL.Path == "/derp" {
 					// The /derp endpoint is used by wireguard clients to tunnel
-					// through coderd. For some reason these requests don't set
+					// through wirtuald. For some reason these requests don't set
 					// a Host header properly sometimes in tests (no idea how),
 					// which causes this path to get hit.
 					next.ServeHTTP(rw, r)
 					return
 				}
 
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "Could not determine request Host.",
 				})
 				return
@@ -509,12 +509,12 @@ func (s *Server) proxyWorkspaceApp(rw http.ResponseWriter, r *http.Request, appT
 	}
 
 	// Verify that the port is allowed. See the docs above
-	// `codersdk.MinimumListeningPort` for more details.
+	// `wirtualsdk.MinimumListeningPort` for more details.
 	port := appURL.Port()
 	if port != "" {
 		portInt, err := strconv.Atoi(port)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: fmt.Sprintf("App URL %q has an invalid port %q.", appToken.AppURL, port),
 				Detail:  err.Error(),
 			})
@@ -522,7 +522,7 @@ func (s *Server) proxyWorkspaceApp(rw http.ResponseWriter, r *http.Request, appT
 		}
 
 		if portInt < workspacesdk.AgentMinimumListeningPort {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: fmt.Sprintf("Application port %d is not permitted. Coder reserves ports less than %d for internal use.",
 					portInt, workspacesdk.AgentMinimumListeningPort,
 				),
@@ -654,7 +654,7 @@ func (s *Server) workspaceAgentPTY(rw http.ResponseWriter, r *http.Request) {
 	height := parser.UInt(values, 80, "height")
 	width := parser.UInt(values, 80, "width")
 	if len(parser.Errors) > 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message:     "Invalid query parameters.",
 			Validations: parser.Errors,
 		})
@@ -671,7 +671,7 @@ func (s *Server) workspaceAgentPTY(rw http.ResponseWriter, r *http.Request) {
 		},
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Failed to accept websocket.",
 			Detail:  err.Error(),
 		})

@@ -1,4 +1,4 @@
-package coderd
+package wirtuald
 
 import (
 	"database/sql"
@@ -9,20 +9,20 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Update check
 // @ID update-check
 // @Produce json
 // @Tags General
-// @Success 200 {object} codersdk.UpdateCheckResponse
+// @Success 200 {object} wirtualsdk.UpdateCheckResponse
 // @Router /updatecheck [get]
 func (api *API) updateCheck(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	currentVersion := codersdk.UpdateCheckResponse{
+	currentVersion := wirtualsdk.UpdateCheckResponse{
 		Current: true,
 		Version: buildinfo.Version(),
 		URL:     buildinfo.ExternalURL(),
@@ -52,7 +52,7 @@ func (api *API) updateCheck(rw http.ResponseWriter, r *http.Request) {
 	// ignore everything after "-"."
 	versionWithoutDevel := strings.SplitN(buildinfo.Version(), "-", 2)[0]
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.UpdateCheckResponse{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.UpdateCheckResponse{
 		Current: semver.Compare(versionWithoutDevel, uc.Version) >= 0,
 		Version: uc.Version,
 		URL:     uc.URL,

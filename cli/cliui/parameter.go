@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
 
-func RichParameter(inv *serpent.Invocation, templateVersionParameter codersdk.TemplateVersionParameter, defaultOverrides map[string]string) (string, error) {
+func RichParameter(inv *serpent.Invocation, templateVersionParameter wirtualsdk.TemplateVersionParameter, defaultOverrides map[string]string) (string, error) {
 	label := templateVersionParameter.Name
 	if templateVersionParameter.DisplayName != "" {
 		label = templateVersionParameter.DisplayName
@@ -63,7 +63,7 @@ func RichParameter(inv *serpent.Invocation, templateVersionParameter codersdk.Te
 	} else if len(templateVersionParameter.Options) > 0 {
 		// Move the cursor up a single line for nicer display!
 		_, _ = fmt.Fprint(inv.Stdout, "\033[1A")
-		var richParameterOption *codersdk.TemplateVersionParameterOption
+		var richParameterOption *wirtualsdk.TemplateVersionParameterOption
 		richParameterOption, err = RichSelect(inv, RichSelectOptions{
 			Options:    templateVersionParameter.Options,
 			Default:    defaultValue,
@@ -101,8 +101,8 @@ func RichParameter(inv *serpent.Invocation, templateVersionParameter codersdk.Te
 	return value, nil
 }
 
-func validateRichPrompt(value string, p codersdk.TemplateVersionParameter) error {
-	return codersdk.ValidateWorkspaceBuildParameter(p, &codersdk.WorkspaceBuildParameter{
+func validateRichPrompt(value string, p wirtualsdk.TemplateVersionParameter) error {
+	return wirtualsdk.ValidateWorkspaceBuildParameter(p, &wirtualsdk.WorkspaceBuildParameter{
 		Name:  p.Name,
 		Value: value,
 	}, nil)

@@ -12,10 +12,10 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 const (
@@ -71,7 +71,7 @@ func ExtractWorkspaceProxy(opts ExtractWorkspaceProxyConfig) func(http.Handler) 
 					return
 				}
 
-				httpapi.Write(ctx, w, http.StatusUnauthorized, codersdk.Response{
+				httpapi.Write(ctx, w, http.StatusUnauthorized, wirtualsdk.Response{
 					Message: "Missing required external proxy token",
 				})
 				return
@@ -80,21 +80,21 @@ func ExtractWorkspaceProxy(opts ExtractWorkspaceProxyConfig) func(http.Handler) 
 			// Split the token and lookup the corresponding workspace proxy.
 			parts := strings.Split(token, ":")
 			if len(parts) != 2 {
-				httpapi.Write(ctx, w, http.StatusUnauthorized, codersdk.Response{
+				httpapi.Write(ctx, w, http.StatusUnauthorized, wirtualsdk.Response{
 					Message: "Invalid external proxy token",
 				})
 				return
 			}
 			proxyID, err := uuid.Parse(parts[0])
 			if err != nil {
-				httpapi.Write(ctx, w, http.StatusUnauthorized, codersdk.Response{
+				httpapi.Write(ctx, w, http.StatusUnauthorized, wirtualsdk.Response{
 					Message: "Invalid external proxy token",
 				})
 				return
 			}
 			secret := parts[1]
 			if len(secret) != 64 {
-				httpapi.Write(ctx, w, http.StatusUnauthorized, codersdk.Response{
+				httpapi.Write(ctx, w, http.StatusUnauthorized, wirtualsdk.Response{
 					Message: "Invalid external proxy token",
 				})
 				return
@@ -106,7 +106,7 @@ func ExtractWorkspaceProxy(opts ExtractWorkspaceProxyConfig) func(http.Handler) 
 			if xerrors.Is(err, sql.ErrNoRows) {
 				// Proxy IDs are public so we don't care about leaking them via
 				// timing attacks.
-				httpapi.Write(ctx, w, http.StatusUnauthorized, codersdk.Response{
+				httpapi.Write(ctx, w, http.StatusUnauthorized, wirtualsdk.Response{
 					Message: "Invalid external proxy token",
 					Detail:  "Proxy not found.",
 				})
@@ -117,7 +117,7 @@ func ExtractWorkspaceProxy(opts ExtractWorkspaceProxyConfig) func(http.Handler) 
 				return
 			}
 			if proxy.Deleted {
-				httpapi.Write(ctx, w, http.StatusUnauthorized, codersdk.Response{
+				httpapi.Write(ctx, w, http.StatusUnauthorized, wirtualsdk.Response{
 					Message: "Invalid external proxy token",
 					Detail:  "Proxy has been deleted.",
 				})
@@ -127,7 +127,7 @@ func ExtractWorkspaceProxy(opts ExtractWorkspaceProxyConfig) func(http.Handler) 
 			// Do a subtle constant time comparison of the hash of the secret.
 			hashedSecret := sha256.Sum256([]byte(secret))
 			if subtle.ConstantTimeCompare(proxy.TokenHashedSecret, hashedSecret[:]) != 1 {
-				httpapi.Write(ctx, w, http.StatusUnauthorized, codersdk.Response{
+				httpapi.Write(ctx, w, http.StatusUnauthorized, wirtualsdk.Response{
 					Message: "Invalid external proxy token",
 					Detail:  "Invalid proxy token secret.",
 				})
@@ -168,7 +168,7 @@ func ExtractWorkspaceProxyParam(db database.Store, deploymentID string, fetchPri
 
 			proxyQuery := chi.URLParam(r, "workspaceproxy")
 			if proxyQuery == "" {
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "\"workspaceproxy\" must be provided.",
 				})
 				return

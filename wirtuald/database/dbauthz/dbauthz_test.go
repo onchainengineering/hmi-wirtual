@@ -15,19 +15,19 @@ import (
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/coderd/database/db2sdk"
-	"github.com/coder/coder/v2/coderd/notifications"
-	"github.com/coder/coder/v2/coderd/rbac/policy"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
+	"github.com/coder/coder/v2/wirtuald/notifications"
+	"github.com/coder/coder/v2/wirtuald/rbac/policy"
+	"github.com/coder/coder/v2/wirtualsdk"
 
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbmem"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/util/slice"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/coder/coder/v2/wirtuald/database/dbgen"
+	"github.com/coder/coder/v2/wirtuald/database/dbmem"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/util/slice"
 	"github.com/coder/coder/v2/provisionersdk"
 	"github.com/coder/coder/v2/testutil"
 )
@@ -707,7 +707,7 @@ func (s *MethodTestSuite) TestOrganization() {
 		check.Args(database.InsertOrganizationMemberParams{
 			OrganizationID: o.ID,
 			UserID:         u.ID,
-			Roles:          []string{codersdk.RoleOrganizationAdmin},
+			Roles:          []string{wirtualsdk.RoleOrganizationAdmin},
 		}).Asserts(
 			rbac.ResourceAssignOrgRole.InOrg(o.ID), policy.ActionAssign,
 			rbac.ResourceOrganizationMember.InOrg(o.ID).WithID(u.ID), policy.ActionCreate)
@@ -768,7 +768,7 @@ func (s *MethodTestSuite) TestOrganization() {
 		mem := dbgen.OrganizationMember(s.T(), db, database.OrganizationMember{
 			OrganizationID: o.ID,
 			UserID:         u.ID,
-			Roles:          []string{codersdk.RoleOrganizationAdmin},
+			Roles:          []string{wirtualsdk.RoleOrganizationAdmin},
 		})
 		out := mem
 		out.Roles = []string{}
@@ -1313,11 +1313,11 @@ func (s *MethodTestSuite) TestUser() {
 		}).Asserts(rbac.ResourceUserObject(link.UserID), policy.ActionUpdatePersonal).Returns(link)
 	}))
 	s.Run("UpdateUserRoles", s.Subtest(func(db database.Store, check *expects) {
-		u := dbgen.User(s.T(), db, database.User{RBACRoles: []string{codersdk.RoleTemplateAdmin}})
+		u := dbgen.User(s.T(), db, database.User{RBACRoles: []string{wirtualsdk.RoleTemplateAdmin}})
 		o := u
-		o.RBACRoles = []string{codersdk.RoleUserAdmin}
+		o.RBACRoles = []string{wirtualsdk.RoleUserAdmin}
 		check.Args(database.UpdateUserRolesParams{
-			GrantedRoles: []string{codersdk.RoleUserAdmin},
+			GrantedRoles: []string{wirtualsdk.RoleUserAdmin},
 			ID:           u.ID,
 		}).Asserts(
 			u, policy.ActionRead,
@@ -1380,12 +1380,12 @@ func (s *MethodTestSuite) TestUser() {
 			Name:           customRole.Name,
 			OrganizationID: customRole.OrganizationID,
 			DisplayName:    "Test Name",
-			SitePermissions: db2sdk.List(codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceTemplate: {codersdk.ActionCreate, codersdk.ActionRead, codersdk.ActionUpdate, codersdk.ActionDelete, codersdk.ActionViewInsights},
+			SitePermissions: db2sdk.List(wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				wirtualsdk.ResourceTemplate: {wirtualsdk.ActionCreate, wirtualsdk.ActionRead, wirtualsdk.ActionUpdate, wirtualsdk.ActionDelete, wirtualsdk.ActionViewInsights},
 			}), convertSDKPerm),
 			OrgPermissions: nil,
-			UserPermissions: db2sdk.List(codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceWorkspace: {codersdk.ActionRead},
+			UserPermissions: db2sdk.List(wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				wirtualsdk.ResourceWorkspace: {wirtualsdk.ActionRead},
 			}), convertSDKPerm),
 		}).Asserts(
 			// First check
@@ -1414,8 +1414,8 @@ func (s *MethodTestSuite) TestUser() {
 			DisplayName:     "Test Name",
 			OrganizationID:  customRole.OrganizationID,
 			SitePermissions: nil,
-			OrgPermissions: db2sdk.List(codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceTemplate: {codersdk.ActionCreate, codersdk.ActionRead},
+			OrgPermissions: db2sdk.List(wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				wirtualsdk.ResourceTemplate: {wirtualsdk.ActionCreate, wirtualsdk.ActionRead},
 			}), convertSDKPerm),
 			UserPermissions: nil,
 		}).Asserts(
@@ -1440,12 +1440,12 @@ func (s *MethodTestSuite) TestUser() {
 		check.Args(database.InsertCustomRoleParams{
 			Name:        "test",
 			DisplayName: "Test Name",
-			SitePermissions: db2sdk.List(codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceTemplate: {codersdk.ActionCreate, codersdk.ActionRead, codersdk.ActionUpdate, codersdk.ActionDelete, codersdk.ActionViewInsights},
+			SitePermissions: db2sdk.List(wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				wirtualsdk.ResourceTemplate: {wirtualsdk.ActionCreate, wirtualsdk.ActionRead, wirtualsdk.ActionUpdate, wirtualsdk.ActionDelete, wirtualsdk.ActionViewInsights},
 			}), convertSDKPerm),
 			OrgPermissions: nil,
-			UserPermissions: db2sdk.List(codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceWorkspace: {codersdk.ActionRead},
+			UserPermissions: db2sdk.List(wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				wirtualsdk.ResourceWorkspace: {wirtualsdk.ActionRead},
 			}), convertSDKPerm),
 		}).Asserts(
 			// First check
@@ -1470,8 +1470,8 @@ func (s *MethodTestSuite) TestUser() {
 				Valid: true,
 			},
 			SitePermissions: nil,
-			OrgPermissions: db2sdk.List(codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceTemplate: {codersdk.ActionCreate, codersdk.ActionRead},
+			OrgPermissions: db2sdk.List(wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				wirtualsdk.ResourceTemplate: {wirtualsdk.ActionCreate, wirtualsdk.ActionRead},
 			}), convertSDKPerm),
 			UserPermissions: nil,
 		}).Asserts(

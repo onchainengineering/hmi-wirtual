@@ -11,12 +11,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbmem"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbgen"
+	"github.com/coder/coder/v2/wirtuald/database/dbmem"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/cryptorand"
 )
 
@@ -25,7 +25,7 @@ func TestExtractWorkspaceProxy(t *testing.T) {
 
 	successHandler := http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		// Only called if the API key passes through the handler.
-		httpapi.Write(context.Background(), rw, http.StatusOK, codersdk.Response{
+		httpapi.Write(context.Background(), rw, http.StatusOK, wirtualsdk.Response{
 			Message: "It worked!",
 		})
 	})
@@ -193,7 +193,7 @@ func TestExtractWorkspaceProxyParam(t *testing.T) {
 
 	successHandler := http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		// Only called if the API key passes through the handler.
-		httpapi.Write(context.Background(), rw, http.StatusOK, codersdk.Response{
+		httpapi.Write(context.Background(), rw, http.StatusOK, wirtualsdk.Response{
 			Message: "It worked!",
 		})
 	})

@@ -15,9 +15,9 @@ import (
 
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/sloghuman"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/coder/coder/v2/wirtuald/tracing"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 	"github.com/coder/coder/v2/scaletest/harness"
 	"github.com/coder/coder/v2/scaletest/loadtestutil"
 )
@@ -31,13 +31,13 @@ func (holdDurationEndedError) Error() string {
 }
 
 type Runner struct {
-	client *codersdk.Client
+	client *wirtualsdk.Client
 	cfg    Config
 }
 
 var _ harness.Runnable = &Runner{}
 
-func NewRunner(client *codersdk.Client, cfg Config) *Runner {
+func NewRunner(client *wirtualsdk.Client, cfg Config) *Runner {
 	return &Runner{
 		client: client,
 		cfg:    cfg,

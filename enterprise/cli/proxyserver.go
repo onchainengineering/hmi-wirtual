@@ -25,10 +25,10 @@ import (
 	"github.com/coder/coder/v2/cli"
 	"github.com/coder/coder/v2/cli/clilog"
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/workspaceapps/appurl"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtuald/workspaceapps/appurl"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/enterprise/wsproxy"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
@@ -48,9 +48,9 @@ func (c *closers) Add(f func()) {
 
 func (r *RootCmd) proxyServer() *serpent.Command {
 	var (
-		cfg = new(codersdk.DeploymentValues)
+		cfg = new(wirtualsdk.DeploymentValues)
 		// Filter options for only relevant ones.
-		opts = cfg.Options().Filter(codersdk.IsWorkspaceProxies)
+		opts = cfg.Options().Filter(wirtualsdk.IsWorkspaceProxies)
 
 		externalProxyOptionGroup = serpent.Group{
 			Name: "External Workspace Proxy",
@@ -65,7 +65,7 @@ func (r *RootCmd) proxyServer() *serpent.Command {
 
 		serpent.Option{
 			Name:        "Proxy Session Token",
-			Description: "Authentication token for the workspace proxy to communicate with coderd.",
+			Description: "Authentication token for the workspace proxy to communicate with wirtuald.",
 			Flag:        "proxy-session-token",
 			Env:         "CODER_PROXY_SESSION_TOKEN",
 			YAML:        "proxySessionToken",
@@ -77,7 +77,7 @@ func (r *RootCmd) proxyServer() *serpent.Command {
 
 		serpent.Option{
 			Name:        "Coderd (Primary) Access URL",
-			Description: "URL to communicate with coderd. This should match the access URL of the Coder deployment.",
+			Description: "URL to communicate with wirtuald. This should match the access URL of the Coder deployment.",
 			Flag:        "primary-access-url",
 			Env:         "CODER_PRIMARY_ACCESS_URL",
 			YAML:        "primaryAccessURL",
@@ -253,7 +253,7 @@ func (r *RootCmd) proxyServer() *serpent.Command {
 
 			options := &wsproxy.Options{
 				Logger:                 logger,
-				Experiments:            coderd.ReadExperiments(logger, cfg.Experiments.Value()),
+				Experiments:            wirtuald.ReadExperiments(logger, cfg.Experiments.Value()),
 				HTTPClient:             httpClient,
 				DashboardURL:           primaryAccessURL.Value(),
 				AccessURL:              cfg.AccessURL.Value(),

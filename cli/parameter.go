@@ -9,7 +9,7 @@ import (
 	"golang.org/x/xerrors"
 	"gopkg.in/yaml.v3"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 )
 
@@ -100,14 +100,14 @@ func (wpf *workspaceParameterFlags) alwaysPrompt() serpent.Option {
 	}
 }
 
-func asWorkspaceBuildParameters(nameValuePairs []string) ([]codersdk.WorkspaceBuildParameter, error) {
-	var params []codersdk.WorkspaceBuildParameter
+func asWorkspaceBuildParameters(nameValuePairs []string) ([]wirtualsdk.WorkspaceBuildParameter, error) {
+	var params []wirtualsdk.WorkspaceBuildParameter
 	for _, nameValue := range nameValuePairs {
 		split := strings.SplitN(nameValue, "=", 2)
 		if len(split) < 2 {
 			return nil, xerrors.Errorf("format key=value expected, but got %s", nameValue)
 		}
-		params = append(params, codersdk.WorkspaceBuildParameter{
+		params = append(params, wirtualsdk.WorkspaceBuildParameter{
 			Name:  split[0],
 			Value: split[1],
 		})

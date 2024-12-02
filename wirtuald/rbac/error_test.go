@@ -3,7 +3,7 @@ package rbac_test
 import (
 	"testing"
 
-	"github.com/coder/coder/v2/coderd/rbac"
+	"github.com/coder/coder/v2/wirtuald/rbac"
 
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"

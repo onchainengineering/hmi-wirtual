@@ -3,10 +3,10 @@ package agent
 import (
 	"net/http"
 
-	"github.com/coder/coder/v2/coderd/healthcheck/health"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/healthsdk"
+	"github.com/coder/coder/v2/wirtuald/healthcheck/health"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/healthsdk"
 )
 
 func (a *agent) HandleNetcheck(rw http.ResponseWriter, r *http.Request) {
@@ -14,7 +14,7 @@ func (a *agent) HandleNetcheck(rw http.ResponseWriter, r *http.Request) {
 
 	ifReport, err := healthsdk.RunInterfacesReport()
 	if err != nil {
-		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to run interfaces report",
 			Detail:  err.Error(),
 		})

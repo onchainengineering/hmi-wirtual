@@ -14,11 +14,11 @@ import (
 	"cdr.dev/slog"
 	"github.com/coder/quartz"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/notifications"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/notifications"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 const (
@@ -266,7 +266,7 @@ func buildDataForReportFailedWorkspaceBuilds(stats database.GetWorkspaceBuildSta
 
 func findTemplateAdmins(ctx context.Context, db database.Store, stats database.GetWorkspaceBuildStatsByTemplatesRow) ([]database.GetUsersRow, error) {
 	users, err := db.GetUsers(ctx, database.GetUsersParams{
-		RbacRole: []string{codersdk.RoleTemplateAdmin},
+		RbacRole: []string{wirtualsdk.RoleTemplateAdmin},
 	})
 	if err != nil {
 		return nil, xerrors.Errorf("unable to fetch template admins: %w", err)

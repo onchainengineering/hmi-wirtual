@@ -16,9 +16,9 @@ import (
 	"github.com/go-playground/validator/v10"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/httpapi/httpapiconstraints"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/httpapi/httpapiconstraints"
+	"github.com/coder/coder/v2/wirtuald/tracing"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 var Validate *validator.Validate
@@ -43,7 +43,7 @@ func init() {
 		if !ok {
 			return false
 		}
-		valid := codersdk.NameValid(str)
+		valid := wirtualsdk.NameValid(str)
 		return valid == nil
 	}
 	for _, tag := range []string{"username", "organization_name", "template_name", "workspace_name", "oauth2_app_name"} {
@@ -59,7 +59,7 @@ func init() {
 		if !ok {
 			return false
 		}
-		valid := codersdk.DisplayNameValid(str)
+		valid := wirtualsdk.DisplayNameValid(str)
 		return valid == nil
 	}
 	for _, displayNameTag := range []string{"organization_display_name", "template_display_name", "group_display_name"} {
@@ -75,7 +75,7 @@ func init() {
 		if !ok {
 			return false
 		}
-		valid := codersdk.TemplateVersionNameValid(str)
+		valid := wirtualsdk.TemplateVersionNameValid(str)
 		return valid == nil
 	}
 	err := Validate.RegisterValidation("template_version_name", templateVersionNameValidator)
@@ -89,7 +89,7 @@ func init() {
 		if !ok {
 			return false
 		}
-		valid := codersdk.UserRealNameValid(str)
+		valid := wirtualsdk.UserRealNameValid(str)
 		return valid == nil
 	}
 	err = Validate.RegisterValidation("user_real_name", userRealNameValidator)
@@ -103,7 +103,7 @@ func init() {
 		if !ok {
 			return false
 		}
-		valid := codersdk.GroupNameValid(str)
+		valid := wirtualsdk.GroupNameValid(str)
 		return valid == nil
 	}
 	err = Validate.RegisterValidation("group_name", groupNameValidator)
@@ -143,7 +143,7 @@ func IsUnauthorizedError(err error) bool {
 // Convenience error functions don't take contexts since their responses are
 // static, it doesn't make much sense to trace them.
 
-var ResourceNotFoundResponse = codersdk.Response{Message: "Resource not found or you do not have access to this resource"}
+var ResourceNotFoundResponse = wirtualsdk.Response{Message: "Resource not found or you do not have access to this resource"}
 
 // ResourceNotFound is intentionally vague. All 404 responses should be identical
 // to prevent leaking existence of resources.
@@ -152,7 +152,7 @@ func ResourceNotFound(rw http.ResponseWriter) {
 }
 
 func Forbidden(rw http.ResponseWriter) {
-	Write(context.Background(), rw, http.StatusForbidden, codersdk.Response{
+	Write(context.Background(), rw, http.StatusForbidden, wirtualsdk.Response{
 		Message: "Forbidden.",
 	})
 }
@@ -163,14 +163,14 @@ func InternalServerError(rw http.ResponseWriter, err error) {
 		details = err.Error()
 	}
 
-	Write(context.Background(), rw, http.StatusInternalServerError, codersdk.Response{
+	Write(context.Background(), rw, http.StatusInternalServerError, wirtualsdk.Response{
 		Message: "An internal server error occurred.",
 		Detail:  details,
 	})
 }
 
 func RouteNotFound(rw http.ResponseWriter) {
-	Write(context.Background(), rw, http.StatusNotFound, codersdk.Response{
+	Write(context.Background(), rw, http.StatusNotFound, wirtualsdk.Response{
 		Message: "Route not found.",
 	})
 }
@@ -229,7 +229,7 @@ func Read(ctx context.Context, rw http.ResponseWriter, r *http.Request, value in
 
 	err := json.NewDecoder(r.Body).Decode(value)
 	if err != nil {
-		Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Request body must be valid JSON.",
 			Detail:  err.Error(),
 		})
@@ -238,21 +238,21 @@ func Read(ctx context.Context, rw http.ResponseWriter, r *http.Request, value in
 	err = Validate.Struct(value)
 	var validationErrors validator.ValidationErrors
 	if errors.As(err, &validationErrors) {
-		apiErrors := make([]codersdk.ValidationError, 0, len(validationErrors))
+		apiErrors := make([]wirtualsdk.ValidationError, 0, len(validationErrors))
 		for _, validationError := range validationErrors {
-			apiErrors = append(apiErrors, codersdk.ValidationError{
+			apiErrors = append(apiErrors, wirtualsdk.ValidationError{
 				Field:  validationError.Field(),
 				Detail: fmt.Sprintf("Validation failed for tag %q with value: \"%v\"", validationError.Tag(), validationError.Value()),
 			})
 		}
-		Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message:     "Validation failed.",
 			Validations: apiErrors,
 		})
 		return false
 	}
 	if err != nil {
-		Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error validating request body payload.",
 			Detail:  err.Error(),
 		})
@@ -279,7 +279,7 @@ func WebsocketCloseSprintf(format string, vars ...any) string {
 	return msg
 }
 
-func ServerSentEventSender(rw http.ResponseWriter, r *http.Request) (sendEvent func(ctx context.Context, sse codersdk.ServerSentEvent) error, closed chan struct{}, err error) {
+func ServerSentEventSender(rw http.ResponseWriter, r *http.Request) (sendEvent func(ctx context.Context, sse wirtualsdk.ServerSentEvent) error, closed chan struct{}, err error) {
 	h := rw.Header()
 	h.Set("Content-Type", "text/event-stream")
 	h.Set("Cache-Control", "no-cache")
@@ -315,7 +315,7 @@ func ServerSentEventSender(rw http.ResponseWriter, r *http.Request) (sendEvent f
 			case event = <-eventC:
 			case <-ticker.C:
 				event = sseEvent{
-					payload: []byte(fmt.Sprintf("event: %s\n\n", codersdk.ServerSentEventTypePing)),
+					payload: []byte(fmt.Sprintf("event: %s\n\n", wirtualsdk.ServerSentEventTypePing)),
 				}
 			}
 
@@ -330,7 +330,7 @@ func ServerSentEventSender(rw http.ResponseWriter, r *http.Request) (sendEvent f
 		}
 	}()
 
-	sendEvent = func(ctx context.Context, sse codersdk.ServerSentEvent) error {
+	sendEvent = func(ctx context.Context, sse wirtualsdk.ServerSentEvent) error {
 		buf := &bytes.Buffer{}
 		enc := json.NewEncoder(buf)
 

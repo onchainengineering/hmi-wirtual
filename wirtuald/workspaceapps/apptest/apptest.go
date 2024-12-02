@@ -26,12 +26,12 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/workspaceapps"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/workspaceapps"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 	"github.com/coder/coder/v2/testutil"
 )
 
@@ -88,14 +88,14 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 			u.Path = fmt.Sprintf("/api/v2/workspaceagents/%s/pty", appDetails.Agent.ID.String())
 
 			ctx := testutil.Context(t, testutil.WaitLong)
-			issueRes, err := appDetails.SDKClient.IssueReconnectingPTYSignedToken(ctx, codersdk.IssueReconnectingPTYSignedTokenRequest{
+			issueRes, err := appDetails.SDKClient.IssueReconnectingPTYSignedToken(ctx, wirtualsdk.IssueReconnectingPTYSignedTokenRequest{
 				URL:     u.String(),
 				AgentID: appDetails.Agent.ID,
 			})
 			require.NoError(t, err)
 
 			// Make an unauthenticated client.
-			unauthedAppClient := codersdk.New(appDetails.AppClient(t).URL)
+			unauthedAppClient := wirtualsdk.New(appDetails.AppClient(t).URL)
 			testReconnectingPTY(ctx, t, unauthedAppClient, appDetails.Agent.ID, issueRes.SignedToken)
 			assertWorkspaceLastUsedAtUpdated(t, appDetails)
 		})
@@ -266,7 +266,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 
 			var appTokenCookie *http.Cookie
 			for _, c := range resp.Cookies() {
-				if c.Name == codersdk.SignedAppTokenCookie {
+				if c.Name == wirtualsdk.SignedAppTokenCookie {
 					appTokenCookie = c
 					break
 				}
@@ -312,7 +312,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 
 			var appTokenCookie *http.Cookie
 			for _, c := range resp.Cookies() {
-				if c.Name == codersdk.SignedAppTokenCookie {
+				if c.Name == wirtualsdk.SignedAppTokenCookie {
 					appTokenCookie = c
 					break
 				}
@@ -345,7 +345,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 			defer cancel()
 
 			app := appDetails.Apps.Owner
-			app.Username = codersdk.Me
+			app.Username = wirtualsdk.Me
 
 			resp, err := requestWithRetries(ctx, t, appDetails.AppClient(t), http.MethodGet, appDetails.PathAppURL(app).String(), nil)
 			require.NoError(t, err)
@@ -426,7 +426,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 			require.Equal(t, proxyTestAppBody, string(body))
 			require.Equal(t, http.StatusOK, resp.StatusCode)
 
-			appTokenCookie := findCookie(resp.Cookies(), codersdk.SignedAppTokenCookie)
+			appTokenCookie := findCookie(resp.Cookies(), wirtualsdk.SignedAppTokenCookie)
 			require.NotNil(t, appTokenCookie, "no signed app token cookie in response")
 			require.Equal(t, appTokenCookie.Path, u.Path, "incorrect path on app token cookie")
 
@@ -451,7 +451,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 				[]*http.Cookie{
 					appTokenCookie,
 					{
-						Name:  codersdk.PathAppSessionTokenCookie,
+						Name:  wirtualsdk.PathAppSessionTokenCookie,
 						Value: apiKey,
 					},
 				},
@@ -467,7 +467,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 			assertWorkspaceLastUsedAtUpdated(t, appDetails)
 
 			// Since the old token is invalid, the signed app token cookie should have a new value.
-			newTokenCookie := findCookie(resp.Cookies(), codersdk.SignedAppTokenCookie)
+			newTokenCookie := findCookie(resp.Cookies(), wirtualsdk.SignedAppTokenCookie)
 			require.NotEqual(t, appTokenCookie.Value, newTokenCookie.Value)
 		})
 	})
@@ -489,12 +489,12 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 				{
 					name:                   "Subdomain",
 					appURL:                 appDetails.SubdomainAppURL(appDetails.Apps.Owner),
-					sessionTokenCookieName: codersdk.SubdomainAppSessionTokenCookie,
+					sessionTokenCookieName: wirtualsdk.SubdomainAppSessionTokenCookie,
 				},
 				{
 					name:                   "Path",
 					appURL:                 appDetails.PathAppURL(appDetails.Apps.Owner),
-					sessionTokenCookieName: codersdk.PathAppSessionTokenCookie,
+					sessionTokenCookieName: wirtualsdk.PathAppSessionTokenCookie,
 				},
 			}
 
@@ -516,7 +516,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 					defer cancel()
 
 					// Get the current user and API key.
-					user, err := appDetails.SDKClient.User(ctx, codersdk.Me)
+					user, err := appDetails.SDKClient.User(ctx, wirtualsdk.Me)
 					require.NoError(t, err)
 					currentAPIKey, err := appDetails.SDKClient.APIKeyByID(ctx, appDetails.FirstUser.UserID.String(), strings.Split(appDetails.SDKClient.SessionToken(), "-")[0])
 					require.NoError(t, err)
@@ -550,7 +550,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 					require.Equal(t, u.String(), gotLocation.Query().Get("redirect_uri"))
 
 					// Load the application auth-redirect endpoint.
-					resp, err = requestWithRetries(ctx, t, appDetails.SDKClient, http.MethodGet, "/api/v2/applications/auth-redirect", nil, codersdk.WithQueryParam(
+					resp, err = requestWithRetries(ctx, t, appDetails.SDKClient, http.MethodGet, "/api/v2/applications/auth-redirect", nil, wirtualsdk.WithQueryParam(
 						"redirect_uri", u.String(),
 					))
 					require.NoError(t, err)
@@ -592,12 +592,12 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 					apiKeyInfo, err := appDetails.SDKClient.APIKeyByID(ctx, appDetails.FirstUser.UserID.String(), strings.Split(apiKey, "-")[0])
 					require.NoError(t, err)
 					require.Equal(t, user.ID, apiKeyInfo.UserID)
-					require.Equal(t, codersdk.LoginTypePassword, apiKeyInfo.LoginType)
+					require.Equal(t, wirtualsdk.LoginTypePassword, apiKeyInfo.LoginType)
 					require.WithinDuration(t, currentAPIKey.ExpiresAt, apiKeyInfo.ExpiresAt, 5*time.Second)
 					require.EqualValues(t, currentAPIKey.LifetimeSeconds, apiKeyInfo.LifetimeSeconds)
 
 					// Verify the API key permissions
-					appTokenAPIClient := codersdk.New(appDetails.SDKClient.URL)
+					appTokenAPIClient := wirtualsdk.New(appDetails.SDKClient.URL)
 					appTokenAPIClient.SetSessionToken(apiKey)
 					appTokenAPIClient.HTTPClient.CheckRedirect = appDetails.SDKClient.HTTPClient.CheckRedirect
 					appTokenAPIClient.HTTPClient.Transport = appDetails.SDKClient.HTTPClient.Transport
@@ -606,22 +606,22 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 						canApplicationConnect = "can-create-application_connect"
 						canReadUserMe         = "can-read-user-me"
 					)
-					authRes, err := appTokenAPIClient.AuthCheck(ctx, codersdk.AuthorizationRequest{
-						Checks: map[string]codersdk.AuthorizationCheck{
+					authRes, err := appTokenAPIClient.AuthCheck(ctx, wirtualsdk.AuthorizationRequest{
+						Checks: map[string]wirtualsdk.AuthorizationCheck{
 							canApplicationConnect: {
-								Object: codersdk.AuthorizationObject{
+								Object: wirtualsdk.AuthorizationObject{
 									ResourceType:   "workspace",
 									OwnerID:        appDetails.FirstUser.UserID.String(),
 									OrganizationID: appDetails.FirstUser.OrganizationID.String(),
 								},
-								Action: codersdk.ActionApplicationConnect,
+								Action: wirtualsdk.ActionApplicationConnect,
 							},
 							canReadUserMe: {
-								Object: codersdk.AuthorizationObject{
+								Object: wirtualsdk.AuthorizationObject{
 									ResourceType: "user",
 									ResourceID:   appDetails.FirstUser.UserID.String(),
 								},
-								Action: codersdk.ActionRead,
+								Action: wirtualsdk.ActionRead,
 							},
 						},
 					})
@@ -636,7 +636,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 					t.Log("navigating to: ", gotLocation.String())
 					req, err = http.NewRequestWithContext(ctx, "GET", gotLocation.String(), nil)
 					require.NoError(t, err)
-					req.Header.Set(codersdk.SessionTokenHeader, apiKey)
+					req.Header.Set(wirtualsdk.SessionTokenHeader, apiKey)
 					resp, err = doWithRetries(t, appClient, req)
 					require.NoError(t, err)
 					resp.Body.Close()
@@ -703,7 +703,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 		// prefix.
 		var appTokenCookie *http.Cookie
 		for _, c := range resp.Cookies() {
-			if c.Name == codersdk.SignedAppTokenCookie {
+			if c.Name == wirtualsdk.SignedAppTokenCookie {
 				appTokenCookie = c
 				break
 			}
@@ -766,7 +766,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 		// Find the cookie.
 		var appTokenCookie *http.Cookie
 		for _, c := range resp.Cookies() {
-			if c.Name == codersdk.SignedAppTokenCookie {
+			if c.Name == wirtualsdk.SignedAppTokenCookie {
 				appTokenCookie = c
 				break
 			}
@@ -816,9 +816,9 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 		require.NoError(t, err)
 		defer resp.Body.Close()
 
-		// Should look like a codersdk.User response.
+		// Should look like a wirtualsdk.User response.
 		require.Equal(t, http.StatusOK, resp.StatusCode)
-		var user codersdk.User
+		var user wirtualsdk.User
 		err = json.NewDecoder(resp.Body).Decode(&user)
 		require.NoError(t, err)
 		require.Equal(t, appDetails.FirstUser.UserID, user.ID)
@@ -935,7 +935,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 
 			var appTokenCookie *http.Cookie
 			for _, c := range resp.Cookies() {
-				if c.Name == codersdk.SignedAppTokenCookie {
+				if c.Name == wirtualsdk.SignedAppTokenCookie {
 					appTokenCookie = c
 					break
 				}
@@ -980,7 +980,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 
 			var appTokenCookie *http.Cookie
 			for _, c := range resp.Cookies() {
-				if c.Name == codersdk.SignedAppTokenCookie {
+				if c.Name == wirtualsdk.SignedAppTokenCookie {
 					appTokenCookie = c
 					break
 				}
@@ -1051,7 +1051,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 
 			// Should have an error response.
 			require.Equal(t, http.StatusBadRequest, resp.StatusCode)
-			var resBody codersdk.Response
+			var resBody wirtualsdk.Response
 			err = json.NewDecoder(resp.Body).Decode(&resBody)
 			require.NoError(t, err)
 			require.Contains(t, resBody.Message, "Coder reserves ports less than")
@@ -1188,7 +1188,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 			require.Equal(t, proxyTestAppBody, string(body))
 			require.Equal(t, http.StatusOK, resp.StatusCode)
 
-			appTokenCookie := findCookie(resp.Cookies(), codersdk.SignedAppTokenCookie)
+			appTokenCookie := findCookie(resp.Cookies(), wirtualsdk.SignedAppTokenCookie)
 			require.NotNil(t, appTokenCookie, "no signed token cookie in response")
 			require.Equal(t, appTokenCookie.Path, "/", "incorrect path on signed token cookie")
 
@@ -1213,7 +1213,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 				[]*http.Cookie{
 					appTokenCookie,
 					{
-						Name:  codersdk.SubdomainAppSessionTokenCookie,
+						Name:  wirtualsdk.SubdomainAppSessionTokenCookie,
 						Value: apiKey,
 					},
 				},
@@ -1230,7 +1230,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 			assertWorkspaceLastUsedAtUpdated(t, appDetails)
 
 			// Since the old token is invalid, the signed app token cookie should have a new value.
-			newTokenCookie := findCookie(resp.Cookies(), codersdk.SignedAppTokenCookie)
+			newTokenCookie := findCookie(resp.Cookies(), wirtualsdk.SignedAppTokenCookie)
 			require.NotEqual(t, appTokenCookie.Value, newTokenCookie.Value)
 		})
 	})
@@ -1264,11 +1264,11 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 			port, err := strconv.ParseInt(appDetails.Apps.Port.AppSlugOrPort, 10, 32)
 			require.NoError(t, err)
 			// set the port we have to be shared with authenticated users
-			_, err = appDetails.SDKClient.UpsertWorkspaceAgentPortShare(ctx, appDetails.Workspace.ID, codersdk.UpsertWorkspaceAgentPortShareRequest{
+			_, err = appDetails.SDKClient.UpsertWorkspaceAgentPortShare(ctx, appDetails.Workspace.ID, wirtualsdk.UpsertWorkspaceAgentPortShareRequest{
 				AgentName:  proxyTestAgentName,
 				Port:       int32(port),
-				ShareLevel: codersdk.WorkspaceAgentPortShareLevelAuthenticated,
-				Protocol:   codersdk.WorkspaceAgentPortShareProtocolHTTP,
+				ShareLevel: wirtualsdk.WorkspaceAgentPortShareLevelAuthenticated,
+				Protocol:   wirtualsdk.WorkspaceAgentPortShareProtocolHTTP,
 			})
 			require.NoError(t, err)
 
@@ -1293,11 +1293,11 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 			port, err := strconv.ParseInt(appDetails.Apps.Port.AppSlugOrPort, 10, 32)
 			require.NoError(t, err)
 			// set the port we have to be shared with public
-			_, err = appDetails.SDKClient.UpsertWorkspaceAgentPortShare(ctx, appDetails.Workspace.ID, codersdk.UpsertWorkspaceAgentPortShareRequest{
+			_, err = appDetails.SDKClient.UpsertWorkspaceAgentPortShare(ctx, appDetails.Workspace.ID, wirtualsdk.UpsertWorkspaceAgentPortShareRequest{
 				AgentName:  proxyTestAgentName,
 				Port:       int32(port),
-				ShareLevel: codersdk.WorkspaceAgentPortShareLevelPublic,
-				Protocol:   codersdk.WorkspaceAgentPortShareProtocolHTTP,
+				ShareLevel: wirtualsdk.WorkspaceAgentPortShareLevelPublic,
+				Protocol:   wirtualsdk.WorkspaceAgentPortShareProtocolHTTP,
 			})
 			require.NoError(t, err)
 
@@ -1323,11 +1323,11 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 			// using the fact that Apps.Port and Apps.PortHTTPS are the same port here
 			port, err := strconv.ParseInt(appDetails.Apps.Port.AppSlugOrPort, 10, 32)
 			require.NoError(t, err)
-			_, err = appDetails.SDKClient.UpsertWorkspaceAgentPortShare(ctx, appDetails.Workspace.ID, codersdk.UpsertWorkspaceAgentPortShareRequest{
+			_, err = appDetails.SDKClient.UpsertWorkspaceAgentPortShare(ctx, appDetails.Workspace.ID, wirtualsdk.UpsertWorkspaceAgentPortShareRequest{
 				AgentName:  proxyTestAgentName,
 				Port:       int32(port),
-				ShareLevel: codersdk.WorkspaceAgentPortShareLevelPublic,
-				Protocol:   codersdk.WorkspaceAgentPortShareProtocolHTTPS,
+				ShareLevel: wirtualsdk.WorkspaceAgentPortShareLevelPublic,
+				Protocol:   wirtualsdk.WorkspaceAgentPortShareProtocolHTTPS,
 			})
 			require.NoError(t, err)
 
@@ -1345,7 +1345,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 	t.Run("AppSharing", func(t *testing.T) {
 		t.Parallel()
 
-		setup := func(t *testing.T, allowPathAppSharing, allowSiteOwnerAccess bool) (appDetails *Details, workspace codersdk.Workspace, agnt codersdk.WorkspaceAgent, user codersdk.User, ownerClient *codersdk.Client, client *codersdk.Client, clientInOtherOrg *codersdk.Client, clientWithNoAuth *codersdk.Client) {
+		setup := func(t *testing.T, allowPathAppSharing, allowSiteOwnerAccess bool) (appDetails *Details, workspace wirtualsdk.Workspace, agnt wirtualsdk.WorkspaceAgent, user wirtualsdk.User, ownerClient *wirtualsdk.Client, client *wirtualsdk.Client, clientInOtherOrg *wirtualsdk.Client, clientWithNoAuth *wirtualsdk.Client) {
 			//nolint:gosec
 			const password = "SomeSecurePassword!"
 
@@ -1362,7 +1362,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 			// Create a template-admin user in the same org. We don't use an owner
 			// since they have access to everything.
 			ownerClient = appDetails.SDKClient
-			user, err := ownerClient.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+			user, err := ownerClient.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 				Email:           "user@coder.com",
 				Username:        "user",
 				Password:        password,
@@ -1370,13 +1370,13 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 			})
 			require.NoError(t, err)
 
-			_, err = ownerClient.UpdateUserRoles(ctx, user.ID.String(), codersdk.UpdateRoles{
+			_, err = ownerClient.UpdateUserRoles(ctx, user.ID.String(), wirtualsdk.UpdateRoles{
 				Roles: []string{"template-admin", "member"},
 			})
 			require.NoError(t, err)
 
-			client = codersdk.New(ownerClient.URL)
-			loginRes, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+			client = wirtualsdk.New(ownerClient.URL)
+			loginRes, err := client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 				Email:    user.Email,
 				Password: password,
 			})
@@ -1397,12 +1397,12 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 			require.NotEmpty(t, workspaceBuild.Resources, "workspace build has no resources")
 			require.NotEmpty(t, workspaceBuild.Resources[0].Agents, "workspace build has no agents")
 			agnt = workspaceBuild.Resources[0].Agents[0]
-			found := map[string]codersdk.WorkspaceAppSharingLevel{}
-			expected := map[string]codersdk.WorkspaceAppSharingLevel{
-				proxyTestAppNameFake:          codersdk.WorkspaceAppSharingLevelOwner,
-				proxyTestAppNameOwner:         codersdk.WorkspaceAppSharingLevelOwner,
-				proxyTestAppNameAuthenticated: codersdk.WorkspaceAppSharingLevelAuthenticated,
-				proxyTestAppNamePublic:        codersdk.WorkspaceAppSharingLevelPublic,
+			found := map[string]wirtualsdk.WorkspaceAppSharingLevel{}
+			expected := map[string]wirtualsdk.WorkspaceAppSharingLevel{
+				proxyTestAppNameFake:          wirtualsdk.WorkspaceAppSharingLevelOwner,
+				proxyTestAppNameOwner:         wirtualsdk.WorkspaceAppSharingLevelOwner,
+				proxyTestAppNameAuthenticated: wirtualsdk.WorkspaceAppSharingLevelAuthenticated,
+				proxyTestAppNamePublic:        wirtualsdk.WorkspaceAppSharingLevelPublic,
 			}
 			for _, app := range agnt.Apps {
 				found[app.DisplayName] = app.SharingLevel
@@ -1410,11 +1410,11 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 			require.Equal(t, expected, found, "apps have incorrect sharing levels")
 
 			// Create a user in a different org.
-			otherOrg, err := ownerClient.CreateOrganization(ctx, codersdk.CreateOrganizationRequest{
+			otherOrg, err := ownerClient.CreateOrganization(ctx, wirtualsdk.CreateOrganizationRequest{
 				Name: "a-different-org",
 			})
 			require.NoError(t, err)
-			userInOtherOrg, err := ownerClient.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+			userInOtherOrg, err := ownerClient.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 				Email:           "no-template-access@coder.com",
 				Username:        "no-template-access",
 				Password:        password,
@@ -1422,8 +1422,8 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 			})
 			require.NoError(t, err)
 
-			clientInOtherOrg = codersdk.New(client.URL)
-			loginRes, err = clientInOtherOrg.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+			clientInOtherOrg = wirtualsdk.New(client.URL)
+			loginRes, err = clientInOtherOrg.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 				Email:    userInOtherOrg.Email,
 				Password: password,
 			})
@@ -1434,8 +1434,8 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 			}
 			forceURLTransport(t, clientInOtherOrg)
 
-			// Create an unauthenticated codersdk client.
-			clientWithNoAuth = codersdk.New(client.URL)
+			// Create an unauthenticated wirtualsdk client.
+			clientWithNoAuth = wirtualsdk.New(client.URL)
 			clientWithNoAuth.HTTPClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 				return http.ErrUseLastResponse
 			}
@@ -1444,7 +1444,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 			return appDetails, workspace, agnt, user, ownerClient, client, clientInOtherOrg, clientWithNoAuth
 		}
 
-		verifyAccess := func(t *testing.T, appDetails *Details, isPathApp bool, username, workspaceName, agentName, appName string, client *codersdk.Client, shouldHaveAccess, shouldRedirectToLogin bool) {
+		verifyAccess := func(t *testing.T, appDetails *Details, isPathApp bool, username, workspaceName, agentName, appName string, client *wirtualsdk.Client, shouldHaveAccess, shouldRedirectToLogin bool) {
 			t.Helper()
 
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
@@ -1454,8 +1454,8 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 			// scoped key works.
 			sessionTokens := []string{client.SessionToken()}
 			if client.SessionToken() != "" {
-				token, err := client.CreateToken(ctx, codersdk.Me, codersdk.CreateTokenRequest{
-					Scope: codersdk.APIKeyScopeApplicationConnect,
+				token, err := client.CreateToken(ctx, wirtualsdk.Me, wirtualsdk.CreateTokenRequest{
+					Scope: wirtualsdk.APIKeyScopeApplicationConnect,
 				})
 				require.NoError(t, err)
 
@@ -1704,7 +1704,7 @@ func Run(t *testing.T, appHostIsPrimary bool, factory DeploymentFactory) {
 				// server.
 				secWebSocketKey := "test-dean-was-here"
 				req.Header["Sec-WebSocket-Key"] = []string{secWebSocketKey}
-				req.Header.Set(codersdk.SessionTokenHeader, appDetails.SDKClient.SessionToken())
+				req.Header.Set(wirtualsdk.SessionTokenHeader, appDetails.SDKClient.SessionToken())
 
 				resp, err := doWithRetries(t, appDetails.AppClient(t), req)
 				require.NoError(t, err)
@@ -1851,7 +1851,7 @@ func (r *fakeStatsReporter) ReportAppStats(_ context.Context, stats []workspacea
 	return nil
 }
 
-func testReconnectingPTY(ctx context.Context, t *testing.T, client *codersdk.Client, agentID uuid.UUID, signedToken string) {
+func testReconnectingPTY(ctx context.Context, t *testing.T, client *wirtualsdk.Client, agentID uuid.UUID, signedToken string) {
 	opts := workspacesdk.WorkspaceAgentReconnectingPTYOpts{
 		AgentID:   agentID,
 		Reconnect: uuid.New(),

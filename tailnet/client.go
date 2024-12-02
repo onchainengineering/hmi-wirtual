@@ -8,7 +8,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/codersdk/drpc"
+	"github.com/coder/coder/v2/wirtualsdk/drpc"
 	"github.com/coder/coder/v2/tailnet/proto"
 )
 

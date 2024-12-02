@@ -6,10 +6,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database/db2sdk"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/testutil"
 )
 
@@ -69,6 +69,6 @@ func TestListMembers(t *testing.T) {
 	})
 }
 
-func onlyIDs(u codersdk.OrganizationMemberWithUserData) uuid.UUID {
+func onlyIDs(u wirtualsdk.OrganizationMemberWithUserData) uuid.UUID {
 	return u.UserID
 }

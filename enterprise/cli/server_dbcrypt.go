@@ -12,8 +12,8 @@ import (
 	"cdr.dev/slog/sloggers/sloghuman"
 	"github.com/coder/coder/v2/cli"
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/database/awsiamrds"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database/awsiamrds"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/enterprise/dbcrypt"
 	"github.com/coder/serpent"
 
@@ -91,7 +91,7 @@ func (*RootCmd) dbcryptRotateCmd() *serpent.Command {
 			}
 
 			sqlDriver := "postgres"
-			if codersdk.PostgresAuth(flags.PostgresAuth) == codersdk.PostgresAuthAWSIAMRDS {
+			if wirtualsdk.PostgresAuth(flags.PostgresAuth) == wirtualsdk.PostgresAuthAWSIAMRDS {
 				sqlDriver, err = awsiamrds.Register(inv.Context(), sqlDriver)
 				if err != nil {
 					return xerrors.Errorf("register aws rds iam auth: %w", err)
@@ -156,7 +156,7 @@ func (*RootCmd) dbcryptDecryptCmd() *serpent.Command {
 			}
 
 			sqlDriver := "postgres"
-			if codersdk.PostgresAuth(flags.PostgresAuth) == codersdk.PostgresAuthAWSIAMRDS {
+			if wirtualsdk.PostgresAuth(flags.PostgresAuth) == wirtualsdk.PostgresAuthAWSIAMRDS {
 				sqlDriver, err = awsiamrds.Register(inv.Context(), sqlDriver)
 				if err != nil {
 					return xerrors.Errorf("register aws rds iam auth: %w", err)
@@ -212,7 +212,7 @@ Are you sure you want to continue?`
 
 			var err error
 			sqlDriver := "postgres"
-			if codersdk.PostgresAuth(flags.PostgresAuth) == codersdk.PostgresAuthAWSIAMRDS {
+			if wirtualsdk.PostgresAuth(flags.PostgresAuth) == wirtualsdk.PostgresAuthAWSIAMRDS {
 				sqlDriver, err = awsiamrds.Register(inv.Context(), sqlDriver)
 				if err != nil {
 					return xerrors.Errorf("register aws rds iam auth: %w", err)
@@ -260,7 +260,7 @@ func (f *rotateFlags) attach(opts *serpent.OptionSet) {
 			Flag:        "postgres-connection-auth",
 			Env:         "CODER_PG_CONNECTION_AUTH",
 			Default:     "password",
-			Value:       serpent.EnumOf(&f.PostgresAuth, codersdk.PostgresAuthDrivers...),
+			Value:       serpent.EnumOf(&f.PostgresAuth, wirtualsdk.PostgresAuthDrivers...),
 		},
 		serpent.Option{
 			Flag:        "new-key",
@@ -330,7 +330,7 @@ func (f *decryptFlags) attach(opts *serpent.OptionSet) {
 			Flag:        "postgres-connection-auth",
 			Env:         "CODER_PG_CONNECTION_AUTH",
 			Default:     "password",
-			Value:       serpent.EnumOf(&f.PostgresAuth, codersdk.PostgresAuthDrivers...),
+			Value:       serpent.EnumOf(&f.PostgresAuth, wirtualsdk.PostgresAuthDrivers...),
 		},
 		serpent.Option{
 			Flag:        "keys",
@@ -383,7 +383,7 @@ func (f *deleteFlags) attach(opts *serpent.OptionSet) {
 			Flag:        "postgres-connection-auth",
 			Env:         "CODER_PG_CONNECTION_AUTH",
 			Default:     "password",
-			Value:       serpent.EnumOf(&f.PostgresAuth, codersdk.PostgresAuthDrivers...),
+			Value:       serpent.EnumOf(&f.PostgresAuth, wirtualsdk.PostgresAuthDrivers...),
 		},
 		cliui.SkipPromptOption(),
 	)

@@ -9,23 +9,23 @@ import (
 	"github.com/coder/pretty"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 )
 
 // createUserStatusCommand sets a user status.
-func (r *RootCmd) createUserStatusCommand(sdkStatus codersdk.UserStatus) *serpent.Command {
+func (r *RootCmd) createUserStatusCommand(sdkStatus wirtualsdk.UserStatus) *serpent.Command {
 	var verb string
 	var pastVerb string
 	var aliases []string
 	var short string
 	switch sdkStatus {
-	case codersdk.UserStatusActive:
+	case wirtualsdk.UserStatusActive:
 		verb = "activate"
 		pastVerb = "activated"
 		aliases = []string{"active"}
 		short = "Update a user's status to 'active'. Active users can fully interact with the platform"
-	case codersdk.UserStatusSuspended:
+	case wirtualsdk.UserStatusSuspended:
 		verb = "suspend"
 		pastVerb = "suspended"
 		short = "Update a user's status to 'suspended'. A suspended user cannot log into the platform"
@@ -33,7 +33,7 @@ func (r *RootCmd) createUserStatusCommand(sdkStatus codersdk.UserStatus) *serpen
 		panic(fmt.Sprintf("%s is not supported", sdkStatus))
 	}
 
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 
 	var columns []string
 	allColumns := []string{"username", "email", "created at", "status"}
@@ -64,7 +64,7 @@ func (r *RootCmd) createUserStatusCommand(sdkStatus codersdk.UserStatus) *serpen
 			// Display the user. This uses cliui.DisplayTable directly instead
 			// of cliui.NewOutputFormatter because we prompt immediately
 			// afterwards.
-			table, err := cliui.DisplayTable([]codersdk.User{user}, "", columns)
+			table, err := cliui.DisplayTable([]wirtualsdk.User{user}, "", columns)
 			if err != nil {
 				return xerrors.Errorf("render user table: %w", err)
 			}

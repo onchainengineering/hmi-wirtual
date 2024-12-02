@@ -3,8 +3,8 @@ package httpmw
 import (
 	"net/http"
 
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // RequireAPIKeyOrWorkspaceProxyAuth is middleware that should be inserted after
@@ -19,13 +19,13 @@ func RequireAPIKeyOrWorkspaceProxyAuth() func(http.Handler) http.Handler {
 			_, hasWorkspaceProxy := WorkspaceProxyOptional(r)
 
 			if hasAPIKey && hasWorkspaceProxy {
-				httpapi.Write(r.Context(), w, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(r.Context(), w, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "API key and external proxy authentication provided, but only one is allowed",
 				})
 				return
 			}
 			if !hasAPIKey && !hasWorkspaceProxy {
-				httpapi.Write(r.Context(), w, http.StatusUnauthorized, codersdk.Response{
+				httpapi.Write(r.Context(), w, http.StatusUnauthorized, wirtualsdk.Response{
 					Message: "API key or external proxy authentication required, but none provided",
 				})
 				return
@@ -48,13 +48,13 @@ func RequireAPIKeyOrWorkspaceAgent() func(http.Handler) http.Handler {
 			_, hasWorkspaceAgent := WorkspaceAgentOptional(r)
 
 			if hasAPIKey && hasWorkspaceAgent {
-				httpapi.Write(r.Context(), w, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(r.Context(), w, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "API key and workspace agent token provided, but only one is allowed",
 				})
 				return
 			}
 			if !hasAPIKey && !hasWorkspaceAgent {
-				httpapi.Write(r.Context(), w, http.StatusUnauthorized, codersdk.Response{
+				httpapi.Write(r.Context(), w, http.StatusUnauthorized, wirtualsdk.Response{
 					Message: "API key or workspace agent token required, but none provided",
 				})
 				return
@@ -77,13 +77,13 @@ func RequireAPIKeyOrProvisionerDaemonAuth() func(http.Handler) http.Handler {
 			hasProvisionerDaemon := ProvisionerDaemonAuthenticated(r)
 
 			if hasAPIKey && hasProvisionerDaemon {
-				httpapi.Write(r.Context(), w, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(r.Context(), w, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "API key and external provisioner authentication provided, but only one is allowed",
 				})
 				return
 			}
 			if !hasAPIKey && !hasProvisionerDaemon {
-				httpapi.Write(r.Context(), w, http.StatusUnauthorized, codersdk.Response{
+				httpapi.Write(r.Context(), w, http.StatusUnauthorized, wirtualsdk.Response{
 					Message: "API key or external provisioner authentication required, but none provided",
 				})
 				return

@@ -27,10 +27,10 @@ import (
 	"cdr.dev/slog/sloggers/sloghuman"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/tracing"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 	"github.com/coder/coder/v2/cryptorand"
 	"github.com/coder/coder/v2/scaletest/agentconn"
 	"github.com/coder/coder/v2/scaletest/createworkspaces"
@@ -344,10 +344,10 @@ func (s *scaletestPrometheusFlags) attach(opts *serpent.OptionSet) {
 	)
 }
 
-func requireAdmin(ctx context.Context, client *codersdk.Client) (codersdk.User, error) {
-	me, err := client.User(ctx, codersdk.Me)
+func requireAdmin(ctx context.Context, client *wirtualsdk.Client) (wirtualsdk.User, error) {
+	me, err := client.User(ctx, wirtualsdk.Me)
 	if err != nil {
-		return codersdk.User{}, xerrors.Errorf("fetch current user: %w", err)
+		return wirtualsdk.User{}, xerrors.Errorf("fetch current user: %w", err)
 	}
 
 	// Only owners can do scaletests. This isn't a very strong check but there's
@@ -370,7 +370,7 @@ func requireAdmin(ctx context.Context, client *codersdk.Client) (codersdk.User, 
 
 // userCleanupRunner is a runner that deletes a user in the Run phase.
 type userCleanupRunner struct {
-	client *codersdk.Client
+	client *wirtualsdk.Client
 	userID uuid.UUID
 }
 
@@ -396,7 +396,7 @@ func (r *RootCmd) scaletestCleanup() *serpent.Command {
 	var template string
 
 	cleanupStrategy := &scaletestStrategyFlags{cleanup: true}
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 
 	cmd := &serpent.Command{
 		Use:   "cleanup",
@@ -414,10 +414,10 @@ func (r *RootCmd) scaletestCleanup() *serpent.Command {
 			}
 
 			client.HTTPClient = &http.Client{
-				Transport: &codersdk.HeaderTransport{
+				Transport: &wirtualsdk.HeaderTransport{
 					Transport: http.DefaultTransport,
 					Header: map[string][]string{
-						codersdk.BypassRatelimitHeader: {"true"},
+						wirtualsdk.BypassRatelimitHeader: {"true"},
 					},
 				},
 			}
@@ -550,7 +550,7 @@ func (r *RootCmd) scaletestCreateWorkspaces() *serpent.Command {
 		output          = &scaletestOutputFlags{}
 	)
 
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 
 	cmd := &serpent.Command{
 		Use:        "create-workspaces",
@@ -566,10 +566,10 @@ func (r *RootCmd) scaletestCreateWorkspaces() *serpent.Command {
 			}
 
 			client.HTTPClient = &http.Client{
-				Transport: &codersdk.HeaderTransport{
+				Transport: &wirtualsdk.HeaderTransport{
 					Transport: http.DefaultTransport,
 					Header: map[string][]string{
-						codersdk.BypassRatelimitHeader: {"true"},
+						wirtualsdk.BypassRatelimitHeader: {"true"},
 					},
 				},
 			}
@@ -634,7 +634,7 @@ func (r *RootCmd) scaletestCreateWorkspaces() *serpent.Command {
 					Workspace: workspacebuild.Config{
 						OrganizationID: me.OrganizationIDs[0],
 						// UserID is set by the test automatically.
-						Request: codersdk.CreateWorkspaceRequest{
+						Request: wirtualsdk.CreateWorkspaceRequest{
 							TemplateID:          tpl.ID,
 							RichParameterValues: richParameters,
 						},
@@ -868,7 +868,7 @@ func (r *RootCmd) scaletestWorkspaceTraffic() *serpent.Command {
 		template         string
 		targetWorkspaces string
 
-		client          = &codersdk.Client{}
+		client          = &wirtualsdk.Client{}
 		tracingFlags    = &scaletestTracingFlags{}
 		strategy        = &scaletestStrategyFlags{}
 		cleanupStrategy = &scaletestStrategyFlags{cleanup: true}
@@ -878,7 +878,7 @@ func (r *RootCmd) scaletestWorkspaceTraffic() *serpent.Command {
 
 	cmd := &serpent.Command{
 		Use:   "workspace-traffic",
-		Short: "Generate traffic to scaletest workspaces through coderd",
+		Short: "Generate traffic to scaletest workspaces through wirtuald",
 		Middleware: serpent.Chain(
 			r.InitClient(client),
 		),
@@ -903,10 +903,10 @@ func (r *RootCmd) scaletestWorkspaceTraffic() *serpent.Command {
 
 			// Bypass rate limiting
 			client.HTTPClient = &http.Client{
-				Transport: &codersdk.HeaderTransport{
+				Transport: &wirtualsdk.HeaderTransport{
 					Transport: http.DefaultTransport,
 					Header: map[string][]string{
-						codersdk.BypassRatelimitHeader: {"true"},
+						wirtualsdk.BypassRatelimitHeader: {"true"},
 					},
 				},
 			}
@@ -929,7 +929,7 @@ func (r *RootCmd) scaletestWorkspaceTraffic() *serpent.Command {
 
 			var owner string
 			if useHostLogin {
-				owner = codersdk.Me
+				owner = wirtualsdk.Me
 			}
 
 			workspaces, numSkipped, err := getScaletestWorkspaces(inv.Context(), client, owner, template)
@@ -980,7 +980,7 @@ func (r *RootCmd) scaletestWorkspaceTraffic() *serpent.Command {
 				}
 
 				var (
-					agent codersdk.WorkspaceAgent
+					agent wirtualsdk.WorkspaceAgent
 					name  = "workspace-traffic"
 					id    = strconv.Itoa(idx)
 				)
@@ -1098,7 +1098,7 @@ func (r *RootCmd) scaletestWorkspaceTraffic() *serpent.Command {
 			Flag:        "app",
 			Env:         "CODER_SCALETEST_WORKSPACE_TRAFFIC_APP",
 			Default:     "",
-			Description: "Send WebSocket traffic to a workspace app (proxied via coderd), cannot be used with --ssh.",
+			Description: "Send WebSocket traffic to a workspace app (proxied via wirtuald), cannot be used with --ssh.",
 			Value:       serpent.StringOf(&app),
 		},
 		{
@@ -1127,7 +1127,7 @@ func (r *RootCmd) scaletestDashboard() *serpent.Command {
 		randSeed    int64
 		targetUsers string
 
-		client          = &codersdk.Client{}
+		client          = &wirtualsdk.Client{}
 		tracingFlags    = &scaletestTracingFlags{}
 		strategy        = &scaletestStrategyFlags{}
 		cleanupStrategy = &scaletestStrategyFlags{cleanup: true}
@@ -1200,7 +1200,7 @@ func (r *RootCmd) scaletestDashboard() *serpent.Command {
 				//nolint:gosec // not used for cryptographic purposes
 				rndGen := rand.New(rand.NewSource(randSeed))
 				name := fmt.Sprintf("dashboard-%s", usr.Username)
-				userTokResp, err := client.CreateToken(ctx, usr.ID.String(), codersdk.CreateTokenRequest{
+				userTokResp, err := client.CreateToken(ctx, usr.ID.String(), wirtualsdk.CreateTokenRequest{
 					Lifetime:  30 * 24 * time.Hour,
 					Scope:     "",
 					TokenName: fmt.Sprintf("scaletest-%d", time.Now().Unix()),
@@ -1209,7 +1209,7 @@ func (r *RootCmd) scaletestDashboard() *serpent.Command {
 					return xerrors.Errorf("create token for user: %w", err)
 				}
 
-				userClient := codersdk.New(client.URL)
+				userClient := wirtualsdk.New(client.URL)
 				userClient.SetSessionToken(userTokResp.Key)
 
 				config := dashboard.Config{
@@ -1385,24 +1385,24 @@ func newScaleTestWorkspace(id string) (name string, err error) {
 	return fmt.Sprintf("scaletest-%s-%s", randStr, id), err
 }
 
-func isScaleTestUser(user codersdk.User) bool {
+func isScaleTestUser(user wirtualsdk.User) bool {
 	return strings.HasSuffix(user.Email, "@scaletest.local")
 }
 
-func isScaleTestWorkspace(workspace codersdk.Workspace) bool {
+func isScaleTestWorkspace(workspace wirtualsdk.Workspace) bool {
 	return strings.HasPrefix(workspace.OwnerName, "scaletest-") ||
 		strings.HasPrefix(workspace.Name, "scaletest-")
 }
 
-func getScaletestWorkspaces(ctx context.Context, client *codersdk.Client, owner, template string) ([]codersdk.Workspace, int, error) {
+func getScaletestWorkspaces(ctx context.Context, client *wirtualsdk.Client, owner, template string) ([]wirtualsdk.Workspace, int, error) {
 	var (
 		pageNumber = 0
 		limit      = 100
-		workspaces []codersdk.Workspace
+		workspaces []wirtualsdk.Workspace
 		skipped    int
 	)
 
-	me, err := client.User(ctx, codersdk.Me)
+	me, err := client.User(ctx, wirtualsdk.Me)
 	if err != nil {
 		return nil, 0, xerrors.Errorf("check logged-in user")
 	}
@@ -1414,7 +1414,7 @@ func getScaletestWorkspaces(ctx context.Context, client *codersdk.Client, owner,
 	noOwnerAccess := dv.Values != nil && dv.Values.DisableOwnerWorkspaceExec.Value()
 
 	for {
-		page, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		page, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			Name:     "scaletest-",
 			Template: template,
 			Owner:    owner,
@@ -1430,7 +1430,7 @@ func getScaletestWorkspaces(ctx context.Context, client *codersdk.Client, owner,
 			break
 		}
 
-		pageWorkspaces := make([]codersdk.Workspace, 0, len(page.Workspaces))
+		pageWorkspaces := make([]wirtualsdk.Workspace, 0, len(page.Workspaces))
 		for _, w := range page.Workspaces {
 			if !isScaleTestWorkspace(w) {
 				continue
@@ -1446,17 +1446,17 @@ func getScaletestWorkspaces(ctx context.Context, client *codersdk.Client, owner,
 	return workspaces, skipped, nil
 }
 
-func getScaletestUsers(ctx context.Context, client *codersdk.Client) ([]codersdk.User, error) {
+func getScaletestUsers(ctx context.Context, client *wirtualsdk.Client) ([]wirtualsdk.User, error) {
 	var (
 		pageNumber = 0
 		limit      = 100
-		users      []codersdk.User
+		users      []wirtualsdk.User
 	)
 
 	for {
-		page, err := client.Users(ctx, codersdk.UsersRequest{
+		page, err := client.Users(ctx, wirtualsdk.UsersRequest{
 			Search: "scaletest-",
-			Pagination: codersdk.Pagination{
+			Pagination: wirtualsdk.Pagination{
 				Offset: pageNumber * limit,
 				Limit:  limit,
 			},
@@ -1470,7 +1470,7 @@ func getScaletestUsers(ctx context.Context, client *codersdk.Client) ([]codersdk
 			break
 		}
 
-		pageUsers := make([]codersdk.User, 0, len(page.Users))
+		pageUsers := make([]wirtualsdk.User, 0, len(page.Users))
 		for _, u := range page.Users {
 			if isScaleTestUser(u) {
 				pageUsers = append(pageUsers, u)
@@ -1482,7 +1482,7 @@ func getScaletestUsers(ctx context.Context, client *codersdk.Client) ([]codersdk
 	return users, nil
 }
 
-func parseTemplate(ctx context.Context, client *codersdk.Client, organizationIDs []uuid.UUID, template string) (tpl codersdk.Template, err error) {
+func parseTemplate(ctx context.Context, client *wirtualsdk.Client, organizationIDs []uuid.UUID, template string) (tpl wirtualsdk.Template, err error) {
 	if id, err := uuid.Parse(template); err == nil && id != uuid.Nil {
 		tpl, err = client.Template(ctx, id)
 		if err != nil {
@@ -1542,12 +1542,12 @@ func parseTargetRange(name, targets string) (start, end int, err error) {
 	return start, end, nil
 }
 
-func createWorkspaceAppConfig(client *codersdk.Client, appHost, app string, workspace codersdk.Workspace, agent codersdk.WorkspaceAgent) (workspacetraffic.AppConfig, error) {
+func createWorkspaceAppConfig(client *wirtualsdk.Client, appHost, app string, workspace wirtualsdk.Workspace, agent wirtualsdk.WorkspaceAgent) (workspacetraffic.AppConfig, error) {
 	if app == "" {
 		return workspacetraffic.AppConfig{}, nil
 	}
 
-	i := slices.IndexFunc(agent.Apps, func(a codersdk.WorkspaceApp) bool { return a.Slug == app })
+	i := slices.IndexFunc(agent.Apps, func(a wirtualsdk.WorkspaceApp) bool { return a.Slug == app })
 	if i == -1 {
 		return workspacetraffic.AppConfig{}, xerrors.Errorf("app %q not found in workspace %q", app, workspace.Name)
 	}

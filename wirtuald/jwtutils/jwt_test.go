@@ -11,12 +11,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/cryptokeys"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/jwtutils"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/cryptokeys"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbgen"
+	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
+	"github.com/coder/coder/v2/wirtuald/jwtutils"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/testutil"
 )
 
@@ -241,7 +241,7 @@ func TestJWS(t *testing.T) {
 			fetcher = &cryptokeys.DBFetcher{DB: db}
 		)
 
-		cache, err := cryptokeys.NewSigningCache(ctx, log, fetcher, codersdk.CryptoKeyFeatureOIDCConvert)
+		cache, err := cryptokeys.NewSigningCache(ctx, log, fetcher, wirtualsdk.CryptoKeyFeatureOIDCConvert)
 		require.NoError(t, err)
 
 		claims := testClaims{
@@ -332,7 +332,7 @@ func TestJWE(t *testing.T) {
 			fetcher = &cryptokeys.DBFetcher{DB: db}
 		)
 
-		cache, err := cryptokeys.NewEncryptionCache(ctx, log, fetcher, codersdk.CryptoKeyFeatureWorkspaceAppsAPIKey)
+		cache, err := cryptokeys.NewEncryptionCache(ctx, log, fetcher, wirtualsdk.CryptoKeyFeatureWorkspaceAppsAPIKey)
 		require.NoError(t, err)
 
 		claims := testClaims{

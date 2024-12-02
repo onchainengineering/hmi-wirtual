@@ -7,8 +7,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/scaletest/agentconn"
 	"github.com/coder/coder/v2/scaletest/createworkspaces"
 	"github.com/coder/coder/v2/scaletest/reconnectingpty"
@@ -93,7 +93,7 @@ func Test_Config(t *testing.T) {
 	workspaceConfig := workspacebuild.Config{
 		OrganizationID: id,
 		UserID:         id.String(),
-		Request: codersdk.CreateWorkspaceRequest{
+		Request: wirtualsdk.CreateWorkspaceRequest{
 			TemplateID: id,
 		},
 	}
@@ -145,7 +145,7 @@ func Test_Config(t *testing.T) {
 			config: createworkspaces.Config{
 				User: userConfig,
 				Workspace: workspacebuild.Config{
-					Request: codersdk.CreateWorkspaceRequest{
+					Request: wirtualsdk.CreateWorkspaceRequest{
 						TemplateID: uuid.Nil,
 					},
 				},

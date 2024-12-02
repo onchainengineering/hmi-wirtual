@@ -19,7 +19,7 @@ import (
 	"tailscale.com/util/dnsname"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/tailnet/proto"
 	"github.com/coder/quartz"
 	"github.com/coder/retry"
@@ -1206,7 +1206,7 @@ func (c *Controller) Run(ctx context.Context) {
 					return
 				}
 				errF := slog.Error(err)
-				var sdkErr *codersdk.Error
+				var sdkErr *wirtualsdk.Error
 				if xerrors.As(err, &sdkErr) {
 					errF = slog.Error(sdkErr)
 				}

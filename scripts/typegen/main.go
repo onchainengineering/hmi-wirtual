@@ -18,14 +18,14 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/rbac/policy"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/rbac/policy"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 //go:embed rbacobject.gotmpl
 var rbacObjectTemplate string
 
-//go:embed codersdk.gotmpl
+//go:embed wirtualsdk.gotmpl
 var codersdkTemplate string
 
 //go:embed typescript.tstmpl
@@ -37,7 +37,7 @@ var countriesTemplate string
 func usage() {
 	_, _ = fmt.Println("Usage: typegen <type> [template]")
 	_, _ = fmt.Println("Types:")
-	_, _ = fmt.Println("  rbac <object|codersdk|typescript> - Generate RBAC related files")
+	_, _ = fmt.Println("  rbac <object|wirtualsdk|typescript> - Generate RBAC related files")
 	_, _ = fmt.Println("  countries              - Generate countries TypeScript")
 }
 
@@ -86,7 +86,7 @@ func generateRBAC(tmpl string) ([]byte, error) {
 	formatSource := format.Source
 	var source string
 	switch strings.ToLower(tmpl) {
-	case "codersdk":
+	case "wirtualsdk":
 		source = codersdkTemplate
 	case "object":
 		source = rbacObjectTemplate
@@ -114,7 +114,7 @@ func generateCountries() ([]byte, error) {
 	}
 
 	var out bytes.Buffer
-	err = tmpl.Execute(&out, codersdk.Countries)
+	err = tmpl.Execute(&out, wirtualsdk.Countries)
 	if err != nil {
 		return nil, xerrors.Errorf("execute template: %w", err)
 	}
@@ -199,7 +199,7 @@ type ActionDetails struct {
 // to the go templates. Some AST of the Action enum is also included.
 func generateRbacObjects(templateSource string) ([]byte, error) {
 	// Parse the policy.go file for the action enums
-	f, err := parser.ParseFile(token.NewFileSet(), "./coderd/rbac/policy/policy.go", nil, parser.ParseComments)
+	f, err := parser.ParseFile(token.NewFileSet(), "./wirtuald/rbac/policy/policy.go", nil, parser.ParseComments)
 	if err != nil {
 		return nil, xerrors.Errorf("parsing policy.go: %w", err)
 	}

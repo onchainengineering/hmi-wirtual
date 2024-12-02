@@ -5,7 +5,7 @@ import (
 
 	"go.uber.org/goleak"
 
-	"github.com/coder/coder/v2/coderd/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
 )
 
 func TestMain(m *testing.M) {

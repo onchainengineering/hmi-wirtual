@@ -14,10 +14,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/oauth2"
 
-	"github.com/coder/coder/v2/coderd/coderdtest/oidctest"
-	"github.com/coder/coder/v2/coderd/coderdtest/promhelp"
-	"github.com/coder/coder/v2/coderd/externalauth"
-	"github.com/coder/coder/v2/coderd/promoauth"
+	"github.com/coder/coder/v2/wirtuald/coderdtest/oidctest"
+	"github.com/coder/coder/v2/wirtuald/coderdtest/promhelp"
+	"github.com/coder/coder/v2/wirtuald/externalauth"
+	"github.com/coder/coder/v2/wirtuald/promoauth"
 	"github.com/coder/coder/v2/testutil"
 )
 

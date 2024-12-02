@@ -9,11 +9,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbgen"
+	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 func TestWorkspaceAgent(t *testing.T) {
@@ -30,7 +30,7 @@ func TestWorkspaceAgent(t *testing.T) {
 			}))
 
 		rw := httptest.NewRecorder()
-		req.Header.Set(codersdk.SessionTokenHeader, uuid.New().String())
+		req.Header.Set(wirtualsdk.SessionTokenHeader, uuid.New().String())
 		rtr.ServeHTTP(rw, req)
 
 		res := rw.Result()
@@ -49,7 +49,7 @@ func TestWorkspaceAgent(t *testing.T) {
 			}))
 
 		rw := httptest.NewRecorder()
-		req.Header.Set(codersdk.SessionTokenHeader, authToken.String())
+		req.Header.Set(wirtualsdk.SessionTokenHeader, authToken.String())
 		rtr.ServeHTTP(rw, req)
 
 		//nolint:bodyclose // Closed in `t.Cleanup`
@@ -87,7 +87,7 @@ func TestWorkspaceAgent(t *testing.T) {
 		})
 
 		rw := httptest.NewRecorder()
-		req.Header.Set(codersdk.SessionTokenHeader, authToken.String())
+		req.Header.Set(wirtualsdk.SessionTokenHeader, authToken.String())
 		rtr.ServeHTTP(rw, req)
 
 		//nolint:bodyclose // Closed in `t.Cleanup`

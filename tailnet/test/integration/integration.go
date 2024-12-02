@@ -33,10 +33,10 @@ import (
 	"tailscale.com/types/key"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtuald/tracing"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/tailnet"
 	tailnetproto "github.com/coder/coder/v2/tailnet/proto"
 	"github.com/coder/coder/v2/testutil"
@@ -261,7 +261,7 @@ func (o SimpleServerOptions) Router(t *testing.T, logger slog.Logger) *chi.Mux {
 		id, err := uuid.Parse(idStr)
 		if err != nil {
 			logger.Warn(ctx, "bad agent ID passed in URL params", slog.F("id_str", idStr), slog.Error(err))
-			httpapi.Write(ctx, w, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, w, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Bad agent id.",
 				Detail:  err.Error(),
 			})
@@ -271,14 +271,14 @@ func (o SimpleServerOptions) Router(t *testing.T, logger slog.Logger) *chi.Mux {
 		conn, err := websocket.Accept(w, r, nil)
 		if err != nil {
 			logger.Warn(ctx, "failed to accept websocket", slog.Error(err))
-			httpapi.Write(ctx, w, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, w, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Failed to accept websocket.",
 				Detail:  err.Error(),
 			})
 			return
 		}
 
-		ctx, wsNetConn := codersdk.WebsocketNetConn(ctx, conn, websocket.MessageBinary)
+		ctx, wsNetConn := wirtualsdk.WebsocketNetConn(ctx, conn, websocket.MessageBinary)
 		defer wsNetConn.Close()
 
 		cleanFn := cm.Add(id, wsNetConn)

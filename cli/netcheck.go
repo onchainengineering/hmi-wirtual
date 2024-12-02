@@ -8,15 +8,15 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/healthcheck/derphealth"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/healthsdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/coder/coder/v2/wirtuald/healthcheck/derphealth"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/healthsdk"
+	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 	"github.com/coder/serpent"
 )
 
 func (r *RootCmd) netcheck() *serpent.Command {
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 
 	cmd := &serpent.Command{
 		Use:   "netcheck",

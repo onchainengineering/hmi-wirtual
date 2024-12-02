@@ -19,7 +19,7 @@ deployment reliability under load.
 
 | Users       | Node capacity        | Replicas                | GCP             | AWS         | Azure             |
 | ----------- | -------------------- | ----------------------- | --------------- | ----------- | ----------------- |
-| Up to 2,000 | 4 vCPU, 16 GB memory | 2 nodes / 1 coderd each | `n1-standard-4` | `t3.xlarge` | `Standard_D4s_v3` |
+| Up to 2,000 | 4 vCPU, 16 GB memory | 2 nodes / 1 wirtuald each | `n1-standard-4` | `t3.xlarge` | `Standard_D4s_v3` |
 
 ### Provisioner nodes
 
@@ -30,7 +30,7 @@ deployment reliability under load.
 **Footnotes**:
 
 - An external provisioner is deployed as Kubernetes pod.
-- It is not recommended to run provisioner daemons on `coderd` nodes.
+- It is not recommended to run provisioner daemons on `wirtuald` nodes.
 - Consider separating provisioners into different namespaces in favor of
   zero-trust or multi-cloud deployments.
 

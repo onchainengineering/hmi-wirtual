@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 func TestAutoUpdate(t *testing.T) {
@@ -26,9 +26,9 @@ func TestAutoUpdate(t *testing.T) {
 		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 		workspace := coderdtest.CreateWorkspace(t, member, template.ID)
 		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
-		require.Equal(t, codersdk.AutomaticUpdatesNever, workspace.AutomaticUpdates)
+		require.Equal(t, wirtualsdk.AutomaticUpdatesNever, workspace.AutomaticUpdates)
 
-		expectedPolicy := codersdk.AutomaticUpdatesAlways
+		expectedPolicy := wirtualsdk.AutomaticUpdatesAlways
 		inv, root := clitest.New(t, "autoupdate", workspace.Name, string(expectedPolicy))
 		clitest.SetupConfig(t, member, root)
 		var buf bytes.Buffer

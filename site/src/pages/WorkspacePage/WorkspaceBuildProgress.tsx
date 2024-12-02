@@ -104,7 +104,7 @@ export const WorkspaceBuildProgress: FC<WorkspaceBuildProgressProps> = ({
 		};
 	}, [progressValue, job, transitionStats]);
 
-	// HACK: the codersdk type generator doesn't support null values, but this
+	// HACK: the wirtualsdk type generator doesn't support null values, but this
 	// can be null when the template is new.
 	if ((transitionStats.P50 as number | null) === null) {
 		return <></>;

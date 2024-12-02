@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/pty/ptytest"
 )
 
@@ -19,17 +19,17 @@ func TestWorkspaceResources(t *testing.T) {
 		ptty := ptytest.New(t)
 		done := make(chan struct{})
 		go func() {
-			err := cliui.WorkspaceResources(ptty.Output(), []codersdk.WorkspaceResource{{
+			err := cliui.WorkspaceResources(ptty.Output(), []wirtualsdk.WorkspaceResource{{
 				Type:       "google_compute_instance",
 				Name:       "dev",
-				Transition: codersdk.WorkspaceTransitionStart,
-				Agents: []codersdk.WorkspaceAgent{{
+				Transition: wirtualsdk.WorkspaceTransitionStart,
+				Agents: []wirtualsdk.WorkspaceAgent{{
 					Name:            "dev",
-					Status:          codersdk.WorkspaceAgentConnected,
-					LifecycleState:  codersdk.WorkspaceAgentLifecycleCreated,
+					Status:          wirtualsdk.WorkspaceAgentConnected,
+					LifecycleState:  wirtualsdk.WorkspaceAgentLifecycleCreated,
 					Architecture:    "amd64",
 					OperatingSystem: "linux",
-					Health:          codersdk.WorkspaceAgentHealth{Healthy: true},
+					Health:          wirtualsdk.WorkspaceAgentHealth{Healthy: true},
 				}},
 			}}, cliui.WorkspaceResourcesOptions{
 				WorkspaceName: "example",
@@ -47,46 +47,46 @@ func TestWorkspaceResources(t *testing.T) {
 		disconnected := dbtime.Now().Add(-4 * time.Second)
 		done := make(chan struct{})
 		go func() {
-			err := cliui.WorkspaceResources(ptty.Output(), []codersdk.WorkspaceResource{{
-				Transition: codersdk.WorkspaceTransitionStart,
+			err := cliui.WorkspaceResources(ptty.Output(), []wirtualsdk.WorkspaceResource{{
+				Transition: wirtualsdk.WorkspaceTransitionStart,
 				Type:       "google_compute_disk",
 				Name:       "root",
 			}, {
-				Transition: codersdk.WorkspaceTransitionStop,
+				Transition: wirtualsdk.WorkspaceTransitionStop,
 				Type:       "google_compute_disk",
 				Name:       "root",
 			}, {
-				Transition: codersdk.WorkspaceTransitionStart,
+				Transition: wirtualsdk.WorkspaceTransitionStart,
 				Type:       "google_compute_instance",
 				Name:       "dev",
-				Agents: []codersdk.WorkspaceAgent{{
+				Agents: []wirtualsdk.WorkspaceAgent{{
 					CreatedAt:       dbtime.Now().Add(-10 * time.Second),
-					Status:          codersdk.WorkspaceAgentConnecting,
-					LifecycleState:  codersdk.WorkspaceAgentLifecycleCreated,
+					Status:          wirtualsdk.WorkspaceAgentConnecting,
+					LifecycleState:  wirtualsdk.WorkspaceAgentLifecycleCreated,
 					Name:            "dev",
 					OperatingSystem: "linux",
 					Architecture:    "amd64",
-					Health:          codersdk.WorkspaceAgentHealth{Healthy: true},
+					Health:          wirtualsdk.WorkspaceAgentHealth{Healthy: true},
 				}},
 			}, {
-				Transition: codersdk.WorkspaceTransitionStart,
+				Transition: wirtualsdk.WorkspaceTransitionStart,
 				Type:       "kubernetes_pod",
 				Name:       "dev",
-				Agents: []codersdk.WorkspaceAgent{{
-					Status:          codersdk.WorkspaceAgentConnected,
-					LifecycleState:  codersdk.WorkspaceAgentLifecycleReady,
+				Agents: []wirtualsdk.WorkspaceAgent{{
+					Status:          wirtualsdk.WorkspaceAgentConnected,
+					LifecycleState:  wirtualsdk.WorkspaceAgentLifecycleReady,
 					Name:            "go",
 					Architecture:    "amd64",
 					OperatingSystem: "linux",
-					Health:          codersdk.WorkspaceAgentHealth{Healthy: true},
+					Health:          wirtualsdk.WorkspaceAgentHealth{Healthy: true},
 				}, {
 					DisconnectedAt:  &disconnected,
-					Status:          codersdk.WorkspaceAgentDisconnected,
-					LifecycleState:  codersdk.WorkspaceAgentLifecycleReady,
+					Status:          wirtualsdk.WorkspaceAgentDisconnected,
+					LifecycleState:  wirtualsdk.WorkspaceAgentLifecycleReady,
 					Name:            "postgres",
 					Architecture:    "amd64",
 					OperatingSystem: "linux",
-					Health: codersdk.WorkspaceAgentHealth{
+					Health: wirtualsdk.WorkspaceAgentHealth{
 						Healthy: false,
 						Reason:  "agent has lost connection",
 					},

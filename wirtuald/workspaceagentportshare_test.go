@@ -6,11 +6,11 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/coder/coder/v2/wirtuald/database/dbfake"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/provisionersdk/proto"
 	"github.com/coder/coder/v2/testutil"
 )
@@ -35,57 +35,57 @@ func TestPostWorkspaceAgentPortShare(t *testing.T) {
 	require.NoError(t, err)
 
 	// owner level should fail
-	_, err = client.UpsertWorkspaceAgentPortShare(ctx, r.Workspace.ID, codersdk.UpsertWorkspaceAgentPortShareRequest{
+	_, err = client.UpsertWorkspaceAgentPortShare(ctx, r.Workspace.ID, wirtualsdk.UpsertWorkspaceAgentPortShareRequest{
 		AgentName:  agents[0].Name,
 		Port:       8080,
-		ShareLevel: codersdk.WorkspaceAgentPortShareLevel("owner"),
-		Protocol:   codersdk.WorkspaceAgentPortShareProtocolHTTP,
+		ShareLevel: wirtualsdk.WorkspaceAgentPortShareLevel("owner"),
+		Protocol:   wirtualsdk.WorkspaceAgentPortShareProtocolHTTP,
 	})
 	require.Error(t, err)
 
 	// invalid level should fail
-	_, err = client.UpsertWorkspaceAgentPortShare(ctx, r.Workspace.ID, codersdk.UpsertWorkspaceAgentPortShareRequest{
+	_, err = client.UpsertWorkspaceAgentPortShare(ctx, r.Workspace.ID, wirtualsdk.UpsertWorkspaceAgentPortShareRequest{
 		AgentName:  agents[0].Name,
 		Port:       8080,
-		ShareLevel: codersdk.WorkspaceAgentPortShareLevel("invalid"),
-		Protocol:   codersdk.WorkspaceAgentPortShareProtocolHTTP,
+		ShareLevel: wirtualsdk.WorkspaceAgentPortShareLevel("invalid"),
+		Protocol:   wirtualsdk.WorkspaceAgentPortShareProtocolHTTP,
 	})
 	require.Error(t, err)
 
 	// invalid protocol should fail
-	_, err = client.UpsertWorkspaceAgentPortShare(ctx, r.Workspace.ID, codersdk.UpsertWorkspaceAgentPortShareRequest{
+	_, err = client.UpsertWorkspaceAgentPortShare(ctx, r.Workspace.ID, wirtualsdk.UpsertWorkspaceAgentPortShareRequest{
 		AgentName:  agents[0].Name,
 		Port:       8080,
-		ShareLevel: codersdk.WorkspaceAgentPortShareLevelPublic,
-		Protocol:   codersdk.WorkspaceAgentPortShareProtocol("invalid"),
+		ShareLevel: wirtualsdk.WorkspaceAgentPortShareLevelPublic,
+		Protocol:   wirtualsdk.WorkspaceAgentPortShareProtocol("invalid"),
 	})
 	require.Error(t, err)
 
 	// invalid port should fail
-	_, err = client.UpsertWorkspaceAgentPortShare(ctx, r.Workspace.ID, codersdk.UpsertWorkspaceAgentPortShareRequest{
+	_, err = client.UpsertWorkspaceAgentPortShare(ctx, r.Workspace.ID, wirtualsdk.UpsertWorkspaceAgentPortShareRequest{
 		AgentName:  agents[0].Name,
 		Port:       0,
-		ShareLevel: codersdk.WorkspaceAgentPortShareLevelPublic,
-		Protocol:   codersdk.WorkspaceAgentPortShareProtocolHTTP,
+		ShareLevel: wirtualsdk.WorkspaceAgentPortShareLevelPublic,
+		Protocol:   wirtualsdk.WorkspaceAgentPortShareProtocolHTTP,
 	})
 	require.Error(t, err)
-	_, err = client.UpsertWorkspaceAgentPortShare(ctx, r.Workspace.ID, codersdk.UpsertWorkspaceAgentPortShareRequest{
+	_, err = client.UpsertWorkspaceAgentPortShare(ctx, r.Workspace.ID, wirtualsdk.UpsertWorkspaceAgentPortShareRequest{
 		AgentName:  agents[0].Name,
 		Port:       90000000,
-		ShareLevel: codersdk.WorkspaceAgentPortShareLevelPublic,
+		ShareLevel: wirtualsdk.WorkspaceAgentPortShareLevelPublic,
 	})
 	require.Error(t, err)
 
 	// OK, ignoring template max port share level because we are AGPL
-	ps, err := client.UpsertWorkspaceAgentPortShare(ctx, r.Workspace.ID, codersdk.UpsertWorkspaceAgentPortShareRequest{
+	ps, err := client.UpsertWorkspaceAgentPortShare(ctx, r.Workspace.ID, wirtualsdk.UpsertWorkspaceAgentPortShareRequest{
 		AgentName:  agents[0].Name,
 		Port:       8080,
-		ShareLevel: codersdk.WorkspaceAgentPortShareLevelPublic,
-		Protocol:   codersdk.WorkspaceAgentPortShareProtocolHTTPS,
+		ShareLevel: wirtualsdk.WorkspaceAgentPortShareLevelPublic,
+		Protocol:   wirtualsdk.WorkspaceAgentPortShareProtocolHTTPS,
 	})
 	require.NoError(t, err)
-	require.EqualValues(t, codersdk.WorkspaceAgentPortShareLevelPublic, ps.ShareLevel)
-	require.EqualValues(t, codersdk.WorkspaceAgentPortShareProtocolHTTPS, ps.Protocol)
+	require.EqualValues(t, wirtualsdk.WorkspaceAgentPortShareLevelPublic, ps.ShareLevel)
+	require.EqualValues(t, wirtualsdk.WorkspaceAgentPortShareProtocolHTTPS, ps.Protocol)
 
 	// list
 	list, err := client.GetWorkspaceAgentPortShares(ctx, r.Workspace.ID)
@@ -93,19 +93,19 @@ func TestPostWorkspaceAgentPortShare(t *testing.T) {
 	require.Len(t, list.Shares, 1)
 	require.EqualValues(t, agents[0].Name, list.Shares[0].AgentName)
 	require.EqualValues(t, 8080, list.Shares[0].Port)
-	require.EqualValues(t, codersdk.WorkspaceAgentPortShareLevelPublic, list.Shares[0].ShareLevel)
-	require.EqualValues(t, codersdk.WorkspaceAgentPortShareProtocolHTTPS, list.Shares[0].Protocol)
+	require.EqualValues(t, wirtualsdk.WorkspaceAgentPortShareLevelPublic, list.Shares[0].ShareLevel)
+	require.EqualValues(t, wirtualsdk.WorkspaceAgentPortShareProtocolHTTPS, list.Shares[0].Protocol)
 
 	// update share level and protocol
-	ps, err = client.UpsertWorkspaceAgentPortShare(ctx, r.Workspace.ID, codersdk.UpsertWorkspaceAgentPortShareRequest{
+	ps, err = client.UpsertWorkspaceAgentPortShare(ctx, r.Workspace.ID, wirtualsdk.UpsertWorkspaceAgentPortShareRequest{
 		AgentName:  agents[0].Name,
 		Port:       8080,
-		ShareLevel: codersdk.WorkspaceAgentPortShareLevelAuthenticated,
-		Protocol:   codersdk.WorkspaceAgentPortShareProtocolHTTP,
+		ShareLevel: wirtualsdk.WorkspaceAgentPortShareLevelAuthenticated,
+		Protocol:   wirtualsdk.WorkspaceAgentPortShareProtocolHTTP,
 	})
 	require.NoError(t, err)
-	require.EqualValues(t, codersdk.WorkspaceAgentPortShareLevelAuthenticated, ps.ShareLevel)
-	require.EqualValues(t, codersdk.WorkspaceAgentPortShareProtocolHTTP, ps.Protocol)
+	require.EqualValues(t, wirtualsdk.WorkspaceAgentPortShareLevelAuthenticated, ps.ShareLevel)
+	require.EqualValues(t, wirtualsdk.WorkspaceAgentPortShareProtocolHTTP, ps.Protocol)
 
 	// list
 	list, err = client.GetWorkspaceAgentPortShares(ctx, r.Workspace.ID)
@@ -113,15 +113,15 @@ func TestPostWorkspaceAgentPortShare(t *testing.T) {
 	require.Len(t, list.Shares, 1)
 	require.EqualValues(t, agents[0].Name, list.Shares[0].AgentName)
 	require.EqualValues(t, 8080, list.Shares[0].Port)
-	require.EqualValues(t, codersdk.WorkspaceAgentPortShareLevelAuthenticated, list.Shares[0].ShareLevel)
-	require.EqualValues(t, codersdk.WorkspaceAgentPortShareProtocolHTTP, list.Shares[0].Protocol)
+	require.EqualValues(t, wirtualsdk.WorkspaceAgentPortShareLevelAuthenticated, list.Shares[0].ShareLevel)
+	require.EqualValues(t, wirtualsdk.WorkspaceAgentPortShareProtocolHTTP, list.Shares[0].Protocol)
 
 	// list 2 ordered by port
-	ps, err = client.UpsertWorkspaceAgentPortShare(ctx, r.Workspace.ID, codersdk.UpsertWorkspaceAgentPortShareRequest{
+	ps, err = client.UpsertWorkspaceAgentPortShare(ctx, r.Workspace.ID, wirtualsdk.UpsertWorkspaceAgentPortShareRequest{
 		AgentName:  agents[0].Name,
 		Port:       8081,
-		ShareLevel: codersdk.WorkspaceAgentPortShareLevelPublic,
-		Protocol:   codersdk.WorkspaceAgentPortShareProtocolHTTPS,
+		ShareLevel: wirtualsdk.WorkspaceAgentPortShareLevelPublic,
+		Protocol:   wirtualsdk.WorkspaceAgentPortShareProtocolHTTPS,
 	})
 	require.NoError(t, err)
 	list, err = client.GetWorkspaceAgentPortShares(ctx, r.Workspace.ID)
@@ -151,11 +151,11 @@ func TestGetWorkspaceAgentPortShares(t *testing.T) {
 	agents, err := db.GetWorkspaceAgentsInLatestBuildByWorkspaceID(dbauthz.As(ctx, coderdtest.AuthzUserSubject(user, owner.OrganizationID)), r.Workspace.ID)
 	require.NoError(t, err)
 
-	_, err = client.UpsertWorkspaceAgentPortShare(ctx, r.Workspace.ID, codersdk.UpsertWorkspaceAgentPortShareRequest{
+	_, err = client.UpsertWorkspaceAgentPortShare(ctx, r.Workspace.ID, wirtualsdk.UpsertWorkspaceAgentPortShareRequest{
 		AgentName:  agents[0].Name,
 		Port:       8080,
-		ShareLevel: codersdk.WorkspaceAgentPortShareLevelPublic,
-		Protocol:   codersdk.WorkspaceAgentPortShareProtocolHTTP,
+		ShareLevel: wirtualsdk.WorkspaceAgentPortShareLevelPublic,
+		Protocol:   wirtualsdk.WorkspaceAgentPortShareProtocolHTTP,
 	})
 	require.NoError(t, err)
 
@@ -164,7 +164,7 @@ func TestGetWorkspaceAgentPortShares(t *testing.T) {
 	require.Len(t, ps.Shares, 1)
 	require.EqualValues(t, agents[0].Name, ps.Shares[0].AgentName)
 	require.EqualValues(t, 8080, ps.Shares[0].Port)
-	require.EqualValues(t, codersdk.WorkspaceAgentPortShareLevelPublic, ps.Shares[0].ShareLevel)
+	require.EqualValues(t, wirtualsdk.WorkspaceAgentPortShareLevelPublic, ps.Shares[0].ShareLevel)
 }
 
 func TestDeleteWorkspaceAgentPortShare(t *testing.T) {
@@ -188,24 +188,24 @@ func TestDeleteWorkspaceAgentPortShare(t *testing.T) {
 	require.NoError(t, err)
 
 	// create
-	ps, err := client.UpsertWorkspaceAgentPortShare(ctx, r.Workspace.ID, codersdk.UpsertWorkspaceAgentPortShareRequest{
+	ps, err := client.UpsertWorkspaceAgentPortShare(ctx, r.Workspace.ID, wirtualsdk.UpsertWorkspaceAgentPortShareRequest{
 		AgentName:  agents[0].Name,
 		Port:       8080,
-		ShareLevel: codersdk.WorkspaceAgentPortShareLevelPublic,
-		Protocol:   codersdk.WorkspaceAgentPortShareProtocolHTTP,
+		ShareLevel: wirtualsdk.WorkspaceAgentPortShareLevelPublic,
+		Protocol:   wirtualsdk.WorkspaceAgentPortShareProtocolHTTP,
 	})
 	require.NoError(t, err)
-	require.EqualValues(t, codersdk.WorkspaceAgentPortShareLevelPublic, ps.ShareLevel)
+	require.EqualValues(t, wirtualsdk.WorkspaceAgentPortShareLevelPublic, ps.ShareLevel)
 
 	// delete
-	err = client.DeleteWorkspaceAgentPortShare(ctx, r.Workspace.ID, codersdk.DeleteWorkspaceAgentPortShareRequest{
+	err = client.DeleteWorkspaceAgentPortShare(ctx, r.Workspace.ID, wirtualsdk.DeleteWorkspaceAgentPortShareRequest{
 		AgentName: agents[0].Name,
 		Port:      8080,
 	})
 	require.NoError(t, err)
 
 	// delete missing
-	err = client.DeleteWorkspaceAgentPortShare(ctx, r.Workspace.ID, codersdk.DeleteWorkspaceAgentPortShareRequest{
+	err = client.DeleteWorkspaceAgentPortShare(ctx, r.Workspace.ID, wirtualsdk.DeleteWorkspaceAgentPortShareRequest{
 		AgentName: agents[0].Name,
 		Port:      8080,
 	})

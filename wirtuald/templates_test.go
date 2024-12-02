@@ -12,19 +12,19 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/coderd/audit"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/notifications"
-	"github.com/coder/coder/v2/coderd/notifications/notificationstest"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/schedule"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/coder/coder/v2/wirtuald/audit"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/notifications"
+	"github.com/coder/coder/v2/wirtuald/notifications/notificationstest"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/schedule"
+	"github.com/coder/coder/v2/wirtuald/util/ptr"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/testutil"
 )
@@ -62,7 +62,7 @@ func TestPostTemplateByOrganization(t *testing.T) {
 
 		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
 
-		expected := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+		expected := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			ctr.ActivityBumpMillis = ptr.Ref((3 * time.Hour).Milliseconds())
 		})
 		assert.Equal(t, (3 * time.Hour).Milliseconds(), expected.ActivityBumpMillis)
@@ -93,11 +93,11 @@ func TestPostTemplateByOrganization(t *testing.T) {
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 
-		_, err := client.CreateTemplate(ctx, owner.OrganizationID, codersdk.CreateTemplateRequest{
+		_, err := client.CreateTemplate(ctx, owner.OrganizationID, wirtualsdk.CreateTemplateRequest{
 			Name:      template.Name,
 			VersionID: version.ID,
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusConflict, apiErr.StatusCode())
 	})
@@ -110,11 +110,11 @@ func TestPostTemplateByOrganization(t *testing.T) {
 
 		ctx := testutil.Context(t, testutil.WaitShort)
 
-		_, err := client.CreateTemplate(ctx, user.OrganizationID, codersdk.CreateTemplateRequest{
+		_, err := client.CreateTemplate(ctx, user.OrganizationID, wirtualsdk.CreateTemplateRequest{
 			Name:      "new",
 			VersionID: version.ID,
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 	})
@@ -126,12 +126,12 @@ func TestPostTemplateByOrganization(t *testing.T) {
 		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		_, err := client.CreateTemplate(ctx, user.OrganizationID, codersdk.CreateTemplateRequest{
+		_, err := client.CreateTemplate(ctx, user.OrganizationID, wirtualsdk.CreateTemplateRequest{
 			Name:             "testing",
 			VersionID:        version.ID,
 			DefaultTTLMillis: ptr.Ref(int64(-1)),
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 		require.Contains(t, err.Error(), "default_ttl_ms: Must be a positive integer")
@@ -144,7 +144,7 @@ func TestPostTemplateByOrganization(t *testing.T) {
 		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		got, err := client.CreateTemplate(ctx, user.OrganizationID, codersdk.CreateTemplateRequest{
+		got, err := client.CreateTemplate(ctx, user.OrganizationID, wirtualsdk.CreateTemplateRequest{
 			Name:             "testing",
 			VersionID:        version.ID,
 			DefaultTTLMillis: ptr.Ref(int64(0)),
@@ -160,14 +160,14 @@ func TestPostTemplateByOrganization(t *testing.T) {
 		owner := coderdtest.CreateFirstUser(t, client)
 		user, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		expected := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(request *codersdk.CreateTemplateRequest) {
+		expected := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(request *wirtualsdk.CreateTemplateRequest) {
 			request.DisableEveryoneGroupAccess = true
 		})
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 		_, err := user.Template(ctx, expected.ID)
 
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusNotFound, apiErr.StatusCode())
 	})
@@ -177,12 +177,12 @@ func TestPostTemplateByOrganization(t *testing.T) {
 		client := coderdtest.New(t, nil)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		_, err := client.CreateTemplate(ctx, uuid.New(), codersdk.CreateTemplateRequest{
+		_, err := client.CreateTemplate(ctx, uuid.New(), wirtualsdk.CreateTemplateRequest{
 			Name:      "test",
 			VersionID: uuid.New(),
 		})
 
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusUnauthorized, apiErr.StatusCode())
 		require.Contains(t, err.Error(), "Try logging in using 'coder login'.")
@@ -213,7 +213,7 @@ func TestPostTemplateByOrganization(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			defer cancel()
 
-			got, err := client.CreateTemplate(ctx, user.OrganizationID, codersdk.CreateTemplateRequest{
+			got, err := client.CreateTemplate(ctx, user.OrganizationID, wirtualsdk.CreateTemplateRequest{
 				Name:               "testing",
 				VersionID:          version.ID,
 				AllowUserAutostart: ptr.Ref(false),
@@ -236,7 +236,7 @@ func TestPostTemplateByOrganization(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			defer cancel()
 
-			got, err := client.CreateTemplate(ctx, user.OrganizationID, codersdk.CreateTemplateRequest{
+			got, err := client.CreateTemplate(ctx, user.OrganizationID, wirtualsdk.CreateTemplateRequest{
 				Name:               "testing",
 				VersionID:          version.ID,
 				AllowUserAutostart: ptr.Ref(false),
@@ -256,11 +256,11 @@ func TestPostTemplateByOrganization(t *testing.T) {
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 
-		_, err := client.CreateTemplate(ctx, user.OrganizationID, codersdk.CreateTemplateRequest{
+		_, err := client.CreateTemplate(ctx, user.OrganizationID, wirtualsdk.CreateTemplateRequest{
 			Name:      "test",
 			VersionID: uuid.New(),
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusNotFound, apiErr.StatusCode())
 	})
@@ -306,7 +306,7 @@ func TestPostTemplateByOrganization(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			defer cancel()
 
-			got, err := client.CreateTemplate(ctx, user.OrganizationID, codersdk.CreateTemplateRequest{
+			got, err := client.CreateTemplate(ctx, user.OrganizationID, wirtualsdk.CreateTemplateRequest{
 				Name:                "testing",
 				VersionID:           version.ID,
 				AutostopRequirement: nil,
@@ -356,10 +356,10 @@ func TestPostTemplateByOrganization(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			defer cancel()
 
-			got, err := client.CreateTemplate(ctx, user.OrganizationID, codersdk.CreateTemplateRequest{
+			got, err := client.CreateTemplate(ctx, user.OrganizationID, wirtualsdk.CreateTemplateRequest{
 				Name:      "testing",
 				VersionID: version.ID,
-				AutostopRequirement: &codersdk.TemplateAutostopRequirement{
+				AutostopRequirement: &wirtualsdk.TemplateAutostopRequirement{
 					// wrong order
 					DaysOfWeek: []string{"saturday", "friday"},
 					Weeks:      2,
@@ -387,10 +387,10 @@ func TestPostTemplateByOrganization(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			defer cancel()
 
-			got, err := client.CreateTemplate(ctx, user.OrganizationID, codersdk.CreateTemplateRequest{
+			got, err := client.CreateTemplate(ctx, user.OrganizationID, wirtualsdk.CreateTemplateRequest{
 				Name:      "testing",
 				VersionID: version.ID,
-				AutostopRequirement: &codersdk.TemplateAutostopRequirement{
+				AutostopRequirement: &wirtualsdk.TemplateAutostopRequirement{
 					DaysOfWeek: []string{"friday", "saturday"},
 					Weeks:      2,
 				},
@@ -413,12 +413,12 @@ func TestPostTemplateByOrganization(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			defer cancel()
 
-			got, err := client.CreateTemplate(ctx, user.OrganizationID, codersdk.CreateTemplateRequest{
+			got, err := client.CreateTemplate(ctx, user.OrganizationID, wirtualsdk.CreateTemplateRequest{
 				Name:      "testing",
 				VersionID: version.ID,
 			})
 			require.NoError(t, err)
-			require.Equal(t, codersdk.WorkspaceAgentPortShareLevelPublic, got.MaxPortShareLevel)
+			require.Equal(t, wirtualsdk.WorkspaceAgentPortShareLevelPublic, got.MaxPortShareLevel)
 		})
 
 		t.Run("EnterpriseLevelError", func(t *testing.T) {
@@ -429,12 +429,12 @@ func TestPostTemplateByOrganization(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			defer cancel()
 
-			_, err := client.CreateTemplate(ctx, user.OrganizationID, codersdk.CreateTemplateRequest{
+			_, err := client.CreateTemplate(ctx, user.OrganizationID, wirtualsdk.CreateTemplateRequest{
 				Name:              "testing",
 				VersionID:         version.ID,
-				MaxPortShareLevel: ptr.Ref(codersdk.WorkspaceAgentPortShareLevelPublic),
+				MaxPortShareLevel: ptr.Ref(wirtualsdk.WorkspaceAgentPortShareLevelPublic),
 			})
-			var apiErr *codersdk.Error
+			var apiErr *wirtualsdk.Error
 			require.ErrorAs(t, err, &apiErr)
 			require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 		})
@@ -465,7 +465,7 @@ func TestTemplatesByOrganization(t *testing.T) {
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 
-		templates, err := client.Templates(ctx, codersdk.TemplateFilter{
+		templates, err := client.Templates(ctx, wirtualsdk.TemplateFilter{
 			OrganizationID: user.OrganizationID,
 		})
 		require.NoError(t, err)
@@ -477,10 +477,10 @@ func TestTemplatesByOrganization(t *testing.T) {
 		user := coderdtest.CreateFirstUser(t, client)
 		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 		version2 := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		foo := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(request *codersdk.CreateTemplateRequest) {
+		foo := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(request *wirtualsdk.CreateTemplateRequest) {
 			request.Name = "foobar"
 		})
-		bar := coderdtest.CreateTemplate(t, client, user.OrganizationID, version2.ID, func(request *codersdk.CreateTemplateRequest) {
+		bar := coderdtest.CreateTemplate(t, client, user.OrganizationID, version2.ID, func(request *wirtualsdk.CreateTemplateRequest) {
 			request.Name = "barbaz"
 		})
 
@@ -491,7 +491,7 @@ func TestTemplatesByOrganization(t *testing.T) {
 		require.Len(t, templates, 2)
 
 		// Listing all should match
-		templates, err = client.Templates(ctx, codersdk.TemplateFilter{})
+		templates, err = client.Templates(ctx, wirtualsdk.TemplateFilter{})
 		require.NoError(t, err)
 		require.Len(t, templates, 2)
 
@@ -505,20 +505,20 @@ func TestTemplatesByOrganization(t *testing.T) {
 		}
 
 		// Check fuzzy name matching
-		templates, err = client.Templates(ctx, codersdk.TemplateFilter{
+		templates, err = client.Templates(ctx, wirtualsdk.TemplateFilter{
 			FuzzyName: "bar",
 		})
 		require.NoError(t, err)
 		require.Len(t, templates, 2)
 
-		templates, err = client.Templates(ctx, codersdk.TemplateFilter{
+		templates, err = client.Templates(ctx, wirtualsdk.TemplateFilter{
 			FuzzyName: "foo",
 		})
 		require.NoError(t, err)
 		require.Len(t, templates, 1)
 		require.Equal(t, foo.ID, templates[0].ID)
 
-		templates, err = client.Templates(ctx, codersdk.TemplateFilter{
+		templates, err = client.Templates(ctx, wirtualsdk.TemplateFilter{
 			FuzzyName: "baz",
 		})
 		require.NoError(t, err)
@@ -537,7 +537,7 @@ func TestTemplateByOrganizationAndName(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitLong)
 
 		_, err := client.TemplateByName(ctx, user.OrganizationID, "something")
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusNotFound, apiErr.StatusCode())
 	})
@@ -570,7 +570,7 @@ func TestPatchTemplateMeta(t *testing.T) {
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 		assert.Equal(t, (1 * time.Hour).Milliseconds(), template.ActivityBumpMillis)
 
-		req := codersdk.UpdateTemplateMeta{
+		req := wirtualsdk.UpdateTemplateMeta{
 			Name:                         "new-template-name",
 			DisplayName:                  "Displayed Name 456",
 			Description:                  "lorem ipsum dolor sit amet et cetera",
@@ -630,10 +630,10 @@ func TestPatchTemplateMeta(t *testing.T) {
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 
-		_, err := client.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+		_, err := client.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 			Name: template2.Name,
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusConflict, apiErr.StatusCode())
 	})
@@ -649,7 +649,7 @@ func TestPatchTemplateMeta(t *testing.T) {
 		// updatedAt is too close together.
 		time.Sleep(time.Millisecond * 5)
 
-		req := codersdk.UpdateTemplateMeta{
+		req := wirtualsdk.UpdateTemplateMeta{
 			DeprecationMessage: ptr.Ref("APGL cannot deprecate"),
 		}
 
@@ -692,7 +692,7 @@ func TestPatchTemplateMeta(t *testing.T) {
 		require.NotEmpty(t, got.DeprecationMessage, "template is deprecated to start")
 		require.True(t, got.Deprecated, "template is deprecated to start")
 
-		req := codersdk.UpdateTemplateMeta{
+		req := wirtualsdk.UpdateTemplateMeta{
 			DeprecationMessage: ptr.Ref(""),
 		}
 
@@ -710,10 +710,10 @@ func TestPatchTemplateMeta(t *testing.T) {
 		user := coderdtest.CreateFirstUser(t, client)
 		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		require.Equal(t, codersdk.WorkspaceAgentPortShareLevelPublic, template.MaxPortShareLevel)
+		require.Equal(t, wirtualsdk.WorkspaceAgentPortShareLevelPublic, template.MaxPortShareLevel)
 
-		var level codersdk.WorkspaceAgentPortShareLevel = codersdk.WorkspaceAgentPortShareLevelAuthenticated
-		req := codersdk.UpdateTemplateMeta{
+		var level wirtualsdk.WorkspaceAgentPortShareLevel = wirtualsdk.WorkspaceAgentPortShareLevelAuthenticated
+		req := wirtualsdk.UpdateTemplateMeta{
 			MaxPortShareLevel: &level,
 		}
 
@@ -724,8 +724,8 @@ func TestPatchTemplateMeta(t *testing.T) {
 		require.ErrorContains(t, err, "port sharing level is an enterprise feature")
 
 		// Ensure the same value port share level is a no-op
-		level = codersdk.WorkspaceAgentPortShareLevelPublic
-		_, err = client.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+		level = wirtualsdk.WorkspaceAgentPortShareLevelPublic
+		_, err = client.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 			Name:              coderdtest.RandomUsername(t),
 			MaxPortShareLevel: &level,
 		})
@@ -738,14 +738,14 @@ func TestPatchTemplateMeta(t *testing.T) {
 		client := coderdtest.New(t, nil)
 		user := coderdtest.CreateFirstUser(t, client)
 		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			ctr.DefaultTTLMillis = ptr.Ref(24 * time.Hour.Milliseconds())
 		})
 		// It is unfortunate we need to sleep, but the test can fail if the
 		// updatedAt is too close together.
 		time.Sleep(time.Millisecond * 5)
 
-		req := codersdk.UpdateTemplateMeta{
+		req := wirtualsdk.UpdateTemplateMeta{
 			DefaultTTLMillis: 0,
 		}
 
@@ -772,14 +772,14 @@ func TestPatchTemplateMeta(t *testing.T) {
 		client := coderdtest.New(t, nil)
 		user := coderdtest.CreateFirstUser(t, client)
 		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			ctr.DefaultTTLMillis = ptr.Ref(24 * time.Hour.Milliseconds())
 		})
 		// It is unfortunate we need to sleep, but the test can fail if the
 		// updatedAt is too close together.
 		time.Sleep(time.Millisecond * 5)
 
-		req := codersdk.UpdateTemplateMeta{
+		req := wirtualsdk.UpdateTemplateMeta{
 			DefaultTTLMillis: -1,
 		}
 
@@ -827,7 +827,7 @@ func TestPatchTemplateMeta(t *testing.T) {
 			})
 			user := coderdtest.CreateFirstUser(t, client)
 			version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-			template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+			template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 				ctr.FailureTTLMillis = ptr.Ref(0 * time.Hour.Milliseconds())
 				ctr.TimeTilDormantMillis = ptr.Ref(0 * time.Hour.Milliseconds())
 				ctr.TimeTilDormantAutoDeleteMillis = ptr.Ref(0 * time.Hour.Milliseconds())
@@ -836,7 +836,7 @@ func TestPatchTemplateMeta(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			defer cancel()
 
-			got, err := client.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+			got, err := client.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 				Name:                           template.Name,
 				DisplayName:                    template.DisplayName,
 				Description:                    template.Description,
@@ -862,7 +862,7 @@ func TestPatchTemplateMeta(t *testing.T) {
 			client := coderdtest.New(t, nil)
 			user := coderdtest.CreateFirstUser(t, client)
 			version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-			template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+			template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 				ctr.FailureTTLMillis = ptr.Ref(0 * time.Hour.Milliseconds())
 				ctr.TimeTilDormantMillis = ptr.Ref(0 * time.Hour.Milliseconds())
 				ctr.TimeTilDormantAutoDeleteMillis = ptr.Ref(0 * time.Hour.Milliseconds())
@@ -871,7 +871,7 @@ func TestPatchTemplateMeta(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			defer cancel()
 
-			got, err := client.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+			got, err := client.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 				Name:                           template.Name,
 				DisplayName:                    template.DisplayName,
 				Description:                    template.Description,
@@ -921,7 +921,7 @@ func TestPatchTemplateMeta(t *testing.T) {
 			})
 			user := coderdtest.CreateFirstUser(t, client)
 			version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-			template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+			template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 				ctr.DefaultTTLMillis = ptr.Ref(24 * time.Hour.Milliseconds())
 			})
 			require.Equal(t, allowAutostart.Load(), template.AllowUserAutostart)
@@ -932,7 +932,7 @@ func TestPatchTemplateMeta(t *testing.T) {
 
 			allowAutostart.Store(false)
 			allowAutostop.Store(false)
-			got, err := client.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+			got, err := client.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 				Name:                         template.Name,
 				DisplayName:                  template.DisplayName,
 				Description:                  template.Description,
@@ -956,14 +956,14 @@ func TestPatchTemplateMeta(t *testing.T) {
 			client := coderdtest.New(t, nil)
 			user := coderdtest.CreateFirstUser(t, client)
 			version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-			template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+			template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 				ctr.DefaultTTLMillis = ptr.Ref(24 * time.Hour.Milliseconds())
 			})
 
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			defer cancel()
 
-			got, err := client.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+			got, err := client.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 				Name:        template.Name,
 				DisplayName: template.DisplayName,
 				Description: template.Description,
@@ -987,7 +987,7 @@ func TestPatchTemplateMeta(t *testing.T) {
 		client := coderdtest.New(t, nil)
 		user := coderdtest.CreateFirstUser(t, client)
 		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			ctr.Description = "original description"
 			ctr.Icon = "/icon/original-icon.png"
 			ctr.DefaultTTLMillis = ptr.Ref(24 * time.Hour.Milliseconds())
@@ -995,7 +995,7 @@ func TestPatchTemplateMeta(t *testing.T) {
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 
-		req := codersdk.UpdateTemplateMeta{
+		req := wirtualsdk.UpdateTemplateMeta{
 			Name:                template.Name,
 			Description:         template.Description,
 			Icon:                template.Icon,
@@ -1022,18 +1022,18 @@ func TestPatchTemplateMeta(t *testing.T) {
 		client := coderdtest.New(t, nil)
 		user := coderdtest.CreateFirstUser(t, client)
 		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			ctr.Description = "original description"
 			ctr.DefaultTTLMillis = ptr.Ref(24 * time.Hour.Milliseconds())
 		})
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 
-		req := codersdk.UpdateTemplateMeta{
+		req := wirtualsdk.UpdateTemplateMeta{
 			DefaultTTLMillis: -int64(time.Hour),
 		}
 		_, err := client.UpdateTemplateMeta(ctx, template.ID, req)
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Contains(t, apiErr.Message, "Invalid request")
 		require.Len(t, apiErr.Validations, 1)
@@ -1054,10 +1054,10 @@ func TestPatchTemplateMeta(t *testing.T) {
 		client := coderdtest.New(t, nil)
 		user := coderdtest.CreateFirstUser(t, client)
 		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			ctr.Icon = "/icon/code.png"
 		})
-		req := codersdk.UpdateTemplateMeta{
+		req := wirtualsdk.UpdateTemplateMeta{
 			Icon: "",
 		}
 
@@ -1111,14 +1111,14 @@ func TestPatchTemplateMeta(t *testing.T) {
 			require.EqualValues(t, 1, atomic.LoadInt64(&setCalled))
 			require.Empty(t, template.AutostopRequirement.DaysOfWeek)
 			require.EqualValues(t, 1, template.AutostopRequirement.Weeks)
-			req := codersdk.UpdateTemplateMeta{
+			req := wirtualsdk.UpdateTemplateMeta{
 				Name:                         template.Name,
 				DisplayName:                  template.DisplayName,
 				Description:                  template.Description,
 				Icon:                         template.Icon,
 				AllowUserCancelWorkspaceJobs: template.AllowUserCancelWorkspaceJobs,
 				DefaultTTLMillis:             time.Hour.Milliseconds(),
-				AutostopRequirement: &codersdk.TemplateAutostopRequirement{
+				AutostopRequirement: &wirtualsdk.TemplateAutostopRequirement{
 					// wrong order
 					DaysOfWeek: []string{"saturday", "friday"},
 					Weeks:      2,
@@ -1178,8 +1178,8 @@ func TestPatchTemplateMeta(t *testing.T) {
 			user := coderdtest.CreateFirstUser(t, client)
 
 			version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-			template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
-				ctr.AutostopRequirement = &codersdk.TemplateAutostopRequirement{
+			template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
+				ctr.AutostopRequirement = &wirtualsdk.TemplateAutostopRequirement{
 					// wrong order
 					DaysOfWeek: []string{"sunday", "saturday", "friday", "thursday", "wednesday", "tuesday", "monday"},
 					Weeks:      2,
@@ -1188,14 +1188,14 @@ func TestPatchTemplateMeta(t *testing.T) {
 			require.EqualValues(t, 1, atomic.LoadInt64(&setCalled))
 			require.Equal(t, []string{"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"}, template.AutostopRequirement.DaysOfWeek)
 			require.EqualValues(t, 2, template.AutostopRequirement.Weeks)
-			req := codersdk.UpdateTemplateMeta{
+			req := wirtualsdk.UpdateTemplateMeta{
 				Name:                         template.Name,
 				DisplayName:                  template.DisplayName,
 				Description:                  template.Description,
 				Icon:                         template.Icon,
 				AllowUserCancelWorkspaceJobs: template.AllowUserCancelWorkspaceJobs,
 				DefaultTTLMillis:             time.Hour.Milliseconds(),
-				AutostopRequirement: &codersdk.TemplateAutostopRequirement{
+				AutostopRequirement: &wirtualsdk.TemplateAutostopRequirement{
 					DaysOfWeek: []string{},
 					Weeks:      0,
 				},
@@ -1225,14 +1225,14 @@ func TestPatchTemplateMeta(t *testing.T) {
 			template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 			require.Empty(t, template.AutostopRequirement.DaysOfWeek)
 			require.EqualValues(t, 1, template.AutostopRequirement.Weeks)
-			req := codersdk.UpdateTemplateMeta{
+			req := wirtualsdk.UpdateTemplateMeta{
 				Name:                         template.Name,
 				DisplayName:                  template.DisplayName,
 				Description:                  template.Description,
 				Icon:                         template.Icon,
 				AllowUserCancelWorkspaceJobs: template.AllowUserCancelWorkspaceJobs,
 				DefaultTTLMillis:             time.Hour.Milliseconds(),
-				AutostopRequirement: &codersdk.TemplateAutostopRequirement{
+				AutostopRequirement: &wirtualsdk.TemplateAutostopRequirement{
 					DaysOfWeek: []string{"monday"},
 					Weeks:      2,
 				},
@@ -1289,7 +1289,7 @@ func TestDeleteTemplate(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitLong)
 
 		err := client.DeleteTemplate(ctx, template.ID)
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 	})
@@ -1315,7 +1315,7 @@ func TestTemplateMetrics(t *testing.T) {
 	})
 	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 	require.Equal(t, -1, template.ActiveUserCount)
-	require.Empty(t, template.BuildTimeStats[codersdk.WorkspaceTransitionStart])
+	require.Empty(t, template.BuildTimeStats[wirtualsdk.WorkspaceTransitionStart])
 
 	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
@@ -1327,14 +1327,14 @@ func TestTemplateMetrics(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
 
-	daus, err := client.TemplateDAUs(context.Background(), template.ID, codersdk.TimezoneOffsetHour(time.UTC))
+	daus, err := client.TemplateDAUs(context.Background(), template.ID, wirtualsdk.TimezoneOffsetHour(time.UTC))
 	require.NoError(t, err)
 
-	require.Equal(t, &codersdk.DAUsResponse{
-		Entries: []codersdk.DAUEntry{},
+	require.Equal(t, &wirtualsdk.DAUsResponse{
+		Entries: []wirtualsdk.DAUEntry{},
 	}, daus, "no DAUs when stats are empty")
 
-	res, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{})
+	res, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{})
 	require.NoError(t, err)
 	assert.Zero(t, res.Workspaces[0].LastUsedAt)
 
@@ -1351,8 +1351,8 @@ func TestTemplateMetrics(t *testing.T) {
 	require.NoError(t, err)
 	_ = sshConn.Close()
 
-	wantDAUs := &codersdk.DAUsResponse{
-		Entries: []codersdk.DAUEntry{
+	wantDAUs := &wirtualsdk.DAUsResponse{
+		Entries: []wirtualsdk.DAUEntry{
 			{
 				Date:   time.Now().UTC().Truncate(time.Hour * 24).Format("2006-01-02"),
 				Amount: 1,
@@ -1360,14 +1360,14 @@ func TestTemplateMetrics(t *testing.T) {
 		},
 	}
 	require.Eventuallyf(t, func() bool {
-		daus, err = client.TemplateDAUs(ctx, template.ID, codersdk.TimezoneOffsetHour(time.UTC))
+		daus, err = client.TemplateDAUs(ctx, template.ID, wirtualsdk.TimezoneOffsetHour(time.UTC))
 		require.NoError(t, err)
 		return len(daus.Entries) > 0
 	},
 		testutil.WaitShort, testutil.IntervalFast,
 		"template daus never loaded",
 	)
-	gotDAUs, err := client.TemplateDAUs(ctx, template.ID, codersdk.TimezoneOffsetHour(time.UTC))
+	gotDAUs, err := client.TemplateDAUs(ctx, template.ID, wirtualsdk.TimezoneOffsetHour(time.UTC))
 	require.NoError(t, err)
 	require.Equal(t, gotDAUs, wantDAUs)
 
@@ -1378,14 +1378,14 @@ func TestTemplateMetrics(t *testing.T) {
 	require.Eventuallyf(t, func() bool {
 		template, err = client.Template(ctx, template.ID)
 		require.NoError(t, err)
-		startMs := template.BuildTimeStats[codersdk.WorkspaceTransitionStart].P50
+		startMs := template.BuildTimeStats[wirtualsdk.WorkspaceTransitionStart].P50
 		return startMs != nil && *startMs > 1
 	},
 		testutil.WaitShort, testutil.IntervalFast,
 		"BuildTimeStats never loaded",
 	)
 
-	res, err = client.Workspaces(ctx, codersdk.WorkspaceFilter{})
+	res, err = client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{})
 	require.NoError(t, err)
 	assert.WithinDuration(t,
 		dbtime.Now(), res.Workspaces[0].LastUsedAt, time.Minute,
@@ -1445,7 +1445,7 @@ func TestTemplateNotifications(t *testing.T) {
 				// Setup template
 				version  = coderdtest.CreateTemplateVersion(t, client, initiator.OrganizationID, nil)
 				_        = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-				template = coderdtest.CreateTemplate(t, client, initiator.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+				template = coderdtest.CreateTemplate(t, client, initiator.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 					ctr.DisplayName = "Bobby's Template"
 				})
 			)

@@ -47,9 +47,9 @@ import (
 	"github.com/coder/coder/v2/agent/agentssh"
 	"github.com/coder/coder/v2/agent/agenttest"
 	"github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
+	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 	"github.com/coder/coder/v2/cryptorand"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/tailnet"
@@ -266,7 +266,7 @@ func TestAgent_Stats_Magic(t *testing.T) {
 
 func TestAgent_SessionExec(t *testing.T) {
 	t.Parallel()
-	session := setupSSHSession(t, agentsdk.Manifest{}, codersdk.ServiceBannerConfig{}, nil)
+	session := setupSSHSession(t, agentsdk.Manifest{}, wirtualsdk.ServiceBannerConfig{}, nil)
 
 	command := "echo test"
 	if runtime.GOOS == "windows" {
@@ -294,7 +294,7 @@ func TestAgent_Session_EnvironmentVariables(t *testing.T) {
 			"MY_SESSION_MANIFEST": "false",
 		},
 	}
-	banner := codersdk.ServiceBannerConfig{}
+	banner := wirtualsdk.ServiceBannerConfig{}
 	session := setupSSHSession(t, manifest, banner, nil, func(_ *agenttest.Client, opts *agent.Options) {
 		opts.ScriptDataDir = tmpdir
 		opts.EnvironmentVariables["MY_OVERRIDE"] = "true"
@@ -364,7 +364,7 @@ func TestAgent_Session_EnvironmentVariables(t *testing.T) {
 
 func TestAgent_GitSSH(t *testing.T) {
 	t.Parallel()
-	session := setupSSHSession(t, agentsdk.Manifest{}, codersdk.ServiceBannerConfig{}, nil)
+	session := setupSSHSession(t, agentsdk.Manifest{}, wirtualsdk.ServiceBannerConfig{}, nil)
 	command := "sh -c 'echo $GIT_SSH_COMMAND'"
 	if runtime.GOOS == "windows" {
 		command = "cmd.exe /c echo %GIT_SSH_COMMAND%"
@@ -384,7 +384,7 @@ func TestAgent_SessionTTYShell(t *testing.T) {
 		// it seems like it could be either.
 		t.Skip("ConPTY appears to be inconsistent on Windows.")
 	}
-	session := setupSSHSession(t, agentsdk.Manifest{}, codersdk.ServiceBannerConfig{}, nil)
+	session := setupSSHSession(t, agentsdk.Manifest{}, wirtualsdk.ServiceBannerConfig{}, nil)
 	command := "sh"
 	if runtime.GOOS == "windows" {
 		command = "cmd.exe"
@@ -407,7 +407,7 @@ func TestAgent_SessionTTYShell(t *testing.T) {
 
 func TestAgent_SessionTTYExitCode(t *testing.T) {
 	t.Parallel()
-	session := setupSSHSession(t, agentsdk.Manifest{}, codersdk.ServiceBannerConfig{}, nil)
+	session := setupSSHSession(t, agentsdk.Manifest{}, wirtualsdk.ServiceBannerConfig{}, nil)
 	command := "areallynotrealcommand"
 	err := session.RequestPty("xterm", 128, 128, ssh.TerminalModes{})
 	require.NoError(t, err)
@@ -447,7 +447,7 @@ func TestAgent_Session_TTY_MOTD(t *testing.T) {
 	tests := []struct {
 		name       string
 		manifest   agentsdk.Manifest
-		banner     codersdk.ServiceBannerConfig
+		banner     wirtualsdk.ServiceBannerConfig
 		expected   []string
 		unexpected []string
 		expectedRe *regexp.Regexp
@@ -455,14 +455,14 @@ func TestAgent_Session_TTY_MOTD(t *testing.T) {
 		{
 			name:       "WithoutServiceBanner",
 			manifest:   agentsdk.Manifest{MOTDFile: name},
-			banner:     codersdk.ServiceBannerConfig{},
+			banner:     wirtualsdk.ServiceBannerConfig{},
 			expected:   []string{wantMOTD},
 			unexpected: []string{wantServiceBanner},
 		},
 		{
 			name:     "WithServiceBanner",
 			manifest: agentsdk.Manifest{MOTDFile: name},
-			banner: codersdk.ServiceBannerConfig{
+			banner: wirtualsdk.ServiceBannerConfig{
 				Enabled: true,
 				Message: wantServiceBanner,
 			},
@@ -471,7 +471,7 @@ func TestAgent_Session_TTY_MOTD(t *testing.T) {
 		{
 			name:     "ServiceBannerDisabled",
 			manifest: agentsdk.Manifest{MOTDFile: name},
-			banner: codersdk.ServiceBannerConfig{
+			banner: wirtualsdk.ServiceBannerConfig{
 				Enabled: false,
 				Message: wantServiceBanner,
 			},
@@ -481,7 +481,7 @@ func TestAgent_Session_TTY_MOTD(t *testing.T) {
 		{
 			name:     "ServiceBannerOnly",
 			manifest: agentsdk.Manifest{},
-			banner: codersdk.ServiceBannerConfig{
+			banner: wirtualsdk.ServiceBannerConfig{
 				Enabled: true,
 				Message: wantServiceBanner,
 			},
@@ -491,13 +491,13 @@ func TestAgent_Session_TTY_MOTD(t *testing.T) {
 		{
 			name:       "None",
 			manifest:   agentsdk.Manifest{},
-			banner:     codersdk.ServiceBannerConfig{},
+			banner:     wirtualsdk.ServiceBannerConfig{},
 			unexpected: []string{wantServiceBanner, wantMOTD},
 		},
 		{
 			name:     "CarriageReturns",
 			manifest: agentsdk.Manifest{},
-			banner: codersdk.ServiceBannerConfig{
+			banner: wirtualsdk.ServiceBannerConfig{
 				Enabled: true,
 				Message: "service\n\nbanner\nhere",
 			},
@@ -512,7 +512,7 @@ func TestAgent_Session_TTY_MOTD(t *testing.T) {
 			manifest: agentsdk.Manifest{
 				MOTDFile: name,
 			},
-			banner: codersdk.ServiceBannerConfig{
+			banner: wirtualsdk.ServiceBannerConfig{
 				Enabled: true,
 				Message: "\n\n\n\n\n\nbanner\n\n\n\n\n\n",
 			},
@@ -549,24 +549,24 @@ func TestAgent_Session_TTY_MOTD_Update(t *testing.T) {
 	wantServiceBanner := "Service banner text goes here"
 
 	tests := []struct {
-		banner     codersdk.ServiceBannerConfig
+		banner     wirtualsdk.ServiceBannerConfig
 		expected   []string
 		unexpected []string
 	}{
 		{
-			banner:     codersdk.ServiceBannerConfig{},
+			banner:     wirtualsdk.ServiceBannerConfig{},
 			expected:   []string{},
 			unexpected: []string{wantServiceBanner},
 		},
 		{
-			banner: codersdk.ServiceBannerConfig{
+			banner: wirtualsdk.ServiceBannerConfig{
 				Enabled: true,
 				Message: wantServiceBanner,
 			},
 			expected: []string{wantServiceBanner},
 		},
 		{
-			banner: codersdk.ServiceBannerConfig{
+			banner: wirtualsdk.ServiceBannerConfig{
 				Enabled: false,
 				Message: wantServiceBanner,
 			},
@@ -574,7 +574,7 @@ func TestAgent_Session_TTY_MOTD_Update(t *testing.T) {
 			unexpected: []string{wantServiceBanner},
 		},
 		{
-			banner: codersdk.ServiceBannerConfig{
+			banner: wirtualsdk.ServiceBannerConfig{
 				Enabled: true,
 				Message: wantServiceBanner,
 			},
@@ -582,7 +582,7 @@ func TestAgent_Session_TTY_MOTD_Update(t *testing.T) {
 			unexpected: []string{},
 		},
 		{
-			banner:     codersdk.ServiceBannerConfig{},
+			banner:     wirtualsdk.ServiceBannerConfig{},
 			unexpected: []string{wantServiceBanner},
 		},
 	}
@@ -609,12 +609,12 @@ func TestAgent_Session_TTY_MOTD_Update(t *testing.T) {
 			// Set new banner func and wait for the agent to call it to update the
 			// banner.
 			ready := make(chan struct{}, 2)
-			client.SetAnnouncementBannersFunc(func() ([]codersdk.BannerConfig, error) {
+			client.SetAnnouncementBannersFunc(func() ([]wirtualsdk.BannerConfig, error) {
 				select {
 				case ready <- struct{}{}:
 				default:
 				}
-				return []codersdk.BannerConfig{test.banner}, nil
+				return []wirtualsdk.BannerConfig{test.banner}, nil
 			})
 			<-ready
 			<-ready // Wait for two updates to ensure the value has propagated.
@@ -651,7 +651,7 @@ func TestAgent_Session_TTY_QuietLogin(t *testing.T) {
 	t.Run("NotLogin", func(t *testing.T) {
 		session := setupSSHSession(t, agentsdk.Manifest{
 			MOTDFile: name,
-		}, codersdk.ServiceBannerConfig{
+		}, wirtualsdk.ServiceBannerConfig{
 			Enabled: true,
 			Message: wantMaybeServiceBanner,
 		}, func(fs afero.Fs) {
@@ -675,7 +675,7 @@ func TestAgent_Session_TTY_QuietLogin(t *testing.T) {
 	t.Run("Hushlogin", func(t *testing.T) {
 		session := setupSSHSession(t, agentsdk.Manifest{
 			MOTDFile: name,
-		}, codersdk.ServiceBannerConfig{
+		}, wirtualsdk.ServiceBannerConfig{
 			Enabled: true,
 			Message: wantMaybeServiceBanner,
 		}, func(fs afero.Fs) {
@@ -1066,7 +1066,7 @@ func TestAgent_EnvironmentVariables(t *testing.T) {
 		EnvironmentVariables: map[string]string{
 			key: value,
 		},
-	}, codersdk.ServiceBannerConfig{}, nil)
+	}, wirtualsdk.ServiceBannerConfig{}, nil)
 	command := "sh -c 'echo $" + key + "'"
 	if runtime.GOOS == "windows" {
 		command = "cmd.exe /c echo %" + key + "%"
@@ -1083,7 +1083,7 @@ func TestAgent_EnvironmentVariableExpansion(t *testing.T) {
 		EnvironmentVariables: map[string]string{
 			key: "$SOMETHINGNOTSET",
 		},
-	}, codersdk.ServiceBannerConfig{}, nil)
+	}, wirtualsdk.ServiceBannerConfig{}, nil)
 	command := "sh -c 'echo $" + key + "'"
 	if runtime.GOOS == "windows" {
 		command = "cmd.exe /c echo %" + key + "%"
@@ -1106,7 +1106,7 @@ func TestAgent_CoderEnvVars(t *testing.T) {
 		t.Run(key, func(t *testing.T) {
 			t.Parallel()
 
-			session := setupSSHSession(t, agentsdk.Manifest{}, codersdk.ServiceBannerConfig{}, nil)
+			session := setupSSHSession(t, agentsdk.Manifest{}, wirtualsdk.ServiceBannerConfig{}, nil)
 			command := "sh -c 'echo $" + key + "'"
 			if runtime.GOOS == "windows" {
 				command = "cmd.exe /c echo %" + key + "%"
@@ -1129,7 +1129,7 @@ func TestAgent_SSHConnectionEnvVars(t *testing.T) {
 		t.Run(key, func(t *testing.T) {
 			t.Parallel()
 
-			session := setupSSHSession(t, agentsdk.Manifest{}, codersdk.ServiceBannerConfig{}, nil)
+			session := setupSSHSession(t, agentsdk.Manifest{}, wirtualsdk.ServiceBannerConfig{}, nil)
 			command := "sh -c 'echo $" + key + "'"
 			if runtime.GOOS == "windows" {
 				command = "cmd.exe /c echo %" + key + "%"
@@ -1151,7 +1151,7 @@ func TestAgent_Metadata(t *testing.T) {
 
 		//nolint:dogsled
 		_, client, _, _, _ := setupAgent(t, agentsdk.Manifest{
-			Metadata: []codersdk.WorkspaceAgentMetadataDescription{
+			Metadata: []wirtualsdk.WorkspaceAgentMetadataDescription{
 				{
 					Key:      "greeting1",
 					Interval: 0,
@@ -1191,7 +1191,7 @@ func TestAgent_Metadata(t *testing.T) {
 		t.Parallel()
 		//nolint:dogsled
 		_, client, _, _, _ := setupAgent(t, agentsdk.Manifest{
-			Metadata: []codersdk.WorkspaceAgentMetadataDescription{
+			Metadata: []wirtualsdk.WorkspaceAgentMetadataDescription{
 				{
 					Key:      "greeting",
 					Interval: 1,
@@ -1240,7 +1240,7 @@ func TestAgentMetadata_Timing(t *testing.T) {
 	)
 	//nolint:dogsled
 	_, client, _, _, _ := setupAgent(t, agentsdk.Manifest{
-		Metadata: []codersdk.WorkspaceAgentMetadataDescription{
+		Metadata: []wirtualsdk.WorkspaceAgentMetadataDescription{
 			{
 				Key:      "greeting",
 				Interval: reportInterval,
@@ -1304,19 +1304,19 @@ func TestAgent_Lifecycle(t *testing.T) {
 		t.Parallel()
 
 		_, client, _, _, _ := setupAgent(t, agentsdk.Manifest{
-			Scripts: []codersdk.WorkspaceAgentScript{{
+			Scripts: []wirtualsdk.WorkspaceAgentScript{{
 				Script:     "sleep 3",
 				Timeout:    time.Millisecond,
 				RunOnStart: true,
 			}},
 		}, 0)
 
-		want := []codersdk.WorkspaceAgentLifecycle{
-			codersdk.WorkspaceAgentLifecycleStarting,
-			codersdk.WorkspaceAgentLifecycleStartTimeout,
+		want := []wirtualsdk.WorkspaceAgentLifecycle{
+			wirtualsdk.WorkspaceAgentLifecycleStarting,
+			wirtualsdk.WorkspaceAgentLifecycleStartTimeout,
 		}
 
-		var got []codersdk.WorkspaceAgentLifecycle
+		var got []wirtualsdk.WorkspaceAgentLifecycle
 		assert.Eventually(t, func() bool {
 			got = client.GetLifecycleStates()
 			return slices.Contains(got, want[len(want)-1])
@@ -1329,19 +1329,19 @@ func TestAgent_Lifecycle(t *testing.T) {
 		t.Parallel()
 
 		_, client, _, _, _ := setupAgent(t, agentsdk.Manifest{
-			Scripts: []codersdk.WorkspaceAgentScript{{
+			Scripts: []wirtualsdk.WorkspaceAgentScript{{
 				Script:     "false",
 				Timeout:    30 * time.Second,
 				RunOnStart: true,
 			}},
 		}, 0)
 
-		want := []codersdk.WorkspaceAgentLifecycle{
-			codersdk.WorkspaceAgentLifecycleStarting,
-			codersdk.WorkspaceAgentLifecycleStartError,
+		want := []wirtualsdk.WorkspaceAgentLifecycle{
+			wirtualsdk.WorkspaceAgentLifecycleStarting,
+			wirtualsdk.WorkspaceAgentLifecycleStartError,
 		}
 
-		var got []codersdk.WorkspaceAgentLifecycle
+		var got []wirtualsdk.WorkspaceAgentLifecycle
 		assert.Eventually(t, func() bool {
 			got = client.GetLifecycleStates()
 			return slices.Contains(got, want[len(want)-1])
@@ -1354,19 +1354,19 @@ func TestAgent_Lifecycle(t *testing.T) {
 		t.Parallel()
 
 		_, client, _, _, _ := setupAgent(t, agentsdk.Manifest{
-			Scripts: []codersdk.WorkspaceAgentScript{{
+			Scripts: []wirtualsdk.WorkspaceAgentScript{{
 				Script:     "true",
 				Timeout:    30 * time.Second,
 				RunOnStart: true,
 			}},
 		}, 0)
 
-		want := []codersdk.WorkspaceAgentLifecycle{
-			codersdk.WorkspaceAgentLifecycleStarting,
-			codersdk.WorkspaceAgentLifecycleReady,
+		want := []wirtualsdk.WorkspaceAgentLifecycle{
+			wirtualsdk.WorkspaceAgentLifecycleStarting,
+			wirtualsdk.WorkspaceAgentLifecycleReady,
 		}
 
-		var got []codersdk.WorkspaceAgentLifecycle
+		var got []wirtualsdk.WorkspaceAgentLifecycle
 		assert.Eventually(t, func() bool {
 			got = client.GetLifecycleStates()
 			return len(got) > 0 && got[len(got)-1] == want[len(want)-1]
@@ -1379,7 +1379,7 @@ func TestAgent_Lifecycle(t *testing.T) {
 		t.Parallel()
 
 		_, client, _, _, closer := setupAgent(t, agentsdk.Manifest{
-			Scripts: []codersdk.WorkspaceAgentScript{{
+			Scripts: []wirtualsdk.WorkspaceAgentScript{{
 				Script:    "sleep 3",
 				Timeout:   30 * time.Second,
 				RunOnStop: true,
@@ -1387,7 +1387,7 @@ func TestAgent_Lifecycle(t *testing.T) {
 		}, 0)
 
 		assert.Eventually(t, func() bool {
-			return slices.Contains(client.GetLifecycleStates(), codersdk.WorkspaceAgentLifecycleReady)
+			return slices.Contains(client.GetLifecycleStates(), wirtualsdk.WorkspaceAgentLifecycleReady)
 		}, testutil.WaitShort, testutil.IntervalMedium)
 
 		// Start close asynchronously so that we an inspect the state.
@@ -1401,13 +1401,13 @@ func TestAgent_Lifecycle(t *testing.T) {
 			<-done
 		})
 
-		want := []codersdk.WorkspaceAgentLifecycle{
-			codersdk.WorkspaceAgentLifecycleStarting,
-			codersdk.WorkspaceAgentLifecycleReady,
-			codersdk.WorkspaceAgentLifecycleShuttingDown,
+		want := []wirtualsdk.WorkspaceAgentLifecycle{
+			wirtualsdk.WorkspaceAgentLifecycleStarting,
+			wirtualsdk.WorkspaceAgentLifecycleReady,
+			wirtualsdk.WorkspaceAgentLifecycleShuttingDown,
 		}
 
-		var got []codersdk.WorkspaceAgentLifecycle
+		var got []wirtualsdk.WorkspaceAgentLifecycle
 		assert.Eventually(t, func() bool {
 			got = client.GetLifecycleStates()
 			return slices.Contains(got, want[len(want)-1])
@@ -1420,7 +1420,7 @@ func TestAgent_Lifecycle(t *testing.T) {
 		t.Parallel()
 
 		_, client, _, _, closer := setupAgent(t, agentsdk.Manifest{
-			Scripts: []codersdk.WorkspaceAgentScript{{
+			Scripts: []wirtualsdk.WorkspaceAgentScript{{
 				Script:    "sleep 3",
 				Timeout:   time.Millisecond,
 				RunOnStop: true,
@@ -1428,7 +1428,7 @@ func TestAgent_Lifecycle(t *testing.T) {
 		}, 0)
 
 		assert.Eventually(t, func() bool {
-			return slices.Contains(client.GetLifecycleStates(), codersdk.WorkspaceAgentLifecycleReady)
+			return slices.Contains(client.GetLifecycleStates(), wirtualsdk.WorkspaceAgentLifecycleReady)
 		}, testutil.WaitShort, testutil.IntervalMedium)
 
 		// Start close asynchronously so that we an inspect the state.
@@ -1442,14 +1442,14 @@ func TestAgent_Lifecycle(t *testing.T) {
 			<-done
 		})
 
-		want := []codersdk.WorkspaceAgentLifecycle{
-			codersdk.WorkspaceAgentLifecycleStarting,
-			codersdk.WorkspaceAgentLifecycleReady,
-			codersdk.WorkspaceAgentLifecycleShuttingDown,
-			codersdk.WorkspaceAgentLifecycleShutdownTimeout,
+		want := []wirtualsdk.WorkspaceAgentLifecycle{
+			wirtualsdk.WorkspaceAgentLifecycleStarting,
+			wirtualsdk.WorkspaceAgentLifecycleReady,
+			wirtualsdk.WorkspaceAgentLifecycleShuttingDown,
+			wirtualsdk.WorkspaceAgentLifecycleShutdownTimeout,
 		}
 
-		var got []codersdk.WorkspaceAgentLifecycle
+		var got []wirtualsdk.WorkspaceAgentLifecycle
 		assert.Eventually(t, func() bool {
 			got = client.GetLifecycleStates()
 			return slices.Contains(got, want[len(want)-1])
@@ -1462,7 +1462,7 @@ func TestAgent_Lifecycle(t *testing.T) {
 		t.Parallel()
 
 		_, client, _, _, closer := setupAgent(t, agentsdk.Manifest{
-			Scripts: []codersdk.WorkspaceAgentScript{{
+			Scripts: []wirtualsdk.WorkspaceAgentScript{{
 				Script:    "false",
 				Timeout:   30 * time.Second,
 				RunOnStop: true,
@@ -1470,7 +1470,7 @@ func TestAgent_Lifecycle(t *testing.T) {
 		}, 0)
 
 		assert.Eventually(t, func() bool {
-			return slices.Contains(client.GetLifecycleStates(), codersdk.WorkspaceAgentLifecycleReady)
+			return slices.Contains(client.GetLifecycleStates(), wirtualsdk.WorkspaceAgentLifecycleReady)
 		}, testutil.WaitShort, testutil.IntervalMedium)
 
 		// Start close asynchronously so that we an inspect the state.
@@ -1484,14 +1484,14 @@ func TestAgent_Lifecycle(t *testing.T) {
 			<-done
 		})
 
-		want := []codersdk.WorkspaceAgentLifecycle{
-			codersdk.WorkspaceAgentLifecycleStarting,
-			codersdk.WorkspaceAgentLifecycleReady,
-			codersdk.WorkspaceAgentLifecycleShuttingDown,
-			codersdk.WorkspaceAgentLifecycleShutdownError,
+		want := []wirtualsdk.WorkspaceAgentLifecycle{
+			wirtualsdk.WorkspaceAgentLifecycleStarting,
+			wirtualsdk.WorkspaceAgentLifecycleReady,
+			wirtualsdk.WorkspaceAgentLifecycleShuttingDown,
+			wirtualsdk.WorkspaceAgentLifecycleShutdownError,
 		}
 
-		var got []codersdk.WorkspaceAgentLifecycle
+		var got []wirtualsdk.WorkspaceAgentLifecycle
 		assert.Eventually(t, func() bool {
 			got = client.GetLifecycleStates()
 			return slices.Contains(got, want[len(want)-1])
@@ -1511,7 +1511,7 @@ func TestAgent_Lifecycle(t *testing.T) {
 			uuid.New(),
 			agentsdk.Manifest{
 				DERPMap: derpMap,
-				Scripts: []codersdk.WorkspaceAgentScript{{
+				Scripts: []wirtualsdk.WorkspaceAgentScript{{
 					ID:         uuid.New(),
 					LogPath:    "coder-startup-script.log",
 					Script:     "echo 1",
@@ -2239,7 +2239,7 @@ func TestAgent_ScriptLogging(t *testing.T) {
 		t,
 		agentsdk.Manifest{
 			DERPMap: derpMap,
-			Scripts: []codersdk.WorkspaceAgentScript{
+			Scripts: []wirtualsdk.WorkspaceAgentScript{
 				{
 					LogSourceID: lsStart,
 					RunOnStart:  true,
@@ -2310,15 +2310,15 @@ func setupAgentSSHClient(ctx context.Context, t *testing.T) *ssh.Client {
 func setupSSHSession(
 	t *testing.T,
 	manifest agentsdk.Manifest,
-	banner codersdk.BannerConfig,
+	banner wirtualsdk.BannerConfig,
 	prepareFS func(fs afero.Fs),
 	opts ...func(*agenttest.Client, *agent.Options),
 ) *ssh.Session {
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
 	opts = append(opts, func(c *agenttest.Client, o *agent.Options) {
-		c.SetAnnouncementBannersFunc(func() ([]codersdk.BannerConfig, error) {
-			return []codersdk.BannerConfig{banner}, nil
+		c.SetAnnouncementBannersFunc(func() ([]wirtualsdk.BannerConfig, error) {
+			return []wirtualsdk.BannerConfig{banner}, nil
 		})
 	})
 	//nolint:dogsled

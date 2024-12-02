@@ -11,7 +11,7 @@ import (
 	"github.com/coder/serpent"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 func (r *RootCmd) templateEdit() *serpent.Command {
@@ -37,7 +37,7 @@ func (r *RootCmd) templateEdit() *serpent.Command {
 		disableEveryone                bool
 		orgContext                     = NewOrganizationContext()
 	)
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 
 	cmd := &serpent.Command{
 		Use: "edit <template>",
@@ -60,18 +60,18 @@ func (r *RootCmd) templateEdit() *serpent.Command {
 			requiresEntitlement := requiresScheduling || requireActiveVersion
 			if requiresEntitlement {
 				entitlements, err := client.Entitlements(inv.Context())
-				if cerr, ok := codersdk.AsError(err); ok && cerr.StatusCode() == http.StatusNotFound {
+				if cerr, ok := wirtualsdk.AsError(err); ok && cerr.StatusCode() == http.StatusNotFound {
 					return xerrors.Errorf("your deployment appears to be an AGPL deployment, so you cannot set enterprise-only flags")
 				} else if err != nil {
 					return xerrors.Errorf("get entitlements: %w", err)
 				}
 
-				if requiresScheduling && !entitlements.Features[codersdk.FeatureAdvancedTemplateScheduling].Enabled {
+				if requiresScheduling && !entitlements.Features[wirtualsdk.FeatureAdvancedTemplateScheduling].Enabled {
 					return xerrors.Errorf("your license is not entitled to use advanced template scheduling, so you cannot set --failure-ttl, --inactivityTTL, --allow-user-autostart=false or --allow-user-autostop=false")
 				}
 
 				if requireActiveVersion {
-					if !entitlements.Features[codersdk.FeatureAccessControl].Enabled {
+					if !entitlements.Features[wirtualsdk.FeatureAccessControl].Enabled {
 						return xerrors.Errorf("your license is not entitled to use enterprise access control, so you cannot set --require-active-version")
 					}
 				}
@@ -166,18 +166,18 @@ func (r *RootCmd) templateEdit() *serpent.Command {
 				disableEveryoneGroup = disableEveryone
 			}
 
-			req := codersdk.UpdateTemplateMeta{
+			req := wirtualsdk.UpdateTemplateMeta{
 				Name:               name,
 				DisplayName:        displayName,
 				Description:        description,
 				Icon:               icon,
 				DefaultTTLMillis:   defaultTTL.Milliseconds(),
 				ActivityBumpMillis: activityBump.Milliseconds(),
-				AutostopRequirement: &codersdk.TemplateAutostopRequirement{
+				AutostopRequirement: &wirtualsdk.TemplateAutostopRequirement{
 					DaysOfWeek: autostopRequirementDaysOfWeek,
 					Weeks:      autostopRequirementWeeks,
 				},
-				AutostartRequirement: &codersdk.TemplateAutostartRequirement{
+				AutostartRequirement: &wirtualsdk.TemplateAutostartRequirement{
 					DaysOfWeek: autostartRequirementDaysOfWeek,
 				},
 				FailureTTLMillis:               failureTTL.Milliseconds(),
@@ -240,12 +240,12 @@ func (r *RootCmd) templateEdit() *serpent.Command {
 		{
 			Flag:        "autostart-requirement-weekdays",
 			Description: "Edit the template autostart requirement weekdays - workspaces created from this template can only autostart on the given weekdays. To unset this value for the template (and allow autostart on all days), pass 'all'.",
-			Value:       serpent.EnumArrayOf(&autostartRequirementDaysOfWeek, append(codersdk.AllDaysOfWeek, "all")...),
+			Value:       serpent.EnumArrayOf(&autostartRequirementDaysOfWeek, append(wirtualsdk.AllDaysOfWeek, "all")...),
 		},
 		{
 			Flag:        "autostop-requirement-weekdays",
 			Description: "Edit the template autostop requirement weekdays - workspaces created from this template must be restarted on the given weekdays. To unset this value for the template (and disable the autostop requirement for the template), pass 'none'.",
-			Value:       serpent.EnumArrayOf(&autostopRequirementDaysOfWeek, append(codersdk.AllDaysOfWeek, "none")...),
+			Value:       serpent.EnumArrayOf(&autostopRequirementDaysOfWeek, append(wirtualsdk.AllDaysOfWeek, "none")...),
 		},
 		{
 			Flag:        "autostop-requirement-weeks",

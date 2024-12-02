@@ -6,12 +6,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database/db2sdk"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/testutil"
 )
 
@@ -23,8 +23,8 @@ func TestEnterpriseMembers(t *testing.T) {
 		owner, first := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations: 1,
-					codersdk.FeatureTemplateRBAC:          1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureTemplateRBAC:          1,
 				},
 			},
 		})
@@ -38,13 +38,13 @@ func TestEnterpriseMembers(t *testing.T) {
 
 		// Groups exist to ensure a user removed from the org loses their
 		// group access.
-		g1, err := orgAdminClient.CreateGroup(ctx, secondOrg.ID, codersdk.CreateGroupRequest{
+		g1, err := orgAdminClient.CreateGroup(ctx, secondOrg.ID, wirtualsdk.CreateGroupRequest{
 			Name:        "foo",
 			DisplayName: "Foo",
 		})
 		require.NoError(t, err)
 
-		g2, err := orgAdminClient.CreateGroup(ctx, secondOrg.ID, codersdk.CreateGroupRequest{
+		g2, err := orgAdminClient.CreateGroup(ctx, secondOrg.ID, wirtualsdk.CreateGroupRequest{
 			Name:        "bar",
 			DisplayName: "Bar",
 		})
@@ -59,18 +59,18 @@ func TestEnterpriseMembers(t *testing.T) {
 			db2sdk.List(members, onlyIDs))
 
 		// Add the member to some groups
-		_, err = orgAdminClient.PatchGroup(ctx, g1.ID, codersdk.PatchGroupRequest{
+		_, err = orgAdminClient.PatchGroup(ctx, g1.ID, wirtualsdk.PatchGroupRequest{
 			AddUsers: []string{user.ID.String()},
 		})
 		require.NoError(t, err)
 
-		_, err = orgAdminClient.PatchGroup(ctx, g2.ID, codersdk.PatchGroupRequest{
+		_, err = orgAdminClient.PatchGroup(ctx, g2.ID, wirtualsdk.PatchGroupRequest{
 			AddUsers: []string{user.ID.String()},
 		})
 		require.NoError(t, err)
 
 		// Verify group membership
-		userGroups, err := orgAdminClient.Groups(ctx, codersdk.GroupArguments{
+		userGroups, err := orgAdminClient.Groups(ctx, wirtualsdk.GroupArguments{
 			HasMember: user.ID.String(),
 		})
 		require.NoError(t, err)
@@ -89,7 +89,7 @@ func TestEnterpriseMembers(t *testing.T) {
 			db2sdk.List(members, onlyIDs))
 
 		// User should now belong to 0 groups
-		userGroups, err = orgAdminClient.Groups(ctx, codersdk.GroupArguments{
+		userGroups, err = orgAdminClient.Groups(ctx, wirtualsdk.GroupArguments{
 			HasMember: user.ID.String(),
 		})
 		require.NoError(t, err)
@@ -102,7 +102,7 @@ func TestEnterpriseMembers(t *testing.T) {
 		owner, first := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -138,7 +138,7 @@ func TestEnterpriseMembers(t *testing.T) {
 		owner, _ := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -150,7 +150,7 @@ func TestEnterpriseMembers(t *testing.T) {
 		//nolint:gocritic // Using owner to ensure it's not a 404 error
 		_, err := owner.PostOrganizationMember(ctx, org.ID, uuid.NewString())
 		require.Error(t, err)
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Contains(t, apiErr.Message, "must be an existing")
 	})
@@ -162,7 +162,7 @@ func TestEnterpriseMembers(t *testing.T) {
 		owner, first := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -179,6 +179,6 @@ func TestEnterpriseMembers(t *testing.T) {
 	})
 }
 
-func onlyIDs(u codersdk.OrganizationMemberWithUserData) uuid.UUID {
+func onlyIDs(u wirtualsdk.OrganizationMemberWithUserData) uuid.UUID {
 	return u.UserID
 }

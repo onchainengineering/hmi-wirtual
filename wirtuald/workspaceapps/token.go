@@ -9,9 +9,9 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/cryptokeys"
-	"github.com/coder/coder/v2/coderd/jwtutils"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/cryptokeys"
+	"github.com/coder/coder/v2/wirtuald/jwtutils"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // SignedToken is the struct data contained inside a workspace app JWE. It
@@ -55,7 +55,7 @@ type EncryptedAPIKeyPayload struct {
 }
 
 func (e *EncryptedAPIKeyPayload) Fill(now time.Time) {
-	e.Issuer = "coderd"
+	e.Issuer = "wirtuald"
 	e.Audience = jwt.Audience{"wsproxy"}
 	e.Expiry = jwt.NewNumericDate(now.Add(time.Minute))
 	e.NotBefore = jwt.NewNumericDate(now.Add(-time.Minute))
@@ -66,7 +66,7 @@ func (e EncryptedAPIKeyPayload) Validate(ex jwt.Expected) error {
 		return xerrors.Errorf("not before is required")
 	}
 
-	ex.Issuer = "coderd"
+	ex.Issuer = "wirtuald"
 	ex.AnyAudience = jwt.Audience{"wsproxy"}
 
 	return e.RegisteredClaims.Validate(ex)
@@ -89,12 +89,12 @@ func FromRequest(r *http.Request, mgr cryptokeys.SigningKeycache) (*SignedToken,
 		tokens        = []string{}
 		hasQueryParam = false
 	)
-	if q := r.URL.Query().Get(codersdk.SignedAppTokenQueryParameter); q != "" {
+	if q := r.URL.Query().Get(wirtualsdk.SignedAppTokenQueryParameter); q != "" {
 		hasQueryParam = true
 		tokens = append(tokens, q)
 	}
 	for _, cookie := range r.Cookies() {
-		if cookie.Name == codersdk.SignedAppTokenCookie {
+		if cookie.Name == wirtualsdk.SignedAppTokenCookie {
 			tokens = append(tokens, cookie.Value)
 		}
 	}

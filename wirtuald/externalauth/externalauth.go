@@ -21,10 +21,10 @@ import (
 	"github.com/sqlc-dev/pqtype"
 	xgithub "golang.org/x/oauth2/github"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/promoauth"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/promoauth"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/retry"
 )
 
@@ -190,7 +190,7 @@ validate:
 		// to the read replica in time.
 		//
 		// We do an exponential backoff here to give the write time to propagate.
-		if c.Type == string(codersdk.EnhancedExternalAuthProviderGitHub) && r.Wait(retryCtx) {
+		if c.Type == string(wirtualsdk.EnhancedExternalAuthProviderGitHub) && r.Wait(retryCtx) {
 			goto validate
 		}
 		// The token is no longer valid!
@@ -234,7 +234,7 @@ validate:
 
 // ValidateToken ensures the Git token provided is valid!
 // The user is optionally returned if the provider supports it.
-func (c *Config) ValidateToken(ctx context.Context, link *oauth2.Token) (bool, *codersdk.ExternalAuthUser, error) {
+func (c *Config) ValidateToken(ctx context.Context, link *oauth2.Token) (bool, *wirtualsdk.ExternalAuthUser, error) {
 	if link == nil {
 		return false, nil, xerrors.New("validate external auth token: token is nil")
 	}
@@ -266,12 +266,12 @@ func (c *Config) ValidateToken(ctx context.Context, link *oauth2.Token) (bool, *
 		return false, nil, xerrors.Errorf("status %d: body: %s", res.StatusCode, data)
 	}
 
-	var user *codersdk.ExternalAuthUser
-	if c.Type == string(codersdk.EnhancedExternalAuthProviderGitHub) {
+	var user *wirtualsdk.ExternalAuthUser
+	if c.Type == string(wirtualsdk.EnhancedExternalAuthProviderGitHub) {
 		var ghUser github.User
 		err = json.NewDecoder(res.Body).Decode(&ghUser)
 		if err == nil {
-			user = &codersdk.ExternalAuthUser{
+			user = &wirtualsdk.ExternalAuthUser{
 				ID:         ghUser.GetID(),
 				Login:      ghUser.GetLogin(),
 				AvatarURL:  ghUser.GetAvatarURL(),
@@ -294,7 +294,7 @@ type AppInstallation struct {
 
 // AppInstallations returns a list of app installations for the given token.
 // If the provider does not support app installations, it returns nil.
-func (c *Config) AppInstallations(ctx context.Context, token string) ([]codersdk.ExternalAuthAppInstallation, bool, error) {
+func (c *Config) AppInstallations(ctx context.Context, token string) ([]wirtualsdk.ExternalAuthAppInstallation, bool, error) {
 	if c.AppInstallationsURL == "" {
 		return nil, false, nil
 	}
@@ -313,8 +313,8 @@ func (c *Config) AppInstallations(ctx context.Context, token string) ([]codersdk
 	if res.StatusCode != http.StatusOK {
 		return nil, false, nil
 	}
-	installs := []codersdk.ExternalAuthAppInstallation{}
-	if c.Type == string(codersdk.EnhancedExternalAuthProviderGitHub) {
+	installs := []wirtualsdk.ExternalAuthAppInstallation{}
+	if c.Type == string(wirtualsdk.EnhancedExternalAuthProviderGitHub) {
 		var ghInstalls struct {
 			Installations []*github.Installation `json:"installations"`
 		}
@@ -327,10 +327,10 @@ func (c *Config) AppInstallations(ctx context.Context, token string) ([]codersdk
 			if account == nil {
 				continue
 			}
-			installs = append(installs, codersdk.ExternalAuthAppInstallation{
+			installs = append(installs, wirtualsdk.ExternalAuthAppInstallation{
 				ID:           int(installation.GetID()),
 				ConfigureURL: installation.GetHTMLURL(),
-				Account: codersdk.ExternalAuthUser{
+				Account: wirtualsdk.ExternalAuthUser{
 					ID:         account.GetID(),
 					Login:      account.GetLogin(),
 					AvatarURL:  account.GetAvatarURL(),
@@ -354,7 +354,7 @@ type DeviceAuth struct {
 
 // AuthorizeDevice begins the device authorization flow.
 // See: https://tools.ietf.org/html/rfc8628#section-3.1
-func (c *DeviceAuth) AuthorizeDevice(ctx context.Context) (*codersdk.ExternalAuthDevice, error) {
+func (c *DeviceAuth) AuthorizeDevice(ctx context.Context) (*wirtualsdk.ExternalAuthDevice, error) {
 	if c.CodeURL == "" {
 		return nil, xerrors.New("oauth2: device code URL not set")
 	}
@@ -382,7 +382,7 @@ func (c *DeviceAuth) AuthorizeDevice(ctx context.Context) (*codersdk.ExternalAut
 	}
 	defer resp.Body.Close()
 	var r struct {
-		codersdk.ExternalAuthDevice
+		wirtualsdk.ExternalAuthDevice
 		ErrorDescription string `json:"error_description"`
 	}
 	err = json.NewDecoder(resp.Body).Decode(&r)
@@ -450,7 +450,7 @@ func (c *DeviceAuth) ExchangeDeviceCode(ctx context.Context, deviceCode string) 
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return nil, codersdk.ReadBodyAsError(resp)
+		return nil, wirtualsdk.ReadBodyAsError(resp)
 	}
 	var body ExchangeDeviceCodeResponse
 	err = json.NewDecoder(resp.Body).Decode(&body)
@@ -498,8 +498,8 @@ func (c *DeviceAuth) formatDeviceCodeURL() (string, error) {
 }
 
 // ConvertConfig converts the SDK configuration entry format
-// to the parsed and ready-to-consume in coderd provider type.
-func ConvertConfig(instrument *promoauth.Factory, entries []codersdk.ExternalAuthConfig, accessURL *url.URL) ([]*Config, error) {
+// to the parsed and ready-to-consume in wirtuald provider type.
+func ConvertConfig(instrument *promoauth.Factory, entries []wirtualsdk.ExternalAuthConfig, accessURL *url.URL) ([]*Config, error) {
 	ids := map[string]struct{}{}
 	configs := []*Config{}
 	for _, entry := range entries {
@@ -510,7 +510,7 @@ func ConvertConfig(instrument *promoauth.Factory, entries []codersdk.ExternalAut
 		// apply their client secret and ID, and have the UI appear nicely.
 		applyDefaultsToConfig(&entry)
 
-		valid := codersdk.NameValid(entry.ID)
+		valid := wirtualsdk.NameValid(entry.ID)
 		if valid != nil {
 			return nil, xerrors.Errorf("external auth provider %q doesn't have a valid id: %w", entry.ID, valid)
 		}
@@ -553,18 +553,18 @@ func ConvertConfig(instrument *promoauth.Factory, entries []codersdk.ExternalAut
 
 		var oauthConfig promoauth.OAuth2Config = oc
 		// Azure DevOps uses JWT token authentication!
-		if entry.Type == string(codersdk.EnhancedExternalAuthProviderAzureDevops) {
+		if entry.Type == string(wirtualsdk.EnhancedExternalAuthProviderAzureDevops) {
 			oauthConfig = &jwtConfig{oc}
 		}
-		if entry.Type == string(codersdk.EnhancedExternalAuthProviderAzureDevopsEntra) {
+		if entry.Type == string(wirtualsdk.EnhancedExternalAuthProviderAzureDevopsEntra) {
 			oauthConfig = &entraV1Oauth{oc}
 		}
-		if entry.Type == string(codersdk.EnhancedExternalAuthProviderJFrog) {
+		if entry.Type == string(wirtualsdk.EnhancedExternalAuthProviderJFrog) {
 			oauthConfig = &exchangeWithClientSecret{oc}
 		}
 
 		instrumented := instrument.New(entry.ID, oauthConfig)
-		if strings.EqualFold(entry.Type, string(codersdk.EnhancedExternalAuthProviderGitHub)) {
+		if strings.EqualFold(entry.Type, string(wirtualsdk.EnhancedExternalAuthProviderGitHub)) {
 			instrumented = instrument.NewGithub(entry.ID, oauthConfig)
 		}
 
@@ -601,15 +601,15 @@ func ConvertConfig(instrument *promoauth.Factory, entries []codersdk.ExternalAut
 }
 
 // applyDefaultsToConfig applies defaults to the config entry.
-func applyDefaultsToConfig(config *codersdk.ExternalAuthConfig) {
-	configType := codersdk.EnhancedExternalAuthProvider(config.Type)
+func applyDefaultsToConfig(config *wirtualsdk.ExternalAuthConfig) {
+	configType := wirtualsdk.EnhancedExternalAuthProvider(config.Type)
 	if configType == "bitbucket" {
 		// For backwards compatibility, we need to support the "bitbucket" string.
-		configType = codersdk.EnhancedExternalAuthProviderBitBucketCloud
+		configType = wirtualsdk.EnhancedExternalAuthProviderBitBucketCloud
 		defer func() {
 			// The config type determines the config ID (if unset). So change the legacy
 			// type to the correct new type after the defaults have been configured.
-			config.Type = string(codersdk.EnhancedExternalAuthProviderBitBucketCloud)
+			config.Type = string(wirtualsdk.EnhancedExternalAuthProviderBitBucketCloud)
 		}()
 	}
 	// If static defaults exist, apply them.
@@ -619,31 +619,31 @@ func applyDefaultsToConfig(config *codersdk.ExternalAuthConfig) {
 	}
 
 	// Dynamic defaults
-	switch codersdk.EnhancedExternalAuthProvider(config.Type) {
-	case codersdk.EnhancedExternalAuthProviderGitLab:
+	switch wirtualsdk.EnhancedExternalAuthProvider(config.Type) {
+	case wirtualsdk.EnhancedExternalAuthProviderGitLab:
 		copyDefaultSettings(config, gitlabDefaults(config))
 		return
-	case codersdk.EnhancedExternalAuthProviderBitBucketServer:
+	case wirtualsdk.EnhancedExternalAuthProviderBitBucketServer:
 		copyDefaultSettings(config, bitbucketServerDefaults(config))
 		return
-	case codersdk.EnhancedExternalAuthProviderJFrog:
+	case wirtualsdk.EnhancedExternalAuthProviderJFrog:
 		copyDefaultSettings(config, jfrogArtifactoryDefaults(config))
 		return
-	case codersdk.EnhancedExternalAuthProviderGitea:
+	case wirtualsdk.EnhancedExternalAuthProviderGitea:
 		copyDefaultSettings(config, giteaDefaults(config))
 		return
-	case codersdk.EnhancedExternalAuthProviderAzureDevopsEntra:
+	case wirtualsdk.EnhancedExternalAuthProviderAzureDevopsEntra:
 		copyDefaultSettings(config, azureDevopsEntraDefaults(config))
 		return
 	default:
 		// No defaults for this type. We still want to run this apply with
 		// an empty set of defaults.
-		copyDefaultSettings(config, codersdk.ExternalAuthConfig{})
+		copyDefaultSettings(config, wirtualsdk.ExternalAuthConfig{})
 		return
 	}
 }
 
-func copyDefaultSettings(config *codersdk.ExternalAuthConfig, defaults codersdk.ExternalAuthConfig) {
+func copyDefaultSettings(config *wirtualsdk.ExternalAuthConfig, defaults wirtualsdk.ExternalAuthConfig) {
 	if config.AuthURL == "" {
 		config.AuthURL = defaults.AuthURL
 	}
@@ -691,8 +691,8 @@ func copyDefaultSettings(config *codersdk.ExternalAuthConfig, defaults codersdk.
 	}
 }
 
-func bitbucketServerDefaults(config *codersdk.ExternalAuthConfig) codersdk.ExternalAuthConfig {
-	defaults := codersdk.ExternalAuthConfig{
+func bitbucketServerDefaults(config *wirtualsdk.ExternalAuthConfig) wirtualsdk.ExternalAuthConfig {
+	defaults := wirtualsdk.ExternalAuthConfig{
 		DisplayName: "Bitbucket Server",
 		Scopes:      []string{"PUBLIC_REPOS", "REPO_READ", "REPO_WRITE"},
 		DisplayIcon: "/icon/bitbucket.svg",
@@ -731,8 +731,8 @@ func bitbucketServerDefaults(config *codersdk.ExternalAuthConfig) codersdk.Exter
 // The values are dynamic if using a self-hosted gitlab.
 // When the decision is not obvious, just defer to the cloud defaults.
 // Any user specific fields will override this if provided.
-func gitlabDefaults(config *codersdk.ExternalAuthConfig) codersdk.ExternalAuthConfig {
-	cloud := codersdk.ExternalAuthConfig{
+func gitlabDefaults(config *wirtualsdk.ExternalAuthConfig) wirtualsdk.ExternalAuthConfig {
+	cloud := wirtualsdk.ExternalAuthConfig{
 		AuthURL:     "https://gitlab.com/oauth/authorize",
 		TokenURL:    "https://gitlab.com/oauth/token",
 		ValidateURL: "https://gitlab.com/oauth/token/info",
@@ -754,7 +754,7 @@ func gitlabDefaults(config *codersdk.ExternalAuthConfig) codersdk.ExternalAuthCo
 	}
 
 	// At this point, assume it is self-hosted and use the AuthURL
-	return codersdk.ExternalAuthConfig{
+	return wirtualsdk.ExternalAuthConfig{
 		DisplayName: cloud.DisplayName,
 		Scopes:      cloud.Scopes,
 		DisplayIcon: cloud.DisplayIcon,
@@ -765,8 +765,8 @@ func gitlabDefaults(config *codersdk.ExternalAuthConfig) codersdk.ExternalAuthCo
 	}
 }
 
-func jfrogArtifactoryDefaults(config *codersdk.ExternalAuthConfig) codersdk.ExternalAuthConfig {
-	defaults := codersdk.ExternalAuthConfig{
+func jfrogArtifactoryDefaults(config *wirtualsdk.ExternalAuthConfig) wirtualsdk.ExternalAuthConfig {
+	defaults := wirtualsdk.ExternalAuthConfig{
 		DisplayName: "JFrog Artifactory",
 		Scopes:      []string{"applied-permissions/user"},
 		DisplayIcon: "/icon/jfrog.svg",
@@ -803,8 +803,8 @@ func jfrogArtifactoryDefaults(config *codersdk.ExternalAuthConfig) codersdk.Exte
 	return defaults
 }
 
-func giteaDefaults(config *codersdk.ExternalAuthConfig) codersdk.ExternalAuthConfig {
-	defaults := codersdk.ExternalAuthConfig{
+func giteaDefaults(config *wirtualsdk.ExternalAuthConfig) wirtualsdk.ExternalAuthConfig {
+	defaults := wirtualsdk.ExternalAuthConfig{
 		DisplayName: "Gitea",
 		Scopes:      []string{"read:repository", " write:repository", "read:user"},
 		DisplayIcon: "/icon/gitea.svg",
@@ -834,8 +834,8 @@ func giteaDefaults(config *codersdk.ExternalAuthConfig) codersdk.ExternalAuthCon
 	return defaults
 }
 
-func azureDevopsEntraDefaults(config *codersdk.ExternalAuthConfig) codersdk.ExternalAuthConfig {
-	defaults := codersdk.ExternalAuthConfig{
+func azureDevopsEntraDefaults(config *wirtualsdk.ExternalAuthConfig) wirtualsdk.ExternalAuthConfig {
+	defaults := wirtualsdk.ExternalAuthConfig{
 		DisplayName: "Azure DevOps (Entra)",
 		DisplayIcon: "/icon/azure-devops.svg",
 		Regex:       `^(https?://)?dev\.azure\.com(/.*)?$`,
@@ -869,8 +869,8 @@ func azureDevopsEntraDefaults(config *codersdk.ExternalAuthConfig) codersdk.Exte
 	return defaults
 }
 
-var staticDefaults = map[codersdk.EnhancedExternalAuthProvider]codersdk.ExternalAuthConfig{
-	codersdk.EnhancedExternalAuthProviderAzureDevops: {
+var staticDefaults = map[wirtualsdk.EnhancedExternalAuthProvider]wirtualsdk.ExternalAuthConfig{
+	wirtualsdk.EnhancedExternalAuthProviderAzureDevops: {
 		AuthURL:     "https://app.vssps.visualstudio.com/oauth2/authorize",
 		TokenURL:    "https://app.vssps.visualstudio.com/oauth2/token",
 		DisplayName: "Azure DevOps",
@@ -878,7 +878,7 @@ var staticDefaults = map[codersdk.EnhancedExternalAuthProvider]codersdk.External
 		Regex:       `^(https?://)?dev\.azure\.com(/.*)?$`,
 		Scopes:      []string{"vso.code_write"},
 	},
-	codersdk.EnhancedExternalAuthProviderBitBucketCloud: {
+	wirtualsdk.EnhancedExternalAuthProviderBitBucketCloud: {
 		AuthURL:     "https://bitbucket.org/site/oauth2/authorize",
 		TokenURL:    "https://bitbucket.org/site/oauth2/access_token",
 		ValidateURL: "https://api.bitbucket.org/2.0/user",
@@ -887,7 +887,7 @@ var staticDefaults = map[codersdk.EnhancedExternalAuthProvider]codersdk.External
 		Regex:       `^(https?://)?bitbucket\.org(/.*)?$`,
 		Scopes:      []string{"account", "repository:write"},
 	},
-	codersdk.EnhancedExternalAuthProviderGitHub: {
+	wirtualsdk.EnhancedExternalAuthProviderGitHub: {
 		AuthURL:     xgithub.Endpoint.AuthURL,
 		TokenURL:    xgithub.Endpoint.TokenURL,
 		ValidateURL: "https://api.github.com/user",
@@ -899,7 +899,7 @@ var staticDefaults = map[codersdk.EnhancedExternalAuthProvider]codersdk.External
 		DeviceCodeURL:       "https://github.com/login/device/code",
 		AppInstallationsURL: "https://api.github.com/user/installations",
 	},
-	codersdk.EnhancedExternalAuthProviderSlack: {
+	wirtualsdk.EnhancedExternalAuthProviderSlack: {
 		AuthURL:     "https://slack.com/oauth/v2/authorize",
 		TokenURL:    "https://slack.com/api/oauth.v2.access",
 		DisplayName: "Slack",

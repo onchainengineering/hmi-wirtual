@@ -11,9 +11,9 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/rbac/policy"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/rbac/policy"
 )
 
 type WorkspaceStatus string
@@ -45,7 +45,7 @@ func (s WorkspaceStatus) Valid() bool {
 
 type WorkspaceAgentStatus string
 
-// This is also in codersdk/workspaceagents.go and should be kept in sync.
+// This is also in wirtualsdk/workspaceagents.go and should be kept in sync.
 const (
 	WorkspaceAgentStatusConnecting   WorkspaceAgentStatus = "connecting"
 	WorkspaceAgentStatusConnected    WorkspaceAgentStatus = "connected"

@@ -4,7 +4,7 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/scaletest/agentconn"
 	"github.com/coder/coder/v2/scaletest/reconnectingpty"
 	"github.com/coder/coder/v2/scaletest/workspacebuild"
@@ -71,7 +71,7 @@ func (c Config) Validate() error {
 	}
 	c.Workspace.OrganizationID = c.User.OrganizationID
 	// This value will be overwritten during the test.
-	c.Workspace.UserID = codersdk.Me
+	c.Workspace.UserID = wirtualsdk.Me
 	if err := c.Workspace.Validate(); err != nil {
 		return xerrors.Errorf("validate workspace: %w", err)
 	}

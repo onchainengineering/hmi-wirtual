@@ -1,4 +1,4 @@
-package coderd
+package wirtuald
 
 import (
 	"bufio"
@@ -24,10 +24,10 @@ import (
 	"tailscale.com/tailcfg"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/coderd/workspaceapps"
-	"github.com/coder/coder/v2/coderd/workspaceapps/appurl"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/coder/coder/v2/wirtuald/tracing"
+	"github.com/coder/coder/v2/wirtuald/workspaceapps"
+	"github.com/coder/coder/v2/wirtuald/workspaceapps/appurl"
+	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 	"github.com/coder/coder/v2/site"
 	"github.com/coder/coder/v2/tailnet"
 	"github.com/coder/coder/v2/tailnet/proto"
@@ -48,7 +48,7 @@ func init() {
 
 var _ workspaceapps.AgentProvider = (*ServerTailnet)(nil)
 
-// NewServerTailnet creates a new tailnet intended for use by coderd.
+// NewServerTailnet creates a new tailnet intended for use by wirtuald.
 func NewServerTailnet(
 	ctx context.Context,
 	logger slog.Logger,

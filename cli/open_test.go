@@ -12,8 +12,8 @@ import (
 
 	"github.com/coder/coder/v2/agent/agenttest"
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/provisionersdk/proto"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/testutil"
@@ -129,7 +129,7 @@ func TestOpenVSCode(t *testing.T) {
 				return
 			}
 
-			me, err := client.User(ctx, codersdk.Me)
+			me, err := client.User(ctx, wirtualsdk.Me)
 			require.NoError(t, err)
 
 			line := pty.ReadLine(ctx)
@@ -256,7 +256,7 @@ func TestOpenVSCode_NoAgentDirectory(t *testing.T) {
 				return
 			}
 
-			me, err := client.User(ctx, codersdk.Me)
+			me, err := client.User(ctx, wirtualsdk.Me)
 			require.NoError(t, err)
 
 			line := pty.ReadLine(ctx)

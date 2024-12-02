@@ -13,16 +13,16 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/sloggers/slogtest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/db2sdk"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/idpsync"
-	"github.com/coder/coder/v2/coderd/runtimeconfig"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
+	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/coder/coder/v2/wirtuald/database/dbgen"
+	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
+	"github.com/coder/coder/v2/wirtuald/idpsync"
+	"github.com/coder/coder/v2/wirtuald/runtimeconfig"
+	"github.com/coder/coder/v2/wirtuald/util/ptr"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/testutil"
 )
 
@@ -85,7 +85,7 @@ func TestGroupSyncTable(t *testing.T) {
 	testCases := []orgSetupDefinition{
 		{
 			Name: "SwitchGroups",
-			GroupSettings: &codersdk.GroupSyncSettings{
+			GroupSettings: &wirtualsdk.GroupSyncSettings{
 				Field: "groups",
 				Mapping: map[string][]uuid.UUID{
 					"foo": {ids.ID("sg-foo"), ids.ID("sg-foo-2")},
@@ -113,7 +113,7 @@ func TestGroupSyncTable(t *testing.T) {
 		},
 		{
 			Name: "StayInGroup",
-			GroupSettings: &codersdk.GroupSyncSettings{
+			GroupSettings: &wirtualsdk.GroupSyncSettings{
 				Field: "groups",
 				// Only match foo, so bar does not map
 				RegexFilter: regexp.MustCompile("^foo$"),
@@ -135,7 +135,7 @@ func TestGroupSyncTable(t *testing.T) {
 		},
 		{
 			Name: "UserJoinsGroups",
-			GroupSettings: &codersdk.GroupSyncSettings{
+			GroupSettings: &wirtualsdk.GroupSyncSettings{
 				Field: "groups",
 				Mapping: map[string][]uuid.UUID{
 					"foo": {ids.ID("ng-foo"), uuid.New()},
@@ -160,7 +160,7 @@ func TestGroupSyncTable(t *testing.T) {
 		},
 		{
 			Name: "CreateGroups",
-			GroupSettings: &codersdk.GroupSyncSettings{
+			GroupSettings: &wirtualsdk.GroupSyncSettings{
 				Field:             "groups",
 				RegexFilter:       regexp.MustCompile("^create"),
 				AutoCreateMissing: true,
@@ -175,7 +175,7 @@ func TestGroupSyncTable(t *testing.T) {
 		},
 		{
 			Name: "GroupNamesNoMapping",
-			GroupSettings: &codersdk.GroupSyncSettings{
+			GroupSettings: &wirtualsdk.GroupSyncSettings{
 				Field:             "groups",
 				RegexFilter:       regexp.MustCompile(".*"),
 				AutoCreateMissing: false,
@@ -194,7 +194,7 @@ func TestGroupSyncTable(t *testing.T) {
 		},
 		{
 			Name: "NoUser",
-			GroupSettings: &codersdk.GroupSyncSettings{
+			GroupSettings: &wirtualsdk.GroupSyncSettings{
 				Field: "groups",
 				Mapping: map[string][]uuid.UUID{
 					// Extra ID that does not map to a group
@@ -219,7 +219,7 @@ func TestGroupSyncTable(t *testing.T) {
 		},
 		{
 			Name: "LegacyMapping",
-			GroupSettings: &codersdk.GroupSyncSettings{
+			GroupSettings: &wirtualsdk.GroupSyncSettings{
 				Field:       "groups",
 				RegexFilter: regexp.MustCompile("^legacy"),
 				LegacyNameMapping: map[string]string{
@@ -401,7 +401,7 @@ func TestSyncDisabled(t *testing.T) {
 			ids.ID("baz"): false,
 			ids.ID("bop"): false,
 		},
-		GroupSettings: &codersdk.GroupSyncSettings{
+		GroupSettings: &wirtualsdk.GroupSyncSettings{
 			Field: "groups",
 			Mapping: map[string][]uuid.UUID{
 				"foo": {ids.ID("foo")},
@@ -826,7 +826,7 @@ type orgSetupDefinition struct {
 	// NotMember if true will ensure the user is not a member of the organization.
 	NotMember bool
 
-	GroupSettings *codersdk.GroupSyncSettings
+	GroupSettings *wirtualsdk.GroupSyncSettings
 	RoleSettings  *idpsync.RoleSyncSettings
 
 	assertGroups *orgGroupAssert

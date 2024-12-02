@@ -8,17 +8,17 @@ import (
 	"github.com/cakturk/go-netstat/netstat"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 )
 
-func (lp *listeningPortsHandler) getListeningPorts() ([]codersdk.WorkspaceAgentListeningPort, error) {
+func (lp *listeningPortsHandler) getListeningPorts() ([]wirtualsdk.WorkspaceAgentListeningPort, error) {
 	lp.mut.Lock()
 	defer lp.mut.Unlock()
 
 	if time.Since(lp.mtime) < lp.cacheDuration {
 		// copy
-		ports := make([]codersdk.WorkspaceAgentListeningPort, len(lp.ports))
+		ports := make([]wirtualsdk.WorkspaceAgentListeningPort, len(lp.ports))
 		copy(ports, lp.ports)
 		return ports, nil
 	}
@@ -31,7 +31,7 @@ func (lp *listeningPortsHandler) getListeningPorts() ([]codersdk.WorkspaceAgentL
 	}
 
 	seen := make(map[uint16]struct{}, len(tabs))
-	ports := []codersdk.WorkspaceAgentListeningPort{}
+	ports := []wirtualsdk.WorkspaceAgentListeningPort{}
 	for _, tab := range tabs {
 		if tab.LocalAddr == nil || tab.LocalAddr.Port < workspacesdk.AgentMinimumListeningPort {
 			continue
@@ -53,7 +53,7 @@ func (lp *listeningPortsHandler) getListeningPorts() ([]codersdk.WorkspaceAgentL
 		if tab.Process != nil {
 			procName = tab.Process.Name
 		}
-		ports = append(ports, codersdk.WorkspaceAgentListeningPort{
+		ports = append(ports, wirtualsdk.WorkspaceAgentListeningPort{
 			ProcessName: procName,
 			Network:     "tcp",
 			Port:        tab.LocalAddr.Port,
@@ -64,7 +64,7 @@ func (lp *listeningPortsHandler) getListeningPorts() ([]codersdk.WorkspaceAgentL
 	lp.mtime = time.Now()
 
 	// copy
-	ports = make([]codersdk.WorkspaceAgentListeningPort, len(lp.ports))
+	ports = make([]wirtualsdk.WorkspaceAgentListeningPort, len(lp.ports))
 	copy(ports, lp.ports)
 	return ports, nil
 }

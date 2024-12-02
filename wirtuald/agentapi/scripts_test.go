@@ -10,10 +10,10 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/coderd/agentapi"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbmock"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/agentapi"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbmock"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
 )
 
 func TestScriptCompleted(t *testing.T) {

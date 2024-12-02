@@ -26,21 +26,21 @@ import (
 	"github.com/coder/serpent"
 
 	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/coderd/audit"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbmem"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/database/pubsub"
-	"github.com/coder/coder/v2/coderd/externalauth"
-	"github.com/coder/coder/v2/coderd/notifications"
-	"github.com/coder/coder/v2/coderd/notifications/notificationstest"
-	"github.com/coder/coder/v2/coderd/provisionerdserver"
-	"github.com/coder/coder/v2/coderd/schedule"
-	"github.com/coder/coder/v2/coderd/schedule/cron"
-	"github.com/coder/coder/v2/coderd/telemetry"
-	"github.com/coder/coder/v2/coderd/wspubsub"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/audit"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbgen"
+	"github.com/coder/coder/v2/wirtuald/database/dbmem"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/database/pubsub"
+	"github.com/coder/coder/v2/wirtuald/externalauth"
+	"github.com/coder/coder/v2/wirtuald/notifications"
+	"github.com/coder/coder/v2/wirtuald/notifications/notificationstest"
+	"github.com/coder/coder/v2/wirtuald/provisionerdserver"
+	"github.com/coder/coder/v2/wirtuald/schedule"
+	"github.com/coder/coder/v2/wirtuald/schedule/cron"
+	"github.com/coder/coder/v2/wirtuald/telemetry"
+	"github.com/coder/coder/v2/wirtuald/wspubsub"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/provisionerd/proto"
 	"github.com/coder/coder/v2/provisionersdk"
 	sdkproto "github.com/coder/coder/v2/provisionersdk/proto"
@@ -168,8 +168,8 @@ func TestAcquireJob(t *testing.T) {
 			// Set the max session token lifetime so we can assert we
 			// create an API key with an expiration within the bounds of the
 			// deployment config.
-			dv := &codersdk.DeploymentValues{
-				Sessions: codersdk.SessionLifetime{
+			dv := &wirtualsdk.DeploymentValues{
+				Sessions: wirtualsdk.SessionLifetime{
 					MaximumTokenDuration: serpent.Duration(time.Hour),
 				},
 			}
@@ -247,7 +247,7 @@ func TestAcquireJob(t *testing.T) {
 				Type:           database.ProvisionerJobTypeTemplateVersionImport,
 				Input: must(json.Marshal(provisionerdserver.TemplateVersionImportJob{
 					TemplateVersionID: version.ID,
-					UserVariableValues: []codersdk.VariableValue{
+					UserVariableValues: []wirtualsdk.VariableValue{
 						{Name: "second", Value: "bah"},
 					},
 				})),
@@ -518,7 +518,7 @@ func TestAcquireJob(t *testing.T) {
 				Type:          database.ProvisionerJobTypeTemplateVersionImport,
 				Input: must(json.Marshal(provisionerdserver.TemplateVersionImportJob{
 					TemplateVersionID: version.ID,
-					UserVariableValues: []codersdk.VariableValue{
+					UserVariableValues: []wirtualsdk.VariableValue{
 						{Name: "first", Value: "first_value"},
 					},
 				})),
@@ -2127,8 +2127,8 @@ func TestNotifications(t *testing.T) {
 		notifEnq := &notificationstest.FakeEnqueuer{}
 		srv, db, ps, pd := setup(t, true /* ignoreLogErrors */, &overrides{notificationEnqueuer: notifEnq})
 
-		templateAdmin := dbgen.User(t, db, database.User{RBACRoles: []string{codersdk.RoleTemplateAdmin}})
-		_ /* other template admin, should not receive notification */ = dbgen.User(t, db, database.User{RBACRoles: []string{codersdk.RoleTemplateAdmin}})
+		templateAdmin := dbgen.User(t, db, database.User{RBACRoles: []string{wirtualsdk.RoleTemplateAdmin}})
+		_ /* other template admin, should not receive notification */ = dbgen.User(t, db, database.User{RBACRoles: []string{wirtualsdk.RoleTemplateAdmin}})
 		_ = dbgen.OrganizationMember(t, db, database.OrganizationMember{UserID: templateAdmin.ID, OrganizationID: pd.OrganizationID})
 		user := dbgen.User(t, db, database.User{})
 		_ = dbgen.OrganizationMember(t, db, database.OrganizationMember{UserID: user.ID, OrganizationID: pd.OrganizationID})
@@ -2185,7 +2185,7 @@ func TestNotifications(t *testing.T) {
 
 type overrides struct {
 	ctx                         context.Context
-	deploymentValues            *codersdk.DeploymentValues
+	deploymentValues            *wirtualsdk.DeploymentValues
 	externalAuthConfigs         []*externalauth.Config
 	templateScheduleStore       *atomic.Pointer[schedule.TemplateScheduleStore]
 	userQuietHoursScheduleStore *atomic.Pointer[schedule.UserQuietHoursScheduleStore]
@@ -2205,7 +2205,7 @@ func setup(t *testing.T, ignoreLogErrors bool, ov *overrides) (proto.DRPCProvisi
 	defOrg, err := db.GetDefaultOrganization(context.Background())
 	require.NoError(t, err, "default org not found")
 
-	deploymentValues := &codersdk.DeploymentValues{}
+	deploymentValues := &wirtualsdk.DeploymentValues{}
 	var externalAuthConfigs []*externalauth.Config
 	tss := testTemplateScheduleStore()
 	uqhss := testUserQuietHoursScheduleStore()
@@ -2272,7 +2272,7 @@ func setup(t *testing.T, ignoreLogErrors bool, ov *overrides) (proto.DRPCProvisi
 		Version:        buildinfo.Version(),
 		APIVersion:     proto.CurrentVersion.String(),
 		OrganizationID: defOrg.ID,
-		KeyID:          uuid.MustParse(codersdk.ProvisionerKeyIDBuiltIn),
+		KeyID:          uuid.MustParse(wirtualsdk.ProvisionerKeyIDBuiltIn),
 	})
 	require.NoError(t, err)
 

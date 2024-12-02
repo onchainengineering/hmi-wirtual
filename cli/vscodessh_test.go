@@ -12,11 +12,11 @@ import (
 	"github.com/coder/coder/v2/agent/agenttest"
 	agentproto "github.com/coder/coder/v2/agent/proto"
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/coderd/workspacestats/workspacestatstest"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbfake"
+	"github.com/coder/coder/v2/wirtuald/workspacestats/workspacestatstest"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/testutil"
 )
@@ -27,7 +27,7 @@ func TestVSCodeSSH(t *testing.T) {
 	t.Parallel()
 	ctx := testutil.Context(t, testutil.WaitLong)
 	dv := coderdtest.DeploymentValues(t)
-	dv.Experiments = []string{string(codersdk.ExperimentWorkspaceUsage)}
+	dv.Experiments = []string{string(wirtualsdk.ExperimentWorkspaceUsage)}
 	batcher := &workspacestatstest.StatsBatcher{
 		LastStats: &agentproto.Stats{},
 	}
@@ -45,7 +45,7 @@ func TestVSCodeSSH(t *testing.T) {
 	workspace := r.Workspace
 	agentToken := r.AgentToken
 
-	user, err := client.User(ctx, codersdk.Me)
+	user, err := client.User(ctx, wirtualsdk.Me)
 	require.NoError(t, err)
 
 	_ = agenttest.New(t, client.URL, agentToken)

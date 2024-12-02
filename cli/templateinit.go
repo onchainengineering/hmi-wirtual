@@ -13,7 +13,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/examples"
 	"github.com/coder/coder/v2/provisionersdk"
 	"github.com/coder/pretty"
@@ -131,11 +131,11 @@ func (*RootCmd) templateInit() *serpent.Command {
 	return cmd
 }
 
-func templateByID(templateID string, tes []codersdk.TemplateExample) (codersdk.TemplateExample, bool) {
+func templateByID(templateID string, tes []wirtualsdk.TemplateExample) (wirtualsdk.TemplateExample, bool) {
 	for _, te := range tes {
 		if te.ID == templateID {
 			return te, true
 		}
 	}
-	return codersdk.TemplateExample{}, false
+	return wirtualsdk.TemplateExample{}, false
 }

@@ -5,11 +5,11 @@ import (
 	"crypto/subtle"
 	"net/http"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/provisionerkey"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/provisionerkey"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 type provisionerDaemonContextKey struct{}
@@ -33,7 +33,7 @@ func ExtractProvisionerDaemonAuthenticated(opts ExtractProvisionerAuthConfig) fu
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
-			handleOptional := func(code int, response codersdk.Response) {
+			handleOptional := func(code int, response wirtualsdk.Response) {
 				if opts.Optional {
 					next.ServeHTTP(w, r)
 					return
@@ -41,11 +41,11 @@ func ExtractProvisionerDaemonAuthenticated(opts ExtractProvisionerAuthConfig) fu
 				httpapi.Write(ctx, w, code, response)
 			}
 
-			psk := r.Header.Get(codersdk.ProvisionerDaemonPSK)
-			key := r.Header.Get(codersdk.ProvisionerDaemonKey)
+			psk := r.Header.Get(wirtualsdk.ProvisionerDaemonPSK)
+			key := r.Header.Get(wirtualsdk.ProvisionerDaemonKey)
 			if key == "" {
 				if opts.PSK == "" {
-					handleOptional(http.StatusUnauthorized, codersdk.Response{
+					handleOptional(http.StatusUnauthorized, wirtualsdk.Response{
 						Message: "provisioner daemon key required",
 					})
 					return
@@ -55,7 +55,7 @@ func ExtractProvisionerDaemonAuthenticated(opts ExtractProvisionerAuthConfig) fu
 				return
 			}
 			if psk != "" {
-				handleOptional(http.StatusBadRequest, codersdk.Response{
+				handleOptional(http.StatusBadRequest, wirtualsdk.Response{
 					Message: "provisioner daemon key and psk provided, but only one is allowed",
 				})
 				return
@@ -63,7 +63,7 @@ func ExtractProvisionerDaemonAuthenticated(opts ExtractProvisionerAuthConfig) fu
 
 			err := provisionerkey.Validate(key)
 			if err != nil {
-				handleOptional(http.StatusBadRequest, codersdk.Response{
+				handleOptional(http.StatusBadRequest, wirtualsdk.Response{
 					Message: "provisioner daemon key invalid",
 					Detail:  err.Error(),
 				})
@@ -74,13 +74,13 @@ func ExtractProvisionerDaemonAuthenticated(opts ExtractProvisionerAuthConfig) fu
 			pk, err := opts.DB.GetProvisionerKeyByHashedSecret(dbauthz.AsSystemRestricted(ctx), hashedKey)
 			if err != nil {
 				if httpapi.Is404Error(err) {
-					handleOptional(http.StatusUnauthorized, codersdk.Response{
+					handleOptional(http.StatusUnauthorized, wirtualsdk.Response{
 						Message: "provisioner daemon key invalid",
 					})
 					return
 				}
 
-				handleOptional(http.StatusInternalServerError, codersdk.Response{
+				handleOptional(http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "get provisioner daemon key",
 					Detail:  err.Error(),
 				})
@@ -88,7 +88,7 @@ func ExtractProvisionerDaemonAuthenticated(opts ExtractProvisionerAuthConfig) fu
 			}
 
 			if provisionerkey.Compare(pk.HashedSecret, hashedKey) {
-				handleOptional(http.StatusUnauthorized, codersdk.Response{
+				handleOptional(http.StatusUnauthorized, wirtualsdk.Response{
 					Message: "provisioner daemon key invalid",
 				})
 				return
@@ -114,10 +114,10 @@ func ProvisionerKeyAuthOptional(r *http.Request) (database.ProvisionerKey, bool)
 	return user, ok
 }
 
-func fallbackToPSK(ctx context.Context, psk string, next http.Handler, w http.ResponseWriter, r *http.Request, handleOptional func(code int, response codersdk.Response)) {
-	token := r.Header.Get(codersdk.ProvisionerDaemonPSK)
+func fallbackToPSK(ctx context.Context, psk string, next http.Handler, w http.ResponseWriter, r *http.Request, handleOptional func(code int, response wirtualsdk.Response)) {
+	token := r.Header.Get(wirtualsdk.ProvisionerDaemonPSK)
 	if subtle.ConstantTimeCompare([]byte(token), []byte(psk)) != 1 {
-		handleOptional(http.StatusUnauthorized, codersdk.Response{
+		handleOptional(http.StatusUnauthorized, wirtualsdk.Response{
 			Message: "provisioner daemon psk invalid",
 		})
 		return

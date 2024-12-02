@@ -14,12 +14,12 @@ tech startups, educational units, or small to mid-sized enterprises.
 
 | Users       | Node capacity       | Replicas            | GCP             | AWS        | Azure             |
 | ----------- | ------------------- | ------------------- | --------------- | ---------- | ----------------- |
-| Up to 1,000 | 2 vCPU, 8 GB memory | 1-2 / 1 coderd each | `n1-standard-2` | `t3.large` | `Standard_D2s_v3` |
+| Up to 1,000 | 2 vCPU, 8 GB memory | 1-2 / 1 wirtuald each | `n1-standard-2` | `t3.large` | `Standard_D2s_v3` |
 
 **Footnotes**:
 
 - For small deployments (ca. 100 users, 10 concurrent workspace builds), it is
-  acceptable to deploy provisioners on `coderd` nodes.
+  acceptable to deploy provisioners on `wirtuald` nodes.
 
 ### Provisioner nodes
 

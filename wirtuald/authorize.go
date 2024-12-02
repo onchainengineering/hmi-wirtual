@@ -1,4 +1,4 @@
-package coderd
+package wirtuald
 
 import (
 	"fmt"
@@ -8,11 +8,11 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/rbac/policy"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/rbac/policy"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // AuthorizeFilter takes a list of objects and returns the filtered list of
@@ -115,14 +115,14 @@ func (h *HTTPAuthorizer) AuthorizeSQLFilter(r *http.Request, action policy.Actio
 // @Accept json
 // @Produce json
 // @Tags Authorization
-// @Param request body codersdk.AuthorizationRequest true "Authorization request"
-// @Success 200 {object} codersdk.AuthorizationResponse
+// @Param request body wirtualsdk.AuthorizationRequest true "Authorization request"
+// @Success 200 {object} wirtualsdk.AuthorizationResponse
 // @Router /authcheck [post]
 func (api *API) checkAuthorization(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	auth := httpmw.UserAuthorization(r)
 
-	var params codersdk.AuthorizationRequest
+	var params wirtualsdk.AuthorizationRequest
 	if !httpapi.Read(ctx, rw, r, &params) {
 		return
 	}
@@ -135,7 +135,7 @@ func (api *API) checkAuthorization(rw http.ResponseWriter, r *http.Request) {
 		slog.F("scope", auth.SafeScopeName()),
 	)
 
-	response := make(codersdk.AuthorizationResponse)
+	response := make(wirtualsdk.AuthorizationResponse)
 	// Prevent using too many resources by ID. This prevents database abuse
 	// from this endpoint. This also prevents misuse of this endpoint, as
 	// resource_id should be used for single objects, not for a list of them.
@@ -149,7 +149,7 @@ func (api *API) checkAuthorization(rw http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if idFetch > maxFetch {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: fmt.Sprintf(
 				"Endpoint only supports using \"resource_id\" field %d times, found %d usages. Remove %d objects with this field set.",
 				maxFetch, idFetch, idFetch-maxFetch,
@@ -160,7 +160,7 @@ func (api *API) checkAuthorization(rw http.ResponseWriter, r *http.Request) {
 
 	for k, v := range params.Checks {
 		if v.Object.ResourceType == "" {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: fmt.Sprintf("Object's \"resource_type\" field must be defined for key %q.", k),
 			})
 			return
@@ -180,9 +180,9 @@ func (api *API) checkAuthorization(rw http.ResponseWriter, r *http.Request) {
 		if v.Object.ResourceID != "" {
 			id, err := uuid.Parse(v.Object.ResourceID)
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message:     fmt.Sprintf("Object %q id is not a valid uuid.", v.Object.ResourceID),
-					Validations: []codersdk.ValidationError{{Field: "resource_id", Detail: err.Error()}},
+					Validations: []wirtualsdk.ValidationError{{Field: "resource_id", Detail: err.Error()}},
 				})
 				return
 			}
@@ -201,9 +201,9 @@ func (api *API) checkAuthorization(rw http.ResponseWriter, r *http.Request) {
 				dbObj, dbErr = api.Database.GetGroupByID(ctx, id)
 			default:
 				msg := fmt.Sprintf("Object type %q does not support \"resource_id\" field.", v.Object.ResourceType)
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message:     msg,
-					Validations: []codersdk.ValidationError{{Field: "resource_type", Detail: msg}},
+					Validations: []wirtualsdk.ValidationError{{Field: "resource_type", Detail: msg}},
 				})
 				return
 			}

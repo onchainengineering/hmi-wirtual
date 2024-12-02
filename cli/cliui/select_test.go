@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/serpent"
 )
@@ -51,7 +51,7 @@ func TestRichSelect(t *testing.T) {
 		msgChan := make(chan string)
 		go func() {
 			resp, err := newRichSelect(ptty, cliui.RichSelectOptions{
-				Options: []codersdk.TemplateVersionParameterOption{
+				Options: []wirtualsdk.TemplateVersionParameterOption{
 					{
 						Name:        "A-Name",
 						Value:       "A-Value",

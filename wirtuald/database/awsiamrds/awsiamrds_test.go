@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/coderd/database/awsiamrds"
-	"github.com/coder/coder/v2/coderd/database/pubsub"
+	"github.com/coder/coder/v2/wirtuald/database/awsiamrds"
+	"github.com/coder/coder/v2/wirtuald/database/pubsub"
 	"github.com/coder/coder/v2/testutil"
 )
 

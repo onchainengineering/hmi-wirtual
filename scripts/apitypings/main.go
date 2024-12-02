@@ -23,19 +23,19 @@ import (
 
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/sloghuman"
-	"github.com/coder/coder/v2/coderd/util/slice"
+	"github.com/coder/coder/v2/wirtuald/util/slice"
 )
 
 var (
 	// baseDirs are the directories to introspect for types to generate.
-	baseDirs = [...]string{"./codersdk", "./codersdk/healthsdk"}
+	baseDirs = [...]string{"./wirtualsdk", "./wirtualsdk/healthsdk"}
 	// externalTypes are types that are not in the baseDirs, but we want to
 	// support. These are usually types that are used in the baseDirs.
 	// Do not include things like "Database", as that would break the idea
 	// of splitting db and api types.
 	// Only include dirs that are client facing packages.
 	externalTypePkgs = [...]string{
-		"./coderd/healthcheck/health",
+		"./wirtuald/healthcheck/health",
 		// CLI option types:
 		"github.com/coder/serpent",
 	}
@@ -356,9 +356,9 @@ type Maps struct {
 	AllowedTypes map[string]struct{}
 }
 
-// objName prepends the package name of a type if it is outside of codersdk.
+// objName prepends the package name of a type if it is outside of wirtualsdk.
 func objName(obj types.Object) string {
-	if pkgName := obj.Pkg().Name(); pkgName != "codersdk" && pkgName != "healthsdk" {
+	if pkgName := obj.Pkg().Name(); pkgName != "wirtualsdk" && pkgName != "healthsdk" {
 		return cases.Title(language.English).String(pkgName) + obj.Name()
 	}
 	return obj.Name()
@@ -408,7 +408,7 @@ func (g *Generator) generateOne(m *Maps, obj types.Object) error {
 			// These are enums. Store to expand later.
 			m.Enums[objectName] = obj
 		case *types.Map, *types.Array, *types.Slice:
-			// Declared maps that are not structs are still valid codersdk objects.
+			// Declared maps that are not structs are still valid wirtualsdk objects.
 			// Handle them custom by calling 'typescriptType' directly instead of
 			// iterating through each struct field.
 			// These types support no json/typescript tags.
@@ -457,7 +457,7 @@ func (g *Generator) generateOne(m *Maps, obj types.Object) error {
 			return xerrors.Errorf("unsupported named type %q", underNamed.String())
 		}
 	case *types.Var:
-		// TODO: Are any enums var declarations? This is also codersdk.Me.
+		// TODO: Are any enums var declarations? This is also wirtualsdk.Me.
 	case *types.Const:
 		// We only care about named constant types, since they are enums
 		if named, ok := obj.Type().(*types.Named); ok {
@@ -537,7 +537,7 @@ func (g *Generator) buildStruct(obj types.Object, st *types.Struct) (string, err
 	state.PosLine = g.posLine(obj)
 	state.Name = objName(obj)
 
-	// Handle named embedded structs in the codersdk package via extension.
+	// Handle named embedded structs in the wirtualsdk package via extension.
 	var extends []string
 	extendedFields := make(map[int]bool)
 	for i := 0; i < st.NumFields(); i++ {
@@ -861,7 +861,7 @@ func (g *Generator) typescriptType(ty types.Type) (TypescriptType, error) {
 			return TypescriptType{ValueType: "number"}, nil
 		case "database/sql.NullTime":
 			return TypescriptType{ValueType: "string", Optional: true}, nil
-		case "github.com/coder/coder/v2/codersdk.NullTime":
+		case "github.com/coder/coder/v2/wirtualsdk.NullTime":
 			return TypescriptType{ValueType: "string", Optional: true}, nil
 		case "github.com/google/uuid.NullUUID":
 			return TypescriptType{ValueType: "string", Optional: true}, nil
@@ -873,15 +873,15 @@ func (g *Generator) typescriptType(ty types.Type) (TypescriptType, error) {
 			return TypescriptType{ValueType: "string"}, nil
 		// XXX: For some reason, the type generator generates these as `any`
 		//      so explicitly specifying the correct generic TS type.
-		case "github.com/coder/coder/v2/codersdk.RegionsResponse[github.com/coder/coder/v2/codersdk.WorkspaceProxy]":
+		case "github.com/coder/coder/v2/wirtualsdk.RegionsResponse[github.com/coder/coder/v2/wirtualsdk.WorkspaceProxy]":
 			return TypescriptType{ValueType: "RegionsResponse<WorkspaceProxy>"}, nil
-		case "github.com/coder/coder/v2/coderd/healthcheck/health.Message":
+		case "github.com/coder/coder/v2/wirtuald/healthcheck/health.Message":
 			return TypescriptType{ValueType: "HealthMessage"}, nil
-		case "github.com/coder/coder/v2/coderd/healthcheck/health.Severity":
+		case "github.com/coder/coder/v2/wirtuald/healthcheck/health.Severity":
 			return TypescriptType{ValueType: "HealthSeverity"}, nil
 		case "github.com/coder/coder/v2/healthsdk.HealthSection":
 			return TypescriptType{ValueType: "HealthSection"}, nil
-		case "github.com/coder/coder/v2/codersdk.ProvisionerDaemon":
+		case "github.com/coder/coder/v2/wirtualsdk.ProvisionerDaemon":
 			return TypescriptType{ValueType: "ProvisionerDaemon"}, nil
 
 		// Some very unfortunate `any` types that leaked into the frontend.
@@ -967,10 +967,10 @@ func (g *Generator) typescriptType(ty types.Type) (TypescriptType, error) {
 
 		// If it's a struct, just use the name of the struct type
 		if _, ok := n.Underlying().(*types.Struct); ok {
-			// External structs cannot be introspected, as we only parse the codersdk
+			// External structs cannot be introspected, as we only parse the wirtualsdk
 			// package. You can handle your type manually in the switch list above,
 			// otherwise `unknown` will be used. An easy way to fix this is to pull
-			// your external type into codersdk, then it will be known by the
+			// your external type into wirtualsdk, then it will be known by the
 			// generator.
 			return TypescriptType{
 				AboveTypeLine: indentedComment(fmt.Sprintf("external type %q, using \"unknown\"", n.String())),

@@ -23,13 +23,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/db2sdk"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbmem"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
+	"github.com/coder/coder/v2/wirtuald/database/dbgen"
+	"github.com/coder/coder/v2/wirtuald/database/dbmem"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/site"
 	"github.com/coder/coder/v2/testutil"
 )
@@ -57,12 +57,12 @@ func TestInjection(t *testing.T) {
 	})
 
 	r := httptest.NewRequest("GET", "/", nil)
-	r.Header.Set(codersdk.SessionTokenHeader, token)
+	r.Header.Set(wirtualsdk.SessionTokenHeader, token)
 	rw := httptest.NewRecorder()
 
 	handler.ServeHTTP(rw, r)
 	require.Equal(t, http.StatusOK, rw.Code)
-	var got codersdk.User
+	var got wirtualsdk.User
 	err := json.Unmarshal([]byte(html.UnescapeString(rw.Body.String())), &got)
 	require.NoError(t, err)
 
@@ -113,7 +113,7 @@ func TestInjectionFailureProducesCleanHTML(t *testing.T) {
 	})
 
 	r := httptest.NewRequest("GET", "/", nil)
-	r.Header.Set(codersdk.SessionTokenHeader, token)
+	r.Header.Set(wirtualsdk.SessionTokenHeader, token)
 	rw := httptest.NewRecorder()
 
 	handler.ServeHTTP(rw, r)

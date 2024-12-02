@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 func TestGitlabDefaults(t *testing.T) {
@@ -13,9 +13,9 @@ func TestGitlabDefaults(t *testing.T) {
 
 	// The default cloud setup. Copying this here as hard coded
 	// values.
-	cloud := codersdk.ExternalAuthConfig{
-		Type:        string(codersdk.EnhancedExternalAuthProviderGitLab),
-		ID:          string(codersdk.EnhancedExternalAuthProviderGitLab),
+	cloud := wirtualsdk.ExternalAuthConfig{
+		Type:        string(wirtualsdk.EnhancedExternalAuthProviderGitLab),
+		ID:          string(wirtualsdk.EnhancedExternalAuthProviderGitLab),
 		AuthURL:     "https://gitlab.com/oauth/authorize",
 		TokenURL:    "https://gitlab.com/oauth/token",
 		ValidateURL: "https://gitlab.com/oauth/token/info",
@@ -27,23 +27,23 @@ func TestGitlabDefaults(t *testing.T) {
 
 	tests := []struct {
 		name           string
-		input          codersdk.ExternalAuthConfig
-		expected       codersdk.ExternalAuthConfig
-		mutateExpected func(*codersdk.ExternalAuthConfig)
+		input          wirtualsdk.ExternalAuthConfig
+		expected       wirtualsdk.ExternalAuthConfig
+		mutateExpected func(*wirtualsdk.ExternalAuthConfig)
 	}{
 		// Cloud
 		{
 			name: "OnlyType",
-			input: codersdk.ExternalAuthConfig{
-				Type: string(codersdk.EnhancedExternalAuthProviderGitLab),
+			input: wirtualsdk.ExternalAuthConfig{
+				Type: string(wirtualsdk.EnhancedExternalAuthProviderGitLab),
 			},
 			expected: cloud,
 		},
 		{
 			// If someone was to manually configure the gitlab cli.
 			name: "CloudByConfig",
-			input: codersdk.ExternalAuthConfig{
-				Type:    string(codersdk.EnhancedExternalAuthProviderGitLab),
+			input: wirtualsdk.ExternalAuthConfig{
+				Type:    string(wirtualsdk.EnhancedExternalAuthProviderGitLab),
 				AuthURL: "https://gitlab.com/oauth/authorize",
 			},
 			expected: cloud,
@@ -51,8 +51,8 @@ func TestGitlabDefaults(t *testing.T) {
 		{
 			// Changing some of the defaults of the cloud option
 			name: "CloudWithChanges",
-			input: codersdk.ExternalAuthConfig{
-				Type: string(codersdk.EnhancedExternalAuthProviderGitLab),
+			input: wirtualsdk.ExternalAuthConfig{
+				Type: string(wirtualsdk.EnhancedExternalAuthProviderGitLab),
 				// Adding an extra query param intentionally to break simple
 				// string comparisons.
 				AuthURL:     "https://gitlab.com/oauth/authorize?foo=bar",
@@ -60,7 +60,7 @@ func TestGitlabDefaults(t *testing.T) {
 				Regex:       ".*",
 			},
 			expected: cloud,
-			mutateExpected: func(config *codersdk.ExternalAuthConfig) {
+			mutateExpected: func(config *wirtualsdk.ExternalAuthConfig) {
 				config.AuthURL = "https://gitlab.com/oauth/authorize?foo=bar"
 				config.DisplayName = "custom"
 				config.Regex = ".*"
@@ -70,12 +70,12 @@ func TestGitlabDefaults(t *testing.T) {
 		{
 			// Dynamically figures out the Validate, Token, and Regex fields.
 			name: "SelfHostedOnlyAuthURL",
-			input: codersdk.ExternalAuthConfig{
-				Type:    string(codersdk.EnhancedExternalAuthProviderGitLab),
+			input: wirtualsdk.ExternalAuthConfig{
+				Type:    string(wirtualsdk.EnhancedExternalAuthProviderGitLab),
 				AuthURL: "https://gitlab.company.org/oauth/authorize?foo=bar",
 			},
 			expected: cloud,
-			mutateExpected: func(config *codersdk.ExternalAuthConfig) {
+			mutateExpected: func(config *wirtualsdk.ExternalAuthConfig) {
 				config.AuthURL = "https://gitlab.company.org/oauth/authorize?foo=bar"
 				config.ValidateURL = "https://gitlab.company.org/oauth/token/info"
 				config.TokenURL = "https://gitlab.company.org/oauth/token"
@@ -85,15 +85,15 @@ func TestGitlabDefaults(t *testing.T) {
 		{
 			// Strange values
 			name: "RandomValues",
-			input: codersdk.ExternalAuthConfig{
-				Type:        string(codersdk.EnhancedExternalAuthProviderGitLab),
+			input: wirtualsdk.ExternalAuthConfig{
+				Type:        string(wirtualsdk.EnhancedExternalAuthProviderGitLab),
 				AuthURL:     "https://auth.com/auth",
 				ValidateURL: "https://validate.com/validate",
 				TokenURL:    "https://token.com/token",
 				Regex:       "random",
 			},
 			expected: cloud,
-			mutateExpected: func(config *codersdk.ExternalAuthConfig) {
+			mutateExpected: func(config *wirtualsdk.ExternalAuthConfig) {
 				config.AuthURL = "https://auth.com/auth"
 				config.ValidateURL = "https://validate.com/validate"
 				config.TokenURL = "https://token.com/token"
@@ -117,19 +117,19 @@ func TestGitlabDefaults(t *testing.T) {
 func Test_bitbucketServerConfigDefaults(t *testing.T) {
 	t.Parallel()
 
-	bbType := string(codersdk.EnhancedExternalAuthProviderBitBucketServer)
+	bbType := string(wirtualsdk.EnhancedExternalAuthProviderBitBucketServer)
 	tests := []struct {
 		name     string
-		config   *codersdk.ExternalAuthConfig
-		expected codersdk.ExternalAuthConfig
+		config   *wirtualsdk.ExternalAuthConfig
+		expected wirtualsdk.ExternalAuthConfig
 	}{
 		{
 			// Very few fields are statically defined for Bitbucket Server.
 			name: "EmptyBitbucketServer",
-			config: &codersdk.ExternalAuthConfig{
+			config: &wirtualsdk.ExternalAuthConfig{
 				Type: bbType,
 			},
-			expected: codersdk.ExternalAuthConfig{
+			expected: wirtualsdk.ExternalAuthConfig{
 				Type:        bbType,
 				ID:          bbType,
 				DisplayName: "Bitbucket Server",
@@ -140,11 +140,11 @@ func Test_bitbucketServerConfigDefaults(t *testing.T) {
 		{
 			// Only the AuthURL is required for defaults to work.
 			name: "AuthURL",
-			config: &codersdk.ExternalAuthConfig{
+			config: &wirtualsdk.ExternalAuthConfig{
 				Type:    bbType,
 				AuthURL: "https://bitbucket.example.com/login/oauth/authorize",
 			},
-			expected: codersdk.ExternalAuthConfig{
+			expected: wirtualsdk.ExternalAuthConfig{
 				Type:        bbType,
 				ID:          bbType,
 				AuthURL:     "https://bitbucket.example.com/login/oauth/authorize",
@@ -160,11 +160,11 @@ func Test_bitbucketServerConfigDefaults(t *testing.T) {
 			// Ensure backwards compatibility. The type should update to "bitbucket-cloud",
 			// but the ID and other fields should remain the same.
 			name: "BitbucketLegacy",
-			config: &codersdk.ExternalAuthConfig{
+			config: &wirtualsdk.ExternalAuthConfig{
 				Type: "bitbucket",
 			},
-			expected: codersdk.ExternalAuthConfig{
-				Type:        string(codersdk.EnhancedExternalAuthProviderBitBucketCloud),
+			expected: wirtualsdk.ExternalAuthConfig{
+				Type:        string(wirtualsdk.EnhancedExternalAuthProviderBitBucketCloud),
 				ID:          "bitbucket", // Legacy ID remains unchanged
 				AuthURL:     "https://bitbucket.org/site/oauth2/authorize",
 				TokenURL:    "https://bitbucket.org/site/oauth2/access_token",

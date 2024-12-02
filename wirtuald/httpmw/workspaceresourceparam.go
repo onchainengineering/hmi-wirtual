@@ -8,9 +8,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 type workspaceResourceParamContextKey struct{}
@@ -35,13 +35,13 @@ func ExtractWorkspaceResourceParam(db database.Store) func(http.Handler) http.Ha
 			}
 			resource, err := db.GetWorkspaceResourceByID(ctx, resourceUUID)
 			if errors.Is(err, sql.ErrNoRows) {
-				httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 					Message: "Resource doesn't exist with that id.",
 				})
 				return
 			}
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error fetching provisioner resource.",
 					Detail:  err.Error(),
 				})
@@ -50,21 +50,21 @@ func ExtractWorkspaceResourceParam(db database.Store) func(http.Handler) http.Ha
 
 			job, err := db.GetProvisionerJobByID(ctx, resource.JobID)
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error provisioner job.",
 					Detail:  err.Error(),
 				})
 				return
 			}
 			if job.Type != database.ProvisionerJobTypeWorkspaceBuild {
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "Workspace resources can only be fetched for builds.",
 				})
 				return
 			}
 			build, err := db.GetWorkspaceBuildByJobID(ctx, job.ID)
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error workspace build.",
 					Detail:  err.Error(),
 				})

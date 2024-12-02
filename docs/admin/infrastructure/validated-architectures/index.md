@@ -302,7 +302,7 @@ considerations:
 
 If you enable
 [database encryption](../../../admin/security/database-encryption.md) in Coder,
-consider allocating an additional CPU core to every `coderd` replica.
+consider allocating an additional CPU core to every `wirtuald` replica.
 
 #### Resource utilization guidelines
 

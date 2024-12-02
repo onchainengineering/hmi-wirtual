@@ -10,13 +10,13 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/database/pubsub"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/rbac/policy"
-	"github.com/coder/coder/v2/coderd/wspubsub"
+	"github.com/coder/coder/v2/wirtuald"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/coder/coder/v2/wirtuald/database/pubsub"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/rbac/policy"
+	"github.com/coder/coder/v2/wirtuald/wspubsub"
 	"github.com/coder/coder/v2/tailnet"
 	"github.com/coder/coder/v2/tailnet/proto"
 	"github.com/coder/coder/v2/testutil"
@@ -97,7 +97,7 @@ func TestWorkspaceUpdates(t *testing.T) {
 			cbs: map[string]pubsub.ListenerWithErr{},
 		}
 
-		updateProvider := coderd.NewUpdatesProvider(testutil.Logger(t), ps, db, &mockAuthorizer{})
+		updateProvider := wirtuald.NewUpdatesProvider(testutil.Logger(t), ps, db, &mockAuthorizer{})
 		t.Cleanup(func() {
 			_ = updateProvider.Close()
 		})
@@ -254,7 +254,7 @@ func TestWorkspaceUpdates(t *testing.T) {
 			cbs: map[string]pubsub.ListenerWithErr{},
 		}
 
-		updateProvider := coderd.NewUpdatesProvider(testutil.Logger(t), ps, db, &mockAuthorizer{})
+		updateProvider := wirtuald.NewUpdatesProvider(testutil.Logger(t), ps, db, &mockAuthorizer{})
 		t.Cleanup(func() {
 			_ = updateProvider.Close()
 		})
@@ -314,17 +314,17 @@ type mockWorkspaceStore struct {
 	orderedRows []database.GetWorkspacesAndAgentsByOwnerIDRow
 }
 
-// GetAuthorizedWorkspacesAndAgentsByOwnerID implements coderd.UpdatesQuerier.
+// GetAuthorizedWorkspacesAndAgentsByOwnerID implements wirtuald.UpdatesQuerier.
 func (m *mockWorkspaceStore) GetWorkspacesAndAgentsByOwnerID(context.Context, uuid.UUID) ([]database.GetWorkspacesAndAgentsByOwnerIDRow, error) {
 	return m.orderedRows, nil
 }
 
-// GetWorkspaceByAgentID implements coderd.UpdatesQuerier.
+// GetWorkspaceByAgentID implements wirtuald.UpdatesQuerier.
 func (*mockWorkspaceStore) GetWorkspaceByAgentID(context.Context, uuid.UUID) (database.Workspace, error) {
 	return database.Workspace{}, nil
 }
 
-var _ coderd.UpdatesQuerier = (*mockWorkspaceStore)(nil)
+var _ wirtuald.UpdatesQuerier = (*mockWorkspaceStore)(nil)
 
 type mockPubsub struct {
 	cbs map[string]pubsub.ListenerWithErr

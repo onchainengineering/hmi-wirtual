@@ -15,9 +15,9 @@ import (
 	"github.com/coder/coder/v2/agent"
 	"github.com/coder/coder/v2/agent/agenttest"
 	"github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/quartz"
 )
@@ -26,32 +26,32 @@ func TestAppHealth_Healthy(t *testing.T) {
 	t.Parallel()
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 	defer cancel()
-	apps := []codersdk.WorkspaceApp{
+	apps := []wirtualsdk.WorkspaceApp{
 		{
 			ID:          uuid.UUID{1},
 			Slug:        "app1",
-			Healthcheck: codersdk.Healthcheck{},
-			Health:      codersdk.WorkspaceAppHealthDisabled,
+			Healthcheck: wirtualsdk.Healthcheck{},
+			Health:      wirtualsdk.WorkspaceAppHealthDisabled,
 		},
 		{
 			ID:   uuid.UUID{2},
 			Slug: "app2",
-			Healthcheck: codersdk.Healthcheck{
+			Healthcheck: wirtualsdk.Healthcheck{
 				// URL: We don't set the URL for this test because the setup will
 				// create a httptest server for us and set it for us.
 				Interval:  1,
 				Threshold: 1,
 			},
-			Health: codersdk.WorkspaceAppHealthInitializing,
+			Health: wirtualsdk.WorkspaceAppHealthInitializing,
 		},
 		{
 			ID:   uuid.UUID{3},
 			Slug: "app3",
-			Healthcheck: codersdk.Healthcheck{
+			Healthcheck: wirtualsdk.Healthcheck{
 				Interval:  2,
 				Threshold: 1,
 			},
-			Health: codersdk.WorkspaceAppHealthInitializing,
+			Health: wirtualsdk.WorkspaceAppHealthInitializing,
 		},
 	}
 	checks2 := 0
@@ -95,8 +95,8 @@ func TestAppHealth_Healthy(t *testing.T) {
 	update := testutil.RequireRecvCtx(ctx, t, fakeAPI.AppHealthCh())
 	require.Len(t, update.GetUpdates(), 2)
 	applyUpdate(t, apps, update)
-	require.Equal(t, codersdk.WorkspaceAppHealthHealthy, apps[1].Health)
-	require.Equal(t, codersdk.WorkspaceAppHealthInitializing, apps[2].Health)
+	require.Equal(t, wirtualsdk.WorkspaceAppHealthHealthy, apps[1].Health)
+	require.Equal(t, wirtualsdk.WorkspaceAppHealthInitializing, apps[2].Health)
 
 	mClock.Advance(999 * time.Millisecond).MustWait(ctx) // app3 is now healthy
 
@@ -104,8 +104,8 @@ func TestAppHealth_Healthy(t *testing.T) {
 	update = testutil.RequireRecvCtx(ctx, t, fakeAPI.AppHealthCh())
 	require.Len(t, update.GetUpdates(), 2)
 	applyUpdate(t, apps, update)
-	require.Equal(t, codersdk.WorkspaceAppHealthHealthy, apps[1].Health)
-	require.Equal(t, codersdk.WorkspaceAppHealthHealthy, apps[2].Health)
+	require.Equal(t, wirtualsdk.WorkspaceAppHealthHealthy, apps[1].Health)
+	require.Equal(t, wirtualsdk.WorkspaceAppHealthHealthy, apps[2].Health)
 
 	// ensure we aren't spamming
 	require.Equal(t, 2, checks2)
@@ -116,17 +116,17 @@ func TestAppHealth_500(t *testing.T) {
 	t.Parallel()
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 	defer cancel()
-	apps := []codersdk.WorkspaceApp{
+	apps := []wirtualsdk.WorkspaceApp{
 		{
 			ID:   uuid.UUID{2},
 			Slug: "app2",
-			Healthcheck: codersdk.Healthcheck{
+			Healthcheck: wirtualsdk.Healthcheck{
 				// URL: We don't set the URL for this test because the setup will
 				// create a httptest server for us and set it for us.
 				Interval:  1,
 				Threshold: 1,
 			},
-			Health: codersdk.WorkspaceAppHealthInitializing,
+			Health: wirtualsdk.WorkspaceAppHealthInitializing,
 		},
 	}
 	handlers := []http.Handler{
@@ -158,24 +158,24 @@ func TestAppHealth_500(t *testing.T) {
 	update := testutil.RequireRecvCtx(ctx, t, fakeAPI.AppHealthCh())
 	require.Len(t, update.GetUpdates(), 1)
 	applyUpdate(t, apps, update)
-	require.Equal(t, codersdk.WorkspaceAppHealthUnhealthy, apps[0].Health)
+	require.Equal(t, wirtualsdk.WorkspaceAppHealthUnhealthy, apps[0].Health)
 }
 
 func TestAppHealth_Timeout(t *testing.T) {
 	t.Parallel()
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 	defer cancel()
-	apps := []codersdk.WorkspaceApp{
+	apps := []wirtualsdk.WorkspaceApp{
 		{
 			ID:   uuid.UUID{2},
 			Slug: "app2",
-			Healthcheck: codersdk.Healthcheck{
+			Healthcheck: wirtualsdk.Healthcheck{
 				// URL: We don't set the URL for this test because the setup will
 				// create a httptest server for us and set it for us.
 				Interval:  1,
 				Threshold: 1,
 			},
-			Health: codersdk.WorkspaceAppHealthInitializing,
+			Health: wirtualsdk.WorkspaceAppHealthInitializing,
 		},
 	}
 
@@ -226,12 +226,12 @@ func TestAppHealth_Timeout(t *testing.T) {
 	update := testutil.RequireRecvCtx(ctx, t, fakeAPI.AppHealthCh())
 	require.Len(t, update.GetUpdates(), 1)
 	applyUpdate(t, apps, update)
-	require.Equal(t, codersdk.WorkspaceAppHealthUnhealthy, apps[0].Health)
+	require.Equal(t, wirtualsdk.WorkspaceAppHealthUnhealthy, apps[0].Health)
 }
 
 func setupAppReporter(
 	ctx context.Context, t *testing.T,
-	apps []codersdk.WorkspaceApp,
+	apps []wirtualsdk.WorkspaceApp,
 	handlers []http.Handler,
 	clk quartz.Clock,
 ) (*agenttest.FakeAgentAPI, func()) {
@@ -270,12 +270,12 @@ func setupAppReporter(
 	}
 }
 
-func applyUpdate(t *testing.T, apps []codersdk.WorkspaceApp, req *proto.BatchUpdateAppHealthRequest) {
+func applyUpdate(t *testing.T, apps []wirtualsdk.WorkspaceApp, req *proto.BatchUpdateAppHealthRequest) {
 	t.Helper()
 	for _, update := range req.Updates {
 		updateID, err := uuid.FromBytes(update.Id)
 		require.NoError(t, err)
-		updateHealth := codersdk.WorkspaceAppHealth(strings.ToLower(proto.AppHealth_name[int32(update.Health)]))
+		updateHealth := wirtualsdk.WorkspaceAppHealth(strings.ToLower(proto.AppHealth_name[int32(update.Health)]))
 
 		for i, app := range apps {
 			if app.ID != updateID {

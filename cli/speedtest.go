@@ -13,8 +13,8 @@ import (
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/sloghuman"
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 	"github.com/coder/serpent"
 )
 
@@ -40,7 +40,7 @@ func (r *RootCmd) speedtest() *serpent.Command {
 		duration         time.Duration
 		direction        string
 		pcapFile         string
-		appearanceConfig codersdk.AppearanceConfig
+		appearanceConfig wirtualsdk.AppearanceConfig
 		formatter        = cliui.NewOutputFormatter(
 			cliui.ChangeFormatterData(cliui.TableFormat([]speedtestTableItem{}, []string{"Interval", "Throughput"}), func(data any) (any, error) {
 				res, ok := data.(SpeedtestResult)
@@ -65,7 +65,7 @@ func (r *RootCmd) speedtest() *serpent.Command {
 			cliui.JSONFormat(),
 		)
 	)
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Annotations: workspaceCommand,
 		Use:         "speedtest <workspace>",

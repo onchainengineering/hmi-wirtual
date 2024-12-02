@@ -10,12 +10,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbmem"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/metricscache"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbgen"
+	"github.com/coder/coder/v2/wirtuald/database/dbmem"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/metricscache"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/testutil"
 )
 
@@ -95,10 +95,10 @@ func clockTime(t time.Time, hour, minute, sec int) time.Time {
 	return time.Date(t.Year(), t.Month(), t.Day(), hour, minute, sec, t.Nanosecond(), t.Location())
 }
 
-func requireBuildTimeStatsEmpty(t *testing.T, stats codersdk.TemplateBuildTimeStats) {
-	require.Empty(t, stats[codersdk.WorkspaceTransitionStart])
-	require.Empty(t, stats[codersdk.WorkspaceTransitionStop])
-	require.Empty(t, stats[codersdk.WorkspaceTransitionDelete])
+func requireBuildTimeStatsEmpty(t *testing.T, stats wirtualsdk.TemplateBuildTimeStats) {
+	require.Empty(t, stats[wirtualsdk.WorkspaceTransitionStart])
+	require.Empty(t, stats[wirtualsdk.WorkspaceTransitionStop])
+	require.Empty(t, stats[wirtualsdk.WorkspaceTransitionDelete])
 }
 
 func TestCache_BuildTime(t *testing.T) {
@@ -240,10 +240,10 @@ func TestCache_BuildTime(t *testing.T) {
 			}
 
 			if tt.want.loads {
-				wantTransition := codersdk.WorkspaceTransition(tt.args.transition)
+				wantTransition := wirtualsdk.WorkspaceTransition(tt.args.transition)
 				require.Eventuallyf(t, func() bool {
 					stats := cache.TemplateBuildTimeStats(template.ID)
-					return stats[wantTransition] != codersdk.TransitionStats{}
+					return stats[wantTransition] != wirtualsdk.TransitionStats{}
 				}, testutil.WaitLong, testutil.IntervalMedium,
 					"BuildTime never populated",
 				)
@@ -259,7 +259,7 @@ func TestCache_BuildTime(t *testing.T) {
 					}
 				}
 			} else {
-				var stats codersdk.TemplateBuildTimeStats
+				var stats wirtualsdk.TemplateBuildTimeStats
 				require.Never(t, func() bool {
 					stats = cache.TemplateBuildTimeStats(template.ID)
 					requireBuildTimeStatsEmpty(t, stats)
@@ -303,7 +303,7 @@ func TestCache_DeploymentStats(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	var stat codersdk.DeploymentStats
+	var stat wirtualsdk.DeploymentStats
 	require.Eventually(t, func() bool {
 		var ok bool
 		stat, ok = cache.DeploymentStats()

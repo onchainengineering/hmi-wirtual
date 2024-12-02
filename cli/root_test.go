@@ -10,9 +10,9 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/coder/coder/v2/coderd"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/serpent"
@@ -159,7 +159,7 @@ func TestRoot(t *testing.T) {
 func TestDERPHeaders(t *testing.T) {
 	t.Parallel()
 
-	// Create a coderd API instance the hard way since we need to change the
+	// Create a wirtuald API instance the hard way since we need to change the
 	// handler to inject our custom /derp handler.
 	dv := coderdtest.DeploymentValues(t)
 	dv.DERP.Config.BlockDirect = true
@@ -168,13 +168,13 @@ func TestDERPHeaders(t *testing.T) {
 	})
 
 	// We set the handler after server creation for the access URL.
-	coderAPI := coderd.New(newOptions)
+	coderAPI := wirtuald.New(newOptions)
 	setHandler(coderAPI.RootHandler)
 	provisionerCloser := coderdtest.NewProvisionerDaemon(t, coderAPI)
 	t.Cleanup(func() {
 		_ = provisionerCloser.Close()
 	})
-	client := codersdk.New(serverURL)
+	client := wirtualsdk.New(serverURL)
 	t.Cleanup(func() {
 		cancelFunc()
 		_ = provisionerCloser.Close()

@@ -8,7 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/httpmw"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
 )
 
 func TestRequestID(t *testing.T) {

@@ -14,9 +14,9 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/provisionersdk/proto"
 	"github.com/coder/coder/v2/scaletest/agentconn"
@@ -218,7 +218,7 @@ func Test_Runner_Timing(t *testing.T) {
 	})
 }
 
-func setupRunnerTest(t *testing.T) (client *codersdk.Client, agentID uuid.UUID) {
+func setupRunnerTest(t *testing.T) (client *wirtualsdk.Client, agentID uuid.UUID) {
 	t.Helper()
 
 	client = coderdtest.New(t, &coderdtest.Options{

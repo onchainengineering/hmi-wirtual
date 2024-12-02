@@ -19,16 +19,16 @@ import (
 	"go.uber.org/goleak"
 	"tailscale.com/tailcfg"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbfake"
+	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 	"github.com/coder/coder/v2/provisionersdk/proto"
 
 	"github.com/coder/coder/v2/agent/agenttest"
 	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/coderd"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/tailnet"
 	tailnetproto "github.com/coder/coder/v2/tailnet/proto"
@@ -156,7 +156,7 @@ func TestDERPForceWebSockets(t *testing.T) {
 		DeploymentValues: dv,
 	}
 	setHandler, cancelFunc, serverURL, newOptions := coderdtest.NewOptions(t, options)
-	coderAPI := coderd.New(newOptions)
+	coderAPI := wirtuald.New(newOptions)
 	t.Cleanup(func() {
 		cancelFunc()
 		_ = coderAPI.Close()
@@ -184,7 +184,7 @@ func TestDERPForceWebSockets(t *testing.T) {
 		_ = provisionerCloser.Close()
 	})
 
-	client := codersdk.New(serverURL)
+	client := wirtualsdk.New(serverURL)
 	t.Cleanup(func() {
 		client.HTTPClient.CloseIdleConnections()
 	})
@@ -373,7 +373,7 @@ func TestCSRFExempt(t *testing.T) {
 		u := client.URL.JoinPath(fmt.Sprintf("/@%s/%s.%s/apps/%s", owner.Username, wrk.Workspace.Name, agentSlug, appSlug)).String()
 		req, err := http.NewRequestWithContext(ctx, http.MethodPost, u, nil)
 		req.AddCookie(&http.Cookie{
-			Name:   codersdk.SessionTokenCookie,
+			Name:   wirtualsdk.SessionTokenCookie,
 			Value:  client.SessionToken(),
 			Path:   "/",
 			Domain: client.URL.String(),

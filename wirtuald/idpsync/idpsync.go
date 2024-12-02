@@ -11,10 +11,10 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/runtimeconfig"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/runtimeconfig"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/site"
 )
 
@@ -122,7 +122,7 @@ type DefaultOrgLegacySettings struct {
 	CreateMissingGroups bool
 }
 
-func FromDeploymentValues(dv *codersdk.DeploymentValues) DeploymentSyncSettings {
+func FromDeploymentValues(dv *wirtualsdk.DeploymentValues) DeploymentSyncSettings {
 	if dv == nil {
 		panic("Developer error: DeploymentValues should not be nil")
 	}
@@ -257,7 +257,7 @@ func (e HTTPError) Write(rw http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	httpapi.Write(r.Context(), rw, e.Code, codersdk.Response{
+	httpapi.Write(r.Context(), rw, e.Code, wirtualsdk.Response{
 		Message: e.Msg,
 		Detail:  e.Detail,
 	})

@@ -17,12 +17,12 @@ import (
 	"tailscale.com/tailcfg"
 
 	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/coderd/agentapi"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbmock"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/externalauth"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/agentapi"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbmock"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/externalauth"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/tailnet"
 )
 
@@ -278,9 +278,9 @@ func TestGetManifest(t *testing.T) {
 			AccessURL:   &url.URL{Scheme: "https", Host: "example.com"},
 			AppHostname: "*--apps.example.com",
 			ExternalAuthConfigs: []*externalauth.Config{
-				{Type: string(codersdk.EnhancedExternalAuthProviderGitHub)},
+				{Type: string(wirtualsdk.EnhancedExternalAuthProviderGitHub)},
 				{Type: "some-provider"},
-				{Type: string(codersdk.EnhancedExternalAuthProviderGitLab)},
+				{Type: string(wirtualsdk.EnhancedExternalAuthProviderGitLab)},
 			},
 			DisableDirectConnections: true,
 			DerpForceWebSockets:      true,
@@ -343,9 +343,9 @@ func TestGetManifest(t *testing.T) {
 			AccessURL:   &url.URL{Scheme: "https", Host: "example.com"},
 			AppHostname: "",
 			ExternalAuthConfigs: []*externalauth.Config{
-				{Type: string(codersdk.EnhancedExternalAuthProviderGitHub)},
+				{Type: string(wirtualsdk.EnhancedExternalAuthProviderGitHub)},
 				{Type: "some-provider"},
-				{Type: string(codersdk.EnhancedExternalAuthProviderGitLab)},
+				{Type: string(wirtualsdk.EnhancedExternalAuthProviderGitLab)},
 			},
 			DisableDirectConnections: true,
 			DerpForceWebSockets:      true,

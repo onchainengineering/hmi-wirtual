@@ -16,7 +16,7 @@ import (
 	"cdr.dev/slog/sloggers/slogtest"
 	"github.com/coder/quartz"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/testutil"
 )
 
@@ -32,12 +32,12 @@ func TestVerifyWorkspaceOutdated(t *testing.T) {
 	serverURL, err := url.Parse(fakeServerURL)
 	require.NoError(t, err)
 
-	client := codersdk.Client{URL: serverURL}
+	client := wirtualsdk.Client{URL: serverURL}
 
 	t.Run("Up-to-date", func(t *testing.T) {
 		t.Parallel()
 
-		workspace := codersdk.Workspace{Name: fakeWorkspaceName, OwnerName: fakeOwnerName}
+		workspace := wirtualsdk.Workspace{Name: fakeWorkspaceName, OwnerName: fakeOwnerName}
 
 		_, outdated := verifyWorkspaceOutdated(&client, workspace)
 
@@ -46,7 +46,7 @@ func TestVerifyWorkspaceOutdated(t *testing.T) {
 	t.Run("Outdated", func(t *testing.T) {
 		t.Parallel()
 
-		workspace := codersdk.Workspace{Name: fakeWorkspaceName, OwnerName: fakeOwnerName, Outdated: true}
+		workspace := wirtualsdk.Workspace{Name: fakeWorkspaceName, OwnerName: fakeOwnerName, Outdated: true}
 
 		updateWorkspaceBanner, outdated := verifyWorkspaceOutdated(&client, workspace)
 
@@ -61,7 +61,7 @@ func TestBuildWorkspaceLink(t *testing.T) {
 	serverURL, err := url.Parse(fakeServerURL)
 	require.NoError(t, err)
 
-	workspace := codersdk.Workspace{Name: fakeWorkspaceName, OwnerName: fakeOwnerName}
+	workspace := wirtualsdk.Workspace{Name: fakeWorkspaceName, OwnerName: fakeOwnerName}
 	workspaceLink := buildWorkspaceLink(serverURL, workspace)
 
 	assert.Equal(t, workspaceLink.String(), fakeServerURL+"/@"+fakeOwnerName+"/"+fakeWorkspaceName)

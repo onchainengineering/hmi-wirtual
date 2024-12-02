@@ -10,14 +10,14 @@ import (
 	"github.com/go-jose/go-jose/v4/jwt"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/cryptokeys"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/jwtutils"
-	"github.com/coder/coder/v2/coderd/workspaceapps"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/cryptokeys"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbgen"
+	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
+	"github.com/coder/coder/v2/wirtuald/jwtutils"
+	"github.com/coder/coder/v2/wirtuald/workspaceapps"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/quartz"
 )
@@ -196,7 +196,7 @@ func TestWorkspaceApplicationAuth(t *testing.T) {
 				DB: db,
 			}
 
-			kc, err := cryptokeys.NewEncryptionCache(ctx, logger, fetcher, codersdk.CryptoKeyFeatureWorkspaceAppsAPIKey)
+			kc, err := cryptokeys.NewEncryptionCache(ctx, logger, fetcher, wirtualsdk.CryptoKeyFeatureWorkspaceAppsAPIKey)
 			require.NoError(t, err)
 
 			clock := quartz.NewMock(t)
@@ -232,7 +232,7 @@ func TestWorkspaceApplicationAuth(t *testing.T) {
 			require.NoError(t, err)
 			defer resp.Body.Close()
 			if resp.StatusCode != http.StatusSeeOther {
-				err = codersdk.ReadBodyAsError(resp)
+				err = wirtualsdk.ReadBodyAsError(resp)
 				if c.expectRedirect == "" {
 					require.Error(t, err)
 					return
@@ -261,7 +261,7 @@ func TestWorkspaceApplicationAuth(t *testing.T) {
 			err = jwtutils.Decrypt(ctx, kc, encryptedAPIKey, &token, jwtutils.WithDecryptExpected(jwt.Expected{
 				Time:        clock.Now(),
 				AnyAudience: jwt.Audience{"wsproxy"},
-				Issuer:      "coderd",
+				Issuer:      "wirtuald",
 			}))
 			require.NoError(t, err)
 			require.Equal(t, jwt.NewNumericDate(clock.Now().Add(time.Minute)), token.Expiry)

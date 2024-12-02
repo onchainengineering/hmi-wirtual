@@ -8,8 +8,8 @@ import (
 	"testing"
 
 	"github.com/coder/coder/v2/cli/clilog"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 
 	"github.com/stretchr/testify/assert"
@@ -123,14 +123,14 @@ func TestBuilder(t *testing.T) {
 		t.Run("Override", func(t *testing.T) {
 			tempFile := filepath.Join(t.TempDir(), "test.log")
 			tempJSON := filepath.Join(t.TempDir(), "test.json")
-			dv := &codersdk.DeploymentValues{
-				Logging: codersdk.LoggingConfig{
+			dv := &wirtualsdk.DeploymentValues{
+				Logging: wirtualsdk.LoggingConfig{
 					Filter: []string{"foo", "baz"},
 					Human:  serpent.String(tempFile),
 					JSON:   serpent.String(tempJSON),
 				},
 				Verbose: true,
-				Trace: codersdk.TraceConfig{
+				Trace: wirtualsdk.TraceConfig{
 					Enable: true,
 				},
 			}

@@ -8,7 +8,7 @@ import (
 
 	agpl "github.com/coder/coder/v2/cli"
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -37,7 +37,7 @@ func (r *RootCmd) provisionerKeysCreate() *serpent.Command {
 		rawTags    []string
 	)
 
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "create <name>",
 		Short: "Create a new provisioner key",
@@ -58,7 +58,7 @@ func (r *RootCmd) provisionerKeysCreate() *serpent.Command {
 				return err
 			}
 
-			res, err := client.CreateProvisionerKey(ctx, org.ID, codersdk.CreateProvisionerKeyRequest{
+			res, err := client.CreateProvisionerKey(ctx, org.ID, wirtualsdk.CreateProvisionerKeyRequest{
 				Name: inv.Args[0],
 				Tags: tags,
 			})
@@ -95,12 +95,12 @@ func (r *RootCmd) provisionerKeysList() *serpent.Command {
 	var (
 		orgContext = agpl.NewOrganizationContext()
 		formatter  = cliui.NewOutputFormatter(
-			cliui.TableFormat([]codersdk.ProvisionerKey{}, []string{"created at", "name", "tags"}),
+			cliui.TableFormat([]wirtualsdk.ProvisionerKey{}, []string{"created at", "name", "tags"}),
 			cliui.JSONFormat(),
 		)
 	)
 
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:     "list",
 		Short:   "List provisioner keys in an organization",
@@ -147,7 +147,7 @@ func (r *RootCmd) provisionerKeysList() *serpent.Command {
 func (r *RootCmd) provisionerKeysDelete() *serpent.Command {
 	orgContext := agpl.NewOrganizationContext()
 
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "delete <name>",
 		Short: "Delete a provisioner key",

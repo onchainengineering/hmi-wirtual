@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 )
 
@@ -18,8 +18,8 @@ func (r *RootCmd) users() *serpent.Command {
 			r.userList(),
 			r.userSingle(),
 			r.userDelete(),
-			r.createUserStatusCommand(codersdk.UserStatusActive),
-			r.createUserStatusCommand(codersdk.UserStatusSuspended),
+			r.createUserStatusCommand(wirtualsdk.UserStatusActive),
+			r.createUserStatusCommand(wirtualsdk.UserStatusSuspended),
 		},
 	}
 	return cmd

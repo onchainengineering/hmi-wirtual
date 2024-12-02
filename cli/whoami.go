@@ -4,13 +4,13 @@ import (
 	"fmt"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
 
 func (r *RootCmd) whoami() *serpent.Command {
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Annotations: workspaceCommand,
 		Use:         "whoami",
@@ -22,7 +22,7 @@ func (r *RootCmd) whoami() *serpent.Command {
 		Handler: func(inv *serpent.Invocation) error {
 			ctx := inv.Context()
 			// Fetch the user info
-			resp, err := client.User(ctx, codersdk.Me)
+			resp, err := client.User(ctx, wirtualsdk.Me)
 			// Get Coder instance url
 			clientURL := client.URL
 

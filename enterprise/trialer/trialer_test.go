@@ -8,9 +8,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/database/dbmem"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
+	"github.com/coder/coder/v2/wirtuald/database/dbmem"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
 	"github.com/coder/coder/v2/enterprise/trialer"
 )
 
@@ -27,7 +27,7 @@ func TestTrialer(t *testing.T) {
 	db := dbmem.New()
 
 	gen := trialer.New(db, srv.URL, coderdenttest.Keys)
-	err := gen(context.Background(), codersdk.LicensorTrialRequest{Email: "kyle+colin@coder.com"})
+	err := gen(context.Background(), wirtualsdk.LicensorTrialRequest{Email: "kyle+colin@coder.com"})
 	require.NoError(t, err)
 	licenses, err := db.GetLicenses(context.Background())
 	require.NoError(t, err)

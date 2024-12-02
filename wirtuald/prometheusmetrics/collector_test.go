@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/prometheusmetrics"
+	"github.com/coder/coder/v2/wirtuald/prometheusmetrics"
 )
 
 func TestCollector_Add(t *testing.T) {
@@ -17,7 +17,7 @@ func TestCollector_Add(t *testing.T) {
 
 	// given
 	agentsGauge := prometheusmetrics.NewCachedGaugeVec(prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "agents",
 		Name:      "up",
 		Help:      "The number of active agents per workspace.",
@@ -50,7 +50,7 @@ func TestCollector_Set(t *testing.T) {
 
 	// given
 	agentsGauge := prometheusmetrics.NewCachedGaugeVec(prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "agents",
 		Name:      "up",
 		Help:      "The number of active agents per workspace.",
@@ -83,7 +83,7 @@ func TestCollector_Set_Add(t *testing.T) {
 
 	// given
 	agentsGauge := prometheusmetrics.NewCachedGaugeVec(prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "agents",
 		Name:      "up",
 		Help:      "The number of active agents per workspace.",

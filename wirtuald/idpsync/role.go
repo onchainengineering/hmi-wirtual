@@ -10,13 +10,13 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/rbac/rolestore"
-	"github.com/coder/coder/v2/coderd/runtimeconfig"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/rbac/rolestore"
+	"github.com/coder/coder/v2/wirtuald/runtimeconfig"
+	"github.com/coder/coder/v2/wirtuald/util/slice"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 type RoleParams struct {
@@ -277,7 +277,7 @@ func (AGPLIDPSync) RolesFromClaim(field string, claims jwt.MapClaims) ([]string,
 	return parsedRoles, nil
 }
 
-type RoleSyncSettings codersdk.RoleSyncSettings
+type RoleSyncSettings wirtualsdk.RoleSyncSettings
 
 func (s *RoleSyncSettings) Set(v string) error {
 	return json.Unmarshal([]byte(v), s)

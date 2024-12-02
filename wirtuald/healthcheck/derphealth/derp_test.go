@@ -18,8 +18,8 @@ import (
 	"tailscale.com/tailcfg"
 	"tailscale.com/types/key"
 
-	"github.com/coder/coder/v2/coderd/healthcheck/derphealth"
-	"github.com/coder/coder/v2/coderd/healthcheck/health"
+	"github.com/coder/coder/v2/wirtuald/healthcheck/derphealth"
+	"github.com/coder/coder/v2/wirtuald/healthcheck/health"
 	"github.com/coder/coder/v2/tailnet"
 	"github.com/coder/coder/v2/testutil"
 )

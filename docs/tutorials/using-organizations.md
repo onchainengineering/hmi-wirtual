@@ -25,7 +25,7 @@ chart and enable the
 For example, with Kubernetes, set the following in your `values.yaml`:
 
 ```yaml
-coderd:
+wirtuald:
   image:
     repo: ghcr.io/coder/coder-preview
     tag: orgs-preview-aug-16

@@ -19,12 +19,12 @@ import (
 	"cdr.dev/slog/sloggers/slogtest"
 	"github.com/coder/coder/v2/agent"
 	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbfake"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/util/ptr"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/support"
 	"github.com/coder/coder/v2/testutil"
 )
@@ -131,7 +131,7 @@ func TestRun(t *testing.T) {
 			Client: client,
 			Log:    slogtest.Make(t, &slogtest.Options{IgnoreErrors: true}).Named("bundle").Leveled(slog.LevelDebug),
 		})
-		var sdkErr *codersdk.Error
+		var sdkErr *wirtualsdk.Error
 		require.NotNil(t, bun)
 		require.ErrorAs(t, err, &sdkErr)
 		require.Equal(t, http.StatusUnauthorized, sdkErr.StatusCode())
@@ -157,7 +157,7 @@ func TestRun(t *testing.T) {
 	})
 }
 
-func assertSanitizedDeploymentConfig(t *testing.T, dc *codersdk.DeploymentConfig) {
+func assertSanitizedDeploymentConfig(t *testing.T, dc *wirtualsdk.DeploymentConfig) {
 	t.Helper()
 	for _, opt := range dc.Options {
 		if opt.Annotations.IsSet("secret") {
@@ -166,7 +166,7 @@ func assertSanitizedDeploymentConfig(t *testing.T, dc *codersdk.DeploymentConfig
 	}
 }
 
-func assertSanitizedWorkspace(t *testing.T, ws codersdk.Workspace) {
+func assertSanitizedWorkspace(t *testing.T, ws wirtualsdk.Workspace) {
 	t.Helper()
 	for _, res := range ws.LatestBuild.Resources {
 		for _, agt := range res.Agents {
@@ -182,14 +182,14 @@ func assertSanitizedEnv(t *testing.T, env map[string]string) {
 	}
 }
 
-func setupWorkspaceAndAgent(ctx context.Context, t *testing.T, client *codersdk.Client, db database.Store, user codersdk.CreateFirstUserResponse) (codersdk.Workspace, codersdk.WorkspaceAgent) {
+func setupWorkspaceAndAgent(ctx context.Context, t *testing.T, client *wirtualsdk.Client, db database.Store, user wirtualsdk.CreateFirstUserResponse) (wirtualsdk.Workspace, wirtualsdk.WorkspaceAgent) {
 	// This is a valid zip file
 	zipBytes := make([]byte, 22)
 	zipBytes[0] = 80
 	zipBytes[1] = 75
 	zipBytes[2] = 0o5
 	zipBytes[3] = 0o6
-	uploadRes, err := client.Upload(ctx, codersdk.ContentTypeZip, bytes.NewReader(zipBytes))
+	uploadRes, err := client.Upload(ctx, wirtualsdk.ContentTypeZip, bytes.NewReader(zipBytes))
 	require.NoError(t, err)
 
 	tv := dbfake.TemplateVersion(t, db).

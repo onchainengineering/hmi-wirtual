@@ -1,4 +1,4 @@
-package coderd
+package wirtuald
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 func Test_parseInsightsStartAndEndTime(t *testing.T) {
@@ -277,7 +277,7 @@ func Test_parseInsightsInterval_week(t *testing.T) {
 				return
 			}
 			if tt.wantOk {
-				assert.Equal(t, codersdk.InsightsReportIntervalWeek, parsedInterval)
+				assert.Equal(t, wirtualsdk.InsightsReportIntervalWeek, parsedInterval)
 			}
 		})
 	}

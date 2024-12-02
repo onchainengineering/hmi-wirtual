@@ -7,7 +7,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 )
 
@@ -36,18 +36,18 @@ func (r *RootCmd) organizations() *serpent.Command {
 
 func (r *RootCmd) showOrganization(orgContext *OrganizationContext) *serpent.Command {
 	var (
-		stringFormat func(orgs []codersdk.Organization) (string, error)
-		client       = new(codersdk.Client)
+		stringFormat func(orgs []wirtualsdk.Organization) (string, error)
+		client       = new(wirtualsdk.Client)
 		formatter    = cliui.NewOutputFormatter(
 			cliui.ChangeFormatterData(cliui.TextFormat(), func(data any) (any, error) {
-				typed, ok := data.([]codersdk.Organization)
+				typed, ok := data.([]wirtualsdk.Organization)
 				if !ok {
 					// This should never happen
 					return "", xerrors.Errorf("expected []Organization, got %T", data)
 				}
 				return stringFormat(typed)
 			}),
-			cliui.TableFormat([]codersdk.Organization{}, []string{"id", "name", "default"}),
+			cliui.TableFormat([]wirtualsdk.Organization{}, []string{"id", "name", "default"}),
 			cliui.JSONFormat(),
 		)
 		onlyID = false
@@ -95,11 +95,11 @@ func (r *RootCmd) showOrganization(orgContext *OrganizationContext) *serpent.Com
 				orgArg = inv.Args[0]
 			}
 
-			var orgs []codersdk.Organization
+			var orgs []wirtualsdk.Organization
 			var err error
 			switch strings.ToLower(orgArg) {
 			case "selected":
-				stringFormat = func(orgs []codersdk.Organization) (string, error) {
+				stringFormat = func(orgs []wirtualsdk.Organization) (string, error) {
 					if len(orgs) != 1 {
 						return "", xerrors.Errorf("expected 1 organization, got %d", len(orgs))
 					}
@@ -109,9 +109,9 @@ func (r *RootCmd) showOrganization(orgContext *OrganizationContext) *serpent.Com
 				if err != nil {
 					return err
 				}
-				orgs = []codersdk.Organization{org}
+				orgs = []wirtualsdk.Organization{org}
 			case "me":
-				stringFormat = func(orgs []codersdk.Organization) (string, error) {
+				stringFormat = func(orgs []wirtualsdk.Organization) (string, error) {
 					var str strings.Builder
 					_, _ = fmt.Fprint(&str, "Organizations you are a member of:\n")
 					for _, org := range orgs {
@@ -119,12 +119,12 @@ func (r *RootCmd) showOrganization(orgContext *OrganizationContext) *serpent.Com
 					}
 					return str.String(), nil
 				}
-				orgs, err = client.OrganizationsByUser(inv.Context(), codersdk.Me)
+				orgs, err = client.OrganizationsByUser(inv.Context(), wirtualsdk.Me)
 				if err != nil {
 					return err
 				}
 			default:
-				stringFormat = func(orgs []codersdk.Organization) (string, error) {
+				stringFormat = func(orgs []wirtualsdk.Organization) (string, error) {
 					if len(orgs) != 1 {
 						return "", xerrors.Errorf("expected 1 organization, got %d", len(orgs))
 					}
@@ -135,7 +135,7 @@ func (r *RootCmd) showOrganization(orgContext *OrganizationContext) *serpent.Com
 				if err != nil {
 					return err
 				}
-				orgs = []codersdk.Organization{org}
+				orgs = []wirtualsdk.Organization{org}
 			}
 
 			if onlyID {

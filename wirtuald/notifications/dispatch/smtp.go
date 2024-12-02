@@ -27,10 +27,10 @@ import (
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/coderd/notifications/render"
-	"github.com/coder/coder/v2/coderd/notifications/types"
-	markdown "github.com/coder/coder/v2/coderd/render"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/notifications/render"
+	"github.com/coder/coder/v2/wirtuald/notifications/types"
+	markdown "github.com/coder/coder/v2/wirtuald/render"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 var (
@@ -49,14 +49,14 @@ var (
 // NOTE: auth and TLS is currently *not* enabled in this initial thin slice.
 // TODO: implement DKIM/SPF/DMARC? https://github.com/emersion/go-msgauth
 type SMTPHandler struct {
-	cfg codersdk.NotificationsEmailConfig
+	cfg wirtualsdk.NotificationsEmailConfig
 	log slog.Logger
 
 	noAuthWarnOnce sync.Once
 	loginWarnOnce  sync.Once
 }
 
-func NewSMTPHandler(cfg codersdk.NotificationsEmailConfig, log slog.Logger) *SMTPHandler {
+func NewSMTPHandler(cfg wirtualsdk.NotificationsEmailConfig, log slog.Logger) *SMTPHandler {
 	return &SMTPHandler{cfg: cfg, log: log}
 }
 

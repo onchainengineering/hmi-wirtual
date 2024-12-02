@@ -39,10 +39,10 @@ import (
 	"github.com/coder/coder/v2/agent/reconnectingpty"
 	"github.com/coder/coder/v2/buildinfo"
 	"github.com/coder/coder/v2/cli/gitauth"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
+	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 	"github.com/coder/coder/v2/tailnet"
 	tailnetproto "github.com/coder/coder/v2/tailnet/proto"
 	"github.com/coder/retry"
@@ -75,7 +75,7 @@ type Options struct {
 	PortCacheDuration            time.Duration
 	SSHMaxTimeout                time.Duration
 	TailnetListenPort            uint16
-	Subsystems                   []codersdk.AgentSubsystem
+	Subsystems                   []wirtualsdk.AgentSubsystem
 	PrometheusRegistry           *prometheus.Registry
 	ReportMetadataInterval       time.Duration
 	ServiceBannerRefreshInterval time.Duration
@@ -158,8 +158,8 @@ func New(options Options) Agent {
 		tempDir:                            options.TempDir,
 		scriptDataDir:                      options.ScriptDataDir,
 		lifecycleUpdate:                    make(chan struct{}, 1),
-		lifecycleReported:                  make(chan codersdk.WorkspaceAgentLifecycle, 1),
-		lifecycleStates:                    []agentsdk.PostLifecycleRequest{{State: codersdk.WorkspaceAgentLifecycleCreated}},
+		lifecycleReported:                  make(chan wirtualsdk.WorkspaceAgentLifecycle, 1),
+		lifecycleStates:                    []agentsdk.PostLifecycleRequest{{State: wirtualsdk.WorkspaceAgentLifecycleCreated}},
 		ignorePorts:                        options.IgnorePorts,
 		portCacheDuration:                  options.PortCacheDuration,
 		reportMetadataInterval:             options.ReportMetadataInterval,
@@ -177,7 +177,7 @@ func New(options Options) Agent {
 	// that gets closed on disconnection.  This is used to wait for graceful disconnection from the
 	// coordinator during shut down.
 	close(a.coordDisconnected)
-	a.announcementBanners.Store(new([]codersdk.BannerConfig))
+	a.announcementBanners.Store(new([]wirtualsdk.BannerConfig))
 	a.sessionToken.Store(new(string))
 	a.init()
 	return a
@@ -197,7 +197,7 @@ type agent struct {
 	// are used by the agent, that the user does not care about.
 	ignorePorts       map[int]string
 	portCacheDuration time.Duration
-	subsystems        []codersdk.AgentSubsystem
+	subsystems        []wirtualsdk.AgentSubsystem
 
 	reconnectingPTYTimeout time.Duration
 	reconnectingPTYServer  *reconnectingpty.Server
@@ -218,7 +218,7 @@ type agent struct {
 	manifest                           atomic.Pointer[agentsdk.Manifest] // manifest is atomic because values can change after reconnection.
 	reportMetadataInterval             time.Duration
 	scriptRunner                       *agentscripts.Runner
-	announcementBanners                atomic.Pointer[[]codersdk.BannerConfig] // announcementBanners is atomic because it is periodically updated.
+	announcementBanners                atomic.Pointer[[]wirtualsdk.BannerConfig] // announcementBanners is atomic because it is periodically updated.
 	announcementBannersRefreshInterval time.Duration
 	sessionToken                       atomic.Pointer[string]
 	sshServer                          *agentssh.Server
@@ -226,7 +226,7 @@ type agent struct {
 	blockFileTransfer                  bool
 
 	lifecycleUpdate            chan struct{}
-	lifecycleReported          chan codersdk.WorkspaceAgentLifecycle
+	lifecycleReported          chan wirtualsdk.WorkspaceAgentLifecycle
 	lifecycleMu                sync.RWMutex // Protects following.
 	lifecycleStates            []agentsdk.PostLifecycleRequest
 	lifecycleLastReportedIndex int // Keeps track of the last lifecycle state we successfully reported.
@@ -250,7 +250,7 @@ func (a *agent) init() {
 	sshSrv, err := agentssh.NewServer(a.hardCtx, a.logger.Named("ssh-server"), a.prometheusRegistry, a.filesystem, &agentssh.Config{
 		MaxTimeout:          a.sshMaxTimeout,
 		MOTDFile:            func() string { return a.manifest.Load().MOTDFile },
-		AnnouncementBanners: func() *[]codersdk.BannerConfig { return a.announcementBanners.Load() },
+		AnnouncementBanners: func() *[]wirtualsdk.BannerConfig { return a.announcementBanners.Load() },
 		UpdateEnv:           a.updateCommandEnv,
 		WorkingDirectory:    func() string { return a.manifest.Load().Directory },
 		BlockFileTransfer:   a.blockFileTransfer,
@@ -291,7 +291,7 @@ func (a *agent) runLoop() {
 	// messages.
 	ctx := a.hardCtx
 	for retrier := retry.New(100*time.Millisecond, 10*time.Second); retrier.Wait(ctx); {
-		a.logger.Info(ctx, "connecting to coderd")
+		a.logger.Info(ctx, "connecting to wirtuald")
 		err := a.run()
 		if err == nil {
 			continue
@@ -305,18 +305,18 @@ func (a *agent) runLoop() {
 			return
 		}
 		if errors.Is(err, io.EOF) {
-			a.logger.Info(ctx, "disconnected from coderd")
+			a.logger.Info(ctx, "disconnected from wirtuald")
 			continue
 		}
 		a.logger.Warn(ctx, "run exited with error", slog.Error(err))
 	}
 }
 
-func (a *agent) collectMetadata(ctx context.Context, md codersdk.WorkspaceAgentMetadataDescription, now time.Time) *codersdk.WorkspaceAgentMetadataResult {
+func (a *agent) collectMetadata(ctx context.Context, md wirtualsdk.WorkspaceAgentMetadataDescription, now time.Time) *wirtualsdk.WorkspaceAgentMetadataResult {
 	var out bytes.Buffer
-	result := &codersdk.WorkspaceAgentMetadataResult{
+	result := &wirtualsdk.WorkspaceAgentMetadataResult{
 		// CollectedAt is set here for testing purposes and overrode by
-		// coderd to the time of server receipt to solve clock skew.
+		// wirtuald to the time of server receipt to solve clock skew.
 		//
 		// In the future, the server may accept the timestamp from the agent
 		// if it can guarantee the clocks are synchronized.
@@ -363,7 +363,7 @@ func (a *agent) collectMetadata(ctx context.Context, md codersdk.WorkspaceAgentM
 }
 
 type metadataResultAndKey struct {
-	result *codersdk.WorkspaceAgentMetadataResult
+	result *wirtualsdk.WorkspaceAgentMetadataResult
 	key    string
 }
 
@@ -467,7 +467,7 @@ func (a *agent) reportMetadata(ctx context.Context, aAPI proto.DRPCAgentClient23
 			// boundlessly.
 			lastCollectedAtMu.Lock()
 			for key := range lastCollectedAts {
-				if slices.IndexFunc(manifest.Metadata, func(md codersdk.WorkspaceAgentMetadataDescription) bool {
+				if slices.IndexFunc(manifest.Metadata, func(md wirtualsdk.WorkspaceAgentMetadataDescription) bool {
 					return md.Key == key
 				}) < 0 {
 					logger.Debug(ctx, "deleting lastCollected key, missing from manifest",
@@ -549,7 +549,7 @@ func (a *agent) reportMetadata(ctx context.Context, aAPI proto.DRPCAgentClient23
 	// sending a new one. If the network conditions are bad, we won't
 	// benefit from canceling the previous send and starting a new one.
 	var (
-		updatedMetadata = make(map[string]*codersdk.WorkspaceAgentMetadataResult)
+		updatedMetadata = make(map[string]*wirtualsdk.WorkspaceAgentMetadataResult)
 		reportTimeout   = 30 * time.Second
 		reportError     = make(chan error, 1)
 		reportInFlight  = false
@@ -663,7 +663,7 @@ func (a *agent) reportLifecycle(ctx context.Context, aAPI proto.DRPCAgentClient2
 
 // setLifecycle sets the lifecycle state and notifies the lifecycle loop.
 // The state is only updated if it's a valid state transition.
-func (a *agent) setLifecycle(state codersdk.WorkspaceAgentLifecycle) {
+func (a *agent) setLifecycle(state wirtualsdk.WorkspaceAgentLifecycle) {
 	report := agentsdk.PostLifecycleRequest{
 		State:     state,
 		ChangedAt: dbtime.Now(),
@@ -671,7 +671,7 @@ func (a *agent) setLifecycle(state codersdk.WorkspaceAgentLifecycle) {
 
 	a.lifecycleMu.Lock()
 	lastReport := a.lifecycleStates[len(a.lifecycleStates)-1]
-	if slices.Index(codersdk.WorkspaceAgentLifecycleOrder, lastReport.State) >= slices.Index(codersdk.WorkspaceAgentLifecycleOrder, report.State) {
+	if slices.Index(wirtualsdk.WorkspaceAgentLifecycleOrder, lastReport.State) >= slices.Index(wirtualsdk.WorkspaceAgentLifecycleOrder, report.State) {
 		a.logger.Warn(context.Background(), "attempted to set lifecycle state to a previous state", slog.F("last", lastReport), slog.F("current", report))
 		a.lifecycleMu.Unlock()
 		return
@@ -705,7 +705,7 @@ func (a *agent) fetchServiceBannerLoop(ctx context.Context, aAPI proto.DRPCAgent
 				a.logger.Error(ctx, "failed to update notification banners", slog.Error(err))
 				return err
 			}
-			banners := make([]codersdk.BannerConfig, 0, len(bannersProto.AnnouncementBanners))
+			banners := make([]wirtualsdk.BannerConfig, 0, len(bannersProto.AnnouncementBanners))
 			for _, bannerProto := range bannersProto.AnnouncementBanners {
 				banners = append(banners, agentsdk.BannerConfigFromProto(bannerProto))
 			}
@@ -747,7 +747,7 @@ func (a *agent) run() (retErr error) {
 			if err != nil {
 				return xerrors.Errorf("fetch service banner: %w", err)
 			}
-			banners := make([]codersdk.BannerConfig, 0, len(bannersProto.AnnouncementBanners))
+			banners := make([]wirtualsdk.BannerConfig, 0, len(bannersProto.AnnouncementBanners))
 			for _, bannerProto := range bannersProto.AnnouncementBanners {
 				banners = append(banners, agentsdk.BannerConfigFromProto(bannerProto))
 			}
@@ -869,7 +869,7 @@ func (a *agent) handleManifest(manifestOK *checkpoint) func(ctx context.Context,
 		}
 		a.client.RewriteDERPMap(manifest.DERPMap)
 
-		// Expand the directory and send it back to coderd so external
+		// Expand the directory and send it back to wirtuald so external
 		// applications that rely on the directory can use it.
 		//
 		// An example is VS Code Remote, which must know the directory
@@ -898,7 +898,7 @@ func (a *agent) handleManifest(manifestOK *checkpoint) func(ctx context.Context,
 
 		// The startup script should only execute on the first run!
 		if oldManifest == nil {
-			a.setLifecycle(codersdk.WorkspaceAgentLifecycleStarting)
+			a.setLifecycle(wirtualsdk.WorkspaceAgentLifecycleStarting)
 
 			// Perform overrides early so that Git auth can work even if users
 			// connect to a workspace that is not yet ready. We don't run this
@@ -928,12 +928,12 @@ func (a *agent) handleManifest(manifestOK *checkpoint) func(ctx context.Context,
 				if err != nil {
 					a.logger.Warn(ctx, "startup script(s) failed", slog.Error(err))
 					if errors.Is(err, agentscripts.ErrTimeout) {
-						a.setLifecycle(codersdk.WorkspaceAgentLifecycleStartTimeout)
+						a.setLifecycle(wirtualsdk.WorkspaceAgentLifecycleStartTimeout)
 					} else {
-						a.setLifecycle(codersdk.WorkspaceAgentLifecycleStartError)
+						a.setLifecycle(wirtualsdk.WorkspaceAgentLifecycleStartError)
 					}
 				} else {
-					a.setLifecycle(codersdk.WorkspaceAgentLifecycleReady)
+					a.setLifecycle(wirtualsdk.WorkspaceAgentLifecycleReady)
 				}
 
 				label := "false"
@@ -1113,7 +1113,7 @@ func (a *agent) createTailnet(ctx context.Context, agentID uuid.UUID, derpMap *t
 	// Inject `CODER_AGENT_HEADER` into the DERP header.
 	var header http.Header
 	if client, ok := a.client.(*agentsdk.Client); ok {
-		if headerTransport, ok := client.SDK.HTTPClient.Transport.(*codersdk.HeaderTransport); ok {
+		if headerTransport, ok := client.SDK.HTTPClient.Transport.(*wirtualsdk.HeaderTransport); ok {
 			header = headerTransport.Header
 		}
 	}
@@ -1522,7 +1522,7 @@ func (a *agent) Close() error {
 	}
 
 	a.logger.Info(a.hardCtx, "shutting down agent")
-	a.setLifecycle(codersdk.WorkspaceAgentLifecycleShuttingDown)
+	a.setLifecycle(wirtualsdk.WorkspaceAgentLifecycleShuttingDown)
 
 	// Attempt to gracefully shut down all active SSH connections and
 	// stop accepting new ones.
@@ -1540,14 +1540,14 @@ func (a *agent) Close() error {
 	// they might hang instead of being closed.
 	a.gracefulCancel()
 
-	lifecycleState := codersdk.WorkspaceAgentLifecycleOff
+	lifecycleState := wirtualsdk.WorkspaceAgentLifecycleOff
 	err = a.scriptRunner.Execute(a.hardCtx, agentscripts.ExecuteStopScripts)
 	if err != nil {
 		a.logger.Warn(a.hardCtx, "shutdown script(s) failed", slog.Error(err))
 		if errors.Is(err, agentscripts.ErrTimeout) {
-			lifecycleState = codersdk.WorkspaceAgentLifecycleShutdownTimeout
+			lifecycleState = wirtualsdk.WorkspaceAgentLifecycleShutdownTimeout
 		} else {
-			lifecycleState = codersdk.WorkspaceAgentLifecycleShutdownError
+			lifecycleState = wirtualsdk.WorkspaceAgentLifecycleShutdownError
 		}
 	}
 	a.setLifecycle(lifecycleState)

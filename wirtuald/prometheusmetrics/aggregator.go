@@ -11,7 +11,7 @@ import (
 	"github.com/prometheus/common/model"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/agentmetrics"
+	"github.com/coder/coder/v2/wirtuald/agentmetrics"
 
 	"cdr.dev/slog"
 
@@ -23,7 +23,7 @@ const (
 	// messages. This is because a registry cannot have conflicting
 	// help messages for the same metric in a "gather". If our coder agents are
 	// on different versions, this is a possible scenario.
-	metricHelpForAgent = "Metrics are forwarded from workspace agents connected to this instance of coderd."
+	metricHelpForAgent = "Metrics are forwarded from workspace agents connected to this instance of wirtuald."
 )
 
 const (
@@ -187,7 +187,7 @@ func NewMetricsAggregator(logger slog.Logger, registerer prometheus.Registerer, 
 	}
 
 	storeSizeGauge := prometheus.NewGauge(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "prometheusmetrics",
 		Name:      "metrics_aggregator_store_size",
 		Help:      "The number of metrics stored in the aggregator",
@@ -198,7 +198,7 @@ func NewMetricsAggregator(logger slog.Logger, registerer prometheus.Registerer, 
 	}
 
 	updateHistogram := prometheus.NewHistogram(prometheus.HistogramOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "prometheusmetrics",
 		Name:      "metrics_aggregator_execution_update_seconds",
 		Help:      "Histogram for duration of metrics aggregator update in seconds.",
@@ -210,7 +210,7 @@ func NewMetricsAggregator(logger slog.Logger, registerer prometheus.Registerer, 
 	}
 
 	cleanupHistogram := prometheus.NewHistogram(prometheus.HistogramOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "prometheusmetrics",
 		Name:      "metrics_aggregator_execution_cleanup_seconds",
 		Help:      "Histogram for duration of metrics aggregator cleanup in seconds.",

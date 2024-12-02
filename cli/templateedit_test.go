@@ -19,10 +19,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/testutil"
 )
 
@@ -137,7 +137,7 @@ func TestTemplateEdit(t *testing.T) {
 		err := inv.WithContext(ctx).Run()
 
 		require.Error(t, err, "client call must fail")
-		_, isSdkError := codersdk.AsError(err)
+		_, isSdkError := wirtualsdk.AsError(err)
 		require.True(t, isSdkError, "sdk error is expected")
 
 		// Assert that the template metadata did not change.
@@ -158,7 +158,7 @@ func TestTemplateEdit(t *testing.T) {
 		initialDescription := "This is description"
 		initialIcon := "/img/icon.png"
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			ctr.DisplayName = initialDisplayName
 			ctr.Description = initialDescription
 			ctr.Icon = initialIcon
@@ -211,7 +211,7 @@ func TestTemplateEdit(t *testing.T) {
 		initialDescription := "This is description"
 		initialIcon := "/img/icon.png"
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			ctr.DisplayName = initialDisplayName
 			ctr.Description = initialDescription
 			ctr.Icon = initialIcon
@@ -261,7 +261,7 @@ func TestTemplateEdit(t *testing.T) {
 			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 			version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
 			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 				ctr.DefaultTTLMillis = nil
 				ctr.AutostopRequirement = nil
 			})
@@ -344,7 +344,7 @@ func TestTemplateEdit(t *testing.T) {
 			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 			version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
 			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 				ctr.DefaultTTLMillis = nil
 				ctr.AutostopRequirement = nil
 			})
@@ -353,17 +353,17 @@ func TestTemplateEdit(t *testing.T) {
 			// response, but without advanced scheduling entitlement.
 			proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				if r.URL.Path == "/api/v2/entitlements" {
-					res := codersdk.Entitlements{
-						Features:         map[codersdk.FeatureName]codersdk.Feature{},
+					res := wirtualsdk.Entitlements{
+						Features:         map[wirtualsdk.FeatureName]wirtualsdk.Feature{},
 						Warnings:         []string{},
 						Errors:           []string{},
 						HasLicense:       true,
 						Trial:            true,
 						RequireTelemetry: false,
 					}
-					for _, feature := range codersdk.FeatureNames {
-						res.Features[feature] = codersdk.Feature{
-							Entitlement: codersdk.EntitlementNotEntitled,
+					for _, feature := range wirtualsdk.FeatureNames {
+						res.Features[feature] = wirtualsdk.Feature{
+							Entitlement: wirtualsdk.EntitlementNotEntitled,
 							Enabled:     false,
 							Limit:       nil,
 							Actual:      nil,
@@ -385,7 +385,7 @@ func TestTemplateEdit(t *testing.T) {
 			// Create a new client that uses the proxy server.
 			proxyURL, err := url.Parse(proxy.URL)
 			require.NoError(t, err)
-			proxyClient := codersdk.New(proxyURL)
+			proxyClient := wirtualsdk.New(proxyURL)
 			proxyClient.SetSessionToken(templateAdmin.SessionToken())
 			t.Cleanup(proxyClient.HTTPClient.CloseIdleConnections)
 
@@ -459,7 +459,7 @@ func TestTemplateEdit(t *testing.T) {
 			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 			version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
 			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 				ctr.DefaultTTLMillis = nil
 				ctr.AutostopRequirement = nil
 			})
@@ -469,18 +469,18 @@ func TestTemplateEdit(t *testing.T) {
 			var updateTemplateCalled int64
 			proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				if r.URL.Path == "/api/v2/entitlements" {
-					res := codersdk.Entitlements{
-						Features:         map[codersdk.FeatureName]codersdk.Feature{},
+					res := wirtualsdk.Entitlements{
+						Features:         map[wirtualsdk.FeatureName]wirtualsdk.Feature{},
 						Warnings:         []string{},
 						Errors:           []string{},
 						HasLicense:       true,
 						Trial:            true,
 						RequireTelemetry: false,
 					}
-					for _, feature := range codersdk.FeatureNames {
+					for _, feature := range wirtualsdk.FeatureNames {
 						var one int64 = 1
-						res.Features[feature] = codersdk.Feature{
-							Entitlement: codersdk.EntitlementNotEntitled,
+						res.Features[feature] = wirtualsdk.Feature{
+							Entitlement: wirtualsdk.EntitlementNotEntitled,
 							Enabled:     true,
 							Limit:       &one,
 							Actual:      &one,
@@ -494,7 +494,7 @@ func TestTemplateEdit(t *testing.T) {
 					require.NoError(t, err)
 					_ = r.Body.Close()
 
-					var req codersdk.UpdateTemplateMeta
+					var req wirtualsdk.UpdateTemplateMeta
 					err = json.Unmarshal(body, &req)
 					require.NoError(t, err)
 					assert.Equal(t, req.AutostopRequirement.DaysOfWeek, []string{"monday", "tuesday"})
@@ -517,7 +517,7 @@ func TestTemplateEdit(t *testing.T) {
 			// Create a new client that uses the proxy server.
 			proxyURL, err := url.Parse(proxy.URL)
 			require.NoError(t, err)
-			proxyClient := codersdk.New(proxyURL)
+			proxyClient := wirtualsdk.New(proxyURL)
 			proxyClient.SetSessionToken(templateAdmin.SessionToken())
 			t.Cleanup(proxyClient.HTTPClient.CloseIdleConnections)
 
@@ -562,7 +562,7 @@ func TestTemplateEdit(t *testing.T) {
 			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 			version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
 			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 				ctr.DefaultTTLMillis = nil
 				ctr.AutostopRequirement = nil
 				ctr.FailureTTLMillis = nil
@@ -629,17 +629,17 @@ func TestTemplateEdit(t *testing.T) {
 			// response, but without advanced scheduling entitlement.
 			proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				if r.URL.Path == "/api/v2/entitlements" {
-					res := codersdk.Entitlements{
-						Features:         map[codersdk.FeatureName]codersdk.Feature{},
+					res := wirtualsdk.Entitlements{
+						Features:         map[wirtualsdk.FeatureName]wirtualsdk.Feature{},
 						Warnings:         []string{},
 						Errors:           []string{},
 						HasLicense:       true,
 						Trial:            true,
 						RequireTelemetry: false,
 					}
-					for _, feature := range codersdk.FeatureNames {
-						res.Features[feature] = codersdk.Feature{
-							Entitlement: codersdk.EntitlementNotEntitled,
+					for _, feature := range wirtualsdk.FeatureNames {
+						res.Features[feature] = wirtualsdk.Feature{
+							Entitlement: wirtualsdk.EntitlementNotEntitled,
 							Enabled:     false,
 							Limit:       nil,
 							Actual:      nil,
@@ -661,7 +661,7 @@ func TestTemplateEdit(t *testing.T) {
 			// Create a new client that uses the proxy server.
 			proxyURL, err := url.Parse(proxy.URL)
 			require.NoError(t, err)
-			proxyClient := codersdk.New(proxyURL)
+			proxyClient := wirtualsdk.New(proxyURL)
 			proxyClient.SetSessionToken(templateAdmin.SessionToken())
 			t.Cleanup(proxyClient.HTTPClient.CloseIdleConnections)
 
@@ -725,18 +725,18 @@ func TestTemplateEdit(t *testing.T) {
 			var updateTemplateCalled int64
 			proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				if r.URL.Path == "/api/v2/entitlements" {
-					res := codersdk.Entitlements{
-						Features:         map[codersdk.FeatureName]codersdk.Feature{},
+					res := wirtualsdk.Entitlements{
+						Features:         map[wirtualsdk.FeatureName]wirtualsdk.Feature{},
 						Warnings:         []string{},
 						Errors:           []string{},
 						HasLicense:       true,
 						Trial:            true,
 						RequireTelemetry: false,
 					}
-					for _, feature := range codersdk.FeatureNames {
+					for _, feature := range wirtualsdk.FeatureNames {
 						var one int64 = 1
-						res.Features[feature] = codersdk.Feature{
-							Entitlement: codersdk.EntitlementNotEntitled,
+						res.Features[feature] = wirtualsdk.Feature{
+							Entitlement: wirtualsdk.EntitlementNotEntitled,
 							Enabled:     true,
 							Limit:       &one,
 							Actual:      &one,
@@ -750,7 +750,7 @@ func TestTemplateEdit(t *testing.T) {
 					require.NoError(t, err)
 					_ = r.Body.Close()
 
-					var req codersdk.UpdateTemplateMeta
+					var req wirtualsdk.UpdateTemplateMeta
 					err = json.Unmarshal(body, &req)
 					require.NoError(t, err)
 					assert.False(t, req.AllowUserAutostart)
@@ -773,7 +773,7 @@ func TestTemplateEdit(t *testing.T) {
 			// Create a new client that uses the proxy server.
 			proxyURL, err := url.Parse(proxy.URL)
 			require.NoError(t, err)
-			proxyClient := codersdk.New(proxyURL)
+			proxyClient := wirtualsdk.New(proxyURL)
 			proxyClient.SetSessionToken(templateAdmin.SessionToken())
 			t.Cleanup(proxyClient.HTTPClient.CloseIdleConnections)
 
@@ -820,7 +820,7 @@ func TestTemplateEdit(t *testing.T) {
 
 		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
 		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {})
+		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {})
 
 		// Test the cli command with --allow-user-autostart.
 		cmdArgs := []string{
@@ -845,7 +845,7 @@ func TestTemplateEdit(t *testing.T) {
 
 		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
 		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			ctr.Name = "random"
 			ctr.Icon = "/icon/foobar.png"
 			ctr.DisplayName = "Foobar"

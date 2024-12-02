@@ -19,11 +19,11 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/rbac/policy"
-	"github.com/coder/coder/v2/coderd/rbac/regosql"
-	"github.com/coder/coder/v2/coderd/rbac/regosql/sqltypes"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/coderd/util/slice"
+	"github.com/coder/coder/v2/wirtuald/rbac/policy"
+	"github.com/coder/coder/v2/wirtuald/rbac/regosql"
+	"github.com/coder/coder/v2/wirtuald/rbac/regosql/sqltypes"
+	"github.com/coder/coder/v2/wirtuald/tracing"
+	"github.com/coder/coder/v2/wirtuald/util/slice"
 )
 
 type AuthCall struct {
@@ -307,7 +307,7 @@ func NewAuthorizer(registry prometheus.Registerer) *RegoAuthorizer {
 
 	factory := promauto.With(registry)
 	authorizeHistogram := factory.NewHistogramVec(prometheus.HistogramOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "authz",
 		Name:      "authorize_duration_seconds",
 		Help:      "Duration of the 'Authorize' call in seconds. Only counts calls that succeed.",
@@ -315,7 +315,7 @@ func NewAuthorizer(registry prometheus.Registerer) *RegoAuthorizer {
 	}, []string{"allowed"})
 
 	prepareHistogram := factory.NewHistogram(prometheus.HistogramOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "authz",
 		Name:      "prepare_authorize_duration_seconds",
 		Help:      "Duration of the 'PrepareAuthorize' call in seconds.",

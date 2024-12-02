@@ -9,14 +9,14 @@ import (
 
 	"github.com/go-jose/go-jose/v4/jwt"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/testutil"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/jwtutils"
-	"github.com/coder/coder/v2/coderd/workspaceapps"
+	"github.com/coder/coder/v2/wirtuald/jwtutils"
+	"github.com/coder/coder/v2/wirtuald/workspaceapps"
 )
 
 func Test_TokenMatchesRequest(t *testing.T) {
@@ -292,7 +292,7 @@ func Test_FromRequest(t *testing.T) {
 
 		// Add an invalid token
 		r.AddCookie(&http.Cookie{
-			Name:  codersdk.SignedAppTokenCookie,
+			Name:  wirtualsdk.SignedAppTokenCookie,
 			Value: "invalid",
 		})
 
@@ -324,7 +324,7 @@ func Test_FromRequest(t *testing.T) {
 		expiredStr, err := jwtutils.Sign(ctx, signer, expired)
 		require.NoError(t, err)
 		r.AddCookie(&http.Cookie{
-			Name:  codersdk.SignedAppTokenCookie,
+			Name:  wirtualsdk.SignedAppTokenCookie,
 			Value: expiredStr,
 		})
 
@@ -332,7 +332,7 @@ func Test_FromRequest(t *testing.T) {
 		require.NoError(t, err)
 
 		r.AddCookie(&http.Cookie{
-			Name:  codersdk.SignedAppTokenCookie,
+			Name:  wirtualsdk.SignedAppTokenCookie,
 			Value: validStr,
 		})
 

@@ -11,10 +11,10 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/oauth2"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/promoauth"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/promoauth"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/cryptorand"
 )
 
@@ -56,7 +56,7 @@ func ExtractOAuth2(config promoauth.OAuth2Config, client *http.Client, authURLOp
 
 			// Interfaces can hold a nil value
 			if config == nil || reflect.ValueOf(config).IsNil() {
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "The oauth2 method requested is not configured!",
 				})
 				return
@@ -76,7 +76,7 @@ func ExtractOAuth2(config promoauth.OAuth2Config, client *http.Client, authURLOp
 					errorDescription = fmt.Sprintf("%s, error_uri: %s", errorDescription, errorURI)
 				}
 				errorMsg = fmt.Sprintf("Encountered error in oidc process: %s", errorMsg)
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: errorMsg,
 					// This message might be blank. This is ok.
 					Detail: errorDescription,
@@ -110,7 +110,7 @@ func ExtractOAuth2(config promoauth.OAuth2Config, client *http.Client, authURLOp
 					var err error
 					state, err = cryptorand.String(32)
 					if err != nil {
-						httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+						httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 							Message: "Internal error generating state string.",
 							Detail:  err.Error(),
 						})
@@ -119,7 +119,7 @@ func ExtractOAuth2(config promoauth.OAuth2Config, client *http.Client, authURLOp
 				}
 
 				http.SetCookie(rw, &http.Cookie{
-					Name:     codersdk.OAuth2StateCookie,
+					Name:     wirtualsdk.OAuth2StateCookie,
 					Value:    state,
 					Path:     "/",
 					HttpOnly: true,
@@ -128,7 +128,7 @@ func ExtractOAuth2(config promoauth.OAuth2Config, client *http.Client, authURLOp
 				// Redirect must always be specified, otherwise
 				// an old redirect could apply!
 				http.SetCookie(rw, &http.Cookie{
-					Name:     codersdk.OAuth2RedirectCookie,
+					Name:     wirtualsdk.OAuth2RedirectCookie,
 					Value:    redirect,
 					Path:     "/",
 					HttpOnly: true,
@@ -140,34 +140,34 @@ func ExtractOAuth2(config promoauth.OAuth2Config, client *http.Client, authURLOp
 			}
 
 			if state == "" {
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "State must be provided.",
 				})
 				return
 			}
 
-			stateCookie, err := r.Cookie(codersdk.OAuth2StateCookie)
+			stateCookie, err := r.Cookie(wirtualsdk.OAuth2StateCookie)
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusUnauthorized, codersdk.Response{
-					Message: fmt.Sprintf("Cookie %q must be provided.", codersdk.OAuth2StateCookie),
+				httpapi.Write(ctx, rw, http.StatusUnauthorized, wirtualsdk.Response{
+					Message: fmt.Sprintf("Cookie %q must be provided.", wirtualsdk.OAuth2StateCookie),
 				})
 				return
 			}
 			if stateCookie.Value != state {
-				httpapi.Write(ctx, rw, http.StatusUnauthorized, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusUnauthorized, wirtualsdk.Response{
 					Message: "State mismatched.",
 				})
 				return
 			}
 
-			stateRedirect, err := r.Cookie(codersdk.OAuth2RedirectCookie)
+			stateRedirect, err := r.Cookie(wirtualsdk.OAuth2RedirectCookie)
 			if err == nil {
 				redirect = stateRedirect.Value
 			}
 
 			oauthToken, err := config.Exchange(ctx, code)
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error exchanging Oauth code.",
 					Detail:  err.Error(),
 				})
@@ -228,7 +228,7 @@ func ExtractOAuth2ProviderApp(db database.Store) func(http.Handler) http.Handler
 					}
 				}
 				if paramAppID == "" {
-					httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+					httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 						Message: "Missing OAuth2 client ID.",
 					})
 					return
@@ -237,7 +237,7 @@ func ExtractOAuth2ProviderApp(db database.Store) func(http.Handler) http.Handler
 				var err error
 				appID, err = uuid.Parse(paramAppID)
 				if err != nil {
-					httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+					httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 						Message: "Invalid OAuth2 client ID.",
 						Detail:  err.Error(),
 					})
@@ -251,7 +251,7 @@ func ExtractOAuth2ProviderApp(db database.Store) func(http.Handler) http.Handler
 				return
 			}
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error fetching OAuth2 app.",
 					Detail:  err.Error(),
 				})
@@ -291,7 +291,7 @@ func ExtractOAuth2ProviderAppSecret(db database.Store) func(http.Handler) http.H
 				return
 			}
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error fetching OAuth2 app secret.",
 					Detail:  err.Error(),
 				})
@@ -301,7 +301,7 @@ func ExtractOAuth2ProviderAppSecret(db database.Store) func(http.Handler) http.H
 			// belongs to and they can read this app as well, so it seems safe to give
 			// them a more helpful message than a 404 on mismatches.
 			if app.ID != secret.AppID {
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "App ID does not match secret app ID.",
 				})
 				return

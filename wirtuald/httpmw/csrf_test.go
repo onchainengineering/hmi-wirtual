@@ -9,8 +9,8 @@ import (
 	"github.com/justinas/nosurf"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 func TestCSRFExemptList(t *testing.T) {
@@ -64,7 +64,7 @@ func TestCSRFExemptList(t *testing.T) {
 			r, err := http.NewRequestWithContext(context.Background(), http.MethodPost, c.URL, nil)
 			require.NoError(t, err)
 
-			r.AddCookie(&http.Cookie{Name: codersdk.SessionTokenCookie, Value: "test"})
+			r.AddCookie(&http.Cookie{Name: wirtualsdk.SessionTokenCookie, Value: "test"})
 			exempt := csrfmw.IsExempt(r)
 			require.Equal(t, c.Exempt, exempt)
 		})
@@ -97,7 +97,7 @@ func TestCSRFError(t *testing.T) {
 		req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, urlPath, nil)
 		require.NoError(t, err)
 
-		req.AddCookie(&http.Cookie{Name: codersdk.SessionTokenCookie, Value: "session_token_value"})
+		req.AddCookie(&http.Cookie{Name: wirtualsdk.SessionTokenCookie, Value: "session_token_value"})
 		req.AddCookie(&http.Cookie{Name: nosurf.CookieName, Value: csrfCookieValue})
 		req.Header.Add(nosurf.HeaderName, csrfHeaderValue)
 
@@ -114,7 +114,7 @@ func TestCSRFError(t *testing.T) {
 		req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, urlPath, nil)
 		require.NoError(t, err)
 
-		req.AddCookie(&http.Cookie{Name: codersdk.SessionTokenCookie, Value: "session_token_value"})
+		req.AddCookie(&http.Cookie{Name: wirtualsdk.SessionTokenCookie, Value: "session_token_value"})
 		req.AddCookie(&http.Cookie{Name: nosurf.CookieName, Value: csrfCookieValue})
 
 		rec := httptest.NewRecorder()
@@ -125,7 +125,7 @@ func TestCSRFError(t *testing.T) {
 	})
 
 	// Include the CSRF cookie, but not the CSRF header value.
-	// Including the 'codersdk.SessionTokenHeader' will bypass CSRF only if
+	// Including the 'wirtualsdk.SessionTokenHeader' will bypass CSRF only if
 	// it matches the cookie. If it does not, we expect a more helpful error.
 	t.Run("MismatchedHeaderAndCookie", func(t *testing.T) {
 		t.Parallel()
@@ -133,9 +133,9 @@ func TestCSRFError(t *testing.T) {
 		req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, urlPath, nil)
 		require.NoError(t, err)
 
-		req.AddCookie(&http.Cookie{Name: codersdk.SessionTokenCookie, Value: "session_token_value"})
+		req.AddCookie(&http.Cookie{Name: wirtualsdk.SessionTokenCookie, Value: "session_token_value"})
 		req.AddCookie(&http.Cookie{Name: nosurf.CookieName, Value: csrfCookieValue})
-		req.Header.Add(codersdk.SessionTokenHeader, "mismatched_value")
+		req.Header.Add(wirtualsdk.SessionTokenHeader, "mismatched_value")
 
 		rec := httptest.NewRecorder()
 		handler.ServeHTTP(rec, req)

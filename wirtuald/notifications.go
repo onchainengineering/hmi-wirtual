@@ -1,4 +1,4 @@
-package coderd
+package wirtuald
 
 import (
 	"bytes"
@@ -9,12 +9,12 @@ import (
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/coderd/audit"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/audit"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Get notifications settings
@@ -22,23 +22,23 @@ import (
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Notifications
-// @Success 200 {object} codersdk.NotificationsSettings
+// @Success 200 {object} wirtualsdk.NotificationsSettings
 // @Router /notifications/settings [get]
 func (api *API) notificationsSettings(rw http.ResponseWriter, r *http.Request) {
 	settingsJSON, err := api.Database.GetNotificationsSettings(r.Context())
 	if err != nil {
-		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to fetch current notifications settings.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 
-	var settings codersdk.NotificationsSettings
+	var settings wirtualsdk.NotificationsSettings
 	if len(settingsJSON) > 0 {
 		err = json.Unmarshal([]byte(settingsJSON), &settings)
 		if err != nil {
-			httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(r.Context(), rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Failed to unmarshal notifications settings.",
 				Detail:  err.Error(),
 			})
@@ -54,21 +54,21 @@ func (api *API) notificationsSettings(rw http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Tags Notifications
-// @Param request body codersdk.NotificationsSettings true "Notifications settings request"
-// @Success 200 {object} codersdk.NotificationsSettings
+// @Param request body wirtualsdk.NotificationsSettings true "Notifications settings request"
+// @Success 200 {object} wirtualsdk.NotificationsSettings
 // @Success 304
 // @Router /notifications/settings [put]
 func (api *API) putNotificationsSettings(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	var settings codersdk.NotificationsSettings
+	var settings wirtualsdk.NotificationsSettings
 	if !httpapi.Read(ctx, rw, r, &settings) {
 		return
 	}
 
 	settingsJSON, err := json.Marshal(&settings)
 	if err != nil {
-		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to marshal notifications settings.",
 			Detail:  err.Error(),
 		})
@@ -77,7 +77,7 @@ func (api *API) putNotificationsSettings(rw http.ResponseWriter, r *http.Request
 
 	currentSettingsJSON, err := api.Database.GetNotificationsSettings(ctx)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to fetch current notifications settings.",
 			Detail:  err.Error(),
 		})
@@ -110,7 +110,7 @@ func (api *API) putNotificationsSettings(rw http.ResponseWriter, r *http.Request
 			httpapi.Forbidden(rw)
 			return
 		}
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to update notifications settings.",
 			Detail:  err.Error(),
 		})
@@ -126,14 +126,14 @@ func (api *API) putNotificationsSettings(rw http.ResponseWriter, r *http.Request
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Notifications
-// @Success 200 {array} codersdk.NotificationTemplate
+// @Success 200 {array} wirtualsdk.NotificationTemplate
 // @Router /notifications/templates/system [get]
 func (api *API) systemNotificationTemplates(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	templates, err := api.Database.GetNotificationTemplatesByKind(ctx, database.NotificationTemplateKindSystem)
 	if err != nil {
-		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to retrieve system notifications templates.",
 			Detail:  err.Error(),
 		})
@@ -149,7 +149,7 @@ func (api *API) systemNotificationTemplates(rw http.ResponseWriter, r *http.Requ
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Notifications
-// @Success 200 {array} codersdk.NotificationMethodsResponse
+// @Success 200 {array} wirtualsdk.NotificationMethodsResponse
 // @Router /notifications/dispatch-methods [get]
 func (api *API) notificationDispatchMethods(rw http.ResponseWriter, r *http.Request) {
 	var methods []string
@@ -157,7 +157,7 @@ func (api *API) notificationDispatchMethods(rw http.ResponseWriter, r *http.Requ
 		methods = append(methods, string(nm))
 	}
 
-	httpapi.Write(r.Context(), rw, http.StatusOK, codersdk.NotificationMethodsResponse{
+	httpapi.Write(r.Context(), rw, http.StatusOK, wirtualsdk.NotificationMethodsResponse{
 		AvailableNotificationMethods: methods,
 		DefaultNotificationMethod:    api.DeploymentValues.Notifications.Method.Value(),
 	})
@@ -169,7 +169,7 @@ func (api *API) notificationDispatchMethods(rw http.ResponseWriter, r *http.Requ
 // @Produce json
 // @Tags Notifications
 // @Param user path string true "User ID, name, or me"
-// @Success 200 {array} codersdk.NotificationPreference
+// @Success 200 {array} wirtualsdk.NotificationPreference
 // @Router /users/{user}/notifications/preferences [get]
 func (api *API) userNotificationPreferences(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -182,7 +182,7 @@ func (api *API) userNotificationPreferences(rw http.ResponseWriter, r *http.Requ
 	if err != nil {
 		logger.Error(ctx, "failed to retrieve preferences", slog.Error(err))
 
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to retrieve user notification preferences.",
 			Detail:  err.Error(),
 		})
@@ -199,9 +199,9 @@ func (api *API) userNotificationPreferences(rw http.ResponseWriter, r *http.Requ
 // @Accept json
 // @Produce json
 // @Tags Notifications
-// @Param request body codersdk.UpdateUserNotificationPreferences true "Preferences"
+// @Param request body wirtualsdk.UpdateUserNotificationPreferences true "Preferences"
 // @Param user path string true "User ID, name, or me"
-// @Success 200 {array} codersdk.NotificationPreference
+// @Success 200 {array} wirtualsdk.NotificationPreference
 // @Router /users/{user}/notifications/preferences [put]
 func (api *API) putUserNotificationPreferences(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -211,7 +211,7 @@ func (api *API) putUserNotificationPreferences(rw http.ResponseWriter, r *http.R
 	)
 
 	// Parse request.
-	var prefs codersdk.UpdateUserNotificationPreferences
+	var prefs wirtualsdk.UpdateUserNotificationPreferences
 	if !httpapi.Read(ctx, rw, r, &prefs) {
 		return
 	}
@@ -227,7 +227,7 @@ func (api *API) putUserNotificationPreferences(rw http.ResponseWriter, r *http.R
 		if err != nil {
 			logger.Warn(ctx, "failed to parse notification template UUID", slog.F("input", tmplID), slog.Error(err))
 
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Unable to parse notification template UUID.",
 				Detail:  err.Error(),
 			})
@@ -243,7 +243,7 @@ func (api *API) putUserNotificationPreferences(rw http.ResponseWriter, r *http.R
 	if err != nil {
 		logger.Error(ctx, "failed to update preferences", slog.Error(err))
 
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to update user notifications preferences.",
 			Detail:  err.Error(),
 		})
@@ -257,7 +257,7 @@ func (api *API) putUserNotificationPreferences(rw http.ResponseWriter, r *http.R
 	if err != nil {
 		logger.Error(ctx, "failed to retrieve preferences", slog.Error(err))
 
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to retrieve user notifications preferences.",
 			Detail:  err.Error(),
 		})
@@ -268,9 +268,9 @@ func (api *API) putUserNotificationPreferences(rw http.ResponseWriter, r *http.R
 	httpapi.Write(ctx, rw, http.StatusOK, out)
 }
 
-func convertNotificationTemplates(in []database.NotificationTemplate) (out []codersdk.NotificationTemplate) {
+func convertNotificationTemplates(in []database.NotificationTemplate) (out []wirtualsdk.NotificationTemplate) {
 	for _, tmpl := range in {
-		out = append(out, codersdk.NotificationTemplate{
+		out = append(out, wirtualsdk.NotificationTemplate{
 			ID:            tmpl.ID,
 			Name:          tmpl.Name,
 			TitleTemplate: tmpl.TitleTemplate,
@@ -285,9 +285,9 @@ func convertNotificationTemplates(in []database.NotificationTemplate) (out []cod
 	return out
 }
 
-func convertNotificationPreferences(in []database.NotificationPreference) (out []codersdk.NotificationPreference) {
+func convertNotificationPreferences(in []database.NotificationPreference) (out []wirtualsdk.NotificationPreference) {
 	for _, pref := range in {
-		out = append(out, codersdk.NotificationPreference{
+		out = append(out, wirtualsdk.NotificationPreference{
 			NotificationTemplateID: pref.NotificationTemplateID,
 			Disabled:               pref.Disabled,
 			UpdatedAt:              pref.UpdatedAt,

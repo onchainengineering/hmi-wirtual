@@ -9,7 +9,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 )
 
@@ -50,7 +50,7 @@ func (r *RootCmd) createToken() *serpent.Command {
 		name          string
 		user          string
 	)
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "create",
 		Short: "Create a token",
@@ -59,7 +59,7 @@ func (r *RootCmd) createToken() *serpent.Command {
 			r.InitClient(client),
 		),
 		Handler: func(inv *serpent.Invocation) error {
-			userID := codersdk.Me
+			userID := wirtualsdk.Me
 			if user != "" {
 				userID = user
 			}
@@ -85,7 +85,7 @@ func (r *RootCmd) createToken() *serpent.Command {
 				}
 			}
 
-			res, err := client.CreateToken(inv.Context(), userID, codersdk.CreateTokenRequest{
+			res, err := client.CreateToken(inv.Context(), userID, wirtualsdk.CreateTokenRequest{
 				Lifetime:  parsedLifetime,
 				TokenName: name,
 			})
@@ -128,7 +128,7 @@ func (r *RootCmd) createToken() *serpent.Command {
 // tokenListRow is the type provided to the OutputFormatter.
 type tokenListRow struct {
 	// For JSON format:
-	codersdk.APIKey `table:"-"`
+	wirtualsdk.APIKey `table:"-"`
 
 	// For table format:
 	ID        string    `json:"-" table:"id,default_sort"`
@@ -139,7 +139,7 @@ type tokenListRow struct {
 	Owner     string    `json:"-" table:"owner"`
 }
 
-func tokenListRowFromToken(token codersdk.APIKeyWithOwner) tokenListRow {
+func tokenListRowFromToken(token wirtualsdk.APIKeyWithOwner) tokenListRow {
 	return tokenListRow{
 		APIKey:    token.APIKey,
 		ID:        token.ID,
@@ -167,7 +167,7 @@ func (r *RootCmd) listTokens() *serpent.Command {
 		)
 	)
 
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:     "list",
 		Aliases: []string{"ls"},
@@ -177,7 +177,7 @@ func (r *RootCmd) listTokens() *serpent.Command {
 			r.InitClient(client),
 		),
 		Handler: func(inv *serpent.Invocation) error {
-			tokens, err := client.Tokens(inv.Context(), codersdk.Me, codersdk.TokensFilter{
+			tokens, err := client.Tokens(inv.Context(), wirtualsdk.Me, wirtualsdk.TokensFilter{
 				IncludeAll: all,
 			})
 			if err != nil {
@@ -221,7 +221,7 @@ func (r *RootCmd) listTokens() *serpent.Command {
 }
 
 func (r *RootCmd) removeToken() *serpent.Command {
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:     "remove <name>",
 		Aliases: []string{"delete"},
@@ -231,12 +231,12 @@ func (r *RootCmd) removeToken() *serpent.Command {
 			r.InitClient(client),
 		),
 		Handler: func(inv *serpent.Invocation) error {
-			token, err := client.APIKeyByName(inv.Context(), codersdk.Me, inv.Args[0])
+			token, err := client.APIKeyByName(inv.Context(), wirtualsdk.Me, inv.Args[0])
 			if err != nil {
 				return xerrors.Errorf("fetch api key by name %s: %w", inv.Args[0], err)
 			}
 
-			err = client.DeleteAPIKey(inv.Context(), codersdk.Me, token.ID)
+			err = client.DeleteAPIKey(inv.Context(), wirtualsdk.Me, token.ID)
 			if err != nil {
 				return xerrors.Errorf("delete api key: %w", err)
 			}

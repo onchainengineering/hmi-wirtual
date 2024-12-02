@@ -15,8 +15,8 @@ import (
 
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/testutil"
 )
@@ -60,7 +60,7 @@ func TestLogin(t *testing.T) {
 		t.Parallel()
 
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set(codersdk.BuildVersionHeader, "something")
+			w.Header().Set(wirtualsdk.BuildVersionHeader, "something")
 			w.WriteHeader(http.StatusNotFound)
 			w.Write([]byte("Not Found"))
 		}))
@@ -112,13 +112,13 @@ func TestLogin(t *testing.T) {
 		pty.ExpectMatch("Welcome to Coder")
 		<-doneChan
 		ctx := testutil.Context(t, testutil.WaitShort)
-		resp, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+		resp, err := client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 			Email:    coderdtest.FirstUserParams.Email,
 			Password: coderdtest.FirstUserParams.Password,
 		})
 		require.NoError(t, err)
 		client.SetSessionToken(resp.SessionToken)
-		me, err := client.User(ctx, codersdk.Me)
+		me, err := client.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err)
 		assert.Equal(t, coderdtest.FirstUserParams.Username, me.Username)
 		assert.Equal(t, coderdtest.FirstUserParams.Name, me.Name)
@@ -158,13 +158,13 @@ func TestLogin(t *testing.T) {
 		pty.ExpectMatch("Welcome to Coder")
 		<-doneChan
 		ctx := testutil.Context(t, testutil.WaitShort)
-		resp, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+		resp, err := client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 			Email:    coderdtest.FirstUserParams.Email,
 			Password: coderdtest.FirstUserParams.Password,
 		})
 		require.NoError(t, err)
 		client.SetSessionToken(resp.SessionToken)
-		me, err := client.User(ctx, codersdk.Me)
+		me, err := client.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err)
 		assert.Equal(t, coderdtest.FirstUserParams.Username, me.Username)
 		assert.Equal(t, coderdtest.FirstUserParams.Name, me.Name)
@@ -210,13 +210,13 @@ func TestLogin(t *testing.T) {
 		pty.ExpectMatch("Welcome to Coder")
 		<-doneChan
 		ctx := testutil.Context(t, testutil.WaitShort)
-		resp, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+		resp, err := client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 			Email:    coderdtest.FirstUserParams.Email,
 			Password: coderdtest.FirstUserParams.Password,
 		})
 		require.NoError(t, err)
 		client.SetSessionToken(resp.SessionToken)
-		me, err := client.User(ctx, codersdk.Me)
+		me, err := client.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err)
 		assert.Equal(t, coderdtest.FirstUserParams.Username, me.Username)
 		assert.Equal(t, coderdtest.FirstUserParams.Email, me.Email)
@@ -258,13 +258,13 @@ func TestLogin(t *testing.T) {
 		}
 		pty.ExpectMatch("Welcome to Coder")
 		ctx := testutil.Context(t, testutil.WaitShort)
-		resp, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+		resp, err := client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 			Email:    coderdtest.FirstUserParams.Email,
 			Password: coderdtest.FirstUserParams.Password,
 		})
 		require.NoError(t, err)
 		client.SetSessionToken(resp.SessionToken)
-		me, err := client.User(ctx, codersdk.Me)
+		me, err := client.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err)
 		assert.Equal(t, coderdtest.FirstUserParams.Username, me.Username)
 		assert.Equal(t, coderdtest.FirstUserParams.Name, me.Name)
@@ -298,13 +298,13 @@ func TestLogin(t *testing.T) {
 		pty.ExpectMatch("Welcome to Coder")
 		w.RequireSuccess()
 		ctx := testutil.Context(t, testutil.WaitShort)
-		resp, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+		resp, err := client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 			Email:    coderdtest.FirstUserParams.Email,
 			Password: coderdtest.FirstUserParams.Password,
 		})
 		require.NoError(t, err)
 		client.SetSessionToken(resp.SessionToken)
-		me, err := client.User(ctx, codersdk.Me)
+		me, err := client.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err)
 		assert.Equal(t, coderdtest.FirstUserParams.Username, me.Username)
 		assert.Equal(t, coderdtest.FirstUserParams.Name, me.Name)
@@ -337,13 +337,13 @@ func TestLogin(t *testing.T) {
 		pty.ExpectMatch("Welcome to Coder")
 		w.RequireSuccess()
 		ctx := testutil.Context(t, testutil.WaitShort)
-		resp, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+		resp, err := client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 			Email:    coderdtest.FirstUserParams.Email,
 			Password: coderdtest.FirstUserParams.Password,
 		})
 		require.NoError(t, err)
 		client.SetSessionToken(resp.SessionToken)
-		me, err := client.User(ctx, codersdk.Me)
+		me, err := client.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err)
 		assert.Equal(t, coderdtest.FirstUserParams.Username, me.Username)
 		assert.Equal(t, coderdtest.FirstUserParams.Email, me.Email)

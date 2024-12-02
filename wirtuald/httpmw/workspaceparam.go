@@ -9,9 +9,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 type workspaceParamContextKey struct{}
@@ -40,7 +40,7 @@ func ExtractWorkspaceParam(db database.Store) func(http.Handler) http.Handler {
 				return
 			}
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error fetching workspace.",
 					Detail:  err.Error(),
 				})
@@ -76,7 +76,7 @@ func ExtractWorkspaceAndAgentParam(db database.Store) func(http.Handler) http.Ha
 					httpapi.ResourceNotFound(rw)
 					return
 				}
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error fetching workspace.",
 					Detail:  err.Error(),
 				})
@@ -85,7 +85,7 @@ func ExtractWorkspaceAndAgentParam(db database.Store) func(http.Handler) http.Ha
 
 			build, err := db.GetLatestWorkspaceBuildByWorkspaceID(ctx, workspace.ID)
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error fetching workspace build.",
 					Detail:  err.Error(),
 				})
@@ -94,7 +94,7 @@ func ExtractWorkspaceAndAgentParam(db database.Store) func(http.Handler) http.Ha
 
 			resources, err := db.GetWorkspaceResourcesByJobID(ctx, build.JobID)
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error fetching workspace resources.",
 					Detail:  err.Error(),
 				})
@@ -107,7 +107,7 @@ func ExtractWorkspaceAndAgentParam(db database.Store) func(http.Handler) http.Ha
 
 			agents, err := db.GetWorkspaceAgentsByResourceIDs(ctx, resourceIDs)
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error fetching workspace agents.",
 					Detail:  err.Error(),
 				})
@@ -115,7 +115,7 @@ func ExtractWorkspaceAndAgentParam(db database.Store) func(http.Handler) http.Ha
 			}
 
 			if len(agents) == 0 {
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "No agents exist for this workspace",
 				})
 				return
@@ -123,7 +123,7 @@ func ExtractWorkspaceAndAgentParam(db database.Store) func(http.Handler) http.Ha
 
 			// If we have more than 1 workspace agent, we need to specify which one to use.
 			if len(agents) > 1 && len(workspaceParts) <= 1 {
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "More than one agent exists, but no agent specified.",
 				})
 				return
@@ -143,7 +143,7 @@ func ExtractWorkspaceAndAgentParam(db database.Store) func(http.Handler) http.Ha
 					}
 				}
 				if !found {
-					httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+					httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 						Message: fmt.Sprintf("No agent exists with the name %q", workspaceParts[1]),
 					})
 					return

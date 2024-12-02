@@ -6,9 +6,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 type provisionerKeyParamContextKey struct{}
@@ -32,7 +32,7 @@ func ExtractProvisionerKeyParam(db database.Store) func(http.Handler) http.Handl
 
 			provisionerKeyQuery := chi.URLParam(r, "provisionerkey")
 			if provisionerKeyQuery == "" {
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "\"provisionerkey\" must be provided.",
 				})
 				return

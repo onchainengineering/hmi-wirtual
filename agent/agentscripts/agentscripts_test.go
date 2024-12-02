@@ -17,8 +17,8 @@ import (
 	"github.com/coder/coder/v2/agent/agentscripts"
 	"github.com/coder/coder/v2/agent/agentssh"
 	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
 	"github.com/coder/coder/v2/testutil"
 )
 
@@ -35,7 +35,7 @@ func TestExecuteBasic(t *testing.T) {
 	})
 	defer runner.Close()
 	aAPI := agenttest.NewFakeAgentAPI(t, testutil.Logger(t), nil, nil)
-	err := runner.Init([]codersdk.WorkspaceAgentScript{{
+	err := runner.Init([]wirtualsdk.WorkspaceAgentScript{{
 		LogSourceID: uuid.New(),
 		Script:      "echo hello",
 	}}, aAPI.ScriptCompleted)
@@ -61,7 +61,7 @@ func TestEnv(t *testing.T) {
 		`
 	}
 	aAPI := agenttest.NewFakeAgentAPI(t, testutil.Logger(t), nil, nil)
-	err := runner.Init([]codersdk.WorkspaceAgentScript{{
+	err := runner.Init([]wirtualsdk.WorkspaceAgentScript{{
 		LogSourceID: id,
 		Script:      script,
 	}}, aAPI.ScriptCompleted)
@@ -102,7 +102,7 @@ func TestTimeout(t *testing.T) {
 	runner := setup(t, nil)
 	defer runner.Close()
 	aAPI := agenttest.NewFakeAgentAPI(t, testutil.Logger(t), nil, nil)
-	err := runner.Init([]codersdk.WorkspaceAgentScript{{
+	err := runner.Init([]wirtualsdk.WorkspaceAgentScript{{
 		LogSourceID: uuid.New(),
 		Script:      "sleep infinity",
 		Timeout:     time.Millisecond,
@@ -121,7 +121,7 @@ func TestScriptReportsTiming(t *testing.T) {
 	})
 
 	aAPI := agenttest.NewFakeAgentAPI(t, testutil.Logger(t), nil, nil)
-	err := runner.Init([]codersdk.WorkspaceAgentScript{{
+	err := runner.Init([]wirtualsdk.WorkspaceAgentScript{{
 		DisplayName: "say-hello",
 		LogSourceID: uuid.New(),
 		Script:      "echo hello",

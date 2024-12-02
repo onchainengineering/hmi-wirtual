@@ -18,10 +18,10 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/coderdtest/oidctest"
-	"github.com/coder/coder/v2/coderd/oauthpki"
+	"github.com/coder/coder/v2/wirtuald"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/coderdtest/oidctest"
+	"github.com/coder/coder/v2/wirtuald/oauthpki"
 	"github.com/coder/coder/v2/testutil"
 )
 
@@ -144,7 +144,7 @@ func TestAzureAKPKIWithCoderd(t *testing.T) {
 		}),
 		oidctest.WithServing(),
 	)
-	cfg := fake.OIDCConfig(t, scopes, func(cfg *coderd.OIDCConfig) {
+	cfg := fake.OIDCConfig(t, scopes, func(cfg *wirtuald.OIDCConfig) {
 		cfg.AllowSignups = true
 	})
 

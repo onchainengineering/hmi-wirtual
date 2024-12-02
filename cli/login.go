@@ -19,8 +19,8 @@ import (
 	"github.com/coder/pretty"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/userpassword"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/userpassword"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 )
 
@@ -104,10 +104,10 @@ retry:
 
 func (r *RootCmd) loginWithPassword(
 	inv *serpent.Invocation,
-	client *codersdk.Client,
+	client *wirtualsdk.Client,
 	email, password string,
 ) error {
-	resp, err := client.LoginWithPassword(inv.Context(), codersdk.LoginWithPasswordRequest{
+	resp, err := client.LoginWithPassword(inv.Context(), wirtualsdk.LoginWithPasswordRequest{
 		Email:    email,
 		Password: password,
 	})
@@ -267,7 +267,7 @@ func (r *RootCmd) login() *serpent.Command {
 					trial = v == "yes" || v == "y"
 				}
 
-				var trialInfo codersdk.CreateFirstUserTrialInfo
+				var trialInfo wirtualsdk.CreateFirstUserTrialInfo
 				if trial {
 					if trialInfo.FirstName == "" {
 						trialInfo.FirstName, err = promptTrialInfo(inv, "firstName")
@@ -313,7 +313,7 @@ func (r *RootCmd) login() *serpent.Command {
 					}
 				}
 
-				_, err = client.CreateFirstUser(ctx, codersdk.CreateFirstUserRequest{
+				_, err = client.CreateFirstUser(ctx, wirtualsdk.CreateFirstUserRequest{
 					Email:     email,
 					Username:  username,
 					Name:      name,
@@ -360,7 +360,7 @@ func (r *RootCmd) login() *serpent.Command {
 					Secret: true,
 					Validate: func(token string) error {
 						client.SetSessionToken(token)
-						_, err := client.User(ctx, codersdk.Me)
+						_, err := client.User(ctx, wirtualsdk.Me)
 						if err != nil {
 							return xerrors.New("That's not a valid token!")
 						}
@@ -390,7 +390,7 @@ func (r *RootCmd) login() *serpent.Command {
 
 			// Login to get user data - verify it is OK before persisting
 			client.SetSessionToken(sessionToken)
-			resp, err := client.User(ctx, codersdk.Me)
+			resp, err := client.User(ctx, wirtualsdk.Me)
 			if err != nil {
 				return xerrors.Errorf("get user: %w", err)
 			}
@@ -530,8 +530,8 @@ func promptDevelopers(inv *serpent.Invocation) (string, error) {
 }
 
 func promptCountry(inv *serpent.Invocation) (string, error) {
-	options := make([]string, len(codersdk.Countries))
-	for i, country := range codersdk.Countries {
+	options := make([]string, len(wirtualsdk.Countries))
+	for i, country := range wirtualsdk.Countries {
 		options[i] = country.Name
 	}
 

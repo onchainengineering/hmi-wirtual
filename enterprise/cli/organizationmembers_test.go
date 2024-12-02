@@ -7,11 +7,11 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/testutil"
 )
 
@@ -24,7 +24,7 @@ func TestRemoveOrganizationMembers(t *testing.T) {
 		ownerClient, _ := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -77,20 +77,20 @@ func TestEnterpriseListOrganizationMembers(t *testing.T) {
 		ownerClient, owner := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureCustomRoles: 1,
+					wirtualsdk.FeatureCustomRoles: 1,
 				},
 			},
 		})
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		//nolint:gocritic // only owners can patch roles
-		customRole, err := ownerClient.CreateOrganizationRole(ctx, codersdk.Role{
+		customRole, err := ownerClient.CreateOrganizationRole(ctx, wirtualsdk.Role{
 			Name:            "custom",
 			OrganizationID:  owner.OrganizationID.String(),
 			DisplayName:     "Custom Role",
 			SitePermissions: nil,
-			OrganizationPermissions: codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceWorkspace: {codersdk.ActionRead},
+			OrganizationPermissions: wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				wirtualsdk.ResourceWorkspace: {wirtualsdk.ActionRead},
 			}),
 			UserPermissions: nil,
 		})
@@ -123,7 +123,7 @@ func TestAssignOrganizationMemberRole(t *testing.T) {
 		ownerClient, owner := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureCustomRoles: 1,
+					wirtualsdk.FeatureCustomRoles: 1,
 				},
 			},
 		})
@@ -131,19 +131,19 @@ func TestAssignOrganizationMemberRole(t *testing.T) {
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		// nolint:gocritic // requires owner role to create
-		customRole, err := ownerClient.CreateOrganizationRole(ctx, codersdk.Role{
+		customRole, err := ownerClient.CreateOrganizationRole(ctx, wirtualsdk.Role{
 			Name:            "custom-role",
 			OrganizationID:  owner.OrganizationID.String(),
 			DisplayName:     "Custom Role",
 			SitePermissions: nil,
-			OrganizationPermissions: codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceWorkspace: {codersdk.ActionRead},
+			OrganizationPermissions: wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				wirtualsdk.ResourceWorkspace: {wirtualsdk.ActionRead},
 			}),
 			UserPermissions: nil,
 		})
 		require.NoError(t, err)
 
-		inv, root := clitest.New(t, "organization", "members", "edit-roles", user.Username, codersdk.RoleOrganizationAdmin, customRole.Name)
+		inv, root := clitest.New(t, "organization", "members", "edit-roles", user.Username, wirtualsdk.RoleOrganizationAdmin, customRole.Name)
 		// nolint:gocritic // you cannot change your own roles
 		clitest.SetupConfig(t, ownerClient, root)
 

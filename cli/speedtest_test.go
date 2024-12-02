@@ -12,8 +12,8 @@ import (
 	"github.com/coder/coder/v2/agent/agenttest"
 	"github.com/coder/coder/v2/cli"
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/testutil"
 )
@@ -37,8 +37,8 @@ func TestSpeedtest(t *testing.T) {
 			return false
 		}
 		a := ws.LatestBuild.Resources[0].Agents[0]
-		return a.Status == codersdk.WorkspaceAgentConnected &&
-			a.LifecycleState == codersdk.WorkspaceAgentLifecycleReady
+		return a.Status == wirtualsdk.WorkspaceAgentConnected &&
+			a.LifecycleState == wirtualsdk.WorkspaceAgentLifecycleReady
 	}, testutil.WaitLong, testutil.IntervalFast, "agent is not ready")
 
 	inv, root := clitest.New(t, "speedtest", workspace.Name)
@@ -77,8 +77,8 @@ func TestSpeedtestJson(t *testing.T) {
 			return false
 		}
 		a := ws.LatestBuild.Resources[0].Agents[0]
-		return a.Status == codersdk.WorkspaceAgentConnected &&
-			a.LifecycleState == codersdk.WorkspaceAgentLifecycleReady
+		return a.Status == wirtualsdk.WorkspaceAgentConnected &&
+			a.LifecycleState == wirtualsdk.WorkspaceAgentLifecycleReady
 	}, testutil.WaitLong, testutil.IntervalFast, "agent is not ready")
 
 	inv, root := clitest.New(t, "speedtest", "--output=json", workspace.Name)

@@ -30,8 +30,8 @@ import (
 	"github.com/coder/coder/v2/agent/reaper"
 	"github.com/coder/coder/v2/buildinfo"
 	"github.com/coder/coder/v2/cli/clilog"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
 	"github.com/coder/serpent"
 )
 
@@ -278,9 +278,9 @@ func (r *RootCmd) workspaceAgent() *serpent.Command {
 
 			prometheusRegistry := prometheus.NewRegistry()
 			subsystemsRaw := inv.Environ.Get(agent.EnvAgentSubsystem)
-			subsystems := []codersdk.AgentSubsystem{}
+			subsystems := []wirtualsdk.AgentSubsystem{}
 			for _, s := range strings.Split(subsystemsRaw, ",") {
-				subsystem := codersdk.AgentSubsystem(strings.TrimSpace(s))
+				subsystem := wirtualsdk.AgentSubsystem(strings.TrimSpace(s))
 				if subsystem == "" {
 					continue
 				}

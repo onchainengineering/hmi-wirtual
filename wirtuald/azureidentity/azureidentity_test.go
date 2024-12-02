@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/azureidentity"
+	"github.com/coder/coder/v2/wirtuald/azureidentity"
 )
 
 func TestValidate(t *testing.T) {

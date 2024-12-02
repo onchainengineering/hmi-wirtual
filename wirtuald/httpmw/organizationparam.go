@@ -8,10 +8,10 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 type (
@@ -46,7 +46,7 @@ func ExtractOrganizationParam(db database.Store) func(http.Handler) http.Handler
 			ctx := r.Context()
 			arg := chi.URLParam(r, "organization")
 			if arg == "" {
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "\"organization\" must be provided.",
 				})
 				return
@@ -65,7 +65,7 @@ func ExtractOrganizationParam(db database.Store) func(http.Handler) http.Handler
 			// TODO: This change was added March 2024. Nil uuid returning the
 			// 		default org should be removed some number of months after
 			//		that date.
-			if arg == codersdk.DefaultOrganization || arg == uuid.Nil.String() {
+			if arg == wirtualsdk.DefaultOrganization || arg == uuid.Nil.String() {
 				organization, dbErr = db.GetDefaultOrganization(ctx)
 			} else {
 				// Try by name or uuid.
@@ -81,7 +81,7 @@ func ExtractOrganizationParam(db database.Store) func(http.Handler) http.Handler
 				return
 			}
 			if dbErr != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: fmt.Sprintf("Internal error fetching organization %q.", arg),
 					Detail:  dbErr.Error(),
 				})
@@ -129,7 +129,7 @@ func ExtractOrganizationMemberParam(db database.Store) func(http.Handler) http.H
 				return
 			}
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error fetching organization member.",
 					Detail:  err.Error(),
 				})

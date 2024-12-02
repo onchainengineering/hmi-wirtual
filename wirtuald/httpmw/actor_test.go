@@ -10,12 +10,12 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbmem"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbgen"
+	"github.com/coder/coder/v2/wirtuald/database/dbmem"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 func TestRequireAPIKeyOrWorkspaceProxyAuth(t *testing.T) {
@@ -48,7 +48,7 @@ func TestRequireAPIKeyOrWorkspaceProxyAuth(t *testing.T) {
 			r  = httptest.NewRequest("GET", "/", nil)
 			rw = httptest.NewRecorder()
 		)
-		r.Header.Set(codersdk.SessionTokenHeader, token)
+		r.Header.Set(wirtualsdk.SessionTokenHeader, token)
 
 		var called int64
 		httpmw.ExtractAPIKeyMW(httpmw.ExtractAPIKeyConfig{
@@ -86,7 +86,7 @@ func TestRequireAPIKeyOrWorkspaceProxyAuth(t *testing.T) {
 			r  = httptest.NewRequest("GET", "/", nil)
 			rw = httptest.NewRecorder()
 		)
-		r.Header.Set(codersdk.SessionTokenHeader, userToken)
+		r.Header.Set(wirtualsdk.SessionTokenHeader, userToken)
 		r.Header.Set(httpmw.WorkspaceProxyAuthTokenHeader, fmt.Sprintf("%s:%s", proxy.ID, proxyToken))
 
 		httpmw.ExtractAPIKeyMW(httpmw.ExtractAPIKeyConfig{

@@ -15,8 +15,8 @@ import (
 	"cdr.dev/slog/sloggers/sloghuman"
 	"cdr.dev/slog/sloggers/slogjson"
 	"cdr.dev/slog/sloggers/slogstackdriver"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/tracing"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 )
 
@@ -76,7 +76,7 @@ func WithVerbose() Option {
 	}
 }
 
-func FromDeploymentValues(vals *codersdk.DeploymentValues) Option {
+func FromDeploymentValues(vals *wirtualsdk.DeploymentValues) Option {
 	return func(b *Builder) {
 		b.Filter = vals.Logging.Filter.Value()
 		b.Human = vals.Logging.Human.Value()

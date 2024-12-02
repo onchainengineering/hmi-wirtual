@@ -14,14 +14,14 @@ import (
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/coderd/notifications/types"
-	markdown "github.com/coder/coder/v2/coderd/render"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/notifications/types"
+	markdown "github.com/coder/coder/v2/wirtuald/render"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // WebhookHandler dispatches notification messages via an HTTP POST webhook.
 type WebhookHandler struct {
-	cfg codersdk.NotificationsWebhookConfig
+	cfg wirtualsdk.NotificationsWebhookConfig
 	log slog.Logger
 
 	cl *http.Client
@@ -38,7 +38,7 @@ type WebhookPayload struct {
 	BodyMarkdown  string               `json:"body_markdown"`
 }
 
-func NewWebhookHandler(cfg codersdk.NotificationsWebhookConfig, log slog.Logger) *WebhookHandler {
+func NewWebhookHandler(cfg wirtualsdk.NotificationsWebhookConfig, log slog.Logger) *WebhookHandler {
 	return &WebhookHandler{cfg: cfg, log: log, cl: &http.Client{}}
 }
 

@@ -1,4 +1,4 @@
-package coderd
+package wirtuald
 
 import (
 	"context"
@@ -12,15 +12,15 @@ import (
 	"github.com/moby/moby/pkg/namesgenerator"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/apikey"
-	"github.com/coder/coder/v2/coderd/audit"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/rbac/policy"
-	"github.com/coder/coder/v2/coderd/telemetry"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/apikey"
+	"github.com/coder/coder/v2/wirtuald/audit"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtuald/rbac/policy"
+	"github.com/coder/coder/v2/wirtuald/telemetry"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // Creates a new token API key with the given scope and lifetime.
@@ -32,8 +32,8 @@ import (
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Param request body codersdk.CreateTokenRequest true "Create token request"
-// @Success 201 {object} codersdk.GenerateAPIKeyResponse
+// @Param request body wirtualsdk.CreateTokenRequest true "Create token request"
+// @Success 201 {object} wirtualsdk.GenerateAPIKeyResponse
 // @Router /users/{user}/keys/tokens [post]
 func (api *API) postToken(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -50,7 +50,7 @@ func (api *API) postToken(rw http.ResponseWriter, r *http.Request) {
 	aReq.Old = database.APIKey{}
 	defer commitAudit()
 
-	var createToken codersdk.CreateTokenRequest
+	var createToken wirtualsdk.CreateTokenRequest
 	if !httpapi.Read(ctx, rw, r, &createToken) {
 		return
 	}
@@ -77,7 +77,7 @@ func (api *API) postToken(rw http.ResponseWriter, r *http.Request) {
 	if createToken.Lifetime != 0 {
 		err := api.validateAPIKeyLifetime(createToken.Lifetime)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Failed to validate create API key request.",
 				Detail:  err.Error(),
 			})
@@ -90,23 +90,23 @@ func (api *API) postToken(rw http.ResponseWriter, r *http.Request) {
 	cookie, key, err := api.createAPIKey(ctx, params)
 	if err != nil {
 		if database.IsUniqueViolation(err, database.UniqueIndexAPIKeyName) {
-			httpapi.Write(ctx, rw, http.StatusConflict, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusConflict, wirtualsdk.Response{
 				Message: fmt.Sprintf("A token with name %q already exists.", tokenName),
-				Validations: []codersdk.ValidationError{{
+				Validations: []wirtualsdk.ValidationError{{
 					Field:  "name",
 					Detail: "This value is already in use and should be unique.",
 				}},
 			})
 			return
 		}
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to create API key.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 	aReq.New = *key
-	httpapi.Write(ctx, rw, http.StatusCreated, codersdk.GenerateAPIKeyResponse{Key: cookie.Value})
+	httpapi.Write(ctx, rw, http.StatusCreated, wirtualsdk.GenerateAPIKeyResponse{Key: cookie.Value})
 }
 
 // Creates a new session key, used for logging in via the CLI.
@@ -117,7 +117,7 @@ func (api *API) postToken(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Success 201 {object} codersdk.GenerateAPIKeyResponse
+// @Success 201 {object} wirtualsdk.GenerateAPIKeyResponse
 // @Router /users/{user}/keys [post]
 func (api *API) postAPIKey(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -130,7 +130,7 @@ func (api *API) postAPIKey(rw http.ResponseWriter, r *http.Request) {
 		RemoteAddr:      r.RemoteAddr,
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to create API key.",
 			Detail:  err.Error(),
 		})
@@ -141,7 +141,7 @@ func (api *API) postAPIKey(rw http.ResponseWriter, r *http.Request) {
 	// Setting the cookie will couple the browser session to the API
 	// key we return here, meaning logging out of the website would
 	// invalid your CLI key.
-	httpapi.Write(ctx, rw, http.StatusCreated, codersdk.GenerateAPIKeyResponse{Key: cookie.Value})
+	httpapi.Write(ctx, rw, http.StatusCreated, wirtualsdk.GenerateAPIKeyResponse{Key: cookie.Value})
 }
 
 // @Summary Get API key by ID
@@ -151,7 +151,7 @@ func (api *API) postAPIKey(rw http.ResponseWriter, r *http.Request) {
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
 // @Param keyid path string true "Key ID" format(uuid)
-// @Success 200 {object} codersdk.APIKey
+// @Success 200 {object} wirtualsdk.APIKey
 // @Router /users/{user}/keys/{keyid} [get]
 func (api *API) apiKeyByID(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -163,7 +163,7 @@ func (api *API) apiKeyByID(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching API key.",
 			Detail:  err.Error(),
 		})
@@ -180,7 +180,7 @@ func (api *API) apiKeyByID(rw http.ResponseWriter, r *http.Request) {
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
 // @Param keyname path string true "Key Name" format(string)
-// @Success 200 {object} codersdk.APIKey
+// @Success 200 {object} wirtualsdk.APIKey
 // @Router /users/{user}/keys/tokens/{keyname} [get]
 func (api *API) apiKeyByName(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -198,7 +198,7 @@ func (api *API) apiKeyByName(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching API key.",
 			Detail:  err.Error(),
 		})
@@ -214,7 +214,7 @@ func (api *API) apiKeyByName(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Success 200 {array} codersdk.APIKey
+// @Success 200 {array} wirtualsdk.APIKey
 // @Router /users/{user}/keys/tokens [get]
 func (api *API) tokens(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -230,7 +230,7 @@ func (api *API) tokens(rw http.ResponseWriter, r *http.Request) {
 		// get tokens for all users
 		keys, err = api.Database.GetAPIKeysByLoginType(ctx, database.LoginTypeToken)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Internal error fetching API keys.",
 				Detail:  err.Error(),
 			})
@@ -240,7 +240,7 @@ func (api *API) tokens(rw http.ResponseWriter, r *http.Request) {
 		// get user's tokens only
 		keys, err = api.Database.GetAPIKeysByUserID(ctx, database.GetAPIKeysByUserIDParams{LoginType: database.LoginTypeToken, UserID: user.ID})
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Internal error fetching API keys.",
 				Detail:  err.Error(),
 			})
@@ -250,7 +250,7 @@ func (api *API) tokens(rw http.ResponseWriter, r *http.Request) {
 
 	keys, err = AuthorizeFilter(api.HTTPAuth, r, policy.ActionRead, keys)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching keys.",
 			Detail:  err.Error(),
 		})
@@ -268,15 +268,15 @@ func (api *API) tokens(rw http.ResponseWriter, r *http.Request) {
 		usersByID[user.ID] = user
 	}
 
-	var apiKeys []codersdk.APIKeyWithOwner
+	var apiKeys []wirtualsdk.APIKeyWithOwner
 	for _, key := range keys {
 		if user, exists := usersByID[key.UserID]; exists {
-			apiKeys = append(apiKeys, codersdk.APIKeyWithOwner{
+			apiKeys = append(apiKeys, wirtualsdk.APIKeyWithOwner{
 				APIKey:   convertAPIKey(key),
 				Username: user.Username,
 			})
 		} else {
-			apiKeys = append(apiKeys, codersdk.APIKeyWithOwner{
+			apiKeys = append(apiKeys, wirtualsdk.APIKeyWithOwner{
 				APIKey:   convertAPIKey(key),
 				Username: "",
 			})
@@ -319,7 +319,7 @@ func (api *API) deleteAPIKey(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error deleting API key.",
 			Detail:  err.Error(),
 		})
@@ -335,7 +335,7 @@ func (api *API) deleteAPIKey(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags General
 // @Param user path string true "User ID, name, or me"
-// @Success 200 {object} codersdk.TokenConfig
+// @Success 200 {object} wirtualsdk.TokenConfig
 // @Router /users/{user}/keys/tokens/tokenconfig [get]
 func (api *API) tokenConfig(rw http.ResponseWriter, r *http.Request) {
 	values, err := api.DeploymentValues.WithoutSecrets()
@@ -346,7 +346,7 @@ func (api *API) tokenConfig(rw http.ResponseWriter, r *http.Request) {
 
 	httpapi.Write(
 		r.Context(), rw, http.StatusOK,
-		codersdk.TokenConfig{
+		wirtualsdk.TokenConfig{
 			MaxTokenLifetime: values.Sessions.MaximumTokenDuration.Value(),
 		},
 	)
@@ -383,7 +383,7 @@ func (api *API) createAPIKey(ctx context.Context, params apikey.CreateParams) (*
 	})
 
 	return &http.Cookie{
-		Name:     codersdk.SessionTokenCookie,
+		Name:     wirtualsdk.SessionTokenCookie,
 		Value:    sessionToken,
 		Path:     "/",
 		HttpOnly: true,

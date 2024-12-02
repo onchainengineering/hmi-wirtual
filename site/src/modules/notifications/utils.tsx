@@ -1,7 +1,7 @@
 import EmailIcon from "@mui/icons-material/EmailOutlined";
 import WebhookIcon from "@mui/icons-material/WebhookOutlined";
 
-// TODO: This should be provided by the auto generated types from codersdk
+// TODO: This should be provided by the auto generated types from wirtualsdk
 const notificationMethods = ["smtp", "webhook"] as const;
 
 export type NotificationMethod = (typeof notificationMethods)[number];

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 )
 
@@ -15,7 +15,7 @@ func (r *RootCmd) deleteWorkspace() *serpent.Command {
 		orphan bool
 		prov   buildFlags
 	)
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Annotations: workspaceCommand,
 		Use:         "delete <workspace>",
@@ -43,13 +43,13 @@ func (r *RootCmd) deleteWorkspace() *serpent.Command {
 			}
 
 			var state []byte
-			req := codersdk.CreateWorkspaceBuildRequest{
-				Transition:       codersdk.WorkspaceTransitionDelete,
+			req := wirtualsdk.CreateWorkspaceBuildRequest{
+				Transition:       wirtualsdk.WorkspaceTransitionDelete,
 				ProvisionerState: state,
 				Orphan:           orphan,
 			}
 			if prov.provisionerLogDebug {
-				req.LogLevel = codersdk.ProvisionerLogLevelDebug
+				req.LogLevel = wirtualsdk.ProvisionerLogLevelDebug
 			}
 			build, err := client.CreateWorkspaceBuild(inv.Context(), workspace.ID, req)
 			if err != nil {

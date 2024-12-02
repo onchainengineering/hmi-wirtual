@@ -20,23 +20,23 @@ import (
 
 	"cdr.dev/slog"
 	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/coderd/audit"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/notifications"
-	"github.com/coder/coder/v2/coderd/notifications/notificationstest"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/rbac/policy"
-	"github.com/coder/coder/v2/coderd/render"
-	"github.com/coder/coder/v2/coderd/schedule"
-	"github.com/coder/coder/v2/coderd/schedule/cron"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/audit"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/coder/coder/v2/wirtuald/database/dbfake"
+	"github.com/coder/coder/v2/wirtuald/database/dbgen"
+	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/notifications"
+	"github.com/coder/coder/v2/wirtuald/notifications/notificationstest"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/rbac/policy"
+	"github.com/coder/coder/v2/wirtuald/render"
+	"github.com/coder/coder/v2/wirtuald/schedule"
+	"github.com/coder/coder/v2/wirtuald/schedule/cron"
+	"github.com/coder/coder/v2/wirtuald/util/ptr"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/cryptorand"
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/provisionersdk/proto"
@@ -64,7 +64,7 @@ func TestWorkspace(t *testing.T) {
 		authz.AssertChecked(t, policy.ActionRead, ws)
 		require.NoError(t, err)
 		require.Equal(t, user.UserID, ws.LatestBuild.InitiatorID)
-		require.Equal(t, codersdk.BuildReasonInitiator, ws.LatestBuild.Reason)
+		require.Equal(t, wirtualsdk.BuildReasonInitiator, ws.LatestBuild.Reason)
 
 		org, err := client.Organization(ctx, ws.OrganizationID)
 		require.NoError(t, err)
@@ -89,8 +89,8 @@ func TestWorkspace(t *testing.T) {
 		require.NoError(t, err)
 
 		// Delete the workspace
-		build, err := client.CreateWorkspaceBuild(ctx, workspace.ID, codersdk.CreateWorkspaceBuildRequest{
-			Transition: codersdk.WorkspaceTransitionDelete,
+		build, err := client.CreateWorkspaceBuild(ctx, workspace.ID, wirtualsdk.CreateWorkspaceBuildRequest{
+			Transition: wirtualsdk.WorkspaceTransitionDelete,
 		})
 		require.NoError(t, err, "delete the workspace")
 		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
@@ -130,7 +130,7 @@ func TestWorkspace(t *testing.T) {
 		}
 		// Sometimes truncated names result in `--test` which is not an allowed name.
 		want = strings.Replace(want, "--", "-", -1)
-		err := client.UpdateWorkspace(ctx, ws1.ID, codersdk.UpdateWorkspaceRequest{
+		err := client.UpdateWorkspace(ctx, ws1.ID, wirtualsdk.UpdateWorkspaceRequest{
 			Name: want,
 		})
 		require.NoError(t, err, "workspace rename failed")
@@ -139,7 +139,7 @@ func TestWorkspace(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, want, ws.Name, "workspace name not updated")
 
-		err = client.UpdateWorkspace(ctx, ws1.ID, codersdk.UpdateWorkspaceRequest{
+		err = client.UpdateWorkspace(ctx, ws1.ID, wirtualsdk.UpdateWorkspaceRequest{
 			Name: ws2.Name,
 		})
 		require.Error(t, err, "workspace rename should have failed")
@@ -162,7 +162,7 @@ func TestWorkspace(t *testing.T) {
 		defer cancel()
 
 		want := "new-name"
-		err := client.UpdateWorkspace(ctx, ws1.ID, codersdk.UpdateWorkspaceRequest{
+		err := client.UpdateWorkspace(ctx, ws1.ID, wirtualsdk.UpdateWorkspaceRequest{
 			Name: want,
 		})
 		require.ErrorContains(t, err, "Workspace renames are not allowed")
@@ -178,7 +178,7 @@ func TestWorkspace(t *testing.T) {
 		const templateIcon = "/img/icon.svg"
 		const templateDisplayName = "This is template"
 		templateAllowUserCancelWorkspaceJobs := false
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			ctr.Icon = templateIcon
 			ctr.DisplayName = templateDisplayName
 			ctr.AllowUserCancelWorkspaceJobs = &templateAllowUserCancelWorkspaceJobs
@@ -195,7 +195,7 @@ func TestWorkspace(t *testing.T) {
 		ws, err := client.Workspace(ctx, workspace.ID)
 		require.NoError(t, err)
 		assert.Equal(t, user.UserID, ws.LatestBuild.InitiatorID)
-		assert.Equal(t, codersdk.BuildReasonInitiator, ws.LatestBuild.Reason)
+		assert.Equal(t, wirtualsdk.BuildReasonInitiator, ws.LatestBuild.Reason)
 		assert.Equal(t, template.Name, ws.TemplateName)
 		assert.Equal(t, templateIcon, ws.TemplateIcon)
 		assert.Equal(t, templateDisplayName, ws.TemplateDisplayName)
@@ -356,7 +356,7 @@ func TestWorkspace(t *testing.T) {
 		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, active.ID)
 		// We need another version because the active template version cannot be
 		// archived.
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(request *codersdk.CreateTemplateVersionRequest) {
+		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(request *wirtualsdk.CreateTemplateVersionRequest) {
 			request.TemplateID = template.ID
 		})
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
@@ -366,7 +366,7 @@ func TestWorkspace(t *testing.T) {
 		err := client.SetArchiveTemplateVersion(ctx, version.ID, true)
 		require.NoError(t, err, "archive version")
 
-		_, err = client.CreateWorkspace(ctx, owner.OrganizationID, codersdk.Me, codersdk.CreateWorkspaceRequest{
+		_, err = client.CreateWorkspace(ctx, owner.OrganizationID, wirtualsdk.Me, wirtualsdk.CreateWorkspaceRequest{
 			TemplateVersionID: version.ID,
 			Name:              "testworkspace",
 		})
@@ -450,7 +450,7 @@ func TestWorkspacesSortOrder(t *testing.T) {
 
 	client, db := coderdtest.NewWithDatabase(t, nil)
 	firstUser := coderdtest.CreateFirstUser(t, client)
-	secondUserClient, secondUser := coderdtest.CreateAnotherUserMutators(t, client, firstUser.OrganizationID, []rbac.RoleIdentifier{rbac.RoleOwner()}, func(r *codersdk.CreateUserRequestWithOrgs) {
+	secondUserClient, secondUser := coderdtest.CreateAnotherUserMutators(t, client, firstUser.OrganizationID, []rbac.RoleIdentifier{rbac.RoleOwner()}, func(r *wirtualsdk.CreateUserRequestWithOrgs) {
 		r.Username = "zzz"
 	})
 
@@ -476,7 +476,7 @@ func TestWorkspacesSortOrder(t *testing.T) {
 	defer cancel()
 	require.NoError(t, client.FavoriteWorkspace(ctx, wsbF.Workspace.ID)) // need to do this via API call for now
 
-	workspacesResponse, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{})
+	workspacesResponse, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{})
 	require.NoError(t, err, "(first) fetch workspaces")
 	workspaces := workspacesResponse.Workspaces
 
@@ -503,7 +503,7 @@ func TestWorkspacesSortOrder(t *testing.T) {
 
 	// Once again but this time as a different user. This time we do not expect to see another
 	// user's favorites first.
-	workspacesResponse, err = secondUserClient.Workspaces(ctx, codersdk.WorkspaceFilter{})
+	workspacesResponse, err = secondUserClient.Workspaces(ctx, wirtualsdk.WorkspaceFilter{})
 	require.NoError(t, err, "(second) fetch workspaces")
 	workspaces = workspacesResponse.Workspaces
 
@@ -539,12 +539,12 @@ func TestPostWorkspacesByOrganization(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_, err := client.CreateWorkspace(ctx, user.OrganizationID, codersdk.Me, codersdk.CreateWorkspaceRequest{
+		_, err := client.CreateWorkspace(ctx, user.OrganizationID, wirtualsdk.Me, wirtualsdk.CreateWorkspaceRequest{
 			TemplateID: uuid.New(),
 			Name:       "workspace",
 		})
 		require.Error(t, err)
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 	})
@@ -561,12 +561,12 @@ func TestPostWorkspacesByOrganization(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_, err := client.CreateWorkspace(ctx, user.OrganizationID, codersdk.Me, codersdk.CreateWorkspaceRequest{
+		_, err := client.CreateWorkspace(ctx, user.OrganizationID, wirtualsdk.Me, wirtualsdk.CreateWorkspaceRequest{
 			TemplateID: template.ID,
 			Name:       workspace.Name,
 		})
 		require.Error(t, err)
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusConflict, apiErr.StatusCode())
 	})
@@ -599,10 +599,10 @@ func TestPostWorkspacesByOrganization(t *testing.T) {
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, versionDefault.ID)
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, versionTest.ID)
 		defaultWorkspace := coderdtest.CreateWorkspace(t, client, uuid.Nil,
-			func(c *codersdk.CreateWorkspaceRequest) { c.TemplateVersionID = versionDefault.ID },
+			func(c *wirtualsdk.CreateWorkspaceRequest) { c.TemplateVersionID = versionDefault.ID },
 		)
 		testWorkspace := coderdtest.CreateWorkspace(t, client, uuid.Nil,
-			func(c *codersdk.CreateWorkspaceRequest) { c.TemplateVersionID = versionTest.ID },
+			func(c *wirtualsdk.CreateWorkspaceRequest) { c.TemplateVersionID = versionTest.ID },
 		)
 		defaultWorkspaceBuild := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, defaultWorkspace.LatestBuild.ID)
 		testWorkspaceBuild := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, testWorkspace.LatestBuild.ID)
@@ -629,7 +629,7 @@ func TestPostWorkspacesByOrganization(t *testing.T) {
 
 		name, se := cryptorand.String(8)
 		require.NoError(t, se)
-		req := codersdk.CreateWorkspaceRequest{
+		req := wirtualsdk.CreateWorkspaceRequest{
 			// Deny setting both of these ID fields, even if they might correlate.
 			// Allowing both to be set would just create extra work for everyone involved.
 			TemplateID:        template.ID,
@@ -638,7 +638,7 @@ func TestPostWorkspacesByOrganization(t *testing.T) {
 			AutostartSchedule: ptr.Ref("CRON_TZ=US/Central 30 9 * * 1-5"),
 			TTLMillis:         ptr.Ref((8 * time.Hour).Milliseconds()),
 		}
-		_, err := client.CreateWorkspace(context.Background(), user.OrganizationID, codersdk.Me, req)
+		_, err := client.CreateWorkspace(context.Background(), user.OrganizationID, wirtualsdk.Me, req)
 
 		require.Error(t, err)
 	})
@@ -654,12 +654,12 @@ func TestPostWorkspacesByOrganization(t *testing.T) {
 		defer cancel()
 		err := client.DeleteTemplate(ctx, template.ID)
 		require.NoError(t, err)
-		_, err = client.CreateWorkspace(ctx, user.OrganizationID, codersdk.Me, codersdk.CreateWorkspaceRequest{
+		_, err = client.CreateWorkspace(ctx, user.OrganizationID, wirtualsdk.Me, wirtualsdk.CreateWorkspaceRequest{
 			TemplateID: template.ID,
 			Name:       "testing",
 		})
 		require.Error(t, err)
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusNotFound, apiErr.StatusCode())
 	})
@@ -669,7 +669,7 @@ func TestPostWorkspacesByOrganization(t *testing.T) {
 		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
 		user := coderdtest.CreateFirstUser(t, client)
 		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			ctr.DefaultTTLMillis = ptr.Ref(int64(0))
 		})
 		// Given: the template has no default TTL set
@@ -677,7 +677,7 @@ func TestPostWorkspacesByOrganization(t *testing.T) {
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		// When: we create a workspace with autostop not enabled
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
+		workspace := coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 			cwr.TTLMillis = ptr.Ref(int64(0))
 		})
 		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
@@ -692,11 +692,11 @@ func TestPostWorkspacesByOrganization(t *testing.T) {
 		user := coderdtest.CreateFirstUser(t, client)
 		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 		templateTTL := 24 * time.Hour.Milliseconds()
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			ctr.DefaultTTLMillis = ptr.Ref(templateTTL)
 		})
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
+		workspace := coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 			cwr.TTLMillis = nil // ensure that no default TTL is set
 		})
 		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
@@ -719,14 +719,14 @@ func TestPostWorkspacesByOrganization(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			defer cancel()
 
-			req := codersdk.CreateWorkspaceRequest{
+			req := wirtualsdk.CreateWorkspaceRequest{
 				TemplateID: template.ID,
 				Name:       "testing",
 				TTLMillis:  ptr.Ref((59 * time.Second).Milliseconds()),
 			}
-			_, err := client.CreateWorkspace(ctx, template.OrganizationID, codersdk.Me, req)
+			_, err := client.CreateWorkspace(ctx, template.OrganizationID, wirtualsdk.Me, req)
 			require.Error(t, err)
-			var apiErr *codersdk.Error
+			var apiErr *wirtualsdk.Error
 			require.ErrorAs(t, err, &apiErr)
 			require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 			require.Len(t, apiErr.Validations, 1)
@@ -741,7 +741,7 @@ func TestPostWorkspacesByOrganization(t *testing.T) {
 		user := coderdtest.CreateFirstUser(t, client)
 		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 		exp := 24 * time.Hour.Milliseconds()
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			ctr.DefaultTTLMillis = &exp
 		})
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
@@ -750,11 +750,11 @@ func TestPostWorkspacesByOrganization(t *testing.T) {
 		defer cancel()
 
 		// no TTL provided should use template default
-		req := codersdk.CreateWorkspaceRequest{
+		req := wirtualsdk.CreateWorkspaceRequest{
 			TemplateID: template.ID,
 			Name:       "testing",
 		}
-		ws, err := client.CreateWorkspace(ctx, template.OrganizationID, codersdk.Me, req)
+		ws, err := client.CreateWorkspace(ctx, template.OrganizationID, wirtualsdk.Me, req)
 		require.NoError(t, err)
 		require.EqualValues(t, exp, *ws.TTLMillis)
 
@@ -762,7 +762,7 @@ func TestPostWorkspacesByOrganization(t *testing.T) {
 		req.Name = "testing2"
 		exp = 1 * time.Hour.Milliseconds()
 		req.TTLMillis = &exp
-		ws, err = client.CreateWorkspace(ctx, template.OrganizationID, codersdk.Me, req)
+		ws, err = client.CreateWorkspace(ctx, template.OrganizationID, wirtualsdk.Me, req)
 		require.NoError(t, err)
 		require.EqualValues(t, exp, *ws.TTLMillis)
 	})
@@ -777,8 +777,8 @@ func TestWorkspaceByOwnerAndName(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_, err := client.WorkspaceByOwnerAndName(ctx, codersdk.Me, "something", codersdk.WorkspaceOptions{})
-		var apiErr *codersdk.Error
+		_, err := client.WorkspaceByOwnerAndName(ctx, wirtualsdk.Me, "something", wirtualsdk.WorkspaceOptions{})
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusUnauthorized, apiErr.StatusCode())
 	})
@@ -794,7 +794,7 @@ func TestWorkspaceByOwnerAndName(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_, err := client.WorkspaceByOwnerAndName(ctx, codersdk.Me, workspace.Name, codersdk.WorkspaceOptions{})
+		_, err := client.WorkspaceByOwnerAndName(ctx, wirtualsdk.Me, workspace.Name, wirtualsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 	})
 	t.Run("Deleted", func(t *testing.T) {
@@ -812,26 +812,26 @@ func TestWorkspaceByOwnerAndName(t *testing.T) {
 
 		// Given:
 		// We delete the workspace
-		build, err := client.CreateWorkspaceBuild(ctx, workspace.ID, codersdk.CreateWorkspaceBuildRequest{
-			Transition: codersdk.WorkspaceTransitionDelete,
+		build, err := client.CreateWorkspaceBuild(ctx, workspace.ID, wirtualsdk.CreateWorkspaceBuildRequest{
+			Transition: wirtualsdk.WorkspaceTransitionDelete,
 		})
 		require.NoError(t, err, "delete the workspace")
 		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
 
 		// Then:
 		// When we call without includes_deleted, we don't expect to get the workspace back
-		_, err = client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, codersdk.WorkspaceOptions{})
+		_, err = client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, wirtualsdk.WorkspaceOptions{})
 		require.ErrorContains(t, err, "404")
 
 		// Then:
 		// When we call with includes_deleted, we should get the workspace back
-		workspaceNew, err := client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, codersdk.WorkspaceOptions{IncludeDeleted: true})
+		workspaceNew, err := client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, wirtualsdk.WorkspaceOptions{IncludeDeleted: true})
 		require.NoError(t, err)
 		require.Equal(t, workspace.ID, workspaceNew.ID)
 
 		// Given:
 		// We recreate the workspace with the same name
-		workspace, err = client.CreateWorkspace(ctx, user.OrganizationID, codersdk.Me, codersdk.CreateWorkspaceRequest{
+		workspace, err = client.CreateWorkspace(ctx, user.OrganizationID, wirtualsdk.Me, wirtualsdk.CreateWorkspaceRequest{
 			TemplateID:        workspace.TemplateID,
 			Name:              workspace.Name,
 			AutostartSchedule: workspace.AutostartSchedule,
@@ -843,21 +843,21 @@ func TestWorkspaceByOwnerAndName(t *testing.T) {
 
 		// Then:
 		// We can fetch the most recent workspace
-		workspaceNew, err = client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, codersdk.WorkspaceOptions{})
+		workspaceNew, err = client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, wirtualsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		require.Equal(t, workspace.ID, workspaceNew.ID)
 
 		// Given:
 		// We delete the workspace again
-		build, err = client.CreateWorkspaceBuild(ctx, workspace.ID, codersdk.CreateWorkspaceBuildRequest{
-			Transition: codersdk.WorkspaceTransitionDelete,
+		build, err = client.CreateWorkspaceBuild(ctx, workspace.ID, wirtualsdk.CreateWorkspaceBuildRequest{
+			Transition: wirtualsdk.WorkspaceTransitionDelete,
 		})
 		require.NoError(t, err, "delete the workspace")
 		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
 
 		// Then:
 		// When we fetch the deleted workspace, we get the most recently deleted one
-		workspaceNew, err = client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, codersdk.WorkspaceOptions{IncludeDeleted: true})
+		workspaceNew, err = client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, wirtualsdk.WorkspaceOptions{IncludeDeleted: true})
 		require.NoError(t, err)
 		require.Equal(t, workspace.ID, workspaceNew.ID)
 	})
@@ -1027,11 +1027,11 @@ func TestWorkspaceFilterAllStatus(t *testing.T) {
 
 	apiCtx, cancel := context.WithTimeout(ctx, testutil.WaitShort)
 	defer cancel()
-	workspaces, err := client.Workspaces(apiCtx, codersdk.WorkspaceFilter{})
+	workspaces, err := client.Workspaces(apiCtx, wirtualsdk.WorkspaceFilter{})
 	require.NoError(t, err)
 
 	// Make sure all workspaces have the correct status
-	var statuses []codersdk.WorkspaceStatus
+	var statuses []wirtualsdk.WorkspaceStatus
 	for _, apiWorkspace := range workspaces.Workspaces {
 		expStatus := strings.Split(apiWorkspace.Name, "-")
 		if !assert.Equal(t, expStatus[0], string(apiWorkspace.LatestBuild.Status), "workspace has incorrect status") {
@@ -1047,7 +1047,7 @@ func TestWorkspaceFilterAllStatus(t *testing.T) {
 	for _, status := range statuses {
 		ctx, cancel := context.WithTimeout(ctx, testutil.WaitShort)
 
-		workspaces, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		workspaces, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			Status: string(status),
 		})
 		require.NoErrorf(t, err, "fetch with status: %s", status)
@@ -1066,9 +1066,9 @@ func TestWorkspaceFilter(t *testing.T) {
 	t.Skip("This test is slow and flaky. See: https://github.com/coder/coder/issues/2854")
 	// nolint:unused
 	type coderUser struct {
-		*codersdk.Client
-		User codersdk.User
-		Org  codersdk.Organization
+		*wirtualsdk.Client
+		User wirtualsdk.User
+		Org  wirtualsdk.Organization
 	}
 
 	client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
@@ -1083,13 +1083,13 @@ func TestWorkspaceFilter(t *testing.T) {
 
 		if i%3 == 0 {
 			var err error
-			user, err = client.UpdateUserProfile(ctx, user.ID.String(), codersdk.UpdateUserProfileRequest{
+			user, err = client.UpdateUserProfile(ctx, user.ID.String(), wirtualsdk.UpdateUserProfileRequest{
 				Username: strings.ToUpper(user.Username),
 			})
 			require.NoError(t, err, "uppercase username")
 		}
 
-		org, err := userClient.CreateOrganization(ctx, codersdk.CreateOrganizationRequest{
+		org, err := userClient.CreateOrganization(ctx, wirtualsdk.CreateOrganizationRequest{
 			Name: user.Username + "-org",
 		})
 		require.NoError(t, err, "create org")
@@ -1102,12 +1102,12 @@ func TestWorkspaceFilter(t *testing.T) {
 	}
 
 	type madeWorkspace struct {
-		Owner     codersdk.User
-		Workspace codersdk.Workspace
-		Template  codersdk.Template
+		Owner     wirtualsdk.User
+		Workspace wirtualsdk.Workspace
+		Template  wirtualsdk.Template
 	}
 
-	availTemplates := make([]codersdk.Template, 0)
+	availTemplates := make([]wirtualsdk.Template, 0)
 	allWorkspaces := make([]madeWorkspace, 0)
 	upperTemplates := make([]string, 0)
 
@@ -1119,9 +1119,9 @@ func TestWorkspaceFilter(t *testing.T) {
 		// Create a template & workspace in the user's org
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
-		var template codersdk.Template
+		var template wirtualsdk.Template
 		if i%3 == 0 {
-			template = coderdtest.CreateTemplate(t, client, user.Org.ID, version.ID, func(request *codersdk.CreateTemplateRequest) {
+			template = coderdtest.CreateTemplate(t, client, user.Org.ID, version.ID, func(request *wirtualsdk.CreateTemplateRequest) {
 				request.Name = strings.ToUpper(request.Name)
 			})
 			upperTemplates = append(upperTemplates, template.Name)
@@ -1130,7 +1130,7 @@ func TestWorkspaceFilter(t *testing.T) {
 		}
 
 		availTemplates = append(availTemplates, template)
-		workspace := coderdtest.CreateWorkspace(t, user.Client, template.ID, func(request *codersdk.CreateWorkspaceRequest) {
+		workspace := coderdtest.CreateWorkspace(t, user.Client, template.ID, func(request *wirtualsdk.CreateWorkspaceRequest) {
 			if count%3 == 0 {
 				request.Name = strings.ToUpper(request.Name)
 			}
@@ -1161,60 +1161,60 @@ func TestWorkspaceFilter(t *testing.T) {
 	// --- Setup done ---
 	testCases := []struct {
 		Name   string
-		Filter codersdk.WorkspaceFilter
+		Filter wirtualsdk.WorkspaceFilter
 		// If FilterF is true, we include it in the expected results
-		FilterF func(f codersdk.WorkspaceFilter, workspace madeWorkspace) bool
+		FilterF func(f wirtualsdk.WorkspaceFilter, workspace madeWorkspace) bool
 	}{
 		{
 			Name:   "All",
-			Filter: codersdk.WorkspaceFilter{},
-			FilterF: func(_ codersdk.WorkspaceFilter, _ madeWorkspace) bool {
+			Filter: wirtualsdk.WorkspaceFilter{},
+			FilterF: func(_ wirtualsdk.WorkspaceFilter, _ madeWorkspace) bool {
 				return true
 			},
 		},
 		{
 			Name: "Owner",
-			Filter: codersdk.WorkspaceFilter{
+			Filter: wirtualsdk.WorkspaceFilter{
 				Owner: strings.ToUpper(users[2].User.Username),
 			},
-			FilterF: func(f codersdk.WorkspaceFilter, workspace madeWorkspace) bool {
+			FilterF: func(f wirtualsdk.WorkspaceFilter, workspace madeWorkspace) bool {
 				return strings.EqualFold(workspace.Owner.Username, f.Owner)
 			},
 		},
 		{
 			Name: "TemplateName",
-			Filter: codersdk.WorkspaceFilter{
+			Filter: wirtualsdk.WorkspaceFilter{
 				Template: strings.ToUpper(allWorkspaces[5].Template.Name),
 			},
-			FilterF: func(f codersdk.WorkspaceFilter, workspace madeWorkspace) bool {
+			FilterF: func(f wirtualsdk.WorkspaceFilter, workspace madeWorkspace) bool {
 				return strings.EqualFold(workspace.Template.Name, f.Template)
 			},
 		},
 		{
 			Name: "UpperTemplateName",
-			Filter: codersdk.WorkspaceFilter{
+			Filter: wirtualsdk.WorkspaceFilter{
 				Template: upperTemplates[0],
 			},
-			FilterF: func(f codersdk.WorkspaceFilter, workspace madeWorkspace) bool {
+			FilterF: func(f wirtualsdk.WorkspaceFilter, workspace madeWorkspace) bool {
 				return strings.EqualFold(workspace.Template.Name, f.Template)
 			},
 		},
 		{
 			Name: "Name",
-			Filter: codersdk.WorkspaceFilter{
+			Filter: wirtualsdk.WorkspaceFilter{
 				// Use a common letter... one has to have this letter in it
 				Name: "a",
 			},
-			FilterF: func(f codersdk.WorkspaceFilter, workspace madeWorkspace) bool {
+			FilterF: func(f wirtualsdk.WorkspaceFilter, workspace madeWorkspace) bool {
 				return strings.ContainsAny(workspace.Workspace.Name, "Aa")
 			},
 		},
 		{
 			Name: "Q-Owner/Name",
-			Filter: codersdk.WorkspaceFilter{
+			Filter: wirtualsdk.WorkspaceFilter{
 				FilterQuery: allWorkspaces[5].Owner.Username + "/" + strings.ToUpper(allWorkspaces[5].Workspace.Name),
 			},
-			FilterF: func(f codersdk.WorkspaceFilter, workspace madeWorkspace) bool {
+			FilterF: func(f wirtualsdk.WorkspaceFilter, workspace madeWorkspace) bool {
 				if strings.EqualFold(workspace.Owner.Username, allWorkspaces[5].Owner.Username) &&
 					strings.Contains(strings.ToLower(workspace.Workspace.Name), strings.ToLower(allWorkspaces[5].Workspace.Name)) {
 					return true
@@ -1225,12 +1225,12 @@ func TestWorkspaceFilter(t *testing.T) {
 		},
 		{
 			Name: "Many filters",
-			Filter: codersdk.WorkspaceFilter{
+			Filter: wirtualsdk.WorkspaceFilter{
 				Owner:    allWorkspaces[3].Owner.Username,
 				Template: allWorkspaces[3].Template.Name,
 				Name:     allWorkspaces[3].Workspace.Name,
 			},
-			FilterF: func(f codersdk.WorkspaceFilter, workspace madeWorkspace) bool {
+			FilterF: func(f wirtualsdk.WorkspaceFilter, workspace madeWorkspace) bool {
 				if strings.EqualFold(workspace.Owner.Username, f.Owner) &&
 					strings.Contains(strings.ToLower(workspace.Workspace.Name), strings.ToLower(f.Name)) &&
 					strings.EqualFold(workspace.Template.Name, f.Template) {
@@ -1248,7 +1248,7 @@ func TestWorkspaceFilter(t *testing.T) {
 			workspaces, err := client.Workspaces(ctx, c.Filter)
 			require.NoError(t, err, "fetch workspaces")
 
-			exp := make([]codersdk.Workspace, 0)
+			exp := make([]wirtualsdk.Workspace, 0)
 			for _, made := range allWorkspaces {
 				if c.FilterF(c.Filter, made) {
 					exp = append(exp, made.Workspace)
@@ -1263,7 +1263,7 @@ func TestWorkspaceFilter(t *testing.T) {
 func TestWorkspaceFilterManual(t *testing.T) {
 	t.Parallel()
 
-	expectIDs := func(t *testing.T, exp []codersdk.Workspace, got []codersdk.Workspace) {
+	expectIDs := func(t *testing.T, exp []wirtualsdk.Workspace, got []wirtualsdk.Workspace) {
 		t.Helper()
 		expIDs := make([]uuid.UUID, 0, len(exp))
 		for _, e := range exp {
@@ -1290,7 +1290,7 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		defer cancel()
 
 		// full match
-		res, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		res, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			Name: workspace.Name,
 		})
 		require.NoError(t, err)
@@ -1298,7 +1298,7 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		require.Equal(t, workspace.ID, res.Workspaces[0].ID)
 
 		// partial match
-		res, err = client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		res, err = client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			Name: workspace.Name[1 : len(workspace.Name)-2],
 		})
 		require.NoError(t, err)
@@ -1306,7 +1306,7 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		require.Equal(t, workspace.ID, res.Workspaces[0].ID)
 
 		// no match
-		res, err = client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		res, err = client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			Name: "$$$$",
 		})
 		require.NoError(t, err)
@@ -1324,7 +1324,7 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		// Add a non-matching workspace
 		coderdtest.CreateWorkspace(t, otherUser, template.ID)
 
-		workspaces := []codersdk.Workspace{
+		workspaces := []wirtualsdk.Workspace{
 			coderdtest.CreateWorkspace(t, client, template.ID),
 			coderdtest.CreateWorkspace(t, client, template.ID),
 		}
@@ -1332,11 +1332,11 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		sdkUser, err := client.User(ctx, codersdk.Me)
+		sdkUser, err := client.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err)
 
 		// match owner name
-		res, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		res, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			FilterQuery: fmt.Sprintf("owner:%s", sdkUser.Username),
 		})
 		require.NoError(t, err)
@@ -1359,20 +1359,20 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		defer cancel()
 
 		// full match
-		res, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		res, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			FilterQuery: fmt.Sprintf("id:%s,%s", alpha.ID, bravo.ID),
 		})
 		require.NoError(t, err)
 		require.Len(t, res.Workspaces, 2)
-		require.True(t, slices.ContainsFunc(res.Workspaces, func(workspace codersdk.Workspace) bool {
+		require.True(t, slices.ContainsFunc(res.Workspaces, func(workspace wirtualsdk.Workspace) bool {
 			return workspace.ID == alpha.ID
 		}), "alpha workspace")
-		require.True(t, slices.ContainsFunc(res.Workspaces, func(workspace codersdk.Workspace) bool {
+		require.True(t, slices.ContainsFunc(res.Workspaces, func(workspace wirtualsdk.Workspace) bool {
 			return workspace.ID == alpha.ID
 		}), "bravo workspace")
 
 		// no match
-		res, err = client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		res, err = client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			FilterQuery: fmt.Sprintf("id:%s", uuid.NewString()),
 		})
 		require.NoError(t, err)
@@ -1395,12 +1395,12 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		defer cancel()
 
 		// empty
-		res, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{})
+		res, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{})
 		require.NoError(t, err)
 		require.Len(t, res.Workspaces, 2)
 
 		// single template
-		res, err = client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		res, err = client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			Template: template.Name,
 		})
 		require.NoError(t, err)
@@ -1426,7 +1426,7 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		defer cancel()
 
 		// filter finds both running workspaces
-		ws1, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{})
+		ws1, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{})
 		require.NoError(t, err)
 		require.Len(t, ws1.Workspaces, 2)
 
@@ -1435,7 +1435,7 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, build1.ID)
 
 		// filter finds one running workspace
-		ws2, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		ws2, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			Status: "running",
 		})
 		require.NoError(t, err)
@@ -1447,7 +1447,7 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, build2.ID)
 
 		// filter finds no running workspaces
-		ws3, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		ws3, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			Status: "running",
 		})
 		require.NoError(t, err)
@@ -1473,7 +1473,7 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		require.NoError(t, err)
 
 		// single workspace
-		res, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		res, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			FilterQuery: fmt.Sprintf("template:%s %s/%s", template.Name, workspace.OwnerName, workspace.Name),
 		})
 		require.NoError(t, err)
@@ -1502,7 +1502,7 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		res, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		res, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			FilterQuery: fmt.Sprintf("has-agent:%s", "connecting"),
 		})
 		require.NoError(t, err)
@@ -1533,7 +1533,7 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		res, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		res, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			FilterQuery: fmt.Sprintf("has-agent:%s", "connected"),
 		})
 		require.NoError(t, err)
@@ -1578,7 +1578,7 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		defer cancel()
 
 		testutil.Eventually(ctx, t, func(ctx context.Context) (done bool) {
-			workspaces, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+			workspaces, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 				FilterQuery: fmt.Sprintf("has-agent:%s", "timeout"),
 			})
 			require.NoError(t, err)
@@ -1586,7 +1586,7 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		}, testutil.IntervalMedium, "agent status timeout")
 	})
 	t.Run("Dormant", func(t *testing.T) {
-		// this test has a licensed counterpart in enterprise/coderd/workspaces_test.go: FilterQueryHasDeletingByAndLicensed
+		// this test has a licensed counterpart in enterprise/wirtuald/workspaces_test.go: FilterQueryHasDeletingByAndLicensed
 		t.Parallel()
 		client, db := coderdtest.NewWithDatabase(t, nil)
 		user := coderdtest.CreateFirstUser(t, client)
@@ -1612,18 +1612,18 @@ func TestWorkspaceFilterManual(t *testing.T) {
 			OrganizationID: user.OrganizationID,
 		}).Do()
 
-		err := client.UpdateWorkspaceDormancy(ctx, dormantWorkspace.ID, codersdk.UpdateWorkspaceDormancy{
+		err := client.UpdateWorkspaceDormancy(ctx, dormantWorkspace.ID, wirtualsdk.UpdateWorkspaceDormancy{
 			Dormant: true,
 		})
 		require.NoError(t, err)
 
 		// Test that no filter returns both workspaces.
-		res, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{})
+		res, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{})
 		require.NoError(t, err)
 		require.Len(t, res.Workspaces, 2)
 
 		// Test that filtering for dormant only returns our dormant workspace.
-		res, err = client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		res, err = client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			FilterQuery: "dormant:true",
 		})
 		require.NoError(t, err)
@@ -1673,14 +1673,14 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		beforeRes, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		beforeRes, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			FilterQuery: fmt.Sprintf("last_used_before:%q", now.Format(time.RFC3339)),
 		})
 		require.NoError(t, err)
 		require.Len(t, beforeRes.Workspaces, 1)
 		require.Equal(t, before.ID, beforeRes.Workspaces[0].ID)
 
-		afterRes, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		afterRes, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			FilterQuery: fmt.Sprintf("last_used_after:%q", now.Format(time.RFC3339)),
 		})
 		require.NoError(t, err)
@@ -1700,37 +1700,37 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		defer cancel()
 
 		// Workspace is up-to-date
-		res, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		res, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			FilterQuery: "outdated:false",
 		})
 		require.NoError(t, err)
 		require.Len(t, res.Workspaces, 1)
 		require.Equal(t, workspace.ID, res.Workspaces[0].ID)
 
-		res, err = client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		res, err = client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			FilterQuery: "outdated:true",
 		})
 		require.NoError(t, err)
 		require.Len(t, res.Workspaces, 0)
 
 		// Now make it out of date
-		newTv := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil, func(request *codersdk.CreateTemplateVersionRequest) {
+		newTv := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil, func(request *wirtualsdk.CreateTemplateVersionRequest) {
 			request.TemplateID = template.ID
 		})
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, newTv.ID)
-		err = client.UpdateActiveTemplateVersion(ctx, template.ID, codersdk.UpdateActiveTemplateVersion{
+		err = client.UpdateActiveTemplateVersion(ctx, template.ID, wirtualsdk.UpdateActiveTemplateVersion{
 			ID: newTv.ID,
 		})
 		require.NoError(t, err)
 
 		// Check the query again
-		res, err = client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		res, err = client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			FilterQuery: "outdated:false",
 		})
 		require.NoError(t, err)
 		require.Len(t, res.Workspaces, 0)
 
-		res, err = client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		res, err = client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			FilterQuery: "outdated:true",
 		})
 		require.NoError(t, err)
@@ -1772,15 +1772,15 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, makeParameters(&proto.RichParameter{Name: paramOptional, Description: "", Mutable: true, Type: "string"}))
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		noOptionalVersion := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, makeParameters(), func(request *codersdk.CreateTemplateVersionRequest) {
+		noOptionalVersion := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, makeParameters(), func(request *wirtualsdk.CreateTemplateVersionRequest) {
 			request.TemplateID = template.ID
 		})
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, noOptionalVersion.ID)
 
 		// foo :: one=foo, two=bar, one=baz, optional=optional
-		foo := coderdtest.CreateWorkspace(t, client, uuid.Nil, func(request *codersdk.CreateWorkspaceRequest) {
+		foo := coderdtest.CreateWorkspace(t, client, uuid.Nil, func(request *wirtualsdk.CreateWorkspaceRequest) {
 			request.TemplateVersionID = version.ID
-			request.RichParameterValues = []codersdk.WorkspaceBuildParameter{
+			request.RichParameterValues = []wirtualsdk.WorkspaceBuildParameter{
 				{
 					Name:  paramOneName,
 					Value: "foo",
@@ -1801,9 +1801,9 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		})
 
 		// bar :: one=foo, two=bar, three=baz, optional=optional
-		bar := coderdtest.CreateWorkspace(t, client, uuid.Nil, func(request *codersdk.CreateWorkspaceRequest) {
+		bar := coderdtest.CreateWorkspace(t, client, uuid.Nil, func(request *wirtualsdk.CreateWorkspaceRequest) {
 			request.TemplateVersionID = version.ID
-			request.RichParameterValues = []codersdk.WorkspaceBuildParameter{
+			request.RichParameterValues = []wirtualsdk.WorkspaceBuildParameter{
 				{
 					Name:  paramOneName,
 					Value: "bar",
@@ -1824,9 +1824,9 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		})
 
 		// baz :: one=baz, two=baz, three=baz
-		baz := coderdtest.CreateWorkspace(t, client, uuid.Nil, func(request *codersdk.CreateWorkspaceRequest) {
+		baz := coderdtest.CreateWorkspace(t, client, uuid.Nil, func(request *wirtualsdk.CreateWorkspaceRequest) {
 			request.TemplateVersionID = noOptionalVersion.ID
-			request.RichParameterValues = []codersdk.WorkspaceBuildParameter{
+			request.RichParameterValues = []wirtualsdk.WorkspaceBuildParameter{
 				{
 					Name:  paramOneName,
 					Value: "unique",
@@ -1849,21 +1849,21 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		t.Run("has_param", func(t *testing.T) {
 			// Checks the existence of a param value
 			// all match
-			all, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+			all, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 				FilterQuery: fmt.Sprintf("param:%s", paramOneName),
 			})
 			require.NoError(t, err)
-			expectIDs(t, []codersdk.Workspace{foo, bar, baz}, all.Workspaces)
+			expectIDs(t, []wirtualsdk.Workspace{foo, bar, baz}, all.Workspaces)
 
 			// Some match
-			optional, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+			optional, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 				FilterQuery: fmt.Sprintf("param:%s", paramOptional),
 			})
 			require.NoError(t, err)
-			expectIDs(t, []codersdk.Workspace{foo, bar}, optional.Workspaces)
+			expectIDs(t, []wirtualsdk.Workspace{foo, bar}, optional.Workspaces)
 
 			// None match
-			none, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+			none, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 				FilterQuery: "param:not-a-param",
 			})
 			require.NoError(t, err)
@@ -1873,34 +1873,34 @@ func TestWorkspaceFilterManual(t *testing.T) {
 		//nolint:tparallel,paralleltest
 		t.Run("exact_param", func(t *testing.T) {
 			// All match
-			all, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+			all, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 				FilterQuery: fmt.Sprintf("param:%s=%s", paramThreeName, "baz"),
 			})
 			require.NoError(t, err)
-			expectIDs(t, []codersdk.Workspace{foo, bar, baz}, all.Workspaces)
+			expectIDs(t, []wirtualsdk.Workspace{foo, bar, baz}, all.Workspaces)
 
 			// Two match
-			two, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+			two, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 				FilterQuery: fmt.Sprintf("param:%s=%s", paramTwoName, "bar"),
 			})
 			require.NoError(t, err)
-			expectIDs(t, []codersdk.Workspace{foo, bar}, two.Workspaces)
+			expectIDs(t, []wirtualsdk.Workspace{foo, bar}, two.Workspaces)
 
 			// Only 1 matches
-			one, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+			one, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 				FilterQuery: fmt.Sprintf("param:%s=%s", paramOneName, "foo"),
 			})
 			require.NoError(t, err)
-			expectIDs(t, []codersdk.Workspace{foo}, one.Workspaces)
+			expectIDs(t, []wirtualsdk.Workspace{foo}, one.Workspaces)
 		})
 
 		//nolint:tparallel,paralleltest
 		t.Run("exact_param_and_has", func(t *testing.T) {
-			all, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+			all, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 				FilterQuery: fmt.Sprintf("param:not=athing param:%s=%s param:%s=%s", paramOptional, "optional", paramOneName, "unique"),
 			})
 			require.NoError(t, err)
-			expectIDs(t, []codersdk.Workspace{foo, bar, baz}, all.Workspaces)
+			expectIDs(t, []wirtualsdk.Workspace{foo, bar, baz}, all.Workspaces)
 		})
 	})
 }
@@ -1919,19 +1919,19 @@ func TestOffsetLimit(t *testing.T) {
 	_ = coderdtest.CreateWorkspace(t, client, template.ID)
 
 	// Case 1: empty finds all workspaces
-	ws, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{})
+	ws, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{})
 	require.NoError(t, err)
 	require.Len(t, ws.Workspaces, 3)
 
 	// Case 2: offset 1 finds 2 workspaces
-	ws, err = client.Workspaces(ctx, codersdk.WorkspaceFilter{
+	ws, err = client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 		Offset: 1,
 	})
 	require.NoError(t, err)
 	require.Len(t, ws.Workspaces, 2)
 
 	// Case 3: offset 1 limit 1 finds 1 workspace
-	ws, err = client.Workspaces(ctx, codersdk.WorkspaceFilter{
+	ws, err = client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 		Offset: 1,
 		Limit:  1,
 	})
@@ -1939,7 +1939,7 @@ func TestOffsetLimit(t *testing.T) {
 	require.Len(t, ws.Workspaces, 1)
 
 	// Case 4: offset 3 finds no workspaces
-	ws, err = client.Workspaces(ctx, codersdk.WorkspaceFilter{
+	ws, err = client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 		Offset: 3,
 	})
 	require.NoError(t, err)
@@ -1947,7 +1947,7 @@ func TestOffsetLimit(t *testing.T) {
 	require.Equal(t, ws.Count, 3) // can't find workspaces, but count is non-zero
 
 	// Case 5: offset out of range
-	ws, err = client.Workspaces(ctx, codersdk.WorkspaceFilter{
+	ws, err = client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 		Offset: math.MaxInt32 + 1, // Potential risk: pq: OFFSET must not be negative
 	})
 	require.Error(t, err)
@@ -2032,7 +2032,7 @@ func TestWorkspaceUpdateAutostart(t *testing.T) {
 				version   = coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 				_         = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 				project   = coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-				workspace = coderdtest.CreateWorkspace(t, client, project.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
+				workspace = coderdtest.CreateWorkspace(t, client, project.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 					cwr.AutostartSchedule = nil
 					cwr.TTLMillis = nil
 				})
@@ -2047,7 +2047,7 @@ func TestWorkspaceUpdateAutostart(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			defer cancel()
 
-			err := client.UpdateWorkspaceAutostart(ctx, workspace.ID, codersdk.UpdateWorkspaceAutostartRequest{
+			err := client.UpdateWorkspaceAutostart(ctx, workspace.ID, wirtualsdk.UpdateWorkspaceAutostartRequest{
 				Schedule: testCase.schedule,
 			})
 
@@ -2111,7 +2111,7 @@ func TestWorkspaceUpdateAutostart(t *testing.T) {
 			version   = coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 			_         = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 			project   = coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-			workspace = coderdtest.CreateWorkspace(t, client, project.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
+			workspace = coderdtest.CreateWorkspace(t, client, project.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 				cwr.AutostartSchedule = nil
 				cwr.TTLMillis = nil
 			})
@@ -2126,7 +2126,7 @@ func TestWorkspaceUpdateAutostart(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		err := client.UpdateWorkspaceAutostart(ctx, workspace.ID, codersdk.UpdateWorkspaceAutostartRequest{
+		err := client.UpdateWorkspaceAutostart(ctx, workspace.ID, wirtualsdk.UpdateWorkspaceAutostartRequest{
 			Schedule: ptr.Ref("CRON_TZ=Europe/Dublin 30 9 * * 1-5"),
 		})
 		require.ErrorContains(t, err, "Autostart is not allowed for workspaces using this template")
@@ -2138,7 +2138,7 @@ func TestWorkspaceUpdateAutostart(t *testing.T) {
 			client = coderdtest.New(t, nil)
 			_      = coderdtest.CreateFirstUser(t, client)
 			wsid   = uuid.New()
-			req    = codersdk.UpdateWorkspaceAutostartRequest{
+			req    = wirtualsdk.UpdateWorkspaceAutostartRequest{
 				Schedule: ptr.Ref("9 30 1-5"),
 			}
 		)
@@ -2147,8 +2147,8 @@ func TestWorkspaceUpdateAutostart(t *testing.T) {
 		defer cancel()
 
 		err := client.UpdateWorkspaceAutostart(ctx, wsid, req)
-		require.IsType(t, err, &codersdk.Error{}, "expected codersdk.Error")
-		coderSDKErr, _ := err.(*codersdk.Error) //nolint:errorlint
+		require.IsType(t, err, &wirtualsdk.Error{}, "expected wirtualsdk.Error")
+		coderSDKErr, _ := err.(*wirtualsdk.Error) //nolint:errorlint
 		require.Equal(t, coderSDKErr.StatusCode(), 404, "expected status code 404")
 		require.Contains(t, coderSDKErr.Message, "Resource not found", "unexpected response code")
 	})
@@ -2161,13 +2161,13 @@ func TestWorkspaceUpdateTTL(t *testing.T) {
 		name           string
 		ttlMillis      *int64
 		expectedError  string
-		modifyTemplate func(*codersdk.CreateTemplateRequest)
+		modifyTemplate func(*wirtualsdk.CreateTemplateRequest)
 	}{
 		{
 			name:          "disable ttl",
 			ttlMillis:     nil,
 			expectedError: "",
-			modifyTemplate: func(ctr *codersdk.CreateTemplateRequest) {
+			modifyTemplate: func(ctr *wirtualsdk.CreateTemplateRequest) {
 				ctr.DefaultTTLMillis = ptr.Ref((8 * time.Hour).Milliseconds())
 			},
 		},
@@ -2175,7 +2175,7 @@ func TestWorkspaceUpdateTTL(t *testing.T) {
 			name:          "update ttl",
 			ttlMillis:     ptr.Ref(12 * time.Hour.Milliseconds()),
 			expectedError: "",
-			modifyTemplate: func(ctr *codersdk.CreateTemplateRequest) {
+			modifyTemplate: func(ctr *wirtualsdk.CreateTemplateRequest) {
 				ctr.DefaultTTLMillis = ptr.Ref((8 * time.Hour).Milliseconds())
 			},
 		},
@@ -2206,7 +2206,7 @@ func TestWorkspaceUpdateTTL(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 
-			mutators := make([]func(*codersdk.CreateTemplateRequest), 0)
+			mutators := make([]func(*wirtualsdk.CreateTemplateRequest), 0)
 			if testCase.modifyTemplate != nil {
 				mutators = append(mutators, testCase.modifyTemplate)
 			}
@@ -2217,7 +2217,7 @@ func TestWorkspaceUpdateTTL(t *testing.T) {
 				version   = coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 				_         = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 				project   = coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, mutators...)
-				workspace = coderdtest.CreateWorkspace(t, client, project.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
+				workspace = coderdtest.CreateWorkspace(t, client, project.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 					cwr.AutostartSchedule = nil
 					cwr.TTLMillis = nil
 				})
@@ -2227,7 +2227,7 @@ func TestWorkspaceUpdateTTL(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			defer cancel()
 
-			err := client.UpdateWorkspaceTTL(ctx, workspace.ID, codersdk.UpdateWorkspaceTTLRequest{
+			err := client.UpdateWorkspaceTTL(ctx, workspace.ID, wirtualsdk.UpdateWorkspaceTTLRequest{
 				TTLMillis: testCase.ttlMillis,
 			})
 
@@ -2278,7 +2278,7 @@ func TestWorkspaceUpdateTTL(t *testing.T) {
 			version   = coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 			_         = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 			project   = coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-			workspace = coderdtest.CreateWorkspace(t, client, project.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
+			workspace = coderdtest.CreateWorkspace(t, client, project.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 				cwr.AutostartSchedule = nil
 				cwr.TTLMillis = nil
 			})
@@ -2293,7 +2293,7 @@ func TestWorkspaceUpdateTTL(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		err := client.UpdateWorkspaceTTL(ctx, workspace.ID, codersdk.UpdateWorkspaceTTLRequest{
+		err := client.UpdateWorkspaceTTL(ctx, workspace.ID, wirtualsdk.UpdateWorkspaceTTLRequest{
 			TTLMillis: ptr.Ref(time.Hour.Milliseconds()),
 		})
 		require.ErrorContains(t, err, "Custom autostop TTL is not allowed for workspaces using this template")
@@ -2305,7 +2305,7 @@ func TestWorkspaceUpdateTTL(t *testing.T) {
 			client = coderdtest.New(t, nil)
 			_      = coderdtest.CreateFirstUser(t, client)
 			wsid   = uuid.New()
-			req    = codersdk.UpdateWorkspaceTTLRequest{
+			req    = wirtualsdk.UpdateWorkspaceTTLRequest{
 				TTLMillis: ptr.Ref(time.Hour.Milliseconds()),
 			}
 		)
@@ -2314,8 +2314,8 @@ func TestWorkspaceUpdateTTL(t *testing.T) {
 		defer cancel()
 
 		err := client.UpdateWorkspaceTTL(ctx, wsid, req)
-		require.IsType(t, err, &codersdk.Error{}, "expected codersdk.Error")
-		coderSDKErr, _ := err.(*codersdk.Error) //nolint:errorlint
+		require.IsType(t, err, &wirtualsdk.Error{}, "expected wirtualsdk.Error")
+		coderSDKErr, _ := err.(*wirtualsdk.Error) //nolint:errorlint
 		require.Equal(t, coderSDKErr.StatusCode(), 404, "expected status code 404")
 		require.Contains(t, coderSDKErr.Message, "Resource not found", "unexpected response code")
 	})
@@ -2331,7 +2331,7 @@ func TestWorkspaceExtend(t *testing.T) {
 		version     = coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 		_           = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 		template    = coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		workspace   = coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
+		workspace   = coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 			cwr.TTLMillis = ptr.Ref(ttl.Milliseconds())
 		})
 		_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
@@ -2345,7 +2345,7 @@ func TestWorkspaceExtend(t *testing.T) {
 	oldDeadline := workspace.LatestBuild.Deadline.Time
 
 	// Updating the deadline should succeed
-	req := codersdk.PutExtendWorkspaceRequest{
+	req := wirtualsdk.PutExtendWorkspaceRequest{
 		Deadline: newDeadline,
 	}
 	err = client.PutExtendWorkspace(ctx, workspace.ID, req)
@@ -2357,27 +2357,27 @@ func TestWorkspaceExtend(t *testing.T) {
 	require.WithinDuration(t, newDeadline, updated.LatestBuild.Deadline.Time, time.Minute)
 
 	// Zero time should fail
-	err = client.PutExtendWorkspace(ctx, workspace.ID, codersdk.PutExtendWorkspaceRequest{
+	err = client.PutExtendWorkspace(ctx, workspace.ID, wirtualsdk.PutExtendWorkspaceRequest{
 		Deadline: time.Time{},
 	})
 	require.ErrorContains(t, err, "deadline: Validation failed for tag \"required\" with value: \"0001-01-01 00:00:00 +0000 UTC\"", "setting an empty deadline on a workspace should fail")
 
 	// Updating with a deadline less than 30 minutes in the future should fail
 	deadlineTooSoon := time.Now().Add(15 * time.Minute) // XXX: time.Now
-	err = client.PutExtendWorkspace(ctx, workspace.ID, codersdk.PutExtendWorkspaceRequest{
+	err = client.PutExtendWorkspace(ctx, workspace.ID, wirtualsdk.PutExtendWorkspaceRequest{
 		Deadline: deadlineTooSoon,
 	})
 	require.ErrorContains(t, err, "unexpected status code 400: Cannot extend workspace: new deadline must be at least 30 minutes in the future", "setting a deadline less than 30 minutes in the future should fail")
 
 	// Updating with a deadline 30 minutes in the future should succeed
 	deadlineJustSoonEnough := time.Now().Add(30 * time.Minute)
-	err = client.PutExtendWorkspace(ctx, workspace.ID, codersdk.PutExtendWorkspaceRequest{
+	err = client.PutExtendWorkspace(ctx, workspace.ID, wirtualsdk.PutExtendWorkspaceRequest{
 		Deadline: deadlineJustSoonEnough,
 	})
 	require.NoError(t, err, "setting a deadline at least 30 minutes in the future should succeed")
 
 	// Updating with a deadline an hour before the previous deadline should succeed
-	err = client.PutExtendWorkspace(ctx, workspace.ID, codersdk.PutExtendWorkspaceRequest{
+	err = client.PutExtendWorkspace(ctx, workspace.ID, wirtualsdk.PutExtendWorkspaceRequest{
 		Deadline: oldDeadline.Add(-time.Hour),
 	})
 	require.NoError(t, err, "setting an earlier deadline should not fail")
@@ -2399,10 +2399,10 @@ func TestWorkspaceUpdateAutomaticUpdates_OK(t *testing.T) {
 		version      = coderdtest.CreateTemplateVersion(t, adminClient, admin.OrganizationID, nil)
 		_            = coderdtest.AwaitTemplateVersionJobCompleted(t, adminClient, version.ID)
 		project      = coderdtest.CreateTemplate(t, adminClient, admin.OrganizationID, version.ID)
-		workspace    = coderdtest.CreateWorkspace(t, client, project.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
+		workspace    = coderdtest.CreateWorkspace(t, client, project.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 			cwr.AutostartSchedule = nil
 			cwr.TTLMillis = nil
-			cwr.AutomaticUpdates = codersdk.AutomaticUpdatesNever
+			cwr.AutomaticUpdates = wirtualsdk.AutomaticUpdatesNever
 		})
 	)
 
@@ -2410,19 +2410,19 @@ func TestWorkspaceUpdateAutomaticUpdates_OK(t *testing.T) {
 	_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 	// ensure test invariant: new workspaces have automatic updates set to never
-	require.Equal(t, codersdk.AutomaticUpdatesNever, workspace.AutomaticUpdates, "expected newly-minted workspace to automatic updates set to never")
+	require.Equal(t, wirtualsdk.AutomaticUpdatesNever, workspace.AutomaticUpdates, "expected newly-minted workspace to automatic updates set to never")
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
 
-	err := client.UpdateWorkspaceAutomaticUpdates(ctx, workspace.ID, codersdk.UpdateWorkspaceAutomaticUpdatesRequest{
-		AutomaticUpdates: codersdk.AutomaticUpdatesAlways,
+	err := client.UpdateWorkspaceAutomaticUpdates(ctx, workspace.ID, wirtualsdk.UpdateWorkspaceAutomaticUpdatesRequest{
+		AutomaticUpdates: wirtualsdk.AutomaticUpdatesAlways,
 	})
 	require.NoError(t, err)
 
 	updated, err := client.Workspace(ctx, workspace.ID)
 	require.NoError(t, err)
-	require.Equal(t, codersdk.AutomaticUpdatesAlways, updated.AutomaticUpdates)
+	require.Equal(t, wirtualsdk.AutomaticUpdatesAlways, updated.AutomaticUpdates)
 
 	require.Eventually(t, func() bool {
 		var found bool
@@ -2444,8 +2444,8 @@ func TestUpdateWorkspaceAutomaticUpdates_NotFound(t *testing.T) {
 		client = coderdtest.New(t, nil)
 		_      = coderdtest.CreateFirstUser(t, client)
 		wsid   = uuid.New()
-		req    = codersdk.UpdateWorkspaceAutomaticUpdatesRequest{
-			AutomaticUpdates: codersdk.AutomaticUpdatesNever,
+		req    = wirtualsdk.UpdateWorkspaceAutomaticUpdatesRequest{
+			AutomaticUpdates: wirtualsdk.AutomaticUpdatesNever,
 		}
 	)
 
@@ -2453,8 +2453,8 @@ func TestUpdateWorkspaceAutomaticUpdates_NotFound(t *testing.T) {
 	defer cancel()
 
 	err := client.UpdateWorkspaceAutomaticUpdates(ctx, wsid, req)
-	require.IsType(t, err, &codersdk.Error{}, "expected codersdk.Error")
-	coderSDKErr, _ := err.(*codersdk.Error) //nolint:errorlint
+	require.IsType(t, err, &wirtualsdk.Error{}, "expected wirtualsdk.Error")
+	coderSDKErr, _ := err.(*wirtualsdk.Error) //nolint:errorlint
 	require.Equal(t, coderSDKErr.StatusCode(), 404, "expected status code 404")
 	require.Contains(t, coderSDKErr.Message, "Resource not found", "unexpected response code")
 }
@@ -2501,7 +2501,7 @@ func TestWorkspaceWatcher(t *testing.T) {
 
 	// Wait events are easier to debug with timestamped logs.
 	logger := testutil.Logger(t).Named(t.Name())
-	wait := func(event string, ready func(w codersdk.Workspace) bool) {
+	wait := func(event string, ready func(w wirtualsdk.Workspace) bool) {
 		for {
 			select {
 			case <-ctx.Done():
@@ -2538,16 +2538,16 @@ func TestWorkspaceWatcher(t *testing.T) {
 	agt := agenttest.New(t, client.URL, authToken)
 	_ = coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
-	wait("agent connected/ready", func(w codersdk.Workspace) bool {
-		return w.LatestBuild.Resources[0].Agents[0].Status == codersdk.WorkspaceAgentConnected &&
-			w.LatestBuild.Resources[0].Agents[0].LifecycleState == codersdk.WorkspaceAgentLifecycleReady
+	wait("agent connected/ready", func(w wirtualsdk.Workspace) bool {
+		return w.LatestBuild.Resources[0].Agents[0].Status == wirtualsdk.WorkspaceAgentConnected &&
+			w.LatestBuild.Resources[0].Agents[0].LifecycleState == wirtualsdk.WorkspaceAgentLifecycleReady
 	})
 	agt.Close()
-	wait("agent disconnected", func(w codersdk.Workspace) bool {
-		return w.LatestBuild.Resources[0].Agents[0].Status == codersdk.WorkspaceAgentDisconnected
+	wait("agent disconnected", func(w wirtualsdk.Workspace) bool {
+		return w.LatestBuild.Resources[0].Agents[0].Status == wirtualsdk.WorkspaceAgentDisconnected
 	})
 
-	err = client.UpdateWorkspace(ctx, workspace.ID, codersdk.UpdateWorkspaceRequest{
+	err = client.UpdateWorkspace(ctx, workspace.ID, wirtualsdk.UpdateWorkspaceRequest{
 		Name: "another",
 	})
 	require.NoError(t, err)
@@ -2564,28 +2564,28 @@ func TestWorkspaceWatcher(t *testing.T) {
 				},
 			},
 		}},
-	}, func(req *codersdk.CreateTemplateVersionRequest) {
+	}, func(req *wirtualsdk.CreateTemplateVersionRequest) {
 		req.TemplateID = template.ID
 	})
 	coderdtest.AwaitTemplateVersionJobCompleted(t, client, badVersion.ID)
-	err = client.UpdateActiveTemplateVersion(ctx, template.ID, codersdk.UpdateActiveTemplateVersion{
+	err = client.UpdateActiveTemplateVersion(ctx, template.ID, wirtualsdk.UpdateActiveTemplateVersion{
 		ID: badVersion.ID,
 	})
 	require.NoError(t, err)
 	wait("update active template version", nil)
 
 	// Build with the new template; should end up with a failure state.
-	_ = coderdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStart, func(req *codersdk.CreateWorkspaceBuildRequest) {
+	_ = coderdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStart, func(req *wirtualsdk.CreateWorkspaceBuildRequest) {
 		req.TemplateVersionID = badVersion.ID
 	})
 	// We want to verify pending state here, but it's possible that we reach
 	// failed state fast enough that we never see pending.
 	sawFailed := false
-	wait("workspace build pending or failed", func(w codersdk.Workspace) bool {
+	wait("workspace build pending or failed", func(w wirtualsdk.Workspace) bool {
 		switch w.LatestBuild.Status {
-		case codersdk.WorkspaceStatusPending:
+		case wirtualsdk.WorkspaceStatusPending:
 			return true
-		case codersdk.WorkspaceStatusFailed:
+		case wirtualsdk.WorkspaceStatusFailed:
 			sawFailed = true
 			return true
 		default:
@@ -2593,8 +2593,8 @@ func TestWorkspaceWatcher(t *testing.T) {
 		}
 	})
 	if !sawFailed {
-		wait("workspace build failed", func(w codersdk.Workspace) bool {
-			return w.LatestBuild.Status == codersdk.WorkspaceStatusFailed
+		wait("workspace build failed", func(w wirtualsdk.Workspace) bool {
+			return w.LatestBuild.Status == wirtualsdk.WorkspaceStatusFailed
 		})
 	}
 
@@ -2726,7 +2726,7 @@ func TestWorkspaceResource(t *testing.T) {
 		require.EqualValues(t, app.Command, got.Command)
 		require.EqualValues(t, app.Icon, got.Icon)
 		require.EqualValues(t, app.DisplayName, got.DisplayName)
-		require.EqualValues(t, codersdk.WorkspaceAppHealthDisabled, got.Health)
+		require.EqualValues(t, wirtualsdk.WorkspaceAppHealthDisabled, got.Health)
 		require.EqualValues(t, "", got.Healthcheck.URL)
 		require.EqualValues(t, 0, got.Healthcheck.Interval)
 		require.EqualValues(t, 0, got.Healthcheck.Threshold)
@@ -2735,7 +2735,7 @@ func TestWorkspaceResource(t *testing.T) {
 		require.EqualValues(t, app.Command, got.Command)
 		require.EqualValues(t, app.Icon, got.Icon)
 		require.EqualValues(t, app.DisplayName, got.DisplayName)
-		require.EqualValues(t, codersdk.WorkspaceAppHealthInitializing, got.Health)
+		require.EqualValues(t, wirtualsdk.WorkspaceAppHealthInitializing, got.Health)
 		require.EqualValues(t, app.Healthcheck.Url, got.Healthcheck.URL)
 		require.EqualValues(t, app.Healthcheck.Interval, got.Healthcheck.Interval)
 		require.EqualValues(t, app.Healthcheck.Threshold, got.Healthcheck.Threshold)
@@ -2848,7 +2848,7 @@ func TestWorkspaceResource(t *testing.T) {
 		workspace, err := client.Workspace(ctx, workspace.ID)
 		require.NoError(t, err)
 		metadata := workspace.LatestBuild.Resources[0].Metadata
-		require.Equal(t, []codersdk.WorkspaceResourceMetadata{{
+		require.Equal(t, []wirtualsdk.WorkspaceResourceMetadata{{
 			Key:   "foo",
 			Value: "bar",
 		}, {
@@ -2875,7 +2875,7 @@ func TestWorkspaceWithRichParameters(t *testing.T) {
 		secondParameterType                = "number"
 		secondParameterDescription         = "_This_ is second *parameter*"
 		secondParameterValue               = "2"
-		secondParameterValidationMonotonic = codersdk.MonotonicOrderIncreasing
+		secondParameterValidationMonotonic = wirtualsdk.MonotonicOrderIncreasing
 	)
 
 	client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
@@ -2929,7 +2929,7 @@ func TestWorkspaceWithRichParameters(t *testing.T) {
 	require.Equal(t, firstParameterType, templateRichParameters[0].Type)
 	require.Equal(t, firstParameterDescription, templateRichParameters[0].Description)
 	require.Equal(t, firstParameterDescriptionPlaintext, templateRichParameters[0].DescriptionPlaintext)
-	require.Equal(t, codersdk.ValidationMonotonicOrder(""), templateRichParameters[0].ValidationMonotonic) // no validation for string
+	require.Equal(t, wirtualsdk.ValidationMonotonicOrder(""), templateRichParameters[0].ValidationMonotonic) // no validation for string
 	require.Equal(t, secondParameterName, templateRichParameters[1].Name)
 	require.Equal(t, secondParameterDisplayName, templateRichParameters[1].DisplayName)
 	require.Equal(t, secondParameterType, templateRichParameters[1].Type)
@@ -2937,18 +2937,18 @@ func TestWorkspaceWithRichParameters(t *testing.T) {
 	require.Equal(t, secondParameterDescriptionPlaintext, templateRichParameters[1].DescriptionPlaintext)
 	require.Equal(t, secondParameterValidationMonotonic, templateRichParameters[1].ValidationMonotonic)
 
-	expectedBuildParameters := []codersdk.WorkspaceBuildParameter{
+	expectedBuildParameters := []wirtualsdk.WorkspaceBuildParameter{
 		{Name: firstParameterName, Value: firstParameterValue},
 		{Name: secondParameterName, Value: secondParameterValue},
 	}
 
 	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
+	workspace := coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 		cwr.RichParameterValues = expectedBuildParameters
 	})
 
 	workspaceBuild := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
-	require.Equal(t, codersdk.WorkspaceStatusRunning, workspaceBuild.Status)
+	require.Equal(t, wirtualsdk.WorkspaceStatusRunning, workspaceBuild.Status)
 
 	workspaceBuildParameters, err := client.WorkspaceBuildParameters(ctx, workspaceBuild.ID)
 	require.NoError(t, err)
@@ -3021,20 +3021,20 @@ func TestWorkspaceWithOptionalRichParameters(t *testing.T) {
 	require.Equal(t, secondParameterRequired, templateRichParameters[1].Required)
 
 	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
-		cwr.RichParameterValues = []codersdk.WorkspaceBuildParameter{
+	workspace := coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+		cwr.RichParameterValues = []wirtualsdk.WorkspaceBuildParameter{
 			// First parameter is optional, so coder will pick the default value.
 			{Name: secondParameterName, Value: secondParameterValue},
 		}
 	})
 
 	workspaceBuild := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
-	require.Equal(t, codersdk.WorkspaceStatusRunning, workspaceBuild.Status)
+	require.Equal(t, wirtualsdk.WorkspaceStatusRunning, workspaceBuild.Status)
 
 	workspaceBuildParameters, err := client.WorkspaceBuildParameters(ctx, workspaceBuild.ID)
 	require.NoError(t, err)
 
-	expectedBuildParameters := []codersdk.WorkspaceBuildParameter{
+	expectedBuildParameters := []wirtualsdk.WorkspaceBuildParameter{
 		// Coderd inserts the default for the missing parameter
 		{Name: firstParameterName, Value: firstParameterDefaultValue},
 		{Name: secondParameterName, Value: secondParameterValue},
@@ -3103,7 +3103,7 @@ func TestWorkspaceWithEphemeralRichParameters(t *testing.T) {
 	// Create workspace with default values
 	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
 	workspaceBuild := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
-	require.Equal(t, codersdk.WorkspaceStatusRunning, workspaceBuild.Status)
+	require.Equal(t, wirtualsdk.WorkspaceStatusRunning, workspaceBuild.Status)
 
 	// Verify workspace build parameters (default values)
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
@@ -3112,16 +3112,16 @@ func TestWorkspaceWithEphemeralRichParameters(t *testing.T) {
 	workspaceBuildParameters, err := client.WorkspaceBuildParameters(ctx, workspaceBuild.ID)
 	require.NoError(t, err)
 
-	expectedBuildParameters := []codersdk.WorkspaceBuildParameter{
+	expectedBuildParameters := []wirtualsdk.WorkspaceBuildParameter{
 		{Name: firstParameterName, Value: firstParameterDefaultValue},
 		{Name: ephemeralParameterName, Value: ephemeralParameterDefaultValue},
 	}
 	require.ElementsMatch(t, expectedBuildParameters, workspaceBuildParameters)
 
 	// Trigger workspace build job with ephemeral parameter
-	workspaceBuild, err = client.CreateWorkspaceBuild(ctx, workspaceBuild.WorkspaceID, codersdk.CreateWorkspaceBuildRequest{
-		Transition: codersdk.WorkspaceTransitionStart,
-		RichParameterValues: []codersdk.WorkspaceBuildParameter{
+	workspaceBuild, err = client.CreateWorkspaceBuild(ctx, workspaceBuild.WorkspaceID, wirtualsdk.CreateWorkspaceBuildRequest{
+		Transition: wirtualsdk.WorkspaceTransitionStart,
+		RichParameterValues: []wirtualsdk.WorkspaceBuildParameter{
 			{
 				Name:  ephemeralParameterName,
 				Value: ephemeralParameterValue,
@@ -3130,22 +3130,22 @@ func TestWorkspaceWithEphemeralRichParameters(t *testing.T) {
 	})
 	require.NoError(t, err)
 	workspaceBuild = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
-	require.Equal(t, codersdk.WorkspaceStatusRunning, workspaceBuild.Status)
+	require.Equal(t, wirtualsdk.WorkspaceStatusRunning, workspaceBuild.Status)
 
 	// Verify workspace build parameters (including ephemeral)
 	workspaceBuildParameters, err = client.WorkspaceBuildParameters(ctx, workspaceBuild.ID)
 	require.NoError(t, err)
 
-	expectedBuildParameters = []codersdk.WorkspaceBuildParameter{
+	expectedBuildParameters = []wirtualsdk.WorkspaceBuildParameter{
 		{Name: firstParameterName, Value: firstParameterDefaultValue},
 		{Name: ephemeralParameterName, Value: ephemeralParameterValue},
 	}
 	require.ElementsMatch(t, expectedBuildParameters, workspaceBuildParameters)
 
 	// Trigger workspace build one more time without the ephemeral parameter
-	workspaceBuild, err = client.CreateWorkspaceBuild(ctx, workspaceBuild.WorkspaceID, codersdk.CreateWorkspaceBuildRequest{
-		Transition: codersdk.WorkspaceTransitionStart,
-		RichParameterValues: []codersdk.WorkspaceBuildParameter{
+	workspaceBuild, err = client.CreateWorkspaceBuild(ctx, workspaceBuild.WorkspaceID, wirtualsdk.CreateWorkspaceBuildRequest{
+		Transition: wirtualsdk.WorkspaceTransitionStart,
+		RichParameterValues: []wirtualsdk.WorkspaceBuildParameter{
 			{
 				Name:  firstParameterName,
 				Value: firstParameterValue,
@@ -3154,13 +3154,13 @@ func TestWorkspaceWithEphemeralRichParameters(t *testing.T) {
 	})
 	require.NoError(t, err)
 	workspaceBuild = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
-	require.Equal(t, codersdk.WorkspaceStatusRunning, workspaceBuild.Status)
+	require.Equal(t, wirtualsdk.WorkspaceStatusRunning, workspaceBuild.Status)
 
 	// Verify workspace build parameters (ephemeral should be back to default)
 	workspaceBuildParameters, err = client.WorkspaceBuildParameters(ctx, workspaceBuild.ID)
 	require.NoError(t, err)
 
-	expectedBuildParameters = []codersdk.WorkspaceBuildParameter{
+	expectedBuildParameters = []wirtualsdk.WorkspaceBuildParameter{
 		{Name: firstParameterName, Value: firstParameterValue},
 		{Name: ephemeralParameterName, Value: ephemeralParameterDefaultValue},
 	}
@@ -3184,7 +3184,7 @@ func TestWorkspaceDormant(t *testing.T) {
 			timeTilDormantAutoDelete = time.Minute
 		)
 
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			ctr.TimeTilDormantAutoDeleteMillis = ptr.Ref[int64](timeTilDormantAutoDelete.Milliseconds())
 		})
 		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
@@ -3195,7 +3195,7 @@ func TestWorkspaceDormant(t *testing.T) {
 
 		lastUsedAt := workspace.LastUsedAt
 		auditRecorder.ResetLogs()
-		err := client.UpdateWorkspaceDormancy(ctx, workspace.ID, codersdk.UpdateWorkspaceDormancy{
+		err := client.UpdateWorkspaceDormancy(ctx, workspace.ID, wirtualsdk.UpdateWorkspaceDormancy{
 			Dormant: true,
 		})
 		require.NoError(t, err)
@@ -3215,7 +3215,7 @@ func TestWorkspaceDormant(t *testing.T) {
 
 		workspace = coderdtest.MustWorkspace(t, client, workspace.ID)
 		lastUsedAt = workspace.LastUsedAt
-		err = client.UpdateWorkspaceDormancy(ctx, workspace.ID, codersdk.UpdateWorkspaceDormancy{
+		err = client.UpdateWorkspaceDormancy(ctx, workspace.ID, wirtualsdk.UpdateWorkspaceDormancy{
 			Dormant: false,
 		})
 		require.NoError(t, err)
@@ -3244,7 +3244,7 @@ func TestWorkspaceDormant(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		err := client.UpdateWorkspaceDormancy(ctx, workspace.ID, codersdk.UpdateWorkspaceDormancy{
+		err := client.UpdateWorkspaceDormancy(ctx, workspace.ID, wirtualsdk.UpdateWorkspaceDormancy{
 			Dormant: true,
 		})
 		require.NoError(t, err)
@@ -3253,13 +3253,13 @@ func TestWorkspaceDormant(t *testing.T) {
 		coderdtest.MustTransitionWorkspace(t, client, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
 
 		// Should not be able to start a workspace while it is dormant.
-		_, err = client.CreateWorkspaceBuild(ctx, workspace.ID, codersdk.CreateWorkspaceBuildRequest{
+		_, err = client.CreateWorkspaceBuild(ctx, workspace.ID, wirtualsdk.CreateWorkspaceBuildRequest{
 			TemplateVersionID: template.ActiveVersionID,
-			Transition:        codersdk.WorkspaceTransition(database.WorkspaceTransitionStart),
+			Transition:        wirtualsdk.WorkspaceTransition(database.WorkspaceTransitionStart),
 		})
 		require.Error(t, err)
 
-		err = client.UpdateWorkspaceDormancy(ctx, workspace.ID, codersdk.UpdateWorkspaceDormancy{
+		err = client.UpdateWorkspaceDormancy(ctx, workspace.ID, wirtualsdk.UpdateWorkspaceDormancy{
 			Dormant: false,
 		})
 		require.NoError(t, err)
@@ -3332,7 +3332,7 @@ func TestWorkspaceFavoriteUnfavorite(t *testing.T) {
 
 	// Users without write access to the workspace should not be able to perform the above.
 	err = memberClient.FavoriteWorkspace(ctx, wsb2.Workspace.ID)
-	var sdkErr *codersdk.Error
+	var sdkErr *wirtualsdk.Error
 	require.ErrorAs(t, err, &sdkErr)
 	require.Equal(t, http.StatusNotFound, sdkErr.StatusCode())
 	err = memberClient.UnfavoriteWorkspace(ctx, wsb2.Workspace.ID)
@@ -3370,7 +3370,7 @@ func TestWorkspaceUsageTracking(t *testing.T) {
 		// continue legacy behavior
 		err := client.PostWorkspaceUsage(ctx, r.Workspace.ID)
 		require.NoError(t, err)
-		err = client.PostWorkspaceUsageWithBody(ctx, r.Workspace.ID, codersdk.PostWorkspaceUsageRequest{})
+		err = client.PostWorkspaceUsageWithBody(ctx, r.Workspace.ID, wirtualsdk.PostWorkspaceUsageRequest{})
 		require.NoError(t, err)
 	})
 	t.Run("Experiment", func(t *testing.T) {
@@ -3378,7 +3378,7 @@ func TestWorkspaceUsageTracking(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitMedium)
 		defer cancel()
 		dv := coderdtest.DeploymentValues(t)
-		dv.Experiments = []string{string(codersdk.ExperimentWorkspaceUsage)}
+		dv.Experiments = []string{string(wirtualsdk.ExperimentWorkspaceUsage)}
 		client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
 			DeploymentValues: dv,
 		})
@@ -3399,7 +3399,7 @@ func TestWorkspaceUsageTracking(t *testing.T) {
 			CreatedBy:       user.UserID,
 			DefaultTTL:      int64(8 * time.Hour),
 		})
-		_, err := client.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+		_, err := client.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 			ActivityBumpMillis: 8 * time.Hour.Milliseconds(),
 		})
 		require.NoError(t, err)
@@ -3416,49 +3416,49 @@ func TestWorkspaceUsageTracking(t *testing.T) {
 		// continue legacy behavior
 		err = client.PostWorkspaceUsage(ctx, r.Workspace.ID)
 		require.NoError(t, err)
-		err = client.PostWorkspaceUsageWithBody(ctx, r.Workspace.ID, codersdk.PostWorkspaceUsageRequest{})
+		err = client.PostWorkspaceUsageWithBody(ctx, r.Workspace.ID, wirtualsdk.PostWorkspaceUsageRequest{})
 		require.NoError(t, err)
 
 		workspace, err := client.Workspace(ctx, r.Workspace.ID)
 		require.NoError(t, err)
 
 		// only agent id fails
-		err = client.PostWorkspaceUsageWithBody(ctx, r.Workspace.ID, codersdk.PostWorkspaceUsageRequest{
+		err = client.PostWorkspaceUsageWithBody(ctx, r.Workspace.ID, wirtualsdk.PostWorkspaceUsageRequest{
 			AgentID: workspace.LatestBuild.Resources[0].Agents[0].ID,
 		})
 		require.ErrorContains(t, err, "agent_id")
 		// only app name fails
-		err = client.PostWorkspaceUsageWithBody(ctx, r.Workspace.ID, codersdk.PostWorkspaceUsageRequest{
+		err = client.PostWorkspaceUsageWithBody(ctx, r.Workspace.ID, wirtualsdk.PostWorkspaceUsageRequest{
 			AppName: "ssh",
 		})
 		require.ErrorContains(t, err, "app_name")
 		// unknown app name fails
-		err = client.PostWorkspaceUsageWithBody(ctx, r.Workspace.ID, codersdk.PostWorkspaceUsageRequest{
+		err = client.PostWorkspaceUsageWithBody(ctx, r.Workspace.ID, wirtualsdk.PostWorkspaceUsageRequest{
 			AgentID: workspace.LatestBuild.Resources[0].Agents[0].ID,
 			AppName: "unknown",
 		})
 		require.ErrorContains(t, err, "app_name")
 
 		// vscode works
-		err = client.PostWorkspaceUsageWithBody(ctx, r.Workspace.ID, codersdk.PostWorkspaceUsageRequest{
+		err = client.PostWorkspaceUsageWithBody(ctx, r.Workspace.ID, wirtualsdk.PostWorkspaceUsageRequest{
 			AgentID: workspace.LatestBuild.Resources[0].Agents[0].ID,
 			AppName: "vscode",
 		})
 		require.NoError(t, err)
 		// jetbrains works
-		err = client.PostWorkspaceUsageWithBody(ctx, r.Workspace.ID, codersdk.PostWorkspaceUsageRequest{
+		err = client.PostWorkspaceUsageWithBody(ctx, r.Workspace.ID, wirtualsdk.PostWorkspaceUsageRequest{
 			AgentID: workspace.LatestBuild.Resources[0].Agents[0].ID,
 			AppName: "jetbrains",
 		})
 		require.NoError(t, err)
 		// reconnecting-pty works
-		err = client.PostWorkspaceUsageWithBody(ctx, r.Workspace.ID, codersdk.PostWorkspaceUsageRequest{
+		err = client.PostWorkspaceUsageWithBody(ctx, r.Workspace.ID, wirtualsdk.PostWorkspaceUsageRequest{
 			AgentID: workspace.LatestBuild.Resources[0].Agents[0].ID,
 			AppName: "reconnecting-pty",
 		})
 		require.NoError(t, err)
 		// ssh works
-		err = client.PostWorkspaceUsageWithBody(ctx, r.Workspace.ID, codersdk.PostWorkspaceUsageRequest{
+		err = client.PostWorkspaceUsageWithBody(ctx, r.Workspace.ID, wirtualsdk.PostWorkspaceUsageRequest{
 			AgentID: workspace.LatestBuild.Resources[0].Agents[0].ID,
 			AppName: "ssh",
 		})
@@ -3502,7 +3502,7 @@ func TestWorkspaceNotifications(t *testing.T) {
 			t.Cleanup(cancel)
 
 			// When
-			err := memberClient.UpdateWorkspaceDormancy(ctx, workspace.ID, codersdk.UpdateWorkspaceDormancy{
+			err := memberClient.UpdateWorkspaceDormancy(ctx, workspace.ID, wirtualsdk.UpdateWorkspaceDormancy{
 				Dormant: true,
 			})
 
@@ -3541,7 +3541,7 @@ func TestWorkspaceNotifications(t *testing.T) {
 			t.Cleanup(cancel)
 
 			// When
-			err := client.UpdateWorkspaceDormancy(ctx, workspace.ID, codersdk.UpdateWorkspaceDormancy{
+			err := client.UpdateWorkspaceDormancy(ctx, workspace.ID, wirtualsdk.UpdateWorkspaceDormancy{
 				Dormant: true,
 			})
 
@@ -3573,7 +3573,7 @@ func TestWorkspaceNotifications(t *testing.T) {
 			t.Cleanup(cancel)
 
 			// Make workspace dormant before activate it
-			err := client.UpdateWorkspaceDormancy(ctx, workspace.ID, codersdk.UpdateWorkspaceDormancy{
+			err := client.UpdateWorkspaceDormancy(ctx, workspace.ID, wirtualsdk.UpdateWorkspaceDormancy{
 				Dormant: true,
 			})
 			require.NoError(t, err, "mark workspace as dormant")
@@ -3581,7 +3581,7 @@ func TestWorkspaceNotifications(t *testing.T) {
 			notifyEnq.Clear()
 
 			// Then
-			err = client.UpdateWorkspaceDormancy(ctx, workspace.ID, codersdk.UpdateWorkspaceDormancy{
+			err = client.UpdateWorkspaceDormancy(ctx, workspace.ID, wirtualsdk.UpdateWorkspaceDormancy{
 				Dormant: false,
 			})
 			require.NoError(t, err, "mark workspace as active")

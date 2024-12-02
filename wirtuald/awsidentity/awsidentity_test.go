@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/awsidentity"
+	"github.com/coder/coder/v2/wirtuald/awsidentity"
 )
 
 const (

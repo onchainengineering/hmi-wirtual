@@ -1,13 +1,13 @@
 package cliui
 
 import (
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 )
 
 var defaultQuery = "owner:me"
 
-// WorkspaceFilter wraps codersdk.WorkspaceFilter
+// WorkspaceFilter wraps wirtualsdk.WorkspaceFilter
 // and allows easy integration to a CLI command.
 // Example usage:
 //
@@ -32,8 +32,8 @@ type WorkspaceFilter struct {
 	all         bool
 }
 
-func (w *WorkspaceFilter) Filter() codersdk.WorkspaceFilter {
-	var f codersdk.WorkspaceFilter
+func (w *WorkspaceFilter) Filter() wirtualsdk.WorkspaceFilter {
+	var f wirtualsdk.WorkspaceFilter
 	if w.all {
 		return f
 	}

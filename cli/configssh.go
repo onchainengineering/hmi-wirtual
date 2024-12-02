@@ -26,8 +26,8 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/util/slice"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 )
 
@@ -72,7 +72,7 @@ func (o *sshConfigOptions) addOptions(options ...string) error {
 }
 
 func (o *sshConfigOptions) addOption(option string) error {
-	key, value, err := codersdk.ParseSSHConfigOption(option)
+	key, value, err := wirtualsdk.ParseSSHConfigOption(option)
 	if err != nil {
 		return err
 	}
@@ -144,9 +144,9 @@ type sshWorkspaceConfig struct {
 	Hosts []string
 }
 
-func sshFetchWorkspaceConfigs(ctx context.Context, client *codersdk.Client) ([]sshWorkspaceConfig, error) {
-	res, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
-		Owner: codersdk.Me,
+func sshFetchWorkspaceConfigs(ctx context.Context, client *wirtualsdk.Client) ([]sshWorkspaceConfig, error) {
+	res, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
+		Owner: wirtualsdk.Me,
 	})
 	if err != nil {
 		return nil, err
@@ -164,9 +164,9 @@ func sshFetchWorkspaceConfigs(ctx context.Context, client *codersdk.Client) ([]s
 			}
 
 			wc := sshWorkspaceConfig{Name: workspace.Name}
-			var agents []codersdk.WorkspaceAgent
+			var agents []wirtualsdk.WorkspaceAgent
 			for _, resource := range resources {
-				if resource.Transition != codersdk.WorkspaceTransitionStart {
+				if resource.Transition != wirtualsdk.WorkspaceTransitionStart {
 					continue
 				}
 				agents = append(agents, resource.Agents...)
@@ -194,7 +194,7 @@ func sshFetchWorkspaceConfigs(ctx context.Context, client *codersdk.Client) ([]s
 	return workspaceConfigs, nil
 }
 
-func sshPrepareWorkspaceConfigs(ctx context.Context, client *codersdk.Client) (receive func() ([]sshWorkspaceConfig, error)) {
+func sshPrepareWorkspaceConfigs(ctx context.Context, client *wirtualsdk.Client) (receive func() ([]sshWorkspaceConfig, error)) {
 	wcC := make(chan []sshWorkspaceConfig, 1)
 	errC := make(chan error, 1)
 	go func() {
@@ -217,7 +217,7 @@ func (r *RootCmd) configSSH() *serpent.Command {
 		forceUnixSeparators bool
 		coderCliPath        string
 	)
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Annotations: workspaceCommand,
 		Use:         "config-ssh",
@@ -322,7 +322,7 @@ func (r *RootCmd) configSSH() *serpent.Command {
 				for _, v := range sshConfigOpts.sshOptions {
 					// If the user passes an invalid option, we should catch
 					// this early.
-					if _, _, err := codersdk.ParseSSHConfigOption(v); err != nil {
+					if _, _, err := wirtualsdk.ParseSSHConfigOption(v); err != nil {
 						return xerrors.Errorf("invalid option from flag: %w", err)
 					}
 				}
@@ -382,9 +382,9 @@ func (r *RootCmd) configSSH() *serpent.Command {
 				// this endpoint yet. Do not error, just assume defaults.
 				// TODO: Remove this in 2 months (May 31, 2023). Just return the error
 				// 	and remove this 404 check.
-				var sdkErr *codersdk.Error
+				var sdkErr *wirtualsdk.Error
 				if !(xerrors.As(err, &sdkErr) && sdkErr.StatusCode() == http.StatusNotFound) {
-					return xerrors.Errorf("fetch coderd config failed: %w", err)
+					return xerrors.Errorf("fetch wirtuald config failed: %w", err)
 				}
 				coderdConfig.HostnamePrefix = "coder."
 			}
@@ -456,7 +456,7 @@ func (r *RootCmd) configSSH() *serpent.Command {
 						opt := fmt.Sprintf("%s %s", k, v)
 						err := configOptions.addOptions(opt)
 						if err != nil {
-							return xerrors.Errorf("add coderd config option %q: %w", opt, err)
+							return xerrors.Errorf("add wirtuald config option %q: %w", opt, err)
 						}
 					}
 

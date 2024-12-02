@@ -25,9 +25,9 @@ import (
 
 	"github.com/coder/coder/v2/agent/agentssh"
 	"github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
 )
 
 var (
@@ -90,7 +90,7 @@ type Runner struct {
 	closeMutex      sync.Mutex
 	cron            *cron.Cron
 	initialized     atomic.Bool
-	scripts         []codersdk.WorkspaceAgentScript
+	scripts         []wirtualsdk.WorkspaceAgentScript
 	dataDir         string
 	scriptCompleted ScriptCompletedFunc
 
@@ -122,7 +122,7 @@ func (r *Runner) RegisterMetrics(reg prometheus.Registerer) {
 // Init initializes the runner with the provided scripts.
 // It also schedules any scripts that have a schedule.
 // This function must be called before Execute.
-func (r *Runner) Init(scripts []codersdk.WorkspaceAgentScript, scriptCompleted ScriptCompletedFunc) error {
+func (r *Runner) Init(scripts []wirtualsdk.WorkspaceAgentScript, scriptCompleted ScriptCompletedFunc) error {
 	if r.initialized.Load() {
 		return xerrors.New("init: already initialized")
 	}
@@ -216,7 +216,7 @@ func (r *Runner) Execute(ctx context.Context, option ExecuteOption) error {
 }
 
 // trackRun wraps "run" with metrics.
-func (r *Runner) trackRun(ctx context.Context, script codersdk.WorkspaceAgentScript, option ExecuteOption) error {
+func (r *Runner) trackRun(ctx context.Context, script wirtualsdk.WorkspaceAgentScript, option ExecuteOption) error {
 	err := r.run(ctx, script, option)
 	if err != nil {
 		r.scriptsExecuted.WithLabelValues("false").Add(1)
@@ -230,7 +230,7 @@ func (r *Runner) trackRun(ctx context.Context, script codersdk.WorkspaceAgentScr
 // If the timeout is exceeded, the process is sent an interrupt signal.
 // If the process does not exit after a few seconds, it is forcefully killed.
 // This function immediately returns after a timeout, and does not wait for the process to exit.
-func (r *Runner) run(ctx context.Context, script codersdk.WorkspaceAgentScript, option ExecuteOption) error {
+func (r *Runner) run(ctx context.Context, script wirtualsdk.WorkspaceAgentScript, option ExecuteOption) error {
 	logPath := script.LogPath
 	if logPath == "" {
 		logPath = fmt.Sprintf("coder-script-%s.log", script.LogSourceID)
@@ -310,9 +310,9 @@ func (r *Runner) run(ctx context.Context, script codersdk.WorkspaceAgentScript, 
 		}
 	}()
 
-	infoW := agentsdk.LogsWriter(ctx, scriptLogger.Send, script.LogSourceID, codersdk.LogLevelInfo)
+	infoW := agentsdk.LogsWriter(ctx, scriptLogger.Send, script.LogSourceID, wirtualsdk.LogLevelInfo)
 	defer infoW.Close()
-	errW := agentsdk.LogsWriter(ctx, scriptLogger.Send, script.LogSourceID, codersdk.LogLevelError)
+	errW := agentsdk.LogsWriter(ctx, scriptLogger.Send, script.LogSourceID, wirtualsdk.LogLevelError)
 	defer errW.Close()
 	cmd.Stdout = io.MultiWriter(fileWriter, infoW)
 	cmd.Stderr = io.MultiWriter(fileWriter, errW)

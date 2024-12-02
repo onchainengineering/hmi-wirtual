@@ -35,11 +35,11 @@ To deploy workspaces as DigitalOcean Droplets, you'll need:
 
 ### Authentication
 
-This template assumes that coderd is run in an environment that is authenticated
+This template assumes that wirtuald is run in an environment that is authenticated
 with Digital Ocean. Obtain a [Digital Ocean Personal Access
 Token](https://cloud.digitalocean.com/account/api/tokens) and set the
 environment variable `DIGITALOCEAN_TOKEN` to the access token before starting
-coderd. For other ways to authenticate [consult the Terraform docs](https://registry.terraform.io/providers/digitalocean/digitalocean/latest/docs).
+wirtuald. For other ways to authenticate [consult the Terraform docs](https://registry.terraform.io/providers/digitalocean/digitalocean/latest/docs).
 
 ## Architecture
 

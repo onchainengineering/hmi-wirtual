@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/testutil"
 )
@@ -25,7 +25,7 @@ func Test_ProxyCRUD(t *testing.T) {
 		client, _ := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceProxy: 1,
+					wirtualsdk.FeatureWorkspaceProxy: 1,
 				},
 			},
 		})
@@ -87,14 +87,14 @@ func Test_ProxyCRUD(t *testing.T) {
 		client, _ := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceProxy: 1,
+					wirtualsdk.FeatureWorkspaceProxy: 1,
 				},
 			},
 		})
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 		expectedName := "test-proxy"
-		_, err := client.CreateWorkspaceProxy(ctx, codersdk.CreateWorkspaceProxyRequest{
+		_, err := client.CreateWorkspaceProxy(ctx, wirtualsdk.CreateWorkspaceProxyRequest{
 			Name:        expectedName,
 			DisplayName: "Test Proxy",
 			Icon:        "/emojis/us.png",

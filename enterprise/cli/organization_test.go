@@ -8,11 +8,11 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/testutil"
 )
@@ -28,7 +28,7 @@ func TestEditOrganizationRoles(t *testing.T) {
 		client, owner := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureCustomRoles: 1,
+					wirtualsdk.FeatureCustomRoles: 1,
 				},
 			},
 		})
@@ -66,7 +66,7 @@ func TestEditOrganizationRoles(t *testing.T) {
 		client, owner := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureCustomRoles: 1,
+					wirtualsdk.FeatureCustomRoles: 1,
 				},
 			},
 		})
@@ -115,8 +115,8 @@ func TestShowOrganizations(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations:      1,
-					codersdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureMultipleOrganizations:      1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 		})
@@ -127,7 +127,7 @@ func TestShowOrganizations(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		orgs := []string{"foo", "bar"}
 		for _, orgName := range orgs {
-			_, err := client.CreateOrganization(ctx, codersdk.CreateOrganizationRequest{
+			_, err := client.CreateOrganization(ctx, wirtualsdk.CreateOrganizationRequest{
 				Name: orgName,
 			})
 			require.NoError(t, err)
@@ -152,8 +152,8 @@ func TestShowOrganizations(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations:      1,
-					codersdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureMultipleOrganizations:      1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 		})
@@ -162,12 +162,12 @@ func TestShowOrganizations(t *testing.T) {
 		client, _ := coderdtest.CreateAnotherUser(t, ownerClient, first.OrganizationID, rbac.RoleOwner())
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		orgs := map[string]codersdk.Organization{
+		orgs := map[string]wirtualsdk.Organization{
 			"foo": {},
 			"bar": {},
 		}
 		for orgName := range orgs {
-			org, err := client.CreateOrganization(ctx, codersdk.CreateOrganizationRequest{
+			org, err := client.CreateOrganization(ctx, wirtualsdk.CreateOrganizationRequest{
 				Name: orgName,
 			})
 			require.NoError(t, err)

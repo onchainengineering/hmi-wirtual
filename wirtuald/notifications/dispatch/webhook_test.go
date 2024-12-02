@@ -18,9 +18,9 @@ import (
 	"cdr.dev/slog/sloggers/slogtest"
 	"github.com/coder/serpent"
 
-	"github.com/coder/coder/v2/coderd/notifications/dispatch"
-	"github.com/coder/coder/v2/coderd/notifications/types"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/notifications/dispatch"
+	"github.com/coder/coder/v2/wirtuald/notifications/types"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/testutil"
 )
 
@@ -137,7 +137,7 @@ func TestWebhook(t *testing.T) {
 				require.NoError(t, err)
 			}
 
-			cfg := codersdk.NotificationsWebhookConfig{
+			cfg := wirtualsdk.NotificationsWebhookConfig{
 				Endpoint: *serpent.URLOf(endpoint),
 			}
 			handler := dispatch.NewWebhookHandler(cfg, logger.With(slog.F("test", tc.name)))

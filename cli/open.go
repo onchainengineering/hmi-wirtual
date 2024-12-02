@@ -13,7 +13,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 )
 
@@ -37,10 +37,10 @@ func (r *RootCmd) openVSCode() *serpent.Command {
 	var (
 		generateToken    bool
 		testOpenError    bool
-		appearanceConfig codersdk.AppearanceConfig
+		appearanceConfig wirtualsdk.AppearanceConfig
 	)
 
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Annotations: workspaceCommand,
 		Use:         "vscode <workspace> [<directory in workspace>]",
@@ -95,8 +95,8 @@ func (r *RootCmd) openVSCode() *serpent.Command {
 				// However, if no directory is set, the expanded directory will
 				// not be set either.
 				if workspaceAgent.Directory != "" {
-					workspace, workspaceAgent, err = waitForAgentCond(ctx, client, workspace, workspaceAgent, func(a codersdk.WorkspaceAgent) bool {
-						return workspaceAgent.LifecycleState != codersdk.WorkspaceAgentLifecycleCreated
+					workspace, workspaceAgent, err = waitForAgentCond(ctx, client, workspace, workspaceAgent, func(a wirtualsdk.WorkspaceAgent) bool {
+						return workspaceAgent.LifecycleState != wirtualsdk.WorkspaceAgentLifecycleCreated
 					})
 					if err != nil {
 						return xerrors.Errorf("wait for agent: %w", err)
@@ -137,7 +137,7 @@ func (r *RootCmd) openVSCode() *serpent.Command {
 				// VS Code, however, if running on a local machine we could try
 				// to probe VS Code settings to see if the current configuration
 				// is valid. Future improvement idea.
-				apiKey, err := client.CreateAPIKey(ctx, codersdk.Me)
+				apiKey, err := client.CreateAPIKey(ctx, wirtualsdk.Me)
 				if err != nil {
 					return xerrors.Errorf("create API key: %w", err)
 				}
@@ -171,7 +171,7 @@ func (r *RootCmd) openVSCode() *serpent.Command {
 					wait := doAsync(func() {
 						// Best effort, we don't care if this fails.
 						apiKeyID := strings.SplitN(token, "-", 2)[0]
-						_ = client.DeleteAPIKey(ctx, codersdk.Me, apiKeyID)
+						_ = client.DeleteAPIKey(ctx, wirtualsdk.Me, apiKeyID)
 					})
 					defer wait()
 
@@ -213,7 +213,7 @@ func (r *RootCmd) openVSCode() *serpent.Command {
 
 // waitForAgentCond uses the watch workspace API to update the agent information
 // until the condition is met.
-func waitForAgentCond(ctx context.Context, client *codersdk.Client, workspace codersdk.Workspace, workspaceAgent codersdk.WorkspaceAgent, cond func(codersdk.WorkspaceAgent) bool) (codersdk.Workspace, codersdk.WorkspaceAgent, error) {
+func waitForAgentCond(ctx context.Context, client *wirtualsdk.Client, workspace wirtualsdk.Workspace, workspaceAgent wirtualsdk.WorkspaceAgent, cond func(wirtualsdk.WorkspaceAgent) bool) (wirtualsdk.Workspace, wirtualsdk.WorkspaceAgent, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 

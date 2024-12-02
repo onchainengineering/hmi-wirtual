@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 
 	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/coderd/workspacestats"
+	"github.com/coder/coder/v2/wirtuald/workspacestats"
 )
 
 type StatsBatcher struct {

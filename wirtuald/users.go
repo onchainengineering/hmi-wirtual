@@ -1,4 +1,4 @@
-package coderd
+package wirtuald
 
 import (
 	"context"
@@ -14,23 +14,23 @@ import (
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/coderd/audit"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/db2sdk"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/gitsshkey"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/notifications"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/rbac/policy"
-	"github.com/coder/coder/v2/coderd/searchquery"
-	"github.com/coder/coder/v2/coderd/telemetry"
-	"github.com/coder/coder/v2/coderd/userpassword"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/audit"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
+	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/gitsshkey"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtuald/notifications"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/rbac/policy"
+	"github.com/coder/coder/v2/wirtuald/searchquery"
+	"github.com/coder/coder/v2/wirtuald/telemetry"
+	"github.com/coder/coder/v2/wirtuald/userpassword"
+	"github.com/coder/coder/v2/wirtuald/util/ptr"
+	"github.com/coder/coder/v2/wirtuald/util/slice"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // userDebugOIDC returns the OIDC debug context for the user.
@@ -52,7 +52,7 @@ func (api *API) userDebugOIDC(rw http.ResponseWriter, r *http.Request) {
 	)
 
 	if user.LoginType != database.LoginTypeOIDC {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "User is not an OIDC user.",
 		})
 		return
@@ -63,7 +63,7 @@ func (api *API) userDebugOIDC(rw http.ResponseWriter, r *http.Request) {
 		LoginType: database.LoginTypeOIDC,
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to get user links.",
 			Detail:  err.Error(),
 		})
@@ -80,14 +80,14 @@ func (api *API) userDebugOIDC(rw http.ResponseWriter, r *http.Request) {
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Users
-// @Success 200 {object} codersdk.Response
+// @Success 200 {object} wirtualsdk.Response
 // @Router /users/first [get]
 func (api *API) firstUser(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	// nolint:gocritic // Getting user count is a system function.
 	userCount, err := api.Database.GetUserCount(dbauthz.AsSystemRestricted(ctx))
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching user count.",
 			Detail:  err.Error(),
 		})
@@ -95,13 +95,13 @@ func (api *API) firstUser(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if userCount == 0 {
-		httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 			Message: "The initial user has not been created!",
 		})
 		return
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.Response{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.Response{
 		Message: "The initial user has already been created!",
 	})
 }
@@ -114,12 +114,12 @@ func (api *API) firstUser(rw http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Tags Users
-// @Param request body codersdk.CreateFirstUserRequest true "First user request"
-// @Success 201 {object} codersdk.CreateFirstUserResponse
+// @Param request body wirtualsdk.CreateFirstUserRequest true "First user request"
+// @Success 201 {object} wirtualsdk.CreateFirstUserResponse
 // @Router /users/first [post]
 func (api *API) postFirstUser(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	var createUser codersdk.CreateFirstUserRequest
+	var createUser wirtualsdk.CreateFirstUserRequest
 	if !httpapi.Read(ctx, rw, r, &createUser) {
 		return
 	}
@@ -128,7 +128,7 @@ func (api *API) postFirstUser(rw http.ResponseWriter, r *http.Request) {
 	// nolint:gocritic // Getting user count is a system function.
 	userCount, err := api.Database.GetUserCount(dbauthz.AsSystemRestricted(ctx))
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching user count.",
 			Detail:  err.Error(),
 		})
@@ -137,7 +137,7 @@ func (api *API) postFirstUser(rw http.ResponseWriter, r *http.Request) {
 
 	// If a user already exists, the initial admin user no longer can be created.
 	if userCount != 0 {
-		httpapi.Write(ctx, rw, http.StatusConflict, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusConflict, wirtualsdk.Response{
 			Message: "The initial user has already been created.",
 		})
 		return
@@ -145,9 +145,9 @@ func (api *API) postFirstUser(rw http.ResponseWriter, r *http.Request) {
 
 	err = userpassword.Validate(createUser.Password)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Password not strong enough!",
-			Validations: []codersdk.ValidationError{{
+			Validations: []wirtualsdk.ValidationError{{
 				Field:  "password",
 				Detail: err.Error(),
 			}},
@@ -156,7 +156,7 @@ func (api *API) postFirstUser(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if createUser.Trial && api.TrialGenerator != nil {
-		err = api.TrialGenerator(ctx, codersdk.LicensorTrialRequest{
+		err = api.TrialGenerator(ctx, wirtualsdk.LicensorTrialRequest{
 			Email:       createUser.Email,
 			FirstName:   createUser.TrialInfo.FirstName,
 			LastName:    createUser.TrialInfo.LastName,
@@ -167,7 +167,7 @@ func (api *API) postFirstUser(rw http.ResponseWriter, r *http.Request) {
 			Developers:  createUser.TrialInfo.Developers,
 		})
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Failed to generate trial",
 				Detail:  err.Error(),
 			})
@@ -178,7 +178,7 @@ func (api *API) postFirstUser(rw http.ResponseWriter, r *http.Request) {
 	//nolint:gocritic // needed to create first user
 	defaultOrg, err := api.Database.GetDefaultOrganization(dbauthz.AsSystemRestricted(ctx))
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching default organization. If you are encountering this error, you will have to restart the Coder deployment.",
 			Detail:  err.Error(),
 		})
@@ -187,21 +187,21 @@ func (api *API) postFirstUser(rw http.ResponseWriter, r *http.Request) {
 
 	//nolint:gocritic // needed to create first user
 	user, err := api.CreateUser(dbauthz.AsSystemRestricted(ctx), api.Database, CreateUserRequest{
-		CreateUserRequestWithOrgs: codersdk.CreateUserRequestWithOrgs{
+		CreateUserRequestWithOrgs: wirtualsdk.CreateUserRequestWithOrgs{
 			Email:    createUser.Email,
 			Username: createUser.Username,
 			Name:     createUser.Name,
 			Password: createUser.Password,
 			// There's no reason to create the first user as dormant, since you have
 			// to login immediately anyways.
-			UserStatus:      ptr.Ref(codersdk.UserStatusActive),
+			UserStatus:      ptr.Ref(wirtualsdk.UserStatusActive),
 			OrganizationIDs: []uuid.UUID{defaultOrg.ID},
 		},
 		LoginType:          database.LoginTypePassword,
 		accountCreatorName: "coder",
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error creating user.",
 			Detail:  err.Error(),
 		})
@@ -235,14 +235,14 @@ func (api *API) postFirstUser(rw http.ResponseWriter, r *http.Request) {
 		ID:           user.ID,
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error updating user's roles.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 
-	httpapi.Write(ctx, rw, http.StatusCreated, codersdk.CreateFirstUserResponse{
+	httpapi.Write(ctx, rw, http.StatusCreated, wirtualsdk.CreateFirstUserResponse{
 		UserID:         user.ID,
 		OrganizationID: defaultOrg.ID,
 	})
@@ -257,7 +257,7 @@ func (api *API) postFirstUser(rw http.ResponseWriter, r *http.Request) {
 // @Param after_id query string false "After ID" format(uuid)
 // @Param limit query int false "Page limit"
 // @Param offset query int false "Page offset"
-// @Success 200 {object} codersdk.GetUsersResponse
+// @Success 200 {object} wirtualsdk.GetUsersResponse
 // @Router /users [get]
 func (api *API) users(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -275,7 +275,7 @@ func (api *API) users(rw http.ResponseWriter, r *http.Request) {
 		err = nil
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching user's organizations.",
 			Detail:  err.Error(),
 		})
@@ -287,7 +287,7 @@ func (api *API) users(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	render.Status(r, http.StatusOK)
-	render.JSON(rw, r, codersdk.GetUsersResponse{
+	render.JSON(rw, r, wirtualsdk.GetUsersResponse{
 		Users: convertUsers(users, organizationIDsByUserID),
 		Count: int(userCount),
 	})
@@ -298,7 +298,7 @@ func (api *API) GetUsers(rw http.ResponseWriter, r *http.Request) ([]database.Us
 	query := r.URL.Query().Get("q")
 	params, errs := searchquery.Users(query)
 	if len(errs) > 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message:     "Invalid user search query.",
 			Validations: errs,
 		})
@@ -321,7 +321,7 @@ func (api *API) GetUsers(rw http.ResponseWriter, r *http.Request) ([]database.Us
 		LimitOpt:       int32(paginationParams.Limit),
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching users.",
 			Detail:  err.Error(),
 		})
@@ -346,8 +346,8 @@ func (api *API) GetUsers(rw http.ResponseWriter, r *http.Request) ([]database.Us
 // @Accept json
 // @Produce json
 // @Tags Users
-// @Param request body codersdk.CreateUserRequestWithOrgs true "Create user request"
-// @Success 201 {object} codersdk.User
+// @Param request body wirtualsdk.CreateUserRequestWithOrgs true "Create user request"
+// @Success 201 {object} wirtualsdk.User
 // @Router /users [post]
 func (api *API) postUser(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -360,18 +360,18 @@ func (api *API) postUser(rw http.ResponseWriter, r *http.Request) {
 	})
 	defer commitAudit()
 
-	var req codersdk.CreateUserRequestWithOrgs
+	var req wirtualsdk.CreateUserRequestWithOrgs
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
 
 	if req.UserLoginType == "" {
 		// Default to password auth
-		req.UserLoginType = codersdk.LoginTypePassword
+		req.UserLoginType = wirtualsdk.LoginTypePassword
 	}
 
-	if req.UserLoginType != codersdk.LoginTypePassword && req.Password != "" {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+	if req.UserLoginType != wirtualsdk.LoginTypePassword && req.Password != "" {
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: fmt.Sprintf("Password cannot be set for non-password (%q) authentication.", req.UserLoginType),
 		})
 		return
@@ -379,18 +379,18 @@ func (api *API) postUser(rw http.ResponseWriter, r *http.Request) {
 
 	// If password auth is disabled, don't allow new users to be
 	// created with a password!
-	if api.DeploymentValues.DisablePasswordAuth && req.UserLoginType == codersdk.LoginTypePassword {
-		httpapi.Write(ctx, rw, http.StatusForbidden, codersdk.Response{
+	if api.DeploymentValues.DisablePasswordAuth && req.UserLoginType == wirtualsdk.LoginTypePassword {
+		httpapi.Write(ctx, rw, http.StatusForbidden, wirtualsdk.Response{
 			Message: "Password based authentication is disabled! Unable to provision new users with password authentication.",
 		})
 		return
 	}
 
 	if len(req.OrganizationIDs) == 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "No organization specified to place the user as a member of. It is required to specify at least one organization id to place the user in.",
 			Detail:  "required at least 1 value for the array 'organization_ids'",
-			Validations: []codersdk.ValidationError{
+			Validations: []wirtualsdk.ValidationError{
 				{
 					Field:  "organization_ids",
 					Detail: "Missing values, this cannot be empty",
@@ -407,13 +407,13 @@ func (api *API) postUser(rw http.ResponseWriter, r *http.Request) {
 		Email:    req.Email,
 	})
 	if err == nil {
-		httpapi.Write(ctx, rw, http.StatusConflict, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusConflict, wirtualsdk.Response{
 			Message: "User already exists.",
 		})
 		return
 	}
 	if !errors.Is(err, sql.ErrNoRows) {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching user.",
 			Detail:  err.Error(),
 		})
@@ -435,13 +435,13 @@ func (api *API) postUser(rw http.ResponseWriter, r *http.Request) {
 		}
 		if orgErr != nil {
 			if httpapi.Is404Error(orgErr) {
-				httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 					Message: fmt.Sprintf("Organization does not exist with the provided id %q.", orgID),
 				})
 				return
 			}
 
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Internal error fetching organization.",
 				Detail:  orgErr.Error(),
 			})
@@ -451,14 +451,14 @@ func (api *API) postUser(rw http.ResponseWriter, r *http.Request) {
 
 	var loginType database.LoginType
 	switch req.UserLoginType {
-	case codersdk.LoginTypeNone:
+	case wirtualsdk.LoginTypeNone:
 		loginType = database.LoginTypeNone
-	case codersdk.LoginTypePassword:
+	case wirtualsdk.LoginTypePassword:
 		err = userpassword.Validate(req.Password)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Password not strong enough!",
-				Validations: []codersdk.ValidationError{{
+				Validations: []wirtualsdk.ValidationError{{
 					Field:  "password",
 					Detail: err.Error(),
 				}},
@@ -466,18 +466,18 @@ func (api *API) postUser(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 		loginType = database.LoginTypePassword
-	case codersdk.LoginTypeOIDC:
+	case wirtualsdk.LoginTypeOIDC:
 		if api.OIDCConfig == nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "You must configure OIDC before creating OIDC users.",
 			})
 			return
 		}
 		loginType = database.LoginTypeOIDC
-	case codersdk.LoginTypeGithub:
+	case wirtualsdk.LoginTypeGithub:
 		loginType = database.LoginTypeGithub
 	default:
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: fmt.Sprintf("Unsupported login type %q for manually creating new users.", req.UserLoginType),
 		})
 		return
@@ -487,7 +487,7 @@ func (api *API) postUser(rw http.ResponseWriter, r *http.Request) {
 
 	accountCreator, err := api.Database.GetUserByID(ctx, apiKey.UserID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Unable to determine the details of the actor creating the account.",
 		})
 		return
@@ -500,13 +500,13 @@ func (api *API) postUser(rw http.ResponseWriter, r *http.Request) {
 	})
 
 	if dbauthz.IsNotAuthorizedError(err) {
-		httpapi.Write(ctx, rw, http.StatusForbidden, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusForbidden, wirtualsdk.Response{
 			Message: "You are not authorized to create users.",
 		})
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error creating user.",
 			Detail:  err.Error(),
 		})
@@ -545,7 +545,7 @@ func (api *API) deleteUser(rw http.ResponseWriter, r *http.Request) {
 	defer commitAudit()
 
 	if auth.ID == user.ID.String() {
-		httpapi.Write(ctx, rw, http.StatusForbidden, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusForbidden, wirtualsdk.Response{
 			Message: "You cannot delete yourself!",
 		})
 		return
@@ -555,14 +555,14 @@ func (api *API) deleteUser(rw http.ResponseWriter, r *http.Request) {
 		OwnerID: user.ID,
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching workspaces.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 	if len(workspaces) > 0 {
-		httpapi.Write(ctx, rw, http.StatusExpectationFailed, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusExpectationFailed, wirtualsdk.Response{
 			Message: "You cannot delete a user that has workspaces. Delete their workspaces and try again!",
 		})
 		return
@@ -574,7 +574,7 @@ func (api *API) deleteUser(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error deleting user.",
 			Detail:  err.Error(),
 		})
@@ -585,7 +585,7 @@ func (api *API) deleteUser(rw http.ResponseWriter, r *http.Request) {
 
 	userAdmins, err := findUserAdmins(ctx, api.Database)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching user admins.",
 			Detail:  err.Error(),
 		})
@@ -596,7 +596,7 @@ func (api *API) deleteUser(rw http.ResponseWriter, r *http.Request) {
 
 	accountDeleter, err := api.Database.GetUserByID(ctx, apiKey.UserID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Unable to determine the details of the actor deleting the account.",
 		})
 		return
@@ -617,7 +617,7 @@ func (api *API) deleteUser(rw http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.Response{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.Response{
 		Message: "User has been deleted!",
 	})
 }
@@ -631,14 +631,14 @@ func (api *API) deleteUser(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, username, or me"
-// @Success 200 {object} codersdk.User
+// @Success 200 {object} wirtualsdk.User
 // @Router /users/{user} [get]
 func (api *API) userByName(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := httpmw.UserParam(r)
 	organizationIDs, err := userOrganizationIDs(ctx, api, user)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching user's organizations.",
 			Detail:  err.Error(),
 		})
@@ -657,7 +657,7 @@ func (api *API) userByName(rw http.ResponseWriter, r *http.Request) {
 // @Tags Users
 // @Param user path string true "User ID, username, or me"
 // @Param template_id query string true "Template ID"
-// @Success 200 {array} codersdk.UserParameter
+// @Success 200 {array} wirtualsdk.UserParameter
 // @Router /users/{user}/autofill-parameters [get]
 func (api *API) userAutofillParameters(rw http.ResponseWriter, r *http.Request) {
 	user := httpmw.UserParam(r)
@@ -666,7 +666,7 @@ func (api *API) userAutofillParameters(rw http.ResponseWriter, r *http.Request) 
 	templateID := p.UUID(r.URL.Query(), uuid.UUID{}, "template_id")
 	p.ErrorExcessParams(r.URL.Query())
 	if len(p.Errors) > 0 {
-		httpapi.Write(r.Context(), rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message:     "Invalid query parameters.",
 			Validations: p.Errors,
 		})
@@ -681,16 +681,16 @@ func (api *API) userAutofillParameters(rw http.ResponseWriter, r *http.Request) 
 		},
 	)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching user's parameters.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 
-	sdkParams := []codersdk.UserParameter{}
+	sdkParams := []wirtualsdk.UserParameter{}
 	for _, param := range params {
-		sdkParams = append(sdkParams, codersdk.UserParameter{
+		sdkParams = append(sdkParams, wirtualsdk.UserParameter{
 			Name:  param.Name,
 			Value: param.Value,
 		})
@@ -708,7 +708,7 @@ func (api *API) userAutofillParameters(rw http.ResponseWriter, r *http.Request) 
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Success 200 {object} codersdk.UserLoginType
+// @Success 200 {object} wirtualsdk.UserLoginType
 // @Router /users/{user}/login-type [get]
 func (*API) userLoginType(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -719,14 +719,14 @@ func (*API) userLoginType(rw http.ResponseWriter, r *http.Request) {
 
 	if key.UserID != user.ID {
 		// Currently this is only valid for querying yourself.
-		httpapi.Write(ctx, rw, http.StatusForbidden, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusForbidden, wirtualsdk.Response{
 			Message: "You are not authorized to view this user's login type.",
 		})
 		return
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.UserLoginType{
-		LoginType: codersdk.LoginType(user.LoginType),
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.UserLoginType{
+		LoginType: wirtualsdk.LoginType(user.LoginType),
 	})
 }
 
@@ -737,8 +737,8 @@ func (*API) userLoginType(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Param request body codersdk.UpdateUserProfileRequest true "Updated profile"
-// @Success 200 {object} codersdk.User
+// @Param request body wirtualsdk.UpdateUserProfileRequest true "Updated profile"
+// @Success 200 {object} wirtualsdk.User
 // @Router /users/{user}/profile [put]
 func (api *API) putUserProfile(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -755,7 +755,7 @@ func (api *API) putUserProfile(rw http.ResponseWriter, r *http.Request) {
 	defer commitAudit()
 	aReq.Old = user
 
-	var params codersdk.UpdateUserProfileRequest
+	var params wirtualsdk.UpdateUserProfileRequest
 	if !httpapi.Read(ctx, rw, r, &params) {
 		return
 	}
@@ -765,18 +765,18 @@ func (api *API) putUserProfile(rw http.ResponseWriter, r *http.Request) {
 	isDifferentUser := existentUser.ID != user.ID
 
 	if err == nil && isDifferentUser {
-		responseErrors := []codersdk.ValidationError{{
+		responseErrors := []wirtualsdk.ValidationError{{
 			Field:  "username",
 			Detail: "This username is already in use.",
 		}}
-		httpapi.Write(ctx, rw, http.StatusConflict, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusConflict, wirtualsdk.Response{
 			Message:     "A user with this username already exists.",
 			Validations: responseErrors,
 		})
 		return
 	}
 	if !errors.Is(err, sql.ErrNoRows) && isDifferentUser {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching user.",
 			Detail:  err.Error(),
 		})
@@ -794,7 +794,7 @@ func (api *API) putUserProfile(rw http.ResponseWriter, r *http.Request) {
 	aReq.New = updatedUserProfile
 
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error updating user.",
 			Detail:  err.Error(),
 		})
@@ -803,7 +803,7 @@ func (api *API) putUserProfile(rw http.ResponseWriter, r *http.Request) {
 
 	organizationIDs, err := userOrganizationIDs(ctx, api, user)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching user's organizations.",
 			Detail:  err.Error(),
 		})
@@ -819,7 +819,7 @@ func (api *API) putUserProfile(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Success 200 {object} codersdk.User
+// @Success 200 {object} wirtualsdk.User
 // @Router /users/{user}/status/suspend [put]
 func (api *API) putSuspendUserAccount() func(rw http.ResponseWriter, r *http.Request) {
 	return api.putUserStatus(database.UserStatusSuspended)
@@ -831,7 +831,7 @@ func (api *API) putSuspendUserAccount() func(rw http.ResponseWriter, r *http.Req
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Success 200 {object} codersdk.User
+// @Success 200 {object} wirtualsdk.User
 // @Router /users/{user}/status/activate [put]
 func (api *API) putActivateUserAccount() func(rw http.ResponseWriter, r *http.Request) {
 	return api.putUserStatus(database.UserStatusActive)
@@ -861,13 +861,13 @@ func (api *API) putUserStatus(status database.UserStatus) func(rw http.ResponseW
 			case user.ID == apiKey.UserID:
 				// Suspending yourself is not allowed, as you can lock yourself
 				// out of the system.
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "You cannot suspend yourself.",
 				})
 				return
 			case slice.Contains(user.RBACRoles, rbac.RoleOwner().String()):
 				// You may not suspend an owner
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: fmt.Sprintf("You cannot suspend a user with the %q role. You must remove the role first.", rbac.RoleOwner()),
 				})
 				return
@@ -876,7 +876,7 @@ func (api *API) putUserStatus(status database.UserStatus) func(rw http.ResponseW
 
 		actingUser, err := api.Database.GetUserByID(ctx, apiKey.UserID)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Unable to determine the details of the actor creating the account.",
 			})
 			return
@@ -888,7 +888,7 @@ func (api *API) putUserStatus(status database.UserStatus) func(rw http.ResponseW
 			UpdatedAt: dbtime.Now(),
 		})
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: fmt.Sprintf("Internal error updating user's status to %q.", status),
 				Detail:  err.Error(),
 			})
@@ -903,7 +903,7 @@ func (api *API) putUserStatus(status database.UserStatus) func(rw http.ResponseW
 
 		organizations, err := userOrganizationIDs(ctx, api, user)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Internal error fetching user's organizations.",
 				Detail:  err.Error(),
 			})
@@ -971,8 +971,8 @@ func (api *API) notifyUserStatusChanged(ctx context.Context, actingUserName stri
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Param request body codersdk.UpdateUserAppearanceSettingsRequest true "New appearance settings"
-// @Success 200 {object} codersdk.User
+// @Param request body wirtualsdk.UpdateUserAppearanceSettingsRequest true "New appearance settings"
+// @Success 200 {object} wirtualsdk.User
 // @Router /users/{user}/appearance [put]
 func (api *API) putUserAppearanceSettings(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -980,7 +980,7 @@ func (api *API) putUserAppearanceSettings(rw http.ResponseWriter, r *http.Reques
 		user = httpmw.UserParam(r)
 	)
 
-	var params codersdk.UpdateUserAppearanceSettingsRequest
+	var params wirtualsdk.UpdateUserAppearanceSettingsRequest
 	if !httpapi.Read(ctx, rw, r, &params) {
 		return
 	}
@@ -991,7 +991,7 @@ func (api *API) putUserAppearanceSettings(rw http.ResponseWriter, r *http.Reques
 		UpdatedAt:       dbtime.Now(),
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error updating user.",
 			Detail:  err.Error(),
 		})
@@ -1000,7 +1000,7 @@ func (api *API) putUserAppearanceSettings(rw http.ResponseWriter, r *http.Reques
 
 	organizationIDs, err := userOrganizationIDs(ctx, api, user)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching user's organizations.",
 			Detail:  err.Error(),
 		})
@@ -1016,14 +1016,14 @@ func (api *API) putUserAppearanceSettings(rw http.ResponseWriter, r *http.Reques
 // @Accept json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Param request body codersdk.UpdateUserPasswordRequest true "Update password request"
+// @Param request body wirtualsdk.UpdateUserPasswordRequest true "Update password request"
 // @Success 204
 // @Router /users/{user}/password [put]
 func (api *API) putUserPassword(rw http.ResponseWriter, r *http.Request) {
 	var (
 		ctx               = r.Context()
 		user              = httpmw.UserParam(r)
-		params            codersdk.UpdateUserPasswordRequest
+		params            wirtualsdk.UpdateUserPasswordRequest
 		apiKey            = httpmw.APIKey(r)
 		auditor           = *api.Auditor.Load()
 		aReq, commitAudit = audit.InitRequest[database.User](rw, &audit.RequestParams{
@@ -1046,7 +1046,7 @@ func (api *API) putUserPassword(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if user.LoginType != database.LoginTypePassword {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Users without password login type cannot change their password.",
 		})
 		return
@@ -1054,7 +1054,7 @@ func (api *API) putUserPassword(rw http.ResponseWriter, r *http.Request) {
 
 	// A user need to put its own password to update it
 	if apiKey.UserID == user.ID && params.OldPassword == "" {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Old password is required.",
 		})
 		return
@@ -1062,9 +1062,9 @@ func (api *API) putUserPassword(rw http.ResponseWriter, r *http.Request) {
 
 	err := userpassword.Validate(params.Password)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Invalid password.",
-			Validations: []codersdk.ValidationError{
+			Validations: []wirtualsdk.ValidationError{
 				{
 					Field:  "password",
 					Detail: err.Error(),
@@ -1078,16 +1078,16 @@ func (api *API) putUserPassword(rw http.ResponseWriter, r *http.Request) {
 		// if they send something let's validate it
 		ok, err := userpassword.Compare(string(user.HashedPassword), params.OldPassword)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Internal error with passwords.",
 				Detail:  err.Error(),
 			})
 			return
 		}
 		if !ok {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Old password is incorrect.",
-				Validations: []codersdk.ValidationError{
+				Validations: []wirtualsdk.ValidationError{
 					{
 						Field:  "old_password",
 						Detail: "Old password is incorrect.",
@@ -1100,7 +1100,7 @@ func (api *API) putUserPassword(rw http.ResponseWriter, r *http.Request) {
 
 	// Prevent users reusing their old password.
 	if match, _ := userpassword.Compare(string(user.HashedPassword), params.Password); match {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "New password cannot match old password.",
 		})
 		return
@@ -1108,7 +1108,7 @@ func (api *API) putUserPassword(rw http.ResponseWriter, r *http.Request) {
 
 	hashedPassword, err := userpassword.Hash(params.Password)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error hashing new password.",
 			Detail:  err.Error(),
 		})
@@ -1132,7 +1132,7 @@ func (api *API) putUserPassword(rw http.ResponseWriter, r *http.Request) {
 		return nil
 	}, nil)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error updating user's password.",
 			Detail:  err.Error(),
 		})
@@ -1152,7 +1152,7 @@ func (api *API) putUserPassword(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Success 200 {object} codersdk.User
+// @Success 200 {object} wirtualsdk.User
 // @Router /users/{user}/roles [get]
 func (api *API) userRoles(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1164,7 +1164,7 @@ func (api *API) userRoles(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO: Replace this with "GetAuthorizationUserRoles"
-	resp := codersdk.UserRoles{
+	resp := wirtualsdk.UserRoles{
 		Roles:             user.RBACRoles,
 		OrganizationRoles: make(map[uuid.UUID][]string),
 	}
@@ -1174,7 +1174,7 @@ func (api *API) userRoles(rw http.ResponseWriter, r *http.Request) {
 		OrganizationID: uuid.Nil,
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching user's organization memberships.",
 			Detail:  err.Error(),
 		})
@@ -1195,8 +1195,8 @@ func (api *API) userRoles(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Param request body codersdk.UpdateRoles true "Update roles request"
-// @Success 200 {object} codersdk.User
+// @Param request body wirtualsdk.UpdateRoles true "Update roles request"
+// @Success 200 {object} wirtualsdk.User
 // @Router /users/{user}/roles [put]
 func (api *API) putUserRoles(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -1216,7 +1216,7 @@ func (api *API) putUserRoles(rw http.ResponseWriter, r *http.Request) {
 	aReq.Old = user
 
 	if user.LoginType == database.LoginTypeOIDC && api.IDPSync.SiteRoleSyncEnabled() {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Cannot modify roles for OIDC users when role sync is enabled.",
 			Detail:  "'User Role Field' is set in the OIDC configuration. All role changes must come from the oidc identity provider.",
 		})
@@ -1224,13 +1224,13 @@ func (api *API) putUserRoles(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if apiKey.UserID == user.ID {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "You cannot change your own roles.",
 		})
 		return
 	}
 
-	var params codersdk.UpdateRoles
+	var params wirtualsdk.UpdateRoles
 	if !httpapi.Read(ctx, rw, r, &params) {
 		return
 	}
@@ -1244,7 +1244,7 @@ func (api *API) putUserRoles(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: err.Error(),
 		})
 		return
@@ -1253,7 +1253,7 @@ func (api *API) putUserRoles(rw http.ResponseWriter, r *http.Request) {
 
 	organizationIDs, err := userOrganizationIDs(ctx, api, user)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching user's organizations.",
 			Detail:  err.Error(),
 		})
@@ -1271,7 +1271,7 @@ func (api *API) putUserRoles(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Success 200 {array} codersdk.Organization
+// @Success 200 {array} wirtualsdk.Organization
 // @Router /users/{user}/organizations [get]
 func (api *API) organizationsByUser(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1283,7 +1283,7 @@ func (api *API) organizationsByUser(rw http.ResponseWriter, r *http.Request) {
 		organizations = []database.Organization{}
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching user's organizations.",
 			Detail:  err.Error(),
 		})
@@ -1293,7 +1293,7 @@ func (api *API) organizationsByUser(rw http.ResponseWriter, r *http.Request) {
 	// Only return orgs the user can read.
 	organizations, err = AuthorizeFilter(api.HTTPAuth, r, policy.ActionRead, organizations)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching organizations.",
 			Detail:  err.Error(),
 		})
@@ -1310,7 +1310,7 @@ func (api *API) organizationsByUser(rw http.ResponseWriter, r *http.Request) {
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
 // @Param organizationname path string true "Organization name"
-// @Success 200 {object} codersdk.Organization
+// @Success 200 {object} wirtualsdk.Organization
 // @Router /users/{user}/organizations/{organizationname} [get]
 func (api *API) organizationByUserAndName(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1321,7 +1321,7 @@ func (api *API) organizationByUserAndName(rw http.ResponseWriter, r *http.Reques
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching organization.",
 			Detail:  err.Error(),
 		})
@@ -1332,7 +1332,7 @@ func (api *API) organizationByUserAndName(rw http.ResponseWriter, r *http.Reques
 }
 
 type CreateUserRequest struct {
-	codersdk.CreateUserRequestWithOrgs
+	wirtualsdk.CreateUserRequestWithOrgs
 	LoginType          database.LoginType
 	SkipNotifications  bool
 	accountCreatorName string
@@ -1341,7 +1341,7 @@ type CreateUserRequest struct {
 func (api *API) CreateUser(ctx context.Context, store database.Store, req CreateUserRequest) (database.User, error) {
 	// Ensure the username is valid. It's the caller's responsibility to ensure
 	// the username is valid and unique.
-	if usernameValid := codersdk.NameValid(req.Username); usernameValid != nil {
+	if usernameValid := wirtualsdk.NameValid(req.Username); usernameValid != nil {
 		return database.User{}, xerrors.Errorf("invalid username %q: %w", req.Username, usernameValid)
 	}
 
@@ -1357,7 +1357,7 @@ func (api *API) CreateUser(ctx context.Context, store database.Store, req Create
 			ID:             uuid.New(),
 			Email:          req.Email,
 			Username:       req.Username,
-			Name:           codersdk.NormalizeRealUsername(req.Name),
+			Name:           wirtualsdk.NormalizeRealUsername(req.Name),
 			CreatedAt:      dbtime.Now(),
 			UpdatedAt:      dbtime.Now(),
 			HashedPassword: []byte{},
@@ -1443,13 +1443,13 @@ func findUserAdmins(ctx context.Context, store database.Store) ([]database.GetUs
 	// Notice: we can't scrape the user information in parallel as pq
 	// fails with: unexpected describe rows response: 'D'
 	owners, err := store.GetUsers(ctx, database.GetUsersParams{
-		RbacRole: []string{codersdk.RoleOwner},
+		RbacRole: []string{wirtualsdk.RoleOwner},
 	})
 	if err != nil {
 		return nil, xerrors.Errorf("get owners: %w", err)
 	}
 	userAdmins, err := store.GetUsers(ctx, database.GetUsersParams{
-		RbacRole: []string{codersdk.RoleUserAdmin},
+		RbacRole: []string{wirtualsdk.RoleUserAdmin},
 	})
 	if err != nil {
 		return nil, xerrors.Errorf("get user admins: %w", err)
@@ -1457,8 +1457,8 @@ func findUserAdmins(ctx context.Context, store database.Store) ([]database.GetUs
 	return append(owners, userAdmins...), nil
 }
 
-func convertUsers(users []database.User, organizationIDsByUserID map[uuid.UUID][]uuid.UUID) []codersdk.User {
-	converted := make([]codersdk.User, 0, len(users))
+func convertUsers(users []database.User, organizationIDsByUserID map[uuid.UUID][]uuid.UUID) []wirtualsdk.User {
+	converted := make([]wirtualsdk.User, 0, len(users))
 	for _, u := range users {
 		userOrganizationIDs := organizationIDsByUserID[u.ID]
 		converted = append(converted, db2sdk.User(u, userOrganizationIDs))
@@ -1481,16 +1481,16 @@ func userOrganizationIDs(ctx context.Context, api *API, user database.User) ([]u
 	return member.OrganizationIDs, nil
 }
 
-func convertAPIKey(k database.APIKey) codersdk.APIKey {
-	return codersdk.APIKey{
+func convertAPIKey(k database.APIKey) wirtualsdk.APIKey {
+	return wirtualsdk.APIKey{
 		ID:              k.ID,
 		UserID:          k.UserID,
 		LastUsed:        k.LastUsed,
 		ExpiresAt:       k.ExpiresAt,
 		CreatedAt:       k.CreatedAt,
 		UpdatedAt:       k.UpdatedAt,
-		LoginType:       codersdk.LoginType(k.LoginType),
-		Scope:           codersdk.APIKeyScope(k.Scope),
+		LoginType:       wirtualsdk.LoginType(k.LoginType),
+		Scope:           wirtualsdk.APIKeyScope(k.Scope),
 		LifetimeSeconds: k.LifetimeSeconds,
 		TokenName:       k.TokenName,
 	}

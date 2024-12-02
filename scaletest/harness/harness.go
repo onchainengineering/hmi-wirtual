@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/tracing"
+	"github.com/coder/coder/v2/wirtuald/tracing"
 )
 
 // TestHarness runs a bunch of registered test runs using the given execution

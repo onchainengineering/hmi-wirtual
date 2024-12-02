@@ -22,7 +22,7 @@ page describes possible deployments, challenges, and risks associated with them.
 
 ## Primary components
 
-### coderd
+### wirtuald
 
 _coderd_ is the service created by running `coder server`. It is a thin API that
 connects workspaces, provisioners and users. _coderd_ stores its state in
@@ -60,7 +60,7 @@ they're destroyed on workspace stop.
 ### Agents
 
 An agent is the Coder service that runs within a user's remote workspace. It
-provides a consistent interface for coderd and clients to communicate with
+provides a consistent interface for wirtuald and clients to communicate with
 workspaces regardless of operating system, architecture, or cloud.
 
 It offers the following services along with much more:
@@ -81,7 +81,7 @@ installation paths bundle them all together into one system service. It's
 perfectly fine to run a production deployment this way, but there are certain
 situations that necessitate decomposition:
 
-- Reducing global client latency (distribute coderd and centralize database)
+- Reducing global client latency (distribute wirtuald and centralize database)
 - Achieving greater availability and efficiency (horizontally scale individual
   services)
 
@@ -89,7 +89,7 @@ situations that necessitate decomposition:
 
 ### PostgreSQL (Recommended)
 
-While `coderd` runs a bundled version of PostgreSQL, we recommend running an
+While `wirtuald` runs a bundled version of PostgreSQL, we recommend running an
 external PostgreSQL 13+ database for production deployments.
 
 A managed PostgreSQL database, with daily backups, is recommended:
@@ -122,7 +122,7 @@ some cases within Coder:
 
 ### Container Registry (Optional)
 
-If you prefer not to pull container images for the control plane (`coderd`,
+If you prefer not to pull container images for the control plane (`wirtuald`,
 `provisionerd`) and workspaces from public container registry (Docker Hub,
 GitHub Container Registry) you can run your own container registry with Coder.
 

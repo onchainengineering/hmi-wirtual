@@ -11,12 +11,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/db2sdk"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
+	"github.com/coder/coder/v2/wirtuald/database/dbgen"
+	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/provisionersdk/proto"
 )
 
@@ -26,7 +26,7 @@ func TestProvisionerJobStatus(t *testing.T) {
 	cases := []struct {
 		name   string
 		job    database.ProvisionerJob
-		status codersdk.ProvisionerJobStatus
+		status wirtualsdk.ProvisionerJobStatus
 	}{
 		{
 			name: "canceling",
@@ -36,7 +36,7 @@ func TestProvisionerJobStatus(t *testing.T) {
 					Valid: true,
 				},
 			},
-			status: codersdk.ProvisionerJobCanceling,
+			status: wirtualsdk.ProvisionerJobCanceling,
 		},
 		{
 			name: "canceled",
@@ -50,7 +50,7 @@ func TestProvisionerJobStatus(t *testing.T) {
 					Valid: true,
 				},
 			},
-			status: codersdk.ProvisionerJobCanceled,
+			status: wirtualsdk.ProvisionerJobCanceled,
 		},
 		{
 			name: "canceled_failed",
@@ -65,12 +65,12 @@ func TestProvisionerJobStatus(t *testing.T) {
 				},
 				Error: sql.NullString{String: "badness", Valid: true},
 			},
-			status: codersdk.ProvisionerJobFailed,
+			status: wirtualsdk.ProvisionerJobFailed,
 		},
 		{
 			name:   "pending",
 			job:    database.ProvisionerJob{},
-			status: codersdk.ProvisionerJobPending,
+			status: wirtualsdk.ProvisionerJobPending,
 		},
 		{
 			name: "succeeded",
@@ -84,7 +84,7 @@ func TestProvisionerJobStatus(t *testing.T) {
 					Valid: true,
 				},
 			},
-			status: codersdk.ProvisionerJobSucceeded,
+			status: wirtualsdk.ProvisionerJobSucceeded,
 		},
 		{
 			name: "completed_failed",
@@ -99,7 +99,7 @@ func TestProvisionerJobStatus(t *testing.T) {
 				},
 				Error: sql.NullString{String: "badness", Valid: true},
 			},
-			status: codersdk.ProvisionerJobFailed,
+			status: wirtualsdk.ProvisionerJobFailed,
 		},
 		{
 			name: "updated",
@@ -110,7 +110,7 @@ func TestProvisionerJobStatus(t *testing.T) {
 				},
 				UpdatedAt: dbtime.Now(),
 			},
-			status: codersdk.ProvisionerJobRunning,
+			status: wirtualsdk.ProvisionerJobRunning,
 		},
 	}
 
@@ -143,7 +143,7 @@ func TestProvisionerJobStatus(t *testing.T) {
 			require.Equal(t, tc.job.Error, inserted.Error, "error")
 			require.Equal(t, tc.job.ErrorCode, inserted.ErrorCode, "error code")
 
-			actual := codersdk.ProvisionerJobStatus(inserted.JobStatus)
+			actual := wirtualsdk.ProvisionerJobStatus(inserted.JobStatus)
 			require.Equal(t, tc.status, actual)
 		})
 	}

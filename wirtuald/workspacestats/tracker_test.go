@@ -12,15 +12,15 @@ import (
 	"go.uber.org/goleak"
 	"go.uber.org/mock/gomock"
 
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/coderd/database/dbmock"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/database/pubsub"
-	"github.com/coder/coder/v2/coderd/workspacestats"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbfake"
+	"github.com/coder/coder/v2/wirtuald/database/dbmock"
+	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/database/pubsub"
+	"github.com/coder/coder/v2/wirtuald/workspacestats"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/testutil"
 )
 
@@ -114,7 +114,7 @@ func TestTracker_MultipleInstances(t *testing.T) {
 		t.Skip("this test only makes sense with postgres")
 	}
 
-	// Given we have two coderd instances connected to the same database
+	// Given we have two wirtuald instances connected to the same database
 	var (
 		ctx   = testutil.Context(t, testutil.WaitLong)
 		db, _ = dbtestutil.NewDB(t)
@@ -194,7 +194,7 @@ func TestTracker_MultipleInstances(t *testing.T) {
 	require.Equal(t, 5, flushedB)
 
 	// Fetch updated workspaces
-	updated := make([]codersdk.Workspace, numWorkspaces)
+	updated := make([]wirtualsdk.Workspace, numWorkspaces)
 	for i := 0; i < numWorkspaces; i++ {
 		ws, err := clientA.Workspace(ctx, w[i].Workspace.ID)
 		require.NoError(t, err)

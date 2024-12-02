@@ -11,7 +11,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 )
 
@@ -36,7 +36,7 @@ func (r *RootCmd) featuresList() *serpent.Command {
 		columns        []string
 		outputFormat   string
 	)
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 
 	cmd := &serpent.Command{
 		Use:     "list",
@@ -46,7 +46,7 @@ func (r *RootCmd) featuresList() *serpent.Command {
 		),
 		Handler: func(inv *serpent.Invocation) error {
 			entitlements, err := client.Entitlements(inv.Context())
-			var apiError *codersdk.Error
+			var apiError *wirtualsdk.Error
 			if errors.As(err, &apiError) && apiError.StatusCode() == http.StatusNotFound {
 				return xerrors.New("You are on the AGPL licensed version of Coder that does not have Enterprise functionality!")
 			}
@@ -102,7 +102,7 @@ func (r *RootCmd) featuresList() *serpent.Command {
 }
 
 type featureRow struct {
-	Name        codersdk.FeatureName `table:"name,default_sort"`
+	Name        wirtualsdk.FeatureName `table:"name,default_sort"`
 	Entitlement string               `table:"entitlement"`
 	Enabled     bool                 `table:"enabled"`
 	Limit       *int64               `table:"limit"`
@@ -112,7 +112,7 @@ type featureRow struct {
 // displayFeatures will return a table displaying all features passed in.
 // filterColumns must be a subset of the feature fields and will determine which
 // columns to display
-func displayFeatures(filterColumns []string, features map[codersdk.FeatureName]codersdk.Feature) (string, error) {
+func displayFeatures(filterColumns []string, features map[wirtualsdk.FeatureName]wirtualsdk.Feature) (string, error) {
 	rows := make([]featureRow, 0, len(features))
 	for name, feat := range features {
 		rows = append(rows, featureRow{

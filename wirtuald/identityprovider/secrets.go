@@ -6,7 +6,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/userpassword"
+	"github.com/coder/coder/v2/wirtuald/userpassword"
 	"github.com/coder/coder/v2/cryptorand"
 )
 

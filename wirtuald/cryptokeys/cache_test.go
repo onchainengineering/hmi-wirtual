@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/goleak"
 
-	"github.com/coder/coder/v2/coderd/cryptokeys"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/cryptokeys"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/quartz"
 )
@@ -36,18 +36,18 @@ func TestCryptoKeyCache(t *testing.T) {
 			)
 
 			now := clock.Now().UTC()
-			expected := codersdk.CryptoKey{
-				Feature:  codersdk.CryptoKeyFeatureTailnetResume,
+			expected := wirtualsdk.CryptoKey{
+				Feature:  wirtualsdk.CryptoKeyFeatureTailnetResume,
 				Secret:   generateKey(t, 64),
 				Sequence: 2,
 				StartsAt: now,
 			}
 
 			ff := &fakeFetcher{
-				keys: []codersdk.CryptoKey{expected},
+				keys: []wirtualsdk.CryptoKey{expected},
 			}
 
-			cache, err := cryptokeys.NewSigningCache(ctx, logger, ff, codersdk.CryptoKeyFeatureTailnetResume, cryptokeys.WithCacheClock(clock))
+			cache, err := cryptokeys.NewSigningCache(ctx, logger, ff, wirtualsdk.CryptoKeyFeatureTailnetResume, cryptokeys.WithCacheClock(clock))
 			require.NoError(t, err)
 
 			id, got, err := cache.SigningKey(ctx)
@@ -66,19 +66,19 @@ func TestCryptoKeyCache(t *testing.T) {
 			)
 
 			ff := &fakeFetcher{
-				keys: []codersdk.CryptoKey{},
+				keys: []wirtualsdk.CryptoKey{},
 			}
 
-			cache, err := cryptokeys.NewSigningCache(ctx, logger, ff, codersdk.CryptoKeyFeatureTailnetResume, cryptokeys.WithCacheClock(clock))
+			cache, err := cryptokeys.NewSigningCache(ctx, logger, ff, wirtualsdk.CryptoKeyFeatureTailnetResume, cryptokeys.WithCacheClock(clock))
 			require.NoError(t, err)
 
-			expected := codersdk.CryptoKey{
-				Feature:  codersdk.CryptoKeyFeatureTailnetResume,
+			expected := wirtualsdk.CryptoKey{
+				Feature:  wirtualsdk.CryptoKeyFeatureTailnetResume,
 				Secret:   generateKey(t, 64),
 				Sequence: 12,
 				StartsAt: clock.Now().UTC(),
 			}
-			ff.keys = []codersdk.CryptoKey{expected}
+			ff.keys = []wirtualsdk.CryptoKey{expected}
 
 			id, got, err := cache.SigningKey(ctx)
 			require.NoError(t, err)
@@ -106,18 +106,18 @@ func TestCryptoKeyCache(t *testing.T) {
 			)
 			now := clock.Now().UTC()
 
-			expected := codersdk.CryptoKey{
-				Feature:  codersdk.CryptoKeyFeatureTailnetResume,
+			expected := wirtualsdk.CryptoKey{
+				Feature:  wirtualsdk.CryptoKeyFeatureTailnetResume,
 				Secret:   generateKey(t, 64),
 				Sequence: 1,
 				StartsAt: clock.Now().UTC(),
 			}
 
 			ff := &fakeFetcher{
-				keys: []codersdk.CryptoKey{
+				keys: []wirtualsdk.CryptoKey{
 					expected,
 					{
-						Feature:   codersdk.CryptoKeyFeatureTailnetResume,
+						Feature:   wirtualsdk.CryptoKeyFeatureTailnetResume,
 						Secret:    generateKey(t, 64),
 						Sequence:  2,
 						StartsAt:  now.Add(-time.Second),
@@ -126,7 +126,7 @@ func TestCryptoKeyCache(t *testing.T) {
 				},
 			}
 
-			cache, err := cryptokeys.NewSigningCache(ctx, logger, ff, codersdk.CryptoKeyFeatureTailnetResume, cryptokeys.WithCacheClock(clock))
+			cache, err := cryptokeys.NewSigningCache(ctx, logger, ff, wirtualsdk.CryptoKeyFeatureTailnetResume, cryptokeys.WithCacheClock(clock))
 			require.NoError(t, err)
 
 			id, got, err := cache.SigningKey(ctx)
@@ -145,10 +145,10 @@ func TestCryptoKeyCache(t *testing.T) {
 			)
 
 			ff := &fakeFetcher{
-				keys: []codersdk.CryptoKey{},
+				keys: []wirtualsdk.CryptoKey{},
 			}
 
-			cache, err := cryptokeys.NewSigningCache(ctx, logger, ff, codersdk.CryptoKeyFeatureTailnetResume)
+			cache, err := cryptokeys.NewSigningCache(ctx, logger, ff, wirtualsdk.CryptoKeyFeatureTailnetResume)
 			require.NoError(t, err)
 
 			_, _, err = cache.SigningKey(ctx)
@@ -169,17 +169,17 @@ func TestCryptoKeyCache(t *testing.T) {
 			)
 
 			now := clock.Now().UTC()
-			expected := codersdk.CryptoKey{
-				Feature:  codersdk.CryptoKeyFeatureTailnetResume,
+			expected := wirtualsdk.CryptoKey{
+				Feature:  wirtualsdk.CryptoKeyFeatureTailnetResume,
 				Secret:   generateKey(t, 64),
 				Sequence: 12,
 				StartsAt: now,
 			}
 			ff := &fakeFetcher{
-				keys: []codersdk.CryptoKey{
+				keys: []wirtualsdk.CryptoKey{
 					expected,
 					{
-						Feature:  codersdk.CryptoKeyFeatureTailnetResume,
+						Feature:  wirtualsdk.CryptoKeyFeatureTailnetResume,
 						Secret:   generateKey(t, 64),
 						Sequence: 13,
 						StartsAt: now,
@@ -187,7 +187,7 @@ func TestCryptoKeyCache(t *testing.T) {
 				},
 			}
 
-			cache, err := cryptokeys.NewSigningCache(ctx, logger, ff, codersdk.CryptoKeyFeatureTailnetResume, cryptokeys.WithCacheClock(clock))
+			cache, err := cryptokeys.NewSigningCache(ctx, logger, ff, wirtualsdk.CryptoKeyFeatureTailnetResume, cryptokeys.WithCacheClock(clock))
 			require.NoError(t, err)
 
 			got, err := cache.VerifyingKey(ctx, keyID(expected))
@@ -205,19 +205,19 @@ func TestCryptoKeyCache(t *testing.T) {
 			)
 
 			ff := &fakeFetcher{
-				keys: []codersdk.CryptoKey{},
+				keys: []wirtualsdk.CryptoKey{},
 			}
 
-			cache, err := cryptokeys.NewSigningCache(ctx, logger, ff, codersdk.CryptoKeyFeatureTailnetResume, cryptokeys.WithCacheClock(clock))
+			cache, err := cryptokeys.NewSigningCache(ctx, logger, ff, wirtualsdk.CryptoKeyFeatureTailnetResume, cryptokeys.WithCacheClock(clock))
 			require.NoError(t, err)
 
-			expected := codersdk.CryptoKey{
-				Feature:  codersdk.CryptoKeyFeatureTailnetResume,
+			expected := wirtualsdk.CryptoKey{
+				Feature:  wirtualsdk.CryptoKeyFeatureTailnetResume,
 				Secret:   generateKey(t, 64),
 				Sequence: 12,
 				StartsAt: clock.Now().UTC(),
 			}
-			ff.keys = []codersdk.CryptoKey{expected}
+			ff.keys = []wirtualsdk.CryptoKey{expected}
 
 			got, err := cache.VerifyingKey(ctx, keyID(expected))
 			require.NoError(t, err)
@@ -241,20 +241,20 @@ func TestCryptoKeyCache(t *testing.T) {
 			)
 
 			now := clock.Now().UTC()
-			expected := codersdk.CryptoKey{
-				Feature:  codersdk.CryptoKeyFeatureTailnetResume,
+			expected := wirtualsdk.CryptoKey{
+				Feature:  wirtualsdk.CryptoKeyFeatureTailnetResume,
 				Secret:   generateKey(t, 64),
 				Sequence: 12,
 				StartsAt: now.Add(-time.Second),
 			}
 
 			ff := &fakeFetcher{
-				keys: []codersdk.CryptoKey{
+				keys: []wirtualsdk.CryptoKey{
 					expected,
 				},
 			}
 
-			cache, err := cryptokeys.NewSigningCache(ctx, logger, ff, codersdk.CryptoKeyFeatureTailnetResume, cryptokeys.WithCacheClock(clock))
+			cache, err := cryptokeys.NewSigningCache(ctx, logger, ff, wirtualsdk.CryptoKeyFeatureTailnetResume, cryptokeys.WithCacheClock(clock))
 			require.NoError(t, err)
 
 			got, err := cache.VerifyingKey(ctx, keyID(expected))
@@ -273,8 +273,8 @@ func TestCryptoKeyCache(t *testing.T) {
 			)
 
 			now := clock.Now().UTC()
-			expected := codersdk.CryptoKey{
-				Feature:   codersdk.CryptoKeyFeatureTailnetResume,
+			expected := wirtualsdk.CryptoKey{
+				Feature:   wirtualsdk.CryptoKeyFeatureTailnetResume,
 				Secret:    generateKey(t, 64),
 				Sequence:  12,
 				StartsAt:  now.Add(-time.Second),
@@ -282,12 +282,12 @@ func TestCryptoKeyCache(t *testing.T) {
 			}
 
 			ff := &fakeFetcher{
-				keys: []codersdk.CryptoKey{
+				keys: []wirtualsdk.CryptoKey{
 					expected,
 				},
 			}
 
-			cache, err := cryptokeys.NewSigningCache(ctx, logger, ff, codersdk.CryptoKeyFeatureTailnetResume, cryptokeys.WithCacheClock(clock))
+			cache, err := cryptokeys.NewSigningCache(ctx, logger, ff, wirtualsdk.CryptoKeyFeatureTailnetResume, cryptokeys.WithCacheClock(clock))
 			require.NoError(t, err)
 
 			_, err = cache.VerifyingKey(ctx, keyID(expected))
@@ -305,10 +305,10 @@ func TestCryptoKeyCache(t *testing.T) {
 			)
 
 			ff := &fakeFetcher{
-				keys: []codersdk.CryptoKey{},
+				keys: []wirtualsdk.CryptoKey{},
 			}
 
-			cache, err := cryptokeys.NewSigningCache(ctx, logger, ff, codersdk.CryptoKeyFeatureTailnetResume, cryptokeys.WithCacheClock(clock))
+			cache, err := cryptokeys.NewSigningCache(ctx, logger, ff, wirtualsdk.CryptoKeyFeatureTailnetResume, cryptokeys.WithCacheClock(clock))
 			require.NoError(t, err)
 
 			_, err = cache.VerifyingKey(ctx, "1")
@@ -326,20 +326,20 @@ func TestCryptoKeyCache(t *testing.T) {
 		)
 
 		now := clock.Now().UTC()
-		expected := codersdk.CryptoKey{
-			Feature:   codersdk.CryptoKeyFeatureTailnetResume,
+		expected := wirtualsdk.CryptoKey{
+			Feature:   wirtualsdk.CryptoKeyFeatureTailnetResume,
 			Secret:    generateKey(t, 64),
 			Sequence:  12,
 			StartsAt:  now,
 			DeletesAt: now.Add(time.Minute * 10),
 		}
 		ff := &fakeFetcher{
-			keys: []codersdk.CryptoKey{
+			keys: []wirtualsdk.CryptoKey{
 				expected,
 			},
 		}
 
-		cache, err := cryptokeys.NewSigningCache(ctx, logger, ff, codersdk.CryptoKeyFeatureTailnetResume, cryptokeys.WithCacheClock(clock))
+		cache, err := cryptokeys.NewSigningCache(ctx, logger, ff, wirtualsdk.CryptoKeyFeatureTailnetResume, cryptokeys.WithCacheClock(clock))
 		require.NoError(t, err)
 
 		id, got, err := cache.SigningKey(ctx)
@@ -348,15 +348,15 @@ func TestCryptoKeyCache(t *testing.T) {
 		require.Equal(t, keyID(expected), id)
 		require.Equal(t, 1, ff.called)
 
-		newKey := codersdk.CryptoKey{
-			Feature:  codersdk.CryptoKeyFeatureTailnetResume,
+		newKey := wirtualsdk.CryptoKey{
+			Feature:  wirtualsdk.CryptoKeyFeatureTailnetResume,
 			Secret:   generateKey(t, 64),
 			Sequence: 13,
 			StartsAt: now,
 		}
-		ff.keys = []codersdk.CryptoKey{newKey}
+		ff.keys = []wirtualsdk.CryptoKey{newKey}
 
-		// The ticker should fire and cause a request to coderd.
+		// The ticker should fire and cause a request to wirtuald.
 		dur, advance := clock.AdvanceNext()
 		advance.MustWait(ctx)
 		require.Equal(t, 2, ff.called)
@@ -389,34 +389,34 @@ func TestCryptoKeyCache(t *testing.T) {
 		)
 
 		now := clock.Now().UTC()
-		expected := codersdk.CryptoKey{
-			Feature:   codersdk.CryptoKeyFeatureTailnetResume,
+		expected := wirtualsdk.CryptoKey{
+			Feature:   wirtualsdk.CryptoKeyFeatureTailnetResume,
 			Secret:    generateKey(t, 64),
 			Sequence:  12,
 			StartsAt:  now,
 			DeletesAt: now.Add(time.Minute * 10),
 		}
 		ff := &fakeFetcher{
-			keys: []codersdk.CryptoKey{
+			keys: []wirtualsdk.CryptoKey{
 				expected,
 			},
 		}
 
 		// Create a trap that blocks when the refresh timer fires.
 		trap := clock.Trap().Now("refresh")
-		cache, err := cryptokeys.NewSigningCache(ctx, logger, ff, codersdk.CryptoKeyFeatureTailnetResume, cryptokeys.WithCacheClock(clock))
+		cache, err := cryptokeys.NewSigningCache(ctx, logger, ff, wirtualsdk.CryptoKeyFeatureTailnetResume, cryptokeys.WithCacheClock(clock))
 		require.NoError(t, err)
 
 		_, wait := clock.AdvanceNext()
 		trapped := trap.MustWait(ctx)
 
-		newKey := codersdk.CryptoKey{
-			Feature:  codersdk.CryptoKeyFeatureTailnetResume,
+		newKey := wirtualsdk.CryptoKey{
+			Feature:  wirtualsdk.CryptoKeyFeatureTailnetResume,
 			Secret:   generateKey(t, 64),
 			Sequence: 13,
 			StartsAt: now,
 		}
-		ff.keys = []codersdk.CryptoKey{newKey}
+		ff.keys = []wirtualsdk.CryptoKey{newKey}
 
 		key, err := cache.VerifyingKey(ctx, keyID(newKey))
 		require.NoError(t, err)
@@ -445,19 +445,19 @@ func TestCryptoKeyCache(t *testing.T) {
 		)
 
 		now := clock.Now()
-		expected := codersdk.CryptoKey{
-			Feature:  codersdk.CryptoKeyFeatureTailnetResume,
+		expected := wirtualsdk.CryptoKey{
+			Feature:  wirtualsdk.CryptoKeyFeatureTailnetResume,
 			Secret:   generateKey(t, 64),
 			Sequence: 12,
 			StartsAt: now,
 		}
 		ff := &fakeFetcher{
-			keys: []codersdk.CryptoKey{
+			keys: []wirtualsdk.CryptoKey{
 				expected,
 			},
 		}
 
-		cache, err := cryptokeys.NewSigningCache(ctx, logger, ff, codersdk.CryptoKeyFeatureTailnetResume, cryptokeys.WithCacheClock(clock))
+		cache, err := cryptokeys.NewSigningCache(ctx, logger, ff, wirtualsdk.CryptoKeyFeatureTailnetResume, cryptokeys.WithCacheClock(clock))
 		require.NoError(t, err)
 
 		id, got, err := cache.SigningKey(ctx)
@@ -482,20 +482,20 @@ func TestCryptoKeyCache(t *testing.T) {
 }
 
 type fakeFetcher struct {
-	keys   []codersdk.CryptoKey
+	keys   []wirtualsdk.CryptoKey
 	called int
 }
 
-func (f *fakeFetcher) Fetch(_ context.Context, _ codersdk.CryptoKeyFeature) ([]codersdk.CryptoKey, error) {
+func (f *fakeFetcher) Fetch(_ context.Context, _ wirtualsdk.CryptoKeyFeature) ([]wirtualsdk.CryptoKey, error) {
 	f.called++
 	return f.keys, nil
 }
 
-func keyID(key codersdk.CryptoKey) string {
+func keyID(key wirtualsdk.CryptoKey) string {
 	return strconv.FormatInt(int64(key.Sequence), 10)
 }
 
-func decodedSecret(t *testing.T, key codersdk.CryptoKey) []byte {
+func decodedSecret(t *testing.T, key wirtualsdk.CryptoKey) []byte {
 	t.Helper()
 
 	secret, err := hex.DecodeString(key.Secret)

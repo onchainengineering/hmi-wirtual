@@ -27,21 +27,21 @@ import (
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/coderd/apikey"
-	"github.com/coder/coder/v2/coderd/audit"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/database/pubsub"
-	"github.com/coder/coder/v2/coderd/externalauth"
-	"github.com/coder/coder/v2/coderd/notifications"
-	"github.com/coder/coder/v2/coderd/promoauth"
-	"github.com/coder/coder/v2/coderd/schedule"
-	"github.com/coder/coder/v2/coderd/telemetry"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/coderd/wspubsub"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/drpc"
+	"github.com/coder/coder/v2/wirtuald/apikey"
+	"github.com/coder/coder/v2/wirtuald/audit"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/database/pubsub"
+	"github.com/coder/coder/v2/wirtuald/externalauth"
+	"github.com/coder/coder/v2/wirtuald/notifications"
+	"github.com/coder/coder/v2/wirtuald/promoauth"
+	"github.com/coder/coder/v2/wirtuald/schedule"
+	"github.com/coder/coder/v2/wirtuald/telemetry"
+	"github.com/coder/coder/v2/wirtuald/tracing"
+	"github.com/coder/coder/v2/wirtuald/wspubsub"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/drpc"
 	"github.com/coder/coder/v2/provisioner"
 	"github.com/coder/coder/v2/provisionerd/proto"
 	"github.com/coder/coder/v2/provisionersdk"
@@ -105,7 +105,7 @@ type server struct {
 	Auditor                     *atomic.Pointer[audit.Auditor]
 	TemplateScheduleStore       *atomic.Pointer[schedule.TemplateScheduleStore]
 	UserQuietHoursScheduleStore *atomic.Pointer[schedule.UserQuietHoursScheduleStore]
-	DeploymentValues            *codersdk.DeploymentValues
+	DeploymentValues            *wirtualsdk.DeploymentValues
 	NotificationsEnqueuer       notifications.Enqueuer
 
 	OIDCConfig promoauth.OAuth2Config
@@ -159,7 +159,7 @@ func NewServer(
 	auditor *atomic.Pointer[audit.Auditor],
 	templateScheduleStore *atomic.Pointer[schedule.TemplateScheduleStore],
 	userQuietHoursScheduleStore *atomic.Pointer[schedule.UserQuietHoursScheduleStore],
-	deploymentValues *codersdk.DeploymentValues,
+	deploymentValues *wirtualsdk.DeploymentValues,
 	options Options,
 	enqueuer notifications.Enqueuer,
 ) (proto.DRPCProvisionerDaemonServer, error) {
@@ -689,8 +689,8 @@ func (s *server) acquireProtoJob(ctx context.Context, job database.ProvisionerJo
 	return protoJob, err
 }
 
-func (s *server) includeLastVariableValues(ctx context.Context, templateVersionID uuid.UUID, userVariableValues []codersdk.VariableValue) ([]codersdk.VariableValue, error) {
-	var values []codersdk.VariableValue
+func (s *server) includeLastVariableValues(ctx context.Context, templateVersionID uuid.UUID, userVariableValues []wirtualsdk.VariableValue) ([]wirtualsdk.VariableValue, error) {
+	var values []wirtualsdk.VariableValue
 	values = append(values, userVariableValues...)
 
 	if templateVersionID == uuid.Nil {
@@ -733,7 +733,7 @@ func (s *server) includeLastVariableValues(ctx context.Context, templateVersionI
 			continue
 		}
 
-		values = append(values, codersdk.VariableValue{
+		values = append(values, wirtualsdk.VariableValue{
 			Name:  templateVariable.Name,
 			Value: templateVariable.Value,
 		})
@@ -1177,7 +1177,7 @@ func (s *server) prepareForNotifyWorkspaceManualBuildFailed(ctx context.Context,
 	database.Template, database.TemplateVersion, database.User, error,
 ) {
 	users, err := s.Database.GetUsers(ctx, database.GetUsersParams{
-		RbacRole: []string{codersdk.RoleTemplateAdmin},
+		RbacRole: []string{wirtualsdk.RoleTemplateAdmin},
 	})
 	if err != nil {
 		return nil, database.Template{}, database.TemplateVersion{}, database.User{}, xerrors.Errorf("unable to fetch template admins: %w", err)
@@ -1710,7 +1710,7 @@ func (s *server) CompleteJob(ctx context.Context, completed *proto.CompletedJob)
 		if completed.Type == nil {
 			return nil, xerrors.Errorf("type payload must be provided")
 		}
-		return nil, xerrors.Errorf("unknown job type %q; ensure coderd and provisionerd versions match",
+		return nil, xerrors.Errorf("unknown job type %q; ensure wirtuald and provisionerd versions match",
 			reflect.TypeOf(completed.Type).String())
 	}
 
@@ -1767,7 +1767,7 @@ func (s *server) notifyWorkspaceDeleted(ctx context.Context, workspace database.
 
 func (s *server) startTrace(ctx context.Context, name string, opts ...trace.SpanStartOption) (context.Context, trace.Span) {
 	return s.Tracer.Start(ctx, name, append(opts, trace.WithAttributes(
-		semconv.ServiceNameKey.String("coderd.provisionerd"),
+		semconv.ServiceNameKey.String("wirtuald.provisionerd"),
 	))...)
 }
 
@@ -2191,7 +2191,7 @@ func convertRichParameterValues(workspaceBuildParameters []database.WorkspaceBui
 	return protoParameters
 }
 
-func convertVariableValues(variableValues []codersdk.VariableValue) []*sdkproto.VariableValue {
+func convertVariableValues(variableValues []wirtualsdk.VariableValue) []*sdkproto.VariableValue {
 	protoVariableValues := make([]*sdkproto.VariableValue, len(variableValues))
 	for i, variableValue := range variableValues {
 		protoVariableValues[i] = &sdkproto.VariableValue{
@@ -2231,7 +2231,7 @@ func auditActionFromTransition(transition database.WorkspaceTransition) database
 
 type TemplateVersionImportJob struct {
 	TemplateVersionID  uuid.UUID                `json:"template_version_id"`
-	UserVariableValues []codersdk.VariableValue `json:"user_variable_values"`
+	UserVariableValues []wirtualsdk.VariableValue `json:"user_variable_values"`
 }
 
 // WorkspaceProvisionJob is the payload for the "workspace_provision" job type.

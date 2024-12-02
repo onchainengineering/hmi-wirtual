@@ -19,12 +19,12 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/jwtutils"
-	"github.com/coder/coder/v2/coderd/workspaceapps"
-	"github.com/coder/coder/v2/coderd/workspaceapps/appurl"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtuald/jwtutils"
+	"github.com/coder/coder/v2/wirtuald/workspaceapps"
+	"github.com/coder/coder/v2/wirtuald/workspaceapps/appurl"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/provisionersdk/proto"
 	"github.com/coder/coder/v2/testutil"
@@ -99,7 +99,7 @@ func Test_ResolveRequest(t *testing.T) {
 	ctx := testutil.Context(t, testutil.WaitMedium)
 
 	firstUser := coderdtest.CreateFirstUser(t, client)
-	me, err := client.User(ctx, codersdk.Me)
+	me, err := client.User(ctx, wirtualsdk.Me)
 	require.NoError(t, err)
 
 	secondUserClient, _ := coderdtest.CreateAnotherUser(t, client, firstUser.OrganizationID)
@@ -256,7 +256,7 @@ func Test_ResolveRequest(t *testing.T) {
 					t.Log("app", app)
 					rw := httptest.NewRecorder()
 					r := httptest.NewRequest("GET", "/app", nil)
-					r.Header.Set(codersdk.SessionTokenHeader, client.SessionToken())
+					r.Header.Set(wirtualsdk.SessionTokenHeader, client.SessionToken())
 
 					// Try resolving the request without a token.
 					token, ok := workspaceapps.ResolveRequest(rw, r, workspaceapps.ResolveRequestOptions{
@@ -292,7 +292,7 @@ func Test_ResolveRequest(t *testing.T) {
 					// Check that the token was set in the response and is valid.
 					require.Len(t, w.Cookies(), 1)
 					cookie := w.Cookies()[0]
-					require.Equal(t, codersdk.SignedAppTokenCookie, cookie.Name)
+					require.Equal(t, wirtualsdk.SignedAppTokenCookie, cookie.Name)
 					require.Equal(t, req.BasePath, cookie.Path)
 
 					var parsedToken workspaceapps.SignedToken
@@ -342,7 +342,7 @@ func Test_ResolveRequest(t *testing.T) {
 			t.Log("app", app)
 			rw := httptest.NewRecorder()
 			r := httptest.NewRequest("GET", "/app", nil)
-			r.Header.Set(codersdk.SessionTokenHeader, secondUserClient.SessionToken())
+			r.Header.Set(wirtualsdk.SessionTokenHeader, secondUserClient.SessionToken())
 
 			token, ok := workspaceapps.ResolveRequest(rw, r, workspaceapps.ResolveRequestOptions{
 				Logger:              api.Logger,
@@ -500,7 +500,7 @@ func Test_ResolveRequest(t *testing.T) {
 
 				rw := httptest.NewRecorder()
 				r := httptest.NewRequest("GET", "/app", nil)
-				r.Header.Set(codersdk.SessionTokenHeader, client.SessionToken())
+				r.Header.Set(wirtualsdk.SessionTokenHeader, client.SessionToken())
 
 				token, ok := workspaceapps.ResolveRequest(rw, r, workspaceapps.ResolveRequestOptions{
 					Logger:              api.Logger,
@@ -568,9 +568,9 @@ func Test_ResolveRequest(t *testing.T) {
 
 		rw := httptest.NewRecorder()
 		r := httptest.NewRequest("GET", "/app", nil)
-		r.Header.Set(codersdk.SessionTokenHeader, client.SessionToken())
+		r.Header.Set(wirtualsdk.SessionTokenHeader, client.SessionToken())
 		r.AddCookie(&http.Cookie{
-			Name:  codersdk.SignedAppTokenCookie,
+			Name:  wirtualsdk.SignedAppTokenCookie,
 			Value: badTokenStr,
 		})
 
@@ -594,7 +594,7 @@ func Test_ResolveRequest(t *testing.T) {
 		_ = w.Body.Close()
 		cookies := w.Cookies()
 		require.Len(t, cookies, 1)
-		require.Equal(t, cookies[0].Name, codersdk.SignedAppTokenCookie)
+		require.Equal(t, cookies[0].Name, wirtualsdk.SignedAppTokenCookie)
 		require.NotEqual(t, cookies[0].Value, badTokenStr)
 		var parsedToken workspaceapps.SignedToken
 		err = jwtutils.Verify(ctx, api.AppSigningKeyCache, cookies[0].Value, &parsedToken)
@@ -616,7 +616,7 @@ func Test_ResolveRequest(t *testing.T) {
 
 		rw := httptest.NewRecorder()
 		r := httptest.NewRequest("GET", "/app", nil)
-		r.Header.Set(codersdk.SessionTokenHeader, client.SessionToken())
+		r.Header.Set(wirtualsdk.SessionTokenHeader, client.SessionToken())
 
 		token, ok := workspaceapps.ResolveRequest(rw, r, workspaceapps.ResolveRequestOptions{
 			Logger:              api.Logger,
@@ -644,7 +644,7 @@ func Test_ResolveRequest(t *testing.T) {
 
 		rw := httptest.NewRecorder()
 		r := httptest.NewRequest("GET", "/", nil)
-		r.Header.Set(codersdk.SessionTokenHeader, client.SessionToken())
+		r.Header.Set(wirtualsdk.SessionTokenHeader, client.SessionToken())
 
 		token, ok := workspaceapps.ResolveRequest(rw, r, workspaceapps.ResolveRequestOptions{
 			Logger:              api.Logger,
@@ -673,7 +673,7 @@ func Test_ResolveRequest(t *testing.T) {
 
 		rw := httptest.NewRecorder()
 		r := httptest.NewRequest("GET", "/", nil)
-		r.Header.Set(codersdk.SessionTokenHeader, client.SessionToken())
+		r.Header.Set(wirtualsdk.SessionTokenHeader, client.SessionToken())
 
 		_, ok := workspaceapps.ResolveRequest(rw, r, workspaceapps.ResolveRequestOptions{
 			Logger:              api.Logger,
@@ -706,7 +706,7 @@ func Test_ResolveRequest(t *testing.T) {
 
 		rw := httptest.NewRecorder()
 		r := httptest.NewRequest("GET", "/", nil)
-		r.Header.Set(codersdk.SessionTokenHeader, client.SessionToken())
+		r.Header.Set(wirtualsdk.SessionTokenHeader, client.SessionToken())
 
 		token, ok := workspaceapps.ResolveRequest(rw, r, workspaceapps.ResolveRequestOptions{
 			Logger:              api.Logger,
@@ -731,7 +731,7 @@ func Test_ResolveRequest(t *testing.T) {
 
 		rw := httptest.NewRecorder()
 		r := httptest.NewRequest("GET", "/app", nil)
-		r.Header.Set(codersdk.SessionTokenHeader, client.SessionToken())
+		r.Header.Set(wirtualsdk.SessionTokenHeader, client.SessionToken())
 
 		token, ok := workspaceapps.ResolveRequest(rw, r, workspaceapps.ResolveRequestOptions{
 			Logger:              api.Logger,
@@ -765,7 +765,7 @@ func Test_ResolveRequest(t *testing.T) {
 
 		rw := httptest.NewRecorder()
 		r := httptest.NewRequest("GET", "/app", nil)
-		r.Header.Set(codersdk.SessionTokenHeader, secondUserClient.SessionToken())
+		r.Header.Set(wirtualsdk.SessionTokenHeader, secondUserClient.SessionToken())
 
 		token, ok := workspaceapps.ResolveRequest(rw, r, workspaceapps.ResolveRequestOptions{
 			Logger:              api.Logger,
@@ -792,7 +792,7 @@ func Test_ResolveRequest(t *testing.T) {
 
 		rw := httptest.NewRecorder()
 		r := httptest.NewRequest("GET", "/app", nil)
-		r.Header.Set(codersdk.SessionTokenHeader, client.SessionToken())
+		r.Header.Set(wirtualsdk.SessionTokenHeader, client.SessionToken())
 
 		token, ok := workspaceapps.ResolveRequest(rw, r, workspaceapps.ResolveRequestOptions{
 			Logger:              api.Logger,
@@ -878,7 +878,7 @@ func Test_ResolveRequest(t *testing.T) {
 
 		rw := httptest.NewRecorder()
 		r := httptest.NewRequest("GET", "/app", nil)
-		r.Header.Set(codersdk.SessionTokenHeader, client.SessionToken())
+		r.Header.Set(wirtualsdk.SessionTokenHeader, client.SessionToken())
 
 		token, ok := workspaceapps.ResolveRequest(rw, r, workspaceapps.ResolveRequestOptions{
 			Logger:              api.Logger,
@@ -919,7 +919,7 @@ func Test_ResolveRequest(t *testing.T) {
 		for _, app := range agent.Apps {
 			if app.Slug == appNameInitializing {
 				t.Log("app is", app.Health)
-				require.Equal(t, codersdk.WorkspaceAppHealthInitializing, app.Health)
+				require.Equal(t, wirtualsdk.WorkspaceAppHealthInitializing, app.Health)
 				break
 			}
 		}
@@ -935,7 +935,7 @@ func Test_ResolveRequest(t *testing.T) {
 
 		rw := httptest.NewRecorder()
 		r := httptest.NewRequest("GET", "/app", nil)
-		r.Header.Set(codersdk.SessionTokenHeader, client.SessionToken())
+		r.Header.Set(wirtualsdk.SessionTokenHeader, client.SessionToken())
 
 		token, ok := workspaceapps.ResolveRequest(rw, r, workspaceapps.ResolveRequestOptions{
 			Logger:              api.Logger,
@@ -968,7 +968,7 @@ func Test_ResolveRequest(t *testing.T) {
 			for _, app := range agent.Apps {
 				if app.Slug == appNameUnhealthy {
 					t.Log("app is", app.Health)
-					return app.Health == codersdk.WorkspaceAppHealthUnhealthy
+					return app.Health == wirtualsdk.WorkspaceAppHealthUnhealthy
 				}
 			}
 
@@ -987,7 +987,7 @@ func Test_ResolveRequest(t *testing.T) {
 
 		rw := httptest.NewRecorder()
 		r := httptest.NewRequest("GET", "/app", nil)
-		r.Header.Set(codersdk.SessionTokenHeader, client.SessionToken())
+		r.Header.Set(wirtualsdk.SessionTokenHeader, client.SessionToken())
 
 		token, ok := workspaceapps.ResolveRequest(rw, r, workspaceapps.ResolveRequestOptions{
 			Logger:              api.Logger,

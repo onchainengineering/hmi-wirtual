@@ -28,9 +28,9 @@ import (
 	"cdr.dev/slog"
 	"github.com/coder/coder/v2/buildinfo"
 	clitelemetry "github.com/coder/coder/v2/cli/telemetry"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtualsdk"
 	tailnetproto "github.com/coder/coder/v2/tailnet/proto"
 )
 
@@ -47,7 +47,7 @@ type Options struct {
 	URL *url.URL
 
 	DeploymentID     string
-	DeploymentConfig *codersdk.DeploymentValues
+	DeploymentConfig *wirtualsdk.DeploymentValues
 	BuiltinPostgres  bool
 	Tunnel           bool
 
@@ -486,7 +486,7 @@ func (r *remoteReporter) createSnapshot() (*Snapshot, error) {
 		return nil
 	})
 	eg.Go(func() error {
-		if r.options.DeploymentConfig != nil && slices.Contains(r.options.DeploymentConfig.Experiments, string(codersdk.ExperimentWorkspaceUsage)) {
+		if r.options.DeploymentConfig != nil && slices.Contains(r.options.DeploymentConfig.Experiments, string(wirtualsdk.ExperimentWorkspaceUsage)) {
 			agentStats, err := r.options.Database.GetWorkspaceAgentUsageStats(ctx, createdAfter)
 			if err != nil {
 				return xerrors.Errorf("get workspace agent stats: %w", err)
@@ -849,9 +849,9 @@ func ConvertTemplate(dbTemplate database.Template) Template {
 		FailureTTLMillis:               time.Duration(dbTemplate.FailureTTL).Milliseconds(),
 		TimeTilDormantMillis:           time.Duration(dbTemplate.TimeTilDormant).Milliseconds(),
 		TimeTilDormantAutoDeleteMillis: time.Duration(dbTemplate.TimeTilDormantAutoDelete).Milliseconds(),
-		AutostopRequirementDaysOfWeek:  codersdk.BitmapToWeekdays(uint8(dbTemplate.AutostopRequirementDaysOfWeek)),
+		AutostopRequirementDaysOfWeek:  wirtualsdk.BitmapToWeekdays(uint8(dbTemplate.AutostopRequirementDaysOfWeek)),
 		AutostopRequirementWeeks:       dbTemplate.AutostopRequirementWeeks,
-		AutostartAllowedDays:           codersdk.BitmapToWeekdays(dbTemplate.AutostartAllowedDays()),
+		AutostartAllowedDays:           wirtualsdk.BitmapToWeekdays(dbTemplate.AutostartAllowedDays()),
 		RequireActiveVersion:           dbTemplate.RequireActiveVersion,
 		Deprecated:                     dbTemplate.Deprecated != "",
 	}
@@ -951,7 +951,7 @@ type Deployment struct {
 	BuiltinPostgres bool                       `json:"builtin_postgres"`
 	Containerized   bool                       `json:"containerized"`
 	Kubernetes      bool                       `json:"kubernetes"`
-	Config          *codersdk.DeploymentValues `json:"config"`
+	Config          *wirtualsdk.DeploymentValues `json:"config"`
 	Tunnel          bool                       `json:"tunnel"`
 	InstallSource   string                     `json:"install_source"`
 	OSType          string                     `json:"os_type"`
@@ -1393,7 +1393,7 @@ type NetworkEvent struct {
 	Time           time.Time               `json:"time"`
 	Application    string                  `json:"application"`
 	Status         string                  `json:"status"`      // connected, disconnected
-	ClientType     string                  `json:"client_type"` // cli, agent, coderd, wsproxy
+	ClientType     string                  `json:"client_type"` // cli, agent, wirtuald, wsproxy
 	ClientVersion  string                  `json:"client_version"`
 	NodeIDSelf     uint64                  `json:"node_id_self"`
 	NodeIDRemote   uint64                  `json:"node_id_remote"`

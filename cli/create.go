@@ -14,9 +14,9 @@ import (
 	"github.com/coder/pretty"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/util/ptr"
+	"github.com/coder/coder/v2/wirtuald/util/slice"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 )
 
@@ -35,7 +35,7 @@ func (r *RootCmd) create() *serpent.Command {
 		// shares the same name across multiple organizations.
 		orgContext = NewOrganizationContext()
 	)
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Annotations: workspaceCommand,
 		Use:         "create [name]",
@@ -49,7 +49,7 @@ func (r *RootCmd) create() *serpent.Command {
 		Middleware: serpent.Chain(r.InitClient(client)),
 		Handler: func(inv *serpent.Invocation) error {
 			var err error
-			workspaceOwner := codersdk.Me
+			workspaceOwner := wirtualsdk.Me
 			if len(inv.Args) >= 1 {
 				workspaceOwner, workspaceName, err = splitNamedWorkspace(inv.Args[0])
 				if err != nil {
@@ -61,11 +61,11 @@ func (r *RootCmd) create() *serpent.Command {
 				workspaceName, err = cliui.Prompt(inv, cliui.PromptOptions{
 					Text: "Specify a name for your workspace:",
 					Validate: func(workspaceName string) error {
-						err = codersdk.NameValid(workspaceName)
+						err = wirtualsdk.NameValid(workspaceName)
 						if err != nil {
 							return xerrors.Errorf("workspace name %q is invalid: %w", workspaceName, err)
 						}
-						_, err = client.WorkspaceByOwnerAndName(inv.Context(), workspaceOwner, workspaceName, codersdk.WorkspaceOptions{})
+						_, err = client.WorkspaceByOwnerAndName(inv.Context(), workspaceOwner, workspaceName, wirtualsdk.WorkspaceOptions{})
 						if err == nil {
 							return xerrors.Errorf("a workspace already exists named %q", workspaceName)
 						}
@@ -76,23 +76,23 @@ func (r *RootCmd) create() *serpent.Command {
 					return err
 				}
 			}
-			err = codersdk.NameValid(workspaceName)
+			err = wirtualsdk.NameValid(workspaceName)
 			if err != nil {
 				return xerrors.Errorf("workspace name %q is invalid: %w", workspaceName, err)
 			}
-			_, err = client.WorkspaceByOwnerAndName(inv.Context(), workspaceOwner, workspaceName, codersdk.WorkspaceOptions{})
+			_, err = client.WorkspaceByOwnerAndName(inv.Context(), workspaceOwner, workspaceName, wirtualsdk.WorkspaceOptions{})
 			if err == nil {
 				return xerrors.Errorf("a workspace already exists named %q", workspaceName)
 			}
 
-			var sourceWorkspace codersdk.Workspace
+			var sourceWorkspace wirtualsdk.Workspace
 			if copyParametersFrom != "" {
 				sourceWorkspaceOwner, sourceWorkspaceName, err := splitNamedWorkspace(copyParametersFrom)
 				if err != nil {
 					return err
 				}
 
-				sourceWorkspace, err = client.WorkspaceByOwnerAndName(inv.Context(), sourceWorkspaceOwner, sourceWorkspaceName, codersdk.WorkspaceOptions{})
+				sourceWorkspace, err = client.WorkspaceByOwnerAndName(inv.Context(), sourceWorkspaceOwner, sourceWorkspaceName, wirtualsdk.WorkspaceOptions{})
 				if err != nil {
 					return xerrors.Errorf("get source workspace: %w", err)
 				}
@@ -101,22 +101,22 @@ func (r *RootCmd) create() *serpent.Command {
 				templateName = sourceWorkspace.TemplateName
 			}
 
-			var template codersdk.Template
+			var template wirtualsdk.Template
 			var templateVersionID uuid.UUID
 			if templateName == "" {
 				_, _ = fmt.Fprintln(inv.Stdout, pretty.Sprint(cliui.DefaultStyles.Wrap, "Select a template below to preview the provisioned infrastructure:"))
 
-				templates, err := client.Templates(inv.Context(), codersdk.TemplateFilter{})
+				templates, err := client.Templates(inv.Context(), wirtualsdk.TemplateFilter{})
 				if err != nil {
 					return err
 				}
 
-				slices.SortFunc(templates, func(a, b codersdk.Template) int {
+				slices.SortFunc(templates, func(a, b wirtualsdk.Template) int {
 					return slice.Descending(a.ActiveUserCount, b.ActiveUserCount)
 				})
 
 				templateNames := make([]string, 0, len(templates))
-				templateByName := make(map[string]codersdk.Template, len(templates))
+				templateByName := make(map[string]wirtualsdk.Template, len(templates))
 
 				// If more than 1 organization exists in the list of templates,
 				// then include the organization name in the select options.
@@ -167,7 +167,7 @@ func (r *RootCmd) create() *serpent.Command {
 				}
 				templateVersionID = sourceWorkspace.LatestBuild.TemplateVersionID
 			} else {
-				templates, err := client.Templates(inv.Context(), codersdk.TemplateFilter{
+				templates, err := client.Templates(inv.Context(), wirtualsdk.TemplateFilter{
 					ExactName: templateName,
 				})
 				if err != nil {
@@ -188,7 +188,7 @@ func (r *RootCmd) create() *serpent.Command {
 						return xerrors.Errorf("multiple templates found with the name %q, use `--org=<organization_name>` to specify which template by that name to use. Organizations available: %s", templateName, strings.Join(templateOrgs, ", "))
 					}
 
-					index := slices.IndexFunc(templates, func(i codersdk.Template) bool {
+					index := slices.IndexFunc(templates, func(i wirtualsdk.Template) bool {
 						return i.OrganizationID == selectedOrg.ID
 					})
 					if index == -1 {
@@ -196,7 +196,7 @@ func (r *RootCmd) create() *serpent.Command {
 					}
 
 					// remake the list with the only template selected
-					templates = []codersdk.Template{templates[index]}
+					templates = []wirtualsdk.Template{templates[index]}
 				}
 
 				template = templates[0]
@@ -253,7 +253,7 @@ func (r *RootCmd) create() *serpent.Command {
 				return xerrors.Errorf("can't parse given parameter defaults: %w", err)
 			}
 
-			var sourceWorkspaceParameters []codersdk.WorkspaceBuildParameter
+			var sourceWorkspaceParameters []wirtualsdk.WorkspaceBuildParameter
 			if copyParametersFrom != "" {
 				sourceWorkspaceParameters, err = client.WorkspaceBuildParameters(inv.Context(), sourceWorkspace.LatestBuild.ID)
 				if err != nil {
@@ -289,13 +289,13 @@ func (r *RootCmd) create() *serpent.Command {
 				ttlMillis = ptr.Ref(stopAfter.Milliseconds())
 			}
 
-			workspace, err := client.CreateWorkspace(inv.Context(), template.OrganizationID, workspaceOwner, codersdk.CreateWorkspaceRequest{
+			workspace, err := client.CreateWorkspace(inv.Context(), template.OrganizationID, workspaceOwner, wirtualsdk.CreateWorkspaceRequest{
 				TemplateVersionID:   templateVersionID,
 				Name:                workspaceName,
 				AutostartSchedule:   schedSpec,
 				TTLMillis:           ttlMillis,
 				RichParameterValues: richParameters,
-				AutomaticUpdates:    codersdk.AutomaticUpdates(autoUpdates),
+				AutomaticUpdates:    wirtualsdk.AutomaticUpdates(autoUpdates),
 			})
 			if err != nil {
 				return xerrors.Errorf("create workspace: %w", err)
@@ -345,7 +345,7 @@ func (r *RootCmd) create() *serpent.Command {
 			Flag:        "automatic-updates",
 			Env:         "CODER_WORKSPACE_AUTOMATIC_UPDATES",
 			Description: "Specify automatic updates setting for the workspace (accepts 'always' or 'never').",
-			Default:     string(codersdk.AutomaticUpdatesNever),
+			Default:     string(wirtualsdk.AutomaticUpdatesNever),
 			Value:       serpent.StringOf(&autoUpdates),
 		},
 		serpent.Option{
@@ -367,21 +367,21 @@ type prepWorkspaceBuildArgs struct {
 	TemplateVersionID uuid.UUID
 	NewWorkspaceName  string
 
-	LastBuildParameters       []codersdk.WorkspaceBuildParameter
-	SourceWorkspaceParameters []codersdk.WorkspaceBuildParameter
+	LastBuildParameters       []wirtualsdk.WorkspaceBuildParameter
+	SourceWorkspaceParameters []wirtualsdk.WorkspaceBuildParameter
 
 	PromptEphemeralParameters bool
-	EphemeralParameters       []codersdk.WorkspaceBuildParameter
+	EphemeralParameters       []wirtualsdk.WorkspaceBuildParameter
 
 	PromptRichParameters  bool
-	RichParameters        []codersdk.WorkspaceBuildParameter
+	RichParameters        []wirtualsdk.WorkspaceBuildParameter
 	RichParameterFile     string
-	RichParameterDefaults []codersdk.WorkspaceBuildParameter
+	RichParameterDefaults []wirtualsdk.WorkspaceBuildParameter
 }
 
 // prepWorkspaceBuild will ensure a workspace build will succeed on the latest template version.
 // Any missing params will be prompted to the user. It supports rich parameters.
-func prepWorkspaceBuild(inv *serpent.Invocation, client *codersdk.Client, args prepWorkspaceBuildArgs) ([]codersdk.WorkspaceBuildParameter, error) {
+func prepWorkspaceBuild(inv *serpent.Invocation, client *wirtualsdk.Client, args prepWorkspaceBuildArgs) ([]wirtualsdk.WorkspaceBuildParameter, error) {
 	ctx := inv.Context()
 
 	templateVersion, err := client.TemplateVersion(ctx, args.TemplateVersionID)
@@ -417,7 +417,7 @@ func prepWorkspaceBuild(inv *serpent.Invocation, client *codersdk.Client, args p
 	}
 
 	err = cliui.ExternalAuth(ctx, inv.Stdout, cliui.ExternalAuthOptions{
-		Fetch: func(ctx context.Context) ([]codersdk.TemplateVersionExternalAuth, error) {
+		Fetch: func(ctx context.Context) ([]wirtualsdk.TemplateVersionExternalAuth, error) {
 			return client.TemplateVersionExternalAuth(ctx, templateVersion.ID)
 		},
 	})
@@ -426,7 +426,7 @@ func prepWorkspaceBuild(inv *serpent.Invocation, client *codersdk.Client, args p
 	}
 
 	// Run a dry-run with the given parameters to check correctness
-	dryRun, err := client.CreateTemplateVersionDryRun(inv.Context(), templateVersion.ID, codersdk.CreateTemplateVersionDryRunRequest{
+	dryRun, err := client.CreateTemplateVersionDryRun(inv.Context(), templateVersion.ID, wirtualsdk.CreateTemplateVersionDryRunRequest{
 		WorkspaceName:       args.NewWorkspaceName,
 		RichParameterValues: buildParameters,
 	})
@@ -435,13 +435,13 @@ func prepWorkspaceBuild(inv *serpent.Invocation, client *codersdk.Client, args p
 	}
 	_, _ = fmt.Fprintln(inv.Stdout, "Planning workspace...")
 	err = cliui.ProvisionerJob(inv.Context(), inv.Stdout, cliui.ProvisionerJobOptions{
-		Fetch: func() (codersdk.ProvisionerJob, error) {
+		Fetch: func() (wirtualsdk.ProvisionerJob, error) {
 			return client.TemplateVersionDryRun(inv.Context(), templateVersion.ID, dryRun.ID)
 		},
 		Cancel: func() error {
 			return client.CancelTemplateVersionDryRun(inv.Context(), templateVersion.ID, dryRun.ID)
 		},
-		Logs: func() (<-chan codersdk.ProvisionerJobLog, io.Closer, error) {
+		Logs: func() (<-chan wirtualsdk.ProvisionerJobLog, io.Closer, error) {
 			return client.TemplateVersionDryRunLogsAfter(inv.Context(), templateVersion.ID, dryRun.ID, 0)
 		},
 		// Don't show log output for the dry-run unless there's an error.

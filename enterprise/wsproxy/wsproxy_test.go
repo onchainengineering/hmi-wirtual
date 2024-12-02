@@ -24,18 +24,18 @@ import (
 	"cdr.dev/slog/sloggers/slogtest"
 	"github.com/coder/coder/v2/agent/agenttest"
 	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/healthcheck/derphealth"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/workspaceapps/apptest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbgen"
+	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
+	"github.com/coder/coder/v2/wirtuald/healthcheck/derphealth"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtuald/workspaceapps/apptest"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 	"github.com/coder/coder/v2/cryptorand"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/enterprise/wsproxy/wsproxysdk"
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/testutil"
@@ -67,8 +67,8 @@ func TestDERPOnly(t *testing.T) {
 		},
 		LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureWorkspaceProxy:        1,
-				codersdk.FeatureMultipleOrganizations: 1,
+				wirtualsdk.FeatureWorkspaceProxy:        1,
+				wirtualsdk.FeatureMultipleOrganizations: 1,
 			},
 		},
 	})
@@ -115,8 +115,8 @@ func TestDERP(t *testing.T) {
 		},
 		LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureWorkspaceProxy:        1,
-				codersdk.FeatureMultipleOrganizations: 1,
+				wirtualsdk.FeatureWorkspaceProxy:        1,
+				wirtualsdk.FeatureMultipleOrganizations: 1,
 			},
 		},
 	})
@@ -140,7 +140,7 @@ func TestDERP(t *testing.T) {
 
 	// Create a proxy that is never started.
 	ctx := testutil.Context(t, testutil.WaitLong)
-	_, err := client.CreateWorkspaceProxy(ctx, codersdk.CreateWorkspaceProxyRequest{
+	_, err := client.CreateWorkspaceProxy(ctx, wirtualsdk.CreateWorkspaceProxyRequest{
 		Name: "never-started-proxy",
 	})
 	require.NoError(t, err)
@@ -348,8 +348,8 @@ func TestDERPEndToEnd(t *testing.T) {
 		},
 		LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureWorkspaceProxy:        1,
-				codersdk.FeatureMultipleOrganizations: 1,
+				wirtualsdk.FeatureWorkspaceProxy:        1,
+				wirtualsdk.FeatureMultipleOrganizations: 1,
 			},
 		},
 	})
@@ -486,8 +486,8 @@ func TestDERPMesh(t *testing.T) {
 		},
 		LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureWorkspaceProxy:        1,
-				codersdk.FeatureMultipleOrganizations: 1,
+				wirtualsdk.FeatureWorkspaceProxy:        1,
+				wirtualsdk.FeatureMultipleOrganizations: 1,
 			},
 		},
 	})
@@ -563,9 +563,9 @@ func TestDERPMesh(t *testing.T) {
 // replica in the same region as itself periodically.
 func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 	t.Parallel()
-	createProxyRegion := func(ctx context.Context, t *testing.T, client *codersdk.Client, name string) codersdk.UpdateWorkspaceProxyResponse {
+	createProxyRegion := func(ctx context.Context, t *testing.T, client *wirtualsdk.Client, name string) wirtualsdk.UpdateWorkspaceProxyResponse {
 		t.Helper()
-		proxyRes, err := client.CreateWorkspaceProxy(ctx, codersdk.CreateWorkspaceProxyRequest{
+		proxyRes, err := client.CreateWorkspaceProxy(ctx, wirtualsdk.CreateWorkspaceProxyRequest{
 			Name: name,
 			Icon: "/emojis/flag.png",
 		})
@@ -628,8 +628,8 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceProxy:        1,
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureWorkspaceProxy:        1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -659,7 +659,7 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 				Name:     "proxy-1",
 				Token:    sessionToken,
 				ProxyURL: proxyURL,
-				ReplicaPingCallback: func(replicas []codersdk.Replica, err string) {
+				ReplicaPingCallback: func(replicas []wirtualsdk.Replica, err string) {
 					if len(replicas) != count-1 {
 						// Still warming up...
 						return
@@ -703,7 +703,7 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 			resp, err := http.DefaultClient.Do(req)
 			require.NoError(t, err)
 
-			var respJSON codersdk.ProxyHealthReport
+			var respJSON wirtualsdk.ProxyHealthReport
 			err = json.NewDecoder(resp.Body).Decode(&respJSON)
 			resp.Body.Close()
 			require.NoError(t, err)
@@ -739,8 +739,8 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceProxy:        1,
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureWorkspaceProxy:        1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -757,7 +757,7 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 		proxy := coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
 			Name:     "proxy-2",
 			ProxyURL: proxyURL,
-			ReplicaPingCallback: func(replicas []codersdk.Replica, err string) {
+			ReplicaPingCallback: func(replicas []wirtualsdk.Replica, err string) {
 				if len(replicas) != fakeCount {
 					// Still warming up...
 					return
@@ -790,7 +790,7 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 		resp, err := http.DefaultClient.Do(req)
 		require.NoError(t, err)
 
-		var respJSON codersdk.ProxyHealthReport
+		var respJSON wirtualsdk.ProxyHealthReport
 		err = json.NewDecoder(resp.Body).Decode(&respJSON)
 		resp.Body.Close()
 		require.NoError(t, err)
@@ -827,8 +827,8 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceProxy:        1,
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureWorkspaceProxy:        1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -844,7 +844,7 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 		proxy := coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
 			Name:     "proxy-2",
 			ProxyURL: proxyURL,
-			ReplicaPingCallback: func(_ []codersdk.Replica, err string) {
+			ReplicaPingCallback: func(_ []wirtualsdk.Replica, err string) {
 				replicaPingErr <- err
 			},
 		})
@@ -871,7 +871,7 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := http.DefaultClient.Do(req)
 		require.NoError(t, err)
-		var respJSON codersdk.ProxyHealthReport
+		var respJSON wirtualsdk.ProxyHealthReport
 		err = json.NewDecoder(resp.Body).Decode(&respJSON)
 		resp.Body.Close()
 		require.NoError(t, err)
@@ -958,8 +958,8 @@ func TestWorkspaceProxyWorkspaceApps(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceProxy:        1,
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureWorkspaceProxy:        1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -1039,8 +1039,8 @@ func TestWorkspaceProxyWorkspaceApps_BlockDirect(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceProxy:        1,
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureWorkspaceProxy:        1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})

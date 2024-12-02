@@ -9,7 +9,7 @@ import (
 	"tailscale.com/tailcfg"
 	"tailscale.com/types/key"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/tailnet/proto"
 )
 
@@ -272,27 +272,27 @@ func DERPNodeFromProto(node *proto.DERPMap_Region_Node) *tailcfg.DERPNode {
 	}
 }
 
-func WorkspaceStatusToProto(status codersdk.WorkspaceStatus) proto.Workspace_Status {
+func WorkspaceStatusToProto(status wirtualsdk.WorkspaceStatus) proto.Workspace_Status {
 	switch status {
-	case codersdk.WorkspaceStatusCanceled:
+	case wirtualsdk.WorkspaceStatusCanceled:
 		return proto.Workspace_CANCELED
-	case codersdk.WorkspaceStatusCanceling:
+	case wirtualsdk.WorkspaceStatusCanceling:
 		return proto.Workspace_CANCELING
-	case codersdk.WorkspaceStatusDeleted:
+	case wirtualsdk.WorkspaceStatusDeleted:
 		return proto.Workspace_DELETED
-	case codersdk.WorkspaceStatusDeleting:
+	case wirtualsdk.WorkspaceStatusDeleting:
 		return proto.Workspace_DELETING
-	case codersdk.WorkspaceStatusFailed:
+	case wirtualsdk.WorkspaceStatusFailed:
 		return proto.Workspace_FAILED
-	case codersdk.WorkspaceStatusPending:
+	case wirtualsdk.WorkspaceStatusPending:
 		return proto.Workspace_PENDING
-	case codersdk.WorkspaceStatusRunning:
+	case wirtualsdk.WorkspaceStatusRunning:
 		return proto.Workspace_RUNNING
-	case codersdk.WorkspaceStatusStarting:
+	case wirtualsdk.WorkspaceStatusStarting:
 		return proto.Workspace_STARTING
-	case codersdk.WorkspaceStatusStopped:
+	case wirtualsdk.WorkspaceStatusStopped:
 		return proto.Workspace_STOPPED
-	case codersdk.WorkspaceStatusStopping:
+	case wirtualsdk.WorkspaceStatusStopping:
 		return proto.Workspace_STOPPING
 	default:
 		return proto.Workspace_UNKNOWN

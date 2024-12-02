@@ -81,11 +81,11 @@ increasing the
 config option.
 
 You risk overloading Coder if you use too many built-in provisioners, so we
-recommend a maximum of five built-in provisioners per `coderd` replica. For more
+recommend a maximum of five built-in provisioners per `wirtuald` replica. For more
 than five provisioners, we recommend that you move to
 [External Provisioners](../../admin/provisioners.md) and also consider
 [High Availability](../../admin/networking/high-availability.md) to run multiple
-`coderd` replicas.
+`wirtuald` replicas.
 
 Visit the
 [CLI documentation](../../reference/cli/server.md#--provisioner-daemons) for

@@ -16,7 +16,7 @@ SCRIPT_DIR=$(dirname "${BASH_SOURCE[0]}")
 	echo generate 1>&2
 
 	# Dump the updated schema (use make to utilize caching).
-	make -C ../.. --no-print-directory coderd/database/dump.sql
+	make -C ../.. --no-print-directory wirtuald/database/dump.sql
 	# The logic below depends on the exact version being correct :(
 	sqlc generate
 

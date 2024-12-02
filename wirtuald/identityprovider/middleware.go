@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/site"
 )
 
@@ -18,7 +18,7 @@ func authorizeMW(accessURL *url.URL) func(next http.Handler) http.Handler {
 			origin := r.Header.Get(httpmw.OriginHeader)
 			originU, err := url.Parse(origin)
 			if err != nil {
-				httpapi.Write(r.Context(), rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(r.Context(), rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "Invalid origin header.",
 					Detail:  err.Error(),
 				})
@@ -28,7 +28,7 @@ func authorizeMW(accessURL *url.URL) func(next http.Handler) http.Handler {
 			referer := r.Referer()
 			refererU, err := url.Parse(referer)
 			if err != nil {
-				httpapi.Write(r.Context(), rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(r.Context(), rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "Invalid referer header.",
 					Detail:  err.Error(),
 				})

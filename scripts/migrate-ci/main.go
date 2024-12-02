@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/coder/coder/v2/coderd/database/migrations"
+	"github.com/coder/coder/v2/wirtuald/database/migrations"
 	"github.com/coder/coder/v2/cryptorand"
 )
 

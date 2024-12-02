@@ -12,14 +12,14 @@ import (
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/sloghuman"
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/awsiamrds"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/gitsshkey"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/userpassword"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/awsiamrds"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/gitsshkey"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/userpassword"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 )
 
@@ -65,7 +65,7 @@ func (r *RootCmd) newCreateAdminUserCommand() *serpent.Command {
 			}
 
 			sqlDriver := "postgres"
-			if codersdk.PostgresAuth(newUserPgAuth) == codersdk.PostgresAuthAWSIAMRDS {
+			if wirtualsdk.PostgresAuth(newUserPgAuth) == wirtualsdk.PostgresAuthAWSIAMRDS {
 				sqlDriver, err = awsiamrds.Register(inv.Context(), sqlDriver)
 				if err != nil {
 					return xerrors.Errorf("register aws rds iam auth: %w", err)
@@ -83,7 +83,7 @@ func (r *RootCmd) newCreateAdminUserCommand() *serpent.Command {
 
 			validateInputs := func(username, email, password string) error {
 				// Use the validator tags so we match the API's validation.
-				req := codersdk.CreateUserRequestWithOrgs{
+				req := wirtualsdk.CreateUserRequestWithOrgs{
 					Username:        "username",
 					Name:            "Admin User",
 					Email:           "email@coder.com",
@@ -263,7 +263,7 @@ func (r *RootCmd) newCreateAdminUserCommand() *serpent.Command {
 			Flag:        "postgres-connection-auth",
 			Env:         "CODER_PG_CONNECTION_AUTH",
 			Default:     "password",
-			Value:       serpent.EnumOf(&newUserPgAuth, codersdk.PostgresAuthDrivers...),
+			Value:       serpent.EnumOf(&newUserPgAuth, wirtualsdk.PostgresAuthDrivers...),
 		},
 		serpent.Option{
 			Env:         "CODER_SSH_KEYGEN_ALGORITHM",

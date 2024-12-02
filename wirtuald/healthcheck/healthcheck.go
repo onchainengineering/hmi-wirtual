@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/coderd/healthcheck/derphealth"
-	"github.com/coder/coder/v2/coderd/healthcheck/health"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk/healthsdk"
+	"github.com/coder/coder/v2/wirtuald/healthcheck/derphealth"
+	"github.com/coder/coder/v2/wirtuald/healthcheck/health"
+	"github.com/coder/coder/v2/wirtuald/util/ptr"
+	"github.com/coder/coder/v2/wirtualsdk/healthsdk"
 )
 
 type Checker interface {

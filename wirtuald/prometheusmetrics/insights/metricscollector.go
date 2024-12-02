@@ -13,9 +13,9 @@ import (
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/util/slice"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 var (
@@ -202,25 +202,25 @@ func (mc *MetricsCollector) Collect(metricsCh chan<- prometheus.Metric) {
 		metricsCh <- prometheus.MustNewConstMetric(applicationsUsageSecondsDesc, prometheus.GaugeValue,
 			float64(templateRow.UsageVscodeSeconds),
 			data.templateNames[templateRow.TemplateID],
-			codersdk.TemplateBuiltinAppDisplayNameVSCode,
+			wirtualsdk.TemplateBuiltinAppDisplayNameVSCode,
 			"")
 
 		metricsCh <- prometheus.MustNewConstMetric(applicationsUsageSecondsDesc, prometheus.GaugeValue,
 			float64(templateRow.UsageJetbrainsSeconds),
 			data.templateNames[templateRow.TemplateID],
-			codersdk.TemplateBuiltinAppDisplayNameJetBrains,
+			wirtualsdk.TemplateBuiltinAppDisplayNameJetBrains,
 			"")
 
 		metricsCh <- prometheus.MustNewConstMetric(applicationsUsageSecondsDesc, prometheus.GaugeValue,
 			float64(templateRow.UsageReconnectingPtySeconds),
 			data.templateNames[templateRow.TemplateID],
-			codersdk.TemplateBuiltinAppDisplayNameWebTerminal,
+			wirtualsdk.TemplateBuiltinAppDisplayNameWebTerminal,
 			"")
 
 		metricsCh <- prometheus.MustNewConstMetric(applicationsUsageSecondsDesc, prometheus.GaugeValue,
 			float64(templateRow.UsageSshSeconds),
 			data.templateNames[templateRow.TemplateID],
-			codersdk.TemplateBuiltinAppDisplayNameSSH,
+			wirtualsdk.TemplateBuiltinAppDisplayNameSSH,
 			"")
 	}
 

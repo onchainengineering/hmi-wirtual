@@ -16,15 +16,15 @@ import (
 	"github.com/go-jose/go-jose/v4/jwt"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/coderd/cryptokeys"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/jwtutils"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/rbac/policy"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/cryptokeys"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtuald/jwtutils"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/rbac/policy"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // DBTokenProvider provides authentication and authorization for workspace apps
@@ -36,7 +36,7 @@ type DBTokenProvider struct {
 	DashboardURL                  *url.URL
 	Authorizer                    rbac.Authorizer
 	Database                      database.Store
-	DeploymentValues              *codersdk.DeploymentValues
+	DeploymentValues              *wirtualsdk.DeploymentValues
 	OAuth2Configs                 *httpmw.OAuth2Configs
 	WorkspaceAgentInactiveTimeout time.Duration
 	Keycache                      cryptokeys.SigningKeycache
@@ -48,7 +48,7 @@ func NewDBTokenProvider(log slog.Logger,
 	accessURL *url.URL,
 	authz rbac.Authorizer,
 	db database.Store,
-	cfg *codersdk.DeploymentValues,
+	cfg *wirtualsdk.DeploymentValues,
 	oauth2Cfgs *httpmw.OAuth2Configs,
 	workspaceAgentInactiveTimeout time.Duration,
 	signer cryptokeys.SigningKeycache,

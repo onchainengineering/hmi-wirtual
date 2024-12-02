@@ -7,12 +7,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/rbac/policy"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbgen"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/rbac/policy"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/testutil"
 )
 
@@ -48,7 +48,7 @@ func TestListCustomRoles(t *testing.T) {
 		roles, err := client.ListOrganizationRoles(ctx, owner.OrganizationID)
 		require.NoError(t, err)
 
-		found := slices.ContainsFunc(roles, func(element codersdk.AssignableRoles) bool {
+		found := slices.ContainsFunc(roles, func(element wirtualsdk.AssignableRoles) bool {
 			return element.Name == roleName && element.OrganizationID == owner.OrganizationID.String()
 		})
 		require.Truef(t, found, "custom organization role listed")

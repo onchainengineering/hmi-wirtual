@@ -21,7 +21,7 @@ import (
 	"cdr.dev/slog/sloggers/slogtest"
 	"github.com/coder/coder/v2/cli"
 	"github.com/coder/coder/v2/cli/config"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/serpent"
@@ -79,7 +79,7 @@ func NewWithCommand(
 }
 
 // SetupConfig applies the URL and SessionToken of the client to the config.
-func SetupConfig(t *testing.T, client *codersdk.Client, root config.Root) {
+func SetupConfig(t *testing.T, client *wirtualsdk.Client, root config.Root) {
 	err := root.Session().Write(client.SessionToken())
 	require.NoError(t, err)
 	err = root.URL().Write(client.URL.String())

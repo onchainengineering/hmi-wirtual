@@ -10,7 +10,7 @@ import (
 	"go.uber.org/goleak"
 	"storj.io/drpc/drpcconn"
 
-	"github.com/coder/coder/v2/codersdk/drpc"
+	"github.com/coder/coder/v2/wirtualsdk/drpc"
 	"github.com/coder/coder/v2/provisionersdk"
 	"github.com/coder/coder/v2/provisionersdk/proto"
 	"github.com/coder/coder/v2/testutil"

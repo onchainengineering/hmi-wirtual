@@ -11,12 +11,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbmem"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbgen"
+	"github.com/coder/coder/v2/wirtuald/database/dbmem"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/testutil"
 )
 
@@ -32,7 +32,7 @@ func TestOrganizationParam(t *testing.T) {
 		_, token := dbgen.APIKey(t, db, database.APIKey{
 			UserID: user.ID,
 		})
-		r.Header.Set(codersdk.SessionTokenHeader, token)
+		r.Header.Set(wirtualsdk.SessionTokenHeader, token)
 		r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, chi.NewRouteContext()))
 		return r, user
 	}
@@ -151,11 +151,11 @@ func TestOrganizationParam(t *testing.T) {
 		_ = dbgen.OrganizationMember(t, db, database.OrganizationMember{
 			OrganizationID: organization.ID,
 			UserID:         user.ID,
-			Roles:          []string{codersdk.RoleOrganizationMember},
+			Roles:          []string{wirtualsdk.RoleOrganizationMember},
 		})
 		_, err := db.UpdateUserRoles(ctx, database.UpdateUserRolesParams{
 			ID:           user.ID,
-			GrantedRoles: []string{codersdk.RoleTemplateAdmin},
+			GrantedRoles: []string{wirtualsdk.RoleTemplateAdmin},
 		})
 		require.NoError(t, err)
 
@@ -209,7 +209,7 @@ func TestOrganizationParam(t *testing.T) {
 		require.Equal(t, http.StatusOK, res.StatusCode, "by name")
 
 		// Try by 'default'
-		chi.RouteContext(r.Context()).URLParams.Add("organization", codersdk.DefaultOrganization)
+		chi.RouteContext(r.Context()).URLParams.Add("organization", wirtualsdk.DefaultOrganization)
 		chi.RouteContext(r.Context()).URLParams.Add("user", user.ID.String())
 		rtr.ServeHTTP(rw, r)
 		res = rw.Result()

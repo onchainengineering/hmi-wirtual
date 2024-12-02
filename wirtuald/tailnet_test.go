@@ -23,10 +23,10 @@ import (
 	"github.com/coder/coder/v2/agent"
 	"github.com/coder/coder/v2/agent/agenttest"
 	"github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/coderd"
-	"github.com/coder/coder/v2/coderd/workspaceapps/appurl"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/coder/coder/v2/wirtuald"
+	"github.com/coder/coder/v2/wirtuald/workspaceapps/appurl"
+	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
+	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 	"github.com/coder/coder/v2/tailnet"
 	"github.com/coder/coder/v2/tailnet/tailnettest"
 	"github.com/coder/coder/v2/testutil"
@@ -389,7 +389,7 @@ type agentWithID struct {
 	agent.Agent
 }
 
-func setupServerTailnetAgent(t *testing.T, agentNum int, opts ...tailnettest.DERPAndStunOption) ([]agentWithID, *coderd.ServerTailnet) {
+func setupServerTailnetAgent(t *testing.T, agentNum int, opts ...tailnettest.DERPAndStunOption) ([]agentWithID, *wirtuald.ServerTailnet) {
 	logger := testutil.Logger(t)
 	derpMap, derpServer := tailnettest.RunDERPAndSTUN(t, opts...)
 
@@ -430,13 +430,13 @@ func setupServerTailnetAgent(t *testing.T, agentNum int, opts ...tailnettest.DER
 		agents = append(agents, agentWithID{id: manifest.AgentID, Agent: ag})
 	}
 
-	dialer := &coderd.InmemTailnetDialer{
+	dialer := &wirtuald.InmemTailnetDialer{
 		CoordPtr: &coordPtr,
 		DERPFn:   func() *tailcfg.DERPMap { return derpMap },
 		Logger:   logger,
 		ClientID: uuid.UUID{5},
 	}
-	serverTailnet, err := coderd.NewServerTailnet(
+	serverTailnet, err := wirtuald.NewServerTailnet(
 		context.Background(),
 		logger,
 		derpServer,

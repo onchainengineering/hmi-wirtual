@@ -13,9 +13,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/workspaceapps/appurl"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/workspaceapps/appurl"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 var errWorkspaceStopped = xerrors.New("stopped workspace")
@@ -158,7 +158,7 @@ func (r Request) Check() error {
 	if r.UsernameOrID == "" {
 		return xerrors.New("username or ID is required")
 	}
-	if r.UsernameOrID == codersdk.Me {
+	if r.UsernameOrID == wirtualsdk.Me {
 		// We block "me" for workspace app auth to avoid any security issues
 		// caused by having an identical workspace name on yourself and a
 		// different user and potentially reusing a token.

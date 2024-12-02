@@ -6,10 +6,10 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/coder/coder/v2/coderd/healthcheck/health"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/healthsdk"
+	"github.com/coder/coder/v2/wirtuald/healthcheck/health"
+	"github.com/coder/coder/v2/wirtuald/util/ptr"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/healthsdk"
 )
 
 type WorkspaceProxyReport healthsdk.WorkspaceProxyReport
@@ -20,7 +20,7 @@ type WorkspaceProxyReportOptions struct {
 }
 
 type WorkspaceProxiesFetchUpdater interface {
-	Fetch(context.Context) (codersdk.RegionsResponse[codersdk.WorkspaceProxy], error)
+	Fetch(context.Context) (wirtualsdk.RegionsResponse[wirtualsdk.WorkspaceProxy], error)
 	Update(context.Context) error
 }
 
@@ -28,8 +28,8 @@ type WorkspaceProxiesFetchUpdater interface {
 // to the extent required by AGPL code. Which isn't that much.
 type AGPLWorkspaceProxiesFetchUpdater struct{}
 
-func (*AGPLWorkspaceProxiesFetchUpdater) Fetch(context.Context) (codersdk.RegionsResponse[codersdk.WorkspaceProxy], error) {
-	return codersdk.RegionsResponse[codersdk.WorkspaceProxy]{}, nil
+func (*AGPLWorkspaceProxiesFetchUpdater) Fetch(context.Context) (wirtualsdk.RegionsResponse[wirtualsdk.WorkspaceProxy], error) {
+	return wirtualsdk.RegionsResponse[wirtualsdk.WorkspaceProxy]{}, nil
 }
 
 func (*AGPLWorkspaceProxiesFetchUpdater) Update(context.Context) error {
@@ -67,7 +67,7 @@ func (r *WorkspaceProxyReport) Run(ctx context.Context, opts *WorkspaceProxyRepo
 		}
 	}
 	if r.WorkspaceProxies.Regions == nil {
-		r.WorkspaceProxies.Regions = make([]codersdk.WorkspaceProxy, 0)
+		r.WorkspaceProxies.Regions = make([]wirtualsdk.WorkspaceProxy, 0)
 	}
 
 	// Stable sort based on create timestamp.

@@ -13,16 +13,16 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/oauth2"
 
-	"github.com/coder/coder/v2/coderd/apikey"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/coderdtest/oidctest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/identityprovider"
-	"github.com/coder/coder/v2/coderd/userpassword"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/apikey"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/coderdtest/oidctest"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/identityprovider"
+	"github.com/coder/coder/v2/wirtuald/userpassword"
+	"github.com/coder/coder/v2/wirtuald/util/ptr"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/testutil"
 )
 
@@ -39,93 +39,93 @@ func TestOAuth2ProviderApps(t *testing.T) {
 
 		tests := []struct {
 			name string
-			req  codersdk.PostOAuth2ProviderAppRequest
+			req  wirtualsdk.PostOAuth2ProviderAppRequest
 		}{
 			{
 				name: "NameMissing",
-				req: codersdk.PostOAuth2ProviderAppRequest{
+				req: wirtualsdk.PostOAuth2ProviderAppRequest{
 					CallbackURL: "http://localhost:3000",
 				},
 			},
 			{
 				name: "NameSpaces",
-				req: codersdk.PostOAuth2ProviderAppRequest{
+				req: wirtualsdk.PostOAuth2ProviderAppRequest{
 					Name:        "foo bar",
 					CallbackURL: "http://localhost:3000",
 				},
 			},
 			{
 				name: "NameTooLong",
-				req: codersdk.PostOAuth2ProviderAppRequest{
+				req: wirtualsdk.PostOAuth2ProviderAppRequest{
 					Name:        "too loooooooooooooooooooooooooong",
 					CallbackURL: "http://localhost:3000",
 				},
 			},
 			{
 				name: "NameTaken",
-				req: codersdk.PostOAuth2ProviderAppRequest{
+				req: wirtualsdk.PostOAuth2ProviderAppRequest{
 					Name:        "taken",
 					CallbackURL: "http://localhost:3000",
 				},
 			},
 			{
 				name: "URLMissing",
-				req: codersdk.PostOAuth2ProviderAppRequest{
+				req: wirtualsdk.PostOAuth2ProviderAppRequest{
 					Name: "foo",
 				},
 			},
 			{
 				name: "URLLocalhostNoScheme",
-				req: codersdk.PostOAuth2ProviderAppRequest{
+				req: wirtualsdk.PostOAuth2ProviderAppRequest{
 					Name:        "foo",
 					CallbackURL: "localhost:3000",
 				},
 			},
 			{
 				name: "URLNoScheme",
-				req: codersdk.PostOAuth2ProviderAppRequest{
+				req: wirtualsdk.PostOAuth2ProviderAppRequest{
 					Name:        "foo",
 					CallbackURL: "coder.com",
 				},
 			},
 			{
 				name: "URLNoColon",
-				req: codersdk.PostOAuth2ProviderAppRequest{
+				req: wirtualsdk.PostOAuth2ProviderAppRequest{
 					Name:        "foo",
 					CallbackURL: "http//coder",
 				},
 			},
 			{
 				name: "URLJustBar",
-				req: codersdk.PostOAuth2ProviderAppRequest{
+				req: wirtualsdk.PostOAuth2ProviderAppRequest{
 					Name:        "foo",
 					CallbackURL: "bar",
 				},
 			},
 			{
 				name: "URLPathOnly",
-				req: codersdk.PostOAuth2ProviderAppRequest{
+				req: wirtualsdk.PostOAuth2ProviderAppRequest{
 					Name:        "foo",
 					CallbackURL: "/bar/baz/qux",
 				},
 			},
 			{
 				name: "URLJustHttp",
-				req: codersdk.PostOAuth2ProviderAppRequest{
+				req: wirtualsdk.PostOAuth2ProviderAppRequest{
 					Name:        "foo",
 					CallbackURL: "http",
 				},
 			},
 			{
 				name: "URLNoHost",
-				req: codersdk.PostOAuth2ProviderAppRequest{
+				req: wirtualsdk.PostOAuth2ProviderAppRequest{
 					Name:        "foo",
 					CallbackURL: "http://",
 				},
 			},
 			{
 				name: "URLSpaces",
-				req: codersdk.PostOAuth2ProviderAppRequest{
+				req: wirtualsdk.PostOAuth2ProviderAppRequest{
 					Name:        "foo",
 					CallbackURL: "bar baz qux",
 				},
@@ -133,7 +133,7 @@ func TestOAuth2ProviderApps(t *testing.T) {
 		}
 
 		// Generate an application for testing name conflicts.
-		req := codersdk.PostOAuth2ProviderAppRequest{
+		req := wirtualsdk.PostOAuth2ProviderAppRequest{
 			Name:        "taken",
 			CallbackURL: "http://coder.com",
 		}
@@ -142,7 +142,7 @@ func TestOAuth2ProviderApps(t *testing.T) {
 		require.NoError(t, err)
 
 		// Generate an application for testing PUTs.
-		req = codersdk.PostOAuth2ProviderAppRequest{
+		req = wirtualsdk.PostOAuth2ProviderAppRequest{
 			Name:        "quark",
 			CallbackURL: "http://coder.com",
 		}
@@ -161,7 +161,7 @@ func TestOAuth2ProviderApps(t *testing.T) {
 				require.Error(t, err)
 
 				//nolint:gocritic // OAauth2 app management requires owner permission.
-				_, err = client.PutOAuth2ProviderApp(ctx, existingApp.ID, codersdk.PutOAuth2ProviderAppRequest{
+				_, err = client.PutOAuth2ProviderApp(ctx, existingApp.ID, wirtualsdk.PutOAuth2ProviderAppRequest{
 					Name:        test.req.Name,
 					CallbackURL: test.req.CallbackURL,
 				})
@@ -193,25 +193,25 @@ func TestOAuth2ProviderApps(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitLong)
 
 		// No apps yet.
-		apps, err := another.OAuth2ProviderApps(ctx, codersdk.OAuth2ProviderAppFilter{})
+		apps, err := another.OAuth2ProviderApps(ctx, wirtualsdk.OAuth2ProviderAppFilter{})
 		require.NoError(t, err)
 		require.Len(t, apps, 0)
 
 		// Should be able to add apps.
 		expected := generateApps(ctx, t, client, "get-apps")
-		expectedOrder := []codersdk.OAuth2ProviderApp{
+		expectedOrder := []wirtualsdk.OAuth2ProviderApp{
 			expected.Default, expected.NoPort, expected.Subdomain,
 			expected.Extra[0], expected.Extra[1],
 		}
 
 		// Should get all the apps now.
-		apps, err = another.OAuth2ProviderApps(ctx, codersdk.OAuth2ProviderAppFilter{})
+		apps, err = another.OAuth2ProviderApps(ctx, wirtualsdk.OAuth2ProviderAppFilter{})
 		require.NoError(t, err)
 		require.Len(t, apps, 5)
 		require.Equal(t, expectedOrder, apps)
 
 		// Should be able to keep the same name when updating.
-		req := codersdk.PutOAuth2ProviderAppRequest{
+		req := wirtualsdk.PutOAuth2ProviderAppRequest{
 			Name:        expected.Default.Name,
 			CallbackURL: "http://coder.com",
 			Icon:        "test",
@@ -225,7 +225,7 @@ func TestOAuth2ProviderApps(t *testing.T) {
 		require.Equal(t, expected.Default.ID, newApp.ID)
 
 		// Should be able to update name.
-		req = codersdk.PutOAuth2ProviderAppRequest{
+		req = wirtualsdk.PutOAuth2ProviderAppRequest{
 			Name:        "new-foo",
 			CallbackURL: "http://coder.com",
 			Icon:        "test",
@@ -249,7 +249,7 @@ func TestOAuth2ProviderApps(t *testing.T) {
 		require.NoError(t, err)
 
 		// Should show the new count.
-		newApps, err := another.OAuth2ProviderApps(ctx, codersdk.OAuth2ProviderAppFilter{})
+		newApps, err := another.OAuth2ProviderApps(ctx, wirtualsdk.OAuth2ProviderAppFilter{})
 		require.NoError(t, err)
 		require.Len(t, newApps, 4)
 
@@ -263,7 +263,7 @@ func TestOAuth2ProviderApps(t *testing.T) {
 		another, user := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 		ctx := testutil.Context(t, testutil.WaitLong)
 		_ = generateApps(ctx, t, client, "by-user")
-		apps, err := another.OAuth2ProviderApps(ctx, codersdk.OAuth2ProviderAppFilter{
+		apps, err := another.OAuth2ProviderApps(ctx, wirtualsdk.OAuth2ProviderAppFilter{
 			UserID: user.ID,
 		})
 		require.NoError(t, err)
@@ -397,9 +397,9 @@ func TestOAuth2ProviderTokenExchange(t *testing.T) {
 	//             Coder can just immediately redirect back to backstage without user intervention.
 	tests := []struct {
 		name string
-		app  codersdk.OAuth2ProviderApp
+		app  wirtualsdk.OAuth2ProviderApp
 		// The flow is setup(ctx, client, user) -> preAuth(cfg) -> cfg.AuthCodeURL() -> preToken(cfg) -> cfg.Exchange()
-		setup      func(context.Context, *codersdk.Client, codersdk.User) error
+		setup      func(context.Context, *wirtualsdk.Client, wirtualsdk.User) error
 		preAuth    func(valid *oauth2.Config)
 		authError  string
 		preToken   func(valid *oauth2.Config)
@@ -637,7 +637,7 @@ func TestOAuth2ProviderTokenExchange(t *testing.T) {
 			app:         apps.Default,
 			defaultCode: ptr.Ref("coder_prefix_code"),
 			tokenError:  "Invalid code",
-			setup: func(ctx context.Context, client *codersdk.Client, user codersdk.User) error {
+			setup: func(ctx context.Context, client *wirtualsdk.Client, user wirtualsdk.User) error {
 				// Insert an expired code.
 				hashedCode, err := userpassword.Hash("prefix_code")
 				if err != nil {
@@ -725,10 +725,10 @@ func TestOAuth2ProviderTokenExchange(t *testing.T) {
 				require.True(t, time.Now().After(token.Expiry))
 
 				// Check that the token works.
-				newClient := codersdk.New(userClient.URL)
+				newClient := wirtualsdk.New(userClient.URL)
 				newClient.SetSessionToken(token.AccessToken)
 
-				gotUser, err := newClient.User(ctx, codersdk.Me)
+				gotUser, err := newClient.User(ctx, wirtualsdk.Me)
 				require.NoError(t, err)
 				require.Equal(t, user.ID, gotUser.ID)
 			}
@@ -756,7 +756,7 @@ func TestOAuth2ProviderTokenRefresh(t *testing.T) {
 	// client library will not even try to make the request.
 	tests := []struct {
 		name string
-		app  codersdk.OAuth2ProviderApp
+		app  wirtualsdk.OAuth2ProviderApp
 		// If null, assume the token should be valid.
 		defaultToken *string
 		error        string
@@ -842,9 +842,9 @@ func TestOAuth2ProviderTokenRefresh(t *testing.T) {
 			require.NoError(t, err)
 
 			// Check that the key works.
-			newClient := codersdk.New(userClient.URL)
+			newClient := wirtualsdk.New(userClient.URL)
 			newClient.SetSessionToken(sessionToken)
-			gotUser, err := newClient.User(ctx, codersdk.Me)
+			gotUser, err := newClient.User(ctx, wirtualsdk.Me)
 			require.NoError(t, err)
 			require.Equal(t, user.ID, gotUser.ID)
 
@@ -880,15 +880,15 @@ func TestOAuth2ProviderTokenRefresh(t *testing.T) {
 				require.NotEmpty(t, refreshed.AccessToken)
 
 				// Old token is now invalid.
-				_, err = newClient.User(ctx, codersdk.Me)
+				_, err = newClient.User(ctx, wirtualsdk.Me)
 				require.Error(t, err)
 				require.ErrorContains(t, err, "401")
 
 				// Refresh token is valid.
-				newClient := codersdk.New(userClient.URL)
+				newClient := wirtualsdk.New(userClient.URL)
 				newClient.SetSessionToken(refreshed.AccessToken)
 
-				gotUser, err := newClient.User(ctx, codersdk.Me)
+				gotUser, err := newClient.User(ctx, wirtualsdk.Me)
 				require.NoError(t, err)
 				require.Equal(t, user.ID, gotUser.ID)
 			}
@@ -898,8 +898,8 @@ func TestOAuth2ProviderTokenRefresh(t *testing.T) {
 
 type exchangeSetup struct {
 	cfg    *oauth2.Config
-	app    codersdk.OAuth2ProviderApp
-	secret codersdk.OAuth2ProviderAppSecretFull
+	app    wirtualsdk.OAuth2ProviderApp
+	secret wirtualsdk.OAuth2ProviderAppSecretFull
 	code   string
 }
 
@@ -912,14 +912,14 @@ func TestOAuth2ProviderRevoke(t *testing.T) {
 	tests := []struct {
 		name string
 		// fn performs some action that removes the user's code and token.
-		fn func(context.Context, *codersdk.Client, exchangeSetup)
+		fn func(context.Context, *wirtualsdk.Client, exchangeSetup)
 		// replacesToken specifies whether the action replaces the token or only
 		// deletes it.
 		replacesToken bool
 	}{
 		{
 			name: "DeleteApp",
-			fn: func(ctx context.Context, _ *codersdk.Client, s exchangeSetup) {
+			fn: func(ctx context.Context, _ *wirtualsdk.Client, s exchangeSetup) {
 				//nolint:gocritic // OAauth2 app management requires owner permission.
 				err := client.DeleteOAuth2ProviderApp(ctx, s.app.ID)
 				require.NoError(t, err)
@@ -927,7 +927,7 @@ func TestOAuth2ProviderRevoke(t *testing.T) {
 		},
 		{
 			name: "DeleteSecret",
-			fn: func(ctx context.Context, _ *codersdk.Client, s exchangeSetup) {
+			fn: func(ctx context.Context, _ *wirtualsdk.Client, s exchangeSetup) {
 				//nolint:gocritic // OAauth2 app management requires owner permission.
 				err := client.DeleteOAuth2ProviderAppSecret(ctx, s.app.ID, s.secret.ID)
 				require.NoError(t, err)
@@ -935,14 +935,14 @@ func TestOAuth2ProviderRevoke(t *testing.T) {
 		},
 		{
 			name: "DeleteToken",
-			fn: func(ctx context.Context, client *codersdk.Client, s exchangeSetup) {
+			fn: func(ctx context.Context, client *wirtualsdk.Client, s exchangeSetup) {
 				err := client.RevokeOAuth2ProviderApp(ctx, s.app.ID)
 				require.NoError(t, err)
 			},
 		},
 		{
 			name: "OverrideCodeAndToken",
-			fn: func(ctx context.Context, client *codersdk.Client, s exchangeSetup) {
+			fn: func(ctx context.Context, client *wirtualsdk.Client, s exchangeSetup) {
 				// Generating a new code should wipe out the old code.
 				code, err := authorizationFlow(ctx, client, s.cfg)
 				require.NoError(t, err)
@@ -955,11 +955,11 @@ func TestOAuth2ProviderRevoke(t *testing.T) {
 		},
 	}
 
-	setup := func(ctx context.Context, testClient *codersdk.Client, name string) exchangeSetup {
+	setup := func(ctx context.Context, testClient *wirtualsdk.Client, name string) exchangeSetup {
 		// We need a new app each time because we only allow one code and token per
 		// app and user at the moment and because the test might delete the app.
 		//nolint:gocritic // OAauth2 app management requires owner permission.
-		app, err := client.PostOAuth2ProviderApp(ctx, codersdk.PostOAuth2ProviderAppRequest{
+		app, err := client.PostOAuth2ProviderApp(ctx, wirtualsdk.PostOAuth2ProviderAppRequest{
 			Name:        name,
 			CallbackURL: "http://localhost",
 		})
@@ -1018,20 +1018,20 @@ func TestOAuth2ProviderRevoke(t *testing.T) {
 			require.NoError(t, err)
 
 			// Validate the returned access token and that the app is listed.
-			newClient := codersdk.New(client.URL)
+			newClient := wirtualsdk.New(client.URL)
 			newClient.SetSessionToken(token.AccessToken)
 
-			gotUser, err := newClient.User(ctx, codersdk.Me)
+			gotUser, err := newClient.User(ctx, wirtualsdk.Me)
 			require.NoError(t, err)
 			require.Equal(t, testUser.ID, gotUser.ID)
 
-			filter := codersdk.OAuth2ProviderAppFilter{UserID: testUser.ID}
+			filter := wirtualsdk.OAuth2ProviderAppFilter{UserID: testUser.ID}
 			apps, err := testClient.OAuth2ProviderApps(ctx, filter)
 			require.NoError(t, err)
 			require.Contains(t, apps, testEntities.app)
 
 			// Should not show up for another user.
-			apps, err = client.OAuth2ProviderApps(ctx, codersdk.OAuth2ProviderAppFilter{UserID: owner.UserID})
+			apps, err = client.OAuth2ProviderApps(ctx, wirtualsdk.OAuth2ProviderAppFilter{UserID: owner.UserID})
 			require.NoError(t, err)
 			require.Len(t, apps, 0)
 
@@ -1046,7 +1046,7 @@ func TestOAuth2ProviderRevoke(t *testing.T) {
 			}
 
 			// The token should no longer be valid.
-			_, err = newClient.User(ctx, codersdk.Me)
+			_, err = newClient.User(ctx, wirtualsdk.Me)
 			require.Error(t, err)
 			require.ErrorContains(t, err, "401")
 		})
@@ -1054,18 +1054,18 @@ func TestOAuth2ProviderRevoke(t *testing.T) {
 }
 
 type provisionedApps struct {
-	Default   codersdk.OAuth2ProviderApp
-	NoPort    codersdk.OAuth2ProviderApp
-	Subdomain codersdk.OAuth2ProviderApp
+	Default   wirtualsdk.OAuth2ProviderApp
+	NoPort    wirtualsdk.OAuth2ProviderApp
+	Subdomain wirtualsdk.OAuth2ProviderApp
 	// For sorting purposes these are included. You will likely never touch them.
-	Extra []codersdk.OAuth2ProviderApp
+	Extra []wirtualsdk.OAuth2ProviderApp
 }
 
-func generateApps(ctx context.Context, t *testing.T, client *codersdk.Client, suffix string) provisionedApps {
-	create := func(name, callback string) codersdk.OAuth2ProviderApp {
+func generateApps(ctx context.Context, t *testing.T, client *wirtualsdk.Client, suffix string) provisionedApps {
+	create := func(name, callback string) wirtualsdk.OAuth2ProviderApp {
 		name = fmt.Sprintf("%s-%s", name, suffix)
 		//nolint:gocritic // OAauth2 app management requires owner permission.
-		app, err := client.PostOAuth2ProviderApp(ctx, codersdk.PostOAuth2ProviderAppRequest{
+		app, err := client.PostOAuth2ProviderApp(ctx, wirtualsdk.PostOAuth2ProviderAppRequest{
 			Name:        name,
 			CallbackURL: callback,
 			Icon:        "",
@@ -1080,14 +1080,14 @@ func generateApps(ctx context.Context, t *testing.T, client *codersdk.Client, su
 		Default:   create("razzle-dazzle-a", "http://localhost1:8080/foo/bar"),
 		NoPort:    create("razzle-dazzle-b", "http://localhost2"),
 		Subdomain: create("razzle-dazzle-z", "http://30.localhost:3000"),
-		Extra: []codersdk.OAuth2ProviderApp{
+		Extra: []wirtualsdk.OAuth2ProviderApp{
 			create("second-to-last", "http://20.localhost:3000"),
 			create("woo-10", "http://10.localhost:3000"),
 		},
 	}
 }
 
-func authorizationFlow(ctx context.Context, client *codersdk.Client, cfg *oauth2.Config) (string, error) {
+func authorizationFlow(ctx context.Context, client *wirtualsdk.Client, cfg *oauth2.Config) (string, error) {
 	state := uuid.NewString()
 	return oidctest.OAuth2GetCode(
 		cfg.AuthCodeURL(state),

@@ -23,15 +23,15 @@ import (
 	"github.com/coder/coder/v2/agent"
 	"github.com/coder/coder/v2/agent/agenttest"
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/healthcheck/derphealth"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/codersdk/healthsdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbfake"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/healthcheck/derphealth"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
+	"github.com/coder/coder/v2/wirtualsdk/healthsdk"
+	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 	"github.com/coder/coder/v2/provisionersdk/proto"
 	"github.com/coder/coder/v2/tailnet"
 	"github.com/coder/coder/v2/testutil"
@@ -46,7 +46,7 @@ func TestSupportBundle(t *testing.T) {
 	t.Run("Workspace", func(t *testing.T) {
 		t.Parallel()
 		ctx := testutil.Context(t, testutil.WaitShort)
-		var dc codersdk.DeploymentConfig
+		var dc wirtualsdk.DeploymentConfig
 		secretValue := uuid.NewString()
 		seedSecretDeploymentOptions(t, &dc, secretValue)
 		client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
@@ -105,7 +105,7 @@ func TestSupportBundle(t *testing.T) {
 
 	t.Run("NoWorkspace", func(t *testing.T) {
 		t.Parallel()
-		var dc codersdk.DeploymentConfig
+		var dc wirtualsdk.DeploymentConfig
 		secretValue := uuid.NewString()
 		seedSecretDeploymentOptions(t, &dc, secretValue)
 		client := coderdtest.New(t, &coderdtest.Options{
@@ -125,7 +125,7 @@ func TestSupportBundle(t *testing.T) {
 
 	t.Run("NoAgent", func(t *testing.T) {
 		t.Parallel()
-		var dc codersdk.DeploymentConfig
+		var dc wirtualsdk.DeploymentConfig
 		secretValue := uuid.NewString()
 		seedSecretDeploymentOptions(t, &dc, secretValue)
 		client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
@@ -182,7 +182,7 @@ func TestSupportBundle(t *testing.T) {
 					switch r.URL.Path {
 					case "/api/v2/authcheck":
 						// Fake auth check
-						resp := codersdk.AuthorizationResponse{
+						resp := wirtualsdk.AuthorizationResponse{
 							"Read DeploymentValues": true,
 						}
 						w.WriteHeader(http.StatusOK)
@@ -195,7 +195,7 @@ func TestSupportBundle(t *testing.T) {
 				defer srv.Close()
 				u, err := url.Parse(srv.URL)
 				require.NoError(t, err)
-				client := codersdk.New(u)
+				client := wirtualsdk.New(u)
 
 				d := t.TempDir()
 				path := filepath.Join(d, "bundle.zip")
@@ -219,15 +219,15 @@ func assertBundleContents(t *testing.T, path string, wantWorkspace bool, wantAge
 		assertDoesNotContain(t, f, badValues...)
 		switch f.Name {
 		case "deployment/buildinfo.json":
-			var v codersdk.BuildInfoResponse
+			var v wirtualsdk.BuildInfoResponse
 			decodeJSONFromZip(t, f, &v)
 			require.NotEmpty(t, v, "deployment build info should not be empty")
 		case "deployment/config.json":
-			var v codersdk.DeploymentConfig
+			var v wirtualsdk.DeploymentConfig
 			decodeJSONFromZip(t, f, &v)
 			require.NotEmpty(t, v, "deployment config should not be empty")
 		case "deployment/experiments.json":
-			var v codersdk.Experiments
+			var v wirtualsdk.Experiments
 			decodeJSONFromZip(t, f, &v)
 			require.NotEmpty(t, f, v, "experiments should not be empty")
 		case "deployment/health.json":
@@ -253,7 +253,7 @@ func assertBundleContents(t *testing.T, path string, wantWorkspace bool, wantAge
 			decodeJSONFromZip(t, f, &v)
 			require.NotEmpty(t, v, "interfaces should not be empty")
 		case "workspace/workspace.json":
-			var v codersdk.Workspace
+			var v wirtualsdk.Workspace
 			decodeJSONFromZip(t, f, &v)
 			if !wantWorkspace {
 				require.Empty(t, v, "expected workspace to be empty")
@@ -268,7 +268,7 @@ func assertBundleContents(t *testing.T, path string, wantWorkspace bool, wantAge
 			}
 			require.Contains(t, string(bs), "provision done")
 		case "workspace/template.json":
-			var v codersdk.Template
+			var v wirtualsdk.Template
 			decodeJSONFromZip(t, f, &v)
 			if !wantWorkspace {
 				require.Empty(t, v, "expected workspace template to be empty")
@@ -276,7 +276,7 @@ func assertBundleContents(t *testing.T, path string, wantWorkspace bool, wantAge
 			}
 			require.NotEmpty(t, v, "workspace template should not be empty")
 		case "workspace/template_version.json":
-			var v codersdk.TemplateVersion
+			var v wirtualsdk.TemplateVersion
 			decodeJSONFromZip(t, f, &v)
 			if !wantWorkspace {
 				require.Empty(t, v, "expected workspace template version to be empty")
@@ -284,7 +284,7 @@ func assertBundleContents(t *testing.T, path string, wantWorkspace bool, wantAge
 			}
 			require.NotEmpty(t, v, "workspace template version should not be empty")
 		case "workspace/parameters.json":
-			var v []codersdk.WorkspaceBuildParameter
+			var v []wirtualsdk.WorkspaceBuildParameter
 			decodeJSONFromZip(t, f, &v)
 			if !wantWorkspace {
 				require.Empty(t, v, "expected workspace parameters to be empty")
@@ -299,7 +299,7 @@ func assertBundleContents(t *testing.T, path string, wantWorkspace bool, wantAge
 			}
 			require.NotNil(t, bs, "template file should not be nil")
 		case "agent/agent.json":
-			var v codersdk.WorkspaceAgent
+			var v wirtualsdk.WorkspaceAgent
 			decodeJSONFromZip(t, f, &v)
 			if !wantAgent {
 				require.Empty(t, v, "expected agent to be empty")
@@ -307,7 +307,7 @@ func assertBundleContents(t *testing.T, path string, wantWorkspace bool, wantAge
 			}
 			require.NotEmpty(t, v, "agent should not be empty")
 		case "agent/listening_ports.json":
-			var v codersdk.WorkspaceAgentListeningPortsResponse
+			var v wirtualsdk.WorkspaceAgentListeningPortsResponse
 			decodeJSONFromZip(t, f, &v)
 			if !wantAgent {
 				require.Empty(t, v, "expected agent listening ports to be empty")
@@ -412,13 +412,13 @@ func assertDoesNotContain(t *testing.T, f *zip.File, vals ...string) {
 	}
 }
 
-func seedSecretDeploymentOptions(t *testing.T, dc *codersdk.DeploymentConfig, secretValue string) {
+func seedSecretDeploymentOptions(t *testing.T, dc *wirtualsdk.DeploymentConfig, secretValue string) {
 	t.Helper()
 	if dc == nil {
-		dc = &codersdk.DeploymentConfig{}
+		dc = &wirtualsdk.DeploymentConfig{}
 	}
 	for _, opt := range dc.Options {
-		if codersdk.IsSecretDeploymentOption(opt) {
+		if wirtualsdk.IsSecretDeploymentOption(opt) {
 			opt.Value.Set(secretValue)
 		}
 	}

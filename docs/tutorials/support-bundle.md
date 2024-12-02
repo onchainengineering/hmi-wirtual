@@ -41,7 +41,7 @@ A brief overview of all files contained in the bundle is provided below:
 | `deployment/config.json`          | Deployment [configuration](../reference/api/general.md#get-deployment-config), with secret values removed. |
 | `deployment/experiments.json`     | Any [experiments](../reference/cli/server.md#--experiments) currently enabled for the deployment.          |
 | `deployment/health.json`          | A snapshot of the [health status](../admin/monitoring/health-check.md) of the deployment.                  |
-| `logs.txt`                        | Logs from the `codersdk.Client` used to generate the bundle.                                               |
+| `logs.txt`                        | Logs from the `wirtualsdk.Client` used to generate the bundle.                                               |
 | `network/connection_info.json`    | Information used by workspace agents used to connect to Coder (DERP map etc.)                              |
 | `network/coordinator_debug.html`  | Peers currently connected to each Coder instance and the tunnels established between peers.                |
 | `network/netcheck.json`           | Results of running `coder netcheck` locally.                                                               |

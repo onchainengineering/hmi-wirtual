@@ -22,7 +22,7 @@ type Metrics struct {
 }
 
 const (
-	ns        = "coderd"
+	ns        = "wirtuald"
 	subsystem = "notifications"
 
 	LabelMethod     = "method"

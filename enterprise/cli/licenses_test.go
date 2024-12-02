@@ -17,9 +17,9 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/enterprise/wirtuald/coderdenttest"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/serpent"
@@ -125,7 +125,7 @@ func TestLicensesAddReal(t *testing.T) {
 		clitest.SetupConfig(t, client, conf) //nolint:gocritic // requires owner
 
 		waiter := clitest.StartWithWaiter(t, inv)
-		var coderError *codersdk.Error
+		var coderError *wirtualsdk.Error
 		waiter.RequireAs(&coderError)
 		assert.Equal(t, 400, coderError.StatusCode())
 		assert.Contains(t, "Invalid license", coderError.Message)
@@ -149,7 +149,7 @@ func TestLicensesListFake(t *testing.T) {
 			errC <- inv.WithContext(ctx).Run()
 		}()
 		require.NoError(t, <-errC)
-		var licenses []codersdk.License
+		var licenses []wirtualsdk.License
 		err := json.Unmarshal(stdout.Bytes(), &licenses)
 		require.NoError(t, err)
 		require.Len(t, licenses, 2)
@@ -218,7 +218,7 @@ func TestLicensesDeleteReal(t *testing.T) {
 			"licenses", "delete", "1")
 		clitest.SetupConfig(t, client, conf) //nolint:gocritic // requires owner
 
-		var coderError *codersdk.Error
+		var coderError *wirtualsdk.Error
 		clitest.StartWithWaiter(t, inv).RequireAs(&coderError)
 		assert.Equal(t, 404, coderError.StatusCode())
 		assert.Contains(t, "Unknown license ID", coderError.Message)
@@ -272,12 +272,12 @@ func (s *fakeLicenseAPI) notFound(_ http.ResponseWriter, r *http.Request) {
 func (*fakeLicenseAPI) noop(_ http.ResponseWriter, _ *http.Request) {}
 
 func (s *fakeLicenseAPI) postLicense(rw http.ResponseWriter, r *http.Request) {
-	var req codersdk.AddLicenseRequest
+	var req wirtualsdk.AddLicenseRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	require.NoError(s.t, err)
 	assert.Equal(s.t, "test.jwt.sig", req.License)
 
-	resp := codersdk.License{
+	resp := wirtualsdk.License{
 		ID:         1,
 		UploadedAt: time.Now(),
 		Claims: map[string]interface{}{
@@ -294,7 +294,7 @@ func (s *fakeLicenseAPI) postLicense(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (s *fakeLicenseAPI) licenses(rw http.ResponseWriter, _ *http.Request) {
-	resp := []codersdk.License{
+	resp := []wirtualsdk.License{
 		{
 			ID:         1,
 			UploadedAt: time.Now(),
@@ -330,14 +330,14 @@ func (s *fakeLicenseAPI) deleteLicense(rw http.ResponseWriter, r *http.Request) 
 }
 
 func (*fakeLicenseAPI) entitlements(rw http.ResponseWriter, r *http.Request) {
-	features := make(map[codersdk.FeatureName]codersdk.Feature)
-	for _, f := range codersdk.FeatureNames {
-		features[f] = codersdk.Feature{
-			Entitlement: codersdk.EntitlementEntitled,
+	features := make(map[wirtualsdk.FeatureName]wirtualsdk.Feature)
+	for _, f := range wirtualsdk.FeatureNames {
+		features[f] = wirtualsdk.Feature{
+			Entitlement: wirtualsdk.EntitlementEntitled,
 			Enabled:     true,
 		}
 	}
-	httpapi.Write(r.Context(), rw, http.StatusOK, codersdk.Entitlements{
+	httpapi.Write(r.Context(), rw, http.StatusOK, wirtualsdk.Entitlements{
 		Features:   features,
 		Warnings:   []string{testWarning},
 		HasLicense: true,

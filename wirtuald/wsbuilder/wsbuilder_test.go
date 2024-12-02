@@ -17,13 +17,13 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 	"go.uber.org/mock/gomock"
 
-	"github.com/coder/coder/v2/coderd/audit"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbmock"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/provisionerdserver"
-	"github.com/coder/coder/v2/coderd/wsbuilder"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/audit"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbmock"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/provisionerdserver"
+	"github.com/coder/coder/v2/wirtuald/wsbuilder"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 var (
@@ -297,7 +297,7 @@ func TestWorkspaceBuildWithTags(t *testing.T) {
 		{Name: "number_of_oranges", Type: "number", Description: "This is fifth parameter", Mutable: false, DefaultValue: "6", Options: json.RawMessage("[]")},
 	}
 
-	buildParameters := []codersdk.WorkspaceBuildParameter{
+	buildParameters := []wirtualsdk.WorkspaceBuildParameter{
 		{Name: "project", Value: "foobar-foobaz"},
 		{Name: "is_debug_build", Value: "true"},
 		// Parameters "team", "number_of_apples", "number_of_oranges" are skipped, so default value is selected
@@ -386,7 +386,7 @@ func TestWorkspaceBuildWithRichParameters(t *testing.T) {
 		defer cancel()
 
 		const updatedParameterValue = "3"
-		nextBuildParameters := []codersdk.WorkspaceBuildParameter{
+		nextBuildParameters := []wirtualsdk.WorkspaceBuildParameter{
 			{Name: firstParameterName, Value: firstParameterValue},
 			{Name: secondParameterName, Value: updatedParameterValue},
 		}
@@ -434,7 +434,7 @@ func TestWorkspaceBuildWithRichParameters(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		nextBuildParameters := []codersdk.WorkspaceBuildParameter{}
+		nextBuildParameters := []wirtualsdk.WorkspaceBuildParameter{}
 		expectedParams := map[string]string{}
 		for _, p := range initialBuildParameters {
 			expectedParams[p.Name] = p.Value
@@ -517,7 +517,7 @@ func TestWorkspaceBuildWithRichParameters(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		nextBuildParameters := []codersdk.WorkspaceBuildParameter{
+		nextBuildParameters := []wirtualsdk.WorkspaceBuildParameter{
 			{Name: immutableParameterName, Value: "BAD"},
 		}
 
@@ -561,7 +561,7 @@ func TestWorkspaceBuildWithRichParameters(t *testing.T) {
 			{Name: newImmutableParameterName, Description: newImmutableParameterDescription, Mutable: false, Required: true, Options: json.RawMessage("[]")},
 		}
 
-		nextBuildParameters := []codersdk.WorkspaceBuildParameter{
+		nextBuildParameters := []wirtualsdk.WorkspaceBuildParameter{
 			{Name: newImmutableParameterName, Value: "good"},
 		}
 		expectedParams := map[string]string{
@@ -622,7 +622,7 @@ func TestWorkspaceBuildWithRichParameters(t *testing.T) {
 			{Name: newImmutableParameterName, Description: newImmutableParameterDescription, Mutable: false, DefaultValue: "12345", Options: json.RawMessage("[]")},
 		}
 
-		nextBuildParameters := []codersdk.WorkspaceBuildParameter{
+		nextBuildParameters := []wirtualsdk.WorkspaceBuildParameter{
 			{Name: newImmutableParameterName, Value: "good"},
 		}
 		expectedParams := map[string]string{
@@ -683,7 +683,7 @@ func TestWorkspaceBuildWithRichParameters(t *testing.T) {
 			{Name: newImmutableParameterName, Description: newImmutableParameterDescription, Mutable: false, DefaultValue: "12345", Options: json.RawMessage("[]")},
 		}
 
-		nextBuildParameters := []codersdk.WorkspaceBuildParameter{}
+		nextBuildParameters := []wirtualsdk.WorkspaceBuildParameter{}
 		expectedParams := map[string]string{
 			firstParameterName:        firstParameterValue,
 			secondParameterName:       secondParameterValue,

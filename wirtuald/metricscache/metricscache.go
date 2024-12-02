@@ -11,10 +11,10 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/retry"
 )
 
@@ -30,7 +30,7 @@ type Cache struct {
 
 	templateWorkspaceOwners  atomic.Pointer[map[uuid.UUID]int]
 	templateAverageBuildTime atomic.Pointer[map[uuid.UUID]database.GetTemplateAverageBuildTimeRow]
-	deploymentStatsResponse  atomic.Pointer[codersdk.DeploymentStats]
+	deploymentStatsResponse  atomic.Pointer[wirtualsdk.DeploymentStats]
 
 	done   chan struct{}
 	cancel func()
@@ -153,24 +153,24 @@ func (c *Cache) refreshDeploymentStats(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	c.deploymentStatsResponse.Store(&codersdk.DeploymentStats{
+	c.deploymentStatsResponse.Store(&wirtualsdk.DeploymentStats{
 		AggregatedFrom: from,
 		CollectedAt:    dbtime.Now(),
 		NextUpdateAt:   dbtime.Now().Add(c.intervals.DeploymentStats),
-		Workspaces: codersdk.WorkspaceDeploymentStats{
+		Workspaces: wirtualsdk.WorkspaceDeploymentStats{
 			Pending:  workspaceStats.PendingWorkspaces,
 			Building: workspaceStats.BuildingWorkspaces,
 			Running:  workspaceStats.RunningWorkspaces,
 			Failed:   workspaceStats.FailedWorkspaces,
 			Stopped:  workspaceStats.StoppedWorkspaces,
-			ConnectionLatencyMS: codersdk.WorkspaceConnectionLatencyMS{
+			ConnectionLatencyMS: wirtualsdk.WorkspaceConnectionLatencyMS{
 				P50: agentStats.WorkspaceConnectionLatency50,
 				P95: agentStats.WorkspaceConnectionLatency95,
 			},
 			RxBytes: agentStats.WorkspaceRxBytes,
 			TxBytes: agentStats.WorkspaceTxBytes,
 		},
-		SessionCount: codersdk.SessionCountDeploymentStats{
+		SessionCount: wirtualsdk.SessionCountDeploymentStats{
 			VSCode:          agentStats.SessionCountVSCode,
 			SSH:             agentStats.SessionCountSSH,
 			JetBrains:       agentStats.SessionCountJetBrains,
@@ -219,11 +219,11 @@ func (c *Cache) Close() error {
 	return nil
 }
 
-func (c *Cache) TemplateBuildTimeStats(id uuid.UUID) codersdk.TemplateBuildTimeStats {
-	unknown := codersdk.TemplateBuildTimeStats{
-		codersdk.WorkspaceTransitionStart:  {},
-		codersdk.WorkspaceTransitionStop:   {},
-		codersdk.WorkspaceTransitionDelete: {},
+func (c *Cache) TemplateBuildTimeStats(id uuid.UUID) wirtualsdk.TemplateBuildTimeStats {
+	unknown := wirtualsdk.TemplateBuildTimeStats{
+		wirtualsdk.WorkspaceTransitionStart:  {},
+		wirtualsdk.WorkspaceTransitionStop:   {},
+		wirtualsdk.WorkspaceTransitionDelete: {},
 	}
 
 	m := c.templateAverageBuildTime.Load()
@@ -246,16 +246,16 @@ func (c *Cache) TemplateBuildTimeStats(id uuid.UUID) codersdk.TemplateBuildTimeS
 		return &i
 	}
 
-	return codersdk.TemplateBuildTimeStats{
-		codersdk.WorkspaceTransitionStart: {
+	return wirtualsdk.TemplateBuildTimeStats{
+		wirtualsdk.WorkspaceTransitionStart: {
 			P50: convertMillis(resp.Start50),
 			P95: convertMillis(resp.Start95),
 		},
-		codersdk.WorkspaceTransitionStop: {
+		wirtualsdk.WorkspaceTransitionStop: {
 			P50: convertMillis(resp.Stop50),
 			P95: convertMillis(resp.Stop95),
 		},
-		codersdk.WorkspaceTransitionDelete: {
+		wirtualsdk.WorkspaceTransitionDelete: {
 			P50: convertMillis(resp.Delete50),
 			P95: convertMillis(resp.Delete95),
 		},
@@ -277,10 +277,10 @@ func (c *Cache) TemplateWorkspaceOwners(id uuid.UUID) (int, bool) {
 	return resp, true
 }
 
-func (c *Cache) DeploymentStats() (codersdk.DeploymentStats, bool) {
+func (c *Cache) DeploymentStats() (wirtualsdk.DeploymentStats, bool) {
 	deploymentStats := c.deploymentStatsResponse.Load()
 	if deploymentStats == nil {
-		return codersdk.DeploymentStats{}, false
+		return wirtualsdk.DeploymentStats{}, false
 	}
 	return *deploymentStats, true
 }

@@ -14,22 +14,22 @@ import (
 	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/zclconf/go-cty/cty"
 
-	"github.com/coder/coder/v2/coderd/rbac/policy"
+	"github.com/coder/coder/v2/wirtuald/rbac/policy"
 	"github.com/coder/coder/v2/provisionersdk"
 
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/audit"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/db2sdk"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/provisionerdserver"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/audit"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/provisionerdserver"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/tracing"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // Builder encapsulates the business logic of inserting a new workspace build into the database.
@@ -48,9 +48,9 @@ type Builder struct {
 	version          versionTarget
 	state            stateTarget
 	logLevel         string
-	deploymentValues *codersdk.DeploymentValues
+	deploymentValues *wirtualsdk.DeploymentValues
 
-	richParameterValues []codersdk.WorkspaceBuildParameter
+	richParameterValues []wirtualsdk.WorkspaceBuildParameter
 	initiator           uuid.UUID
 	reason              database.BuildReason
 
@@ -142,7 +142,7 @@ func (b Builder) LogLevel(l string) Builder {
 	return b
 }
 
-func (b Builder) DeploymentValues(dv *codersdk.DeploymentValues) Builder {
+func (b Builder) DeploymentValues(dv *wirtualsdk.DeploymentValues) Builder {
 	// nolint: revive
 	b.deploymentValues = dv
 	return b
@@ -160,7 +160,7 @@ func (b Builder) Reason(r database.BuildReason) Builder {
 	return b
 }
 
-func (b Builder) RichParameterValues(p []codersdk.WorkspaceBuildParameter) Builder {
+func (b Builder) RichParameterValues(p []wirtualsdk.WorkspaceBuildParameter) Builder {
 	// nolint: revive
 	b.richParameterValues = p
 	return b
@@ -530,7 +530,7 @@ func (b *Builder) getParameters() (names, values []string, err error) {
 	if err != nil {
 		return nil, nil, BuildError{http.StatusBadRequest, "Unable to build workspace with unsupported parameters", err}
 	}
-	resolver := codersdk.ParameterResolver{
+	resolver := wirtualsdk.ParameterResolver{
 		Rich: db2sdk.WorkspaceBuildParameters(lastBuildParameters),
 	}
 	for _, templateVersionParameter := range templateVersionParameters {
@@ -557,7 +557,7 @@ func (b *Builder) getParameters() (names, values []string, err error) {
 	return names, values, nil
 }
 
-func (b *Builder) findNewBuildParameterValue(name string) *codersdk.WorkspaceBuildParameter {
+func (b *Builder) findNewBuildParameterValue(name string) *wirtualsdk.WorkspaceBuildParameter {
 	for _, v := range b.richParameterValues {
 		if v.Name == name {
 			return &v
@@ -840,9 +840,9 @@ func (b *Builder) checkTemplateJobStatus() error {
 		}
 	}
 
-	templateVersionJobStatus := codersdk.ProvisionerJobStatus(templateVersionJob.JobStatus)
+	templateVersionJobStatus := wirtualsdk.ProvisionerJobStatus(templateVersionJob.JobStatus)
 	switch templateVersionJobStatus {
-	case codersdk.ProvisionerJobPending, codersdk.ProvisionerJobRunning:
+	case wirtualsdk.ProvisionerJobPending, wirtualsdk.ProvisionerJobRunning:
 		msg := fmt.Sprintf("The provided template version is %s. Wait for it to complete importing!", templateVersionJobStatus)
 
 		return BuildError{
@@ -850,14 +850,14 @@ func (b *Builder) checkTemplateJobStatus() error {
 			msg,
 			xerrors.New(msg),
 		}
-	case codersdk.ProvisionerJobFailed:
+	case wirtualsdk.ProvisionerJobFailed:
 		msg := fmt.Sprintf("The provided template version %q has failed to import: %q. You cannot build workspaces with it!", templateVersion.Name, templateVersionJob.Error.String)
 		return BuildError{
 			http.StatusBadRequest,
 			msg,
 			xerrors.New(msg),
 		}
-	case codersdk.ProvisionerJobCanceled:
+	case wirtualsdk.ProvisionerJobCanceled:
 		msg := fmt.Sprintf("The provided template version %q has failed to import: %q. You cannot build workspaces with it!", templateVersion.Name, templateVersionJob.Error.String)
 		return BuildError{
 			http.StatusBadRequest,
@@ -877,7 +877,7 @@ func (b *Builder) checkRunningBuild() error {
 	if err != nil {
 		return BuildError{http.StatusInternalServerError, "failed to fetch prior build", err}
 	}
-	if codersdk.ProvisionerJobStatus(job.JobStatus).Active() {
+	if wirtualsdk.ProvisionerJobStatus(job.JobStatus).Active() {
 		msg := "A workspace build is already active."
 		return BuildError{
 			http.StatusConflict,

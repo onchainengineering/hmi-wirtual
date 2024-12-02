@@ -1,6 +1,6 @@
 # APITypings
 
-This main.go generates typescript types from the codersdk types in Go.
+This main.go generates typescript types from the wirtualsdk types in Go.
 
 # Features
 

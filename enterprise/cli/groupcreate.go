@@ -7,7 +7,7 @@ import (
 
 	agpl "github.com/coder/coder/v2/cli"
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -19,7 +19,7 @@ func (r *RootCmd) groupCreate() *serpent.Command {
 		orgContext  = agpl.NewOrganizationContext()
 	)
 
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "create <name>",
 		Short: "Create a user group",
@@ -35,12 +35,12 @@ func (r *RootCmd) groupCreate() *serpent.Command {
 				return xerrors.Errorf("current organization: %w", err)
 			}
 
-			err = codersdk.GroupNameValid(inv.Args[0])
+			err = wirtualsdk.GroupNameValid(inv.Args[0])
 			if err != nil {
 				return xerrors.Errorf("group name %q is invalid: %w", inv.Args[0], err)
 			}
 
-			group, err := client.CreateGroup(ctx, org.ID, codersdk.CreateGroupRequest{
+			group, err := client.CreateGroup(ctx, org.ID, wirtualsdk.CreateGroupRequest{
 				Name:        inv.Args[0],
 				DisplayName: displayName,
 				AvatarURL:   avatarURL,
@@ -69,7 +69,7 @@ func (r *RootCmd) groupCreate() *serpent.Command {
 			Value: serpent.Validate(serpent.StringOf(&displayName), func(_displayName *serpent.String) error {
 				displayName := _displayName.String()
 				if displayName != "" {
-					err := codersdk.DisplayNameValid(displayName)
+					err := wirtualsdk.DisplayNameValid(displayName)
 					if err != nil {
 						return xerrors.Errorf("group display name %q is invalid: %w", displayName, err)
 					}

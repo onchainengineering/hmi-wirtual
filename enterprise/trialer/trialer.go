@@ -12,15 +12,15 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 )
 
 // New creates a handler that can issue trial licenses!
-func New(db database.Store, url string, keys map[string]ed25519.PublicKey) func(ctx context.Context, body codersdk.LicensorTrialRequest) error {
-	return func(ctx context.Context, body codersdk.LicensorTrialRequest) error {
+func New(db database.Store, url string, keys map[string]ed25519.PublicKey) func(ctx context.Context, body wirtualsdk.LicensorTrialRequest) error {
+	return func(ctx context.Context, body wirtualsdk.LicensorTrialRequest) error {
 		deploymentID, err := db.GetDeploymentID(ctx)
 		if err != nil {
 			return xerrors.Errorf("get deployment id: %w", err)

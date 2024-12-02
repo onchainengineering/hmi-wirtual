@@ -7,13 +7,13 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
 
 func (r *RootCmd) createOrganization() *serpent.Command {
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 
 	cmd := &serpent.Command{
 		Use:   "create <organization name>",
@@ -28,7 +28,7 @@ func (r *RootCmd) createOrganization() *serpent.Command {
 		Handler: func(inv *serpent.Invocation) error {
 			orgName := inv.Args[0]
 
-			err := codersdk.NameValid(orgName)
+			err := wirtualsdk.NameValid(orgName)
 			if err != nil {
 				return xerrors.Errorf("organization name %q is invalid: %w", orgName, err)
 			}
@@ -53,7 +53,7 @@ func (r *RootCmd) createOrganization() *serpent.Command {
 				return err
 			}
 
-			organization, err := client.CreateOrganization(inv.Context(), codersdk.CreateOrganizationRequest{
+			organization, err := client.CreateOrganization(inv.Context(), wirtualsdk.CreateOrganizationRequest{
 				Name: orgName,
 			})
 			if err != nil {

@@ -16,7 +16,7 @@ appropriate permissions.
 
 We have a number of roles (some of which have legacy connotations back to v1).
 
-These can be found in `coderd/rbac/roles.go`.
+These can be found in `wirtuald/rbac/roles.go`.
 
 | Role                 | Description                                                         | Example resources (non-exhaustive)           |
 | -------------------- | ------------------------------------------------------------------- | -------------------------------------------- |
@@ -40,7 +40,7 @@ _\* except some, which are not important to this overview_
 
 Roles are collections of permissions (we call them _actions_).
 
-These can be found in `coderd/rbac/policy/policy.go`.
+These can be found in `wirtuald/rbac/policy/policy.go`.
 
 | Action                  | Description                             |
 | ----------------------- | --------------------------------------- |
@@ -88,7 +88,7 @@ CREATE TABLE frobulators
 );
 ```
 
-Let's now add our frobulator noun to `coderd/rbac/policy/policy.go`:
+Let's now add our frobulator noun to `wirtuald/rbac/policy/policy.go`:
 
 ```go
     ...
@@ -106,10 +106,10 @@ Let's now add our frobulator noun to `coderd/rbac/policy/policy.go`:
 We need to create/read/update/delete rows in the `frobulators` table, so we
 define those actions.
 
-`policy.go` is used to generate code in `coderd/rbac/object_gen.go`, and we can
+`policy.go` is used to generate code in `wirtuald/rbac/object_gen.go`, and we can
 execute this by running `make gen`.
 
-Now we have this change in `coderd/rbac/object_gen.go`:
+Now we have this change in `wirtuald/rbac/object_gen.go`:
 
 ```go
     ...
@@ -141,7 +141,7 @@ want **owners** to CRUD all members' frobulators. This is how most resources
 work, and the RBAC system is setup for this by default.
 
 However, let's say we want **organization auditors** to have read-only access to
-all organization's frobulators; we need to add it to `coderd/rbac/roles.go`:
+all organization's frobulators; we need to add it to `wirtuald/rbac/roles.go`:
 
 ```go
 func ReloadBuiltinRoles(opts *RoleOptions) {
@@ -181,7 +181,7 @@ resources.
 
 Let's run the RBAC test suite:
 
-`go test github.com/coder/coder/v2/coderd/rbac`
+`go test github.com/coder/coder/v2/wirtuald/rbac`
 
 We'll see a failure like this:
 
@@ -189,7 +189,7 @@ We'll see a failure like this:
 --- FAIL: TestRolePermissions (0.61s)
     --- FAIL: TestRolePermissions/frobulator-AllActions (0.00s)
         roles_test.go:705:
-            	Error Trace:	/tmp/coder/coderd/rbac/roles_test.go:705
+            	Error Trace:	/tmp/coder/wirtuald/rbac/roles_test.go:705
             	Error:      	Not equal:
             	            	expected: map[policy.Action]bool{}
             	            	actual  : map[policy.Action]bool{"create":true, "delete":true, "read":true, "update":true}
@@ -208,7 +208,7 @@ We'll see a failure like this:
             	Test:       	TestRolePermissions/frobulator-AllActions
             	Messages:   	remaining permissions should be empty for type "frobulator"
 FAIL
-FAIL	github.com/coder/coder/v2/coderd/rbac	1.314s
+FAIL	github.com/coder/coder/v2/wirtuald/rbac	1.314s
 FAIL
 ```
 
@@ -216,7 +216,7 @@ The message `remaining permissions should be empty for type "frobulator"`
 indicates that we're missing tests which validate the desired actions on our new
 noun.
 
-> Take a look at `coderd/rbac/roles_test.go` in the
+> Take a look at `wirtuald/rbac/roles_test.go` in the
 > [reference PR](https://github.com/coder/coder/pull/14055) for a complete
 > example
 
@@ -265,8 +265,8 @@ The above tests are illustrative not exhaustive, see
 Once we have covered all the possible scenarios, the tests will pass:
 
 ```bash
-$ go test github.com/coder/coder/v2/coderd/rbac -count=1
-ok  	github.com/coder/coder/v2/coderd/rbac	1.313s
+$ go test github.com/coder/coder/v2/wirtuald/rbac -count=1
+ok  	github.com/coder/coder/v2/wirtuald/rbac	1.313s
 ```
 
 When a case is not covered, you'll see an error like this (I moved the
@@ -276,12 +276,12 @@ When a case is not covered, you'll see an error like this (I moved the
 --- FAIL: TestRolePermissions (0.79s)
     --- FAIL: TestRolePermissions/FrobulatorsReadOnly (0.01s)
         roles_test.go:737:
-            	Error Trace:	/tmp/coder/coderd/rbac/roles_test.go:737
+            	Error Trace:	/tmp/coder/wirtuald/rbac/roles_test.go:737
             	Error:      	An error is expected but got nil.
             	Test:       	TestRolePermissions/FrobulatorsReadOnly
             	Messages:   	Should fail: FrobulatorsReadOnly as "org_auditor" doing "read" on "frobulator"
 FAIL
-FAIL	github.com/coder/coder/v2/coderd/rbac	1.390s
+FAIL	github.com/coder/coder/v2/wirtuald/rbac	1.390s
 FAIL
 ```
 
@@ -295,7 +295,7 @@ which your resource must be used, and test all of those scenarios!**
 
 Now that we have the RBAC system fully configured, we need to make use of it.
 
-Let's add a SQL query to `coderd/database/queries/frobulators.sql`:
+Let's add a SQL query to `wirtuald/database/queries/frobulators.sql`:
 
 ```sql
 -- name: GetFrobulators :many
@@ -305,7 +305,7 @@ WHERE user_id = $1 AND org_id = $2;
 ```
 
 Once we run `make gen`, we'll find some stubbed code in
-`coderd/database/dbauthz/dbauthz.go`.
+`wirtuald/database/dbauthz/dbauthz.go`.
 
 ```go
 ...
@@ -331,7 +331,7 @@ by the given actor.
 
 In order for this to work, we need to implement the `rbac.Objector` interface.
 
-`coderd/database/modelmethods.go` is where we implement this interface for all
+`wirtuald/database/modelmethods.go` is where we implement this interface for all
 RBAC objects:
 
 ```go
@@ -356,7 +356,7 @@ API authorization is not strictly required because we have database
 authorization in place, but it's a good practice to reject requests as soon as
 possible when the requester is unprivileged.
 
-> Take a look at `coderd/frobulators.go` in the
+> Take a look at `wirtuald/frobulators.go` in the
 > [reference PR](https://github.com/coder/coder/pull/14055) for a complete
 > example
 
@@ -367,7 +367,7 @@ func (api *API) createFrobulator(rw http.ResponseWriter, r *http.Request) {
 	member := httpmw.OrganizationMemberParam(r)
 	org := httpmw.OrganizationParam(r)
 
-	var req codersdk.InsertFrobulatorRequest
+	var req wirtualsdk.InsertFrobulatorRequest
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}

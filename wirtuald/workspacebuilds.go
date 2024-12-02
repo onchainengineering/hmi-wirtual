@@ -1,4 +1,4 @@
-package coderd
+package wirtuald
 
 import (
 	"context"
@@ -19,19 +19,19 @@ import (
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/coderd/audit"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/db2sdk"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/database/provisionerjobs"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/rbac/policy"
-	"github.com/coder/coder/v2/coderd/wsbuilder"
-	"github.com/coder/coder/v2/coderd/wspubsub"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/audit"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
+	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/database/provisionerjobs"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/rbac/policy"
+	"github.com/coder/coder/v2/wirtuald/wsbuilder"
+	"github.com/coder/coder/v2/wirtuald/wspubsub"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Get workspace build
@@ -40,7 +40,7 @@ import (
 // @Produce json
 // @Tags Builds
 // @Param workspacebuild path string true "Workspace build ID"
-// @Success 200 {object} codersdk.WorkspaceBuild
+// @Success 200 {object} wirtualsdk.WorkspaceBuild
 // @Router /workspacebuilds/{workspacebuild} [get]
 func (api *API) workspaceBuild(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -49,7 +49,7 @@ func (api *API) workspaceBuild(rw http.ResponseWriter, r *http.Request) {
 
 	data, err := api.workspaceBuildsData(ctx, []database.WorkspaceBuild{workspaceBuild})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error getting workspace build data.",
 			Detail:  err.Error(),
 		})
@@ -59,7 +59,7 @@ func (api *API) workspaceBuild(rw http.ResponseWriter, r *http.Request) {
 	// Ensure we have the job and template version for the workspace build.
 	// Otherwise we risk a panic in the api.convertWorkspaceBuild call below.
 	if len(data.jobs) == 0 {
-		httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 			Message: "Internal error getting workspace build data.",
 			Detail:  "No job found for workspace build.",
 		})
@@ -67,7 +67,7 @@ func (api *API) workspaceBuild(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(data.templateVersions) == 0 {
-		httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 			Message: "Internal error getting workspace build data.",
 			Detail:  "No template version found for workspace build.",
 		})
@@ -87,7 +87,7 @@ func (api *API) workspaceBuild(rw http.ResponseWriter, r *http.Request) {
 		data.templateVersions[0],
 	)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error converting workspace build.",
 			Detail:  err.Error(),
 		})
@@ -107,7 +107,7 @@ func (api *API) workspaceBuild(rw http.ResponseWriter, r *http.Request) {
 // @Param limit query int false "Page limit"
 // @Param offset query int false "Page offset"
 // @Param since query string false "Since timestamp" format(date-time)
-// @Success 200 {array} codersdk.WorkspaceBuild
+// @Success 200 {array} wirtualsdk.WorkspaceBuild
 // @Router /workspaces/{workspace}/builds [get]
 func (api *API) workspaceBuilds(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -125,7 +125,7 @@ func (api *API) workspaceBuilds(rw http.ResponseWriter, r *http.Request) {
 		var err error
 		since, err = time.Parse(time.RFC3339, sinceParam)
 		if err != nil {
-			httpapi.Write(r.Context(), rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(r.Context(), rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "bad `since` format, must be RFC3339",
 				Detail:  err.Error(),
 			})
@@ -142,12 +142,12 @@ func (api *API) workspaceBuilds(rw http.ResponseWriter, r *http.Request) {
 			// query will not work.
 			_, err := store.GetWorkspaceBuildByID(ctx, paginationParams.AfterID)
 			if err != nil && xerrors.Is(err, sql.ErrNoRows) {
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: fmt.Sprintf("Record at \"after_id\" (%q) does not exist.", paginationParams.AfterID.String()),
 				})
 				return err
 			} else if err != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error fetching workspace build at \"after_id\".",
 					Detail:  err.Error(),
 				})
@@ -167,7 +167,7 @@ func (api *API) workspaceBuilds(rw http.ResponseWriter, r *http.Request) {
 			err = nil
 		}
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Internal error fetching workspace build.",
 				Detail:  err.Error(),
 			})
@@ -182,7 +182,7 @@ func (api *API) workspaceBuilds(rw http.ResponseWriter, r *http.Request) {
 
 	data, err := api.workspaceBuildsData(ctx, workspaceBuilds)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error getting workspace build data.",
 			Detail:  err.Error(),
 		})
@@ -202,7 +202,7 @@ func (api *API) workspaceBuilds(rw http.ResponseWriter, r *http.Request) {
 		data.templateVersions,
 	)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error converting workspace build.",
 			Detail:  err.Error(),
 		})
@@ -220,7 +220,7 @@ func (api *API) workspaceBuilds(rw http.ResponseWriter, r *http.Request) {
 // @Param user path string true "User ID, name, or me"
 // @Param workspacename path string true "Workspace name"
 // @Param buildnumber path string true "Build number" format(number)
-// @Success 200 {object} codersdk.WorkspaceBuild
+// @Success 200 {object} wirtualsdk.WorkspaceBuild
 // @Router /users/{user}/workspace/{workspacename}/builds/{buildnumber} [get]
 func (api *API) workspaceBuildByBuildNumber(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -228,7 +228,7 @@ func (api *API) workspaceBuildByBuildNumber(rw http.ResponseWriter, r *http.Requ
 	workspaceName := chi.URLParam(r, "workspacename")
 	buildNumber, err := strconv.ParseInt(chi.URLParam(r, "buildnumber"), 10, 32)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Failed to parse build number as integer.",
 			Detail:  err.Error(),
 		})
@@ -244,7 +244,7 @@ func (api *API) workspaceBuildByBuildNumber(rw http.ResponseWriter, r *http.Requ
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching workspace by name.",
 			Detail:  err.Error(),
 		})
@@ -256,13 +256,13 @@ func (api *API) workspaceBuildByBuildNumber(rw http.ResponseWriter, r *http.Requ
 		BuildNumber: int32(buildNumber),
 	})
 	if httpapi.Is404Error(err) {
-		httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 			Message: fmt.Sprintf("Workspace %q Build %d does not exist.", workspaceName, buildNumber),
 		})
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching workspace build.",
 			Detail:  err.Error(),
 		})
@@ -271,7 +271,7 @@ func (api *API) workspaceBuildByBuildNumber(rw http.ResponseWriter, r *http.Requ
 
 	data, err := api.workspaceBuildsData(ctx, []database.WorkspaceBuild{workspaceBuild})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error getting workspace build data.",
 			Detail:  err.Error(),
 		})
@@ -291,7 +291,7 @@ func (api *API) workspaceBuildByBuildNumber(rw http.ResponseWriter, r *http.Requ
 		data.templateVersions[0],
 	)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error converting workspace build.",
 			Detail:  err.Error(),
 		})
@@ -311,14 +311,14 @@ func (api *API) workspaceBuildByBuildNumber(rw http.ResponseWriter, r *http.Requ
 // @Produce json
 // @Tags Builds
 // @Param workspace path string true "Workspace ID" format(uuid)
-// @Param request body codersdk.CreateWorkspaceBuildRequest true "Create workspace build request"
-// @Success 200 {object} codersdk.WorkspaceBuild
+// @Param request body wirtualsdk.CreateWorkspaceBuildRequest true "Create workspace build request"
+// @Success 200 {object} wirtualsdk.WorkspaceBuild
 // @Router /workspaces/{workspace}/builds [post]
 func (api *API) postWorkspaceBuilds(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	apiKey := httpmw.APIKey(r)
 	workspace := httpmw.WorkspaceParam(r)
-	var createBuild codersdk.CreateWorkspaceBuildRequest
+	var createBuild wirtualsdk.CreateWorkspaceBuildRequest
 	if !httpapi.Read(ctx, rw, r, &createBuild) {
 		return
 	}
@@ -334,14 +334,14 @@ func (api *API) postWorkspaceBuilds(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if createBuild.Orphan {
-		if createBuild.Transition != codersdk.WorkspaceTransitionDelete {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		if createBuild.Transition != wirtualsdk.WorkspaceTransitionDelete {
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Orphan is only permitted when deleting a workspace.",
 			})
 			return
 		}
 		if len(createBuild.ProvisionerState) > 0 {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "ProvisionerState cannot be set alongside Orphan since state intent is unclear.",
 			})
 			return
@@ -371,14 +371,14 @@ func (api *API) postWorkspaceBuilds(rw http.ResponseWriter, r *http.Request) {
 			api.Logger.Error(ctx, "workspace build error", slog.Error(buildErr.Wrapped))
 		}
 
-		httpapi.Write(ctx, rw, buildErr.Status, codersdk.Response{
+		httpapi.Write(ctx, rw, buildErr.Status, wirtualsdk.Response{
 			Message: buildErr.Message,
 			Detail:  buildErr.Error(),
 		})
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Error posting new build",
 			Detail:  err.Error(),
 		})
@@ -406,7 +406,7 @@ func (api *API) postWorkspaceBuilds(rw http.ResponseWriter, r *http.Request) {
 		database.TemplateVersion{},
 	)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error converting workspace build.",
 			Detail:  err.Error(),
 		})
@@ -427,14 +427,14 @@ func (api *API) postWorkspaceBuilds(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Builds
 // @Param workspacebuild path string true "Workspace build ID"
-// @Success 200 {object} codersdk.Response
+// @Success 200 {object} wirtualsdk.Response
 // @Router /workspacebuilds/{workspacebuild}/cancel [patch]
 func (api *API) patchCancelWorkspaceBuild(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	workspaceBuild := httpmw.WorkspaceBuildParam(r)
 	workspace, err := api.Database.GetWorkspaceByID(ctx, workspaceBuild.WorkspaceID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "No workspace exists for this job.",
 		})
 		return
@@ -442,14 +442,14 @@ func (api *API) patchCancelWorkspaceBuild(rw http.ResponseWriter, r *http.Reques
 
 	valid, err := api.verifyUserCanCancelWorkspaceBuilds(ctx, httpmw.APIKey(r).UserID, workspace.TemplateID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error verifying permission to cancel workspace build.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 	if !valid {
-		httpapi.Write(ctx, rw, http.StatusForbidden, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusForbidden, wirtualsdk.Response{
 			Message: "User is not allowed to cancel workspace builds. Owner role is required.",
 		})
 		return
@@ -457,20 +457,20 @@ func (api *API) patchCancelWorkspaceBuild(rw http.ResponseWriter, r *http.Reques
 
 	job, err := api.Database.GetProvisionerJobByID(ctx, workspaceBuild.JobID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching provisioner job.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 	if job.CompletedAt.Valid {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Job has already completed!",
 		})
 		return
 	}
 	if job.CanceledAt.Valid {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Job has already been marked as canceled!",
 		})
 		return
@@ -488,7 +488,7 @@ func (api *API) patchCancelWorkspaceBuild(rw http.ResponseWriter, r *http.Reques
 		},
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error updating provisioner job.",
 			Detail:  err.Error(),
 		})
@@ -500,7 +500,7 @@ func (api *API) patchCancelWorkspaceBuild(rw http.ResponseWriter, r *http.Reques
 		WorkspaceID: workspace.ID,
 	})
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.Response{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.Response{
 		Message: "Job has been marked as canceled...",
 	})
 }
@@ -528,7 +528,7 @@ func (api *API) verifyUserCanCancelWorkspaceBuilds(ctx context.Context, userID u
 // @Produce json
 // @Tags Builds
 // @Param workspacebuild path string true "Workspace build ID"
-// @Success 200 {array} codersdk.WorkspaceBuildParameter
+// @Success 200 {array} wirtualsdk.WorkspaceBuildParameter
 // @Router /workspacebuilds/{workspacebuild}/parameters [get]
 func (api *API) workspaceBuildParameters(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -536,7 +536,7 @@ func (api *API) workspaceBuildParameters(rw http.ResponseWriter, r *http.Request
 
 	parameters, err := api.Database.GetWorkspaceBuildParameters(ctx, workspaceBuild.ID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching workspace build parameters.",
 			Detail:  err.Error(),
 		})
@@ -555,7 +555,7 @@ func (api *API) workspaceBuildParameters(rw http.ResponseWriter, r *http.Request
 // @Param before query int false "Before Unix timestamp"
 // @Param after query int false "After Unix timestamp"
 // @Param follow query bool false "Follow log stream"
-// @Success 200 {array} codersdk.ProvisionerJobLog
+// @Success 200 {array} wirtualsdk.ProvisionerJobLog
 // @Router /workspacebuilds/{workspacebuild}/logs [get]
 func (api *API) workspaceBuildLogs(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -563,7 +563,7 @@ func (api *API) workspaceBuildLogs(rw http.ResponseWriter, r *http.Request) {
 
 	job, err := api.Database.GetProvisionerJobByID(ctx, workspaceBuild.JobID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching provisioner job.",
 			Detail:  err.Error(),
 		})
@@ -578,21 +578,21 @@ func (api *API) workspaceBuildLogs(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Builds
 // @Param workspacebuild path string true "Workspace build ID"
-// @Success 200 {object} codersdk.WorkspaceBuild
+// @Success 200 {object} wirtualsdk.WorkspaceBuild
 // @Router /workspacebuilds/{workspacebuild}/state [get]
 func (api *API) workspaceBuildState(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	workspaceBuild := httpmw.WorkspaceBuildParam(r)
 	workspace, err := api.Database.GetWorkspaceByID(ctx, workspaceBuild.WorkspaceID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "No workspace exists for this job.",
 		})
 		return
 	}
 	template, err := api.Database.GetTemplateByID(ctx, workspace.TemplateID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to get template",
 			Detail:  err.Error(),
 		})
@@ -617,7 +617,7 @@ func (api *API) workspaceBuildState(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Builds
 // @Param workspacebuild path string true "Workspace build ID" format(uuid)
-// @Success 200 {object} codersdk.WorkspaceBuildTimings
+// @Success 200 {object} wirtualsdk.WorkspaceBuildTimings
 // @Router /workspacebuilds/{workspacebuild}/timings [get]
 func (api *API) workspaceBuildTimings(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -627,7 +627,7 @@ func (api *API) workspaceBuildTimings(rw http.ResponseWriter, r *http.Request) {
 
 	timings, err := api.buildTimings(ctx, build)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching timings.",
 			Detail:  err.Error(),
 		})
@@ -763,7 +763,7 @@ func (api *API) convertWorkspaceBuilds(
 	agentScripts []database.WorkspaceAgentScript,
 	agentLogSources []database.WorkspaceAgentLogSource,
 	templateVersions []database.TemplateVersion,
-) ([]codersdk.WorkspaceBuild, error) {
+) ([]wirtualsdk.WorkspaceBuild, error) {
 	workspaceByID := map[uuid.UUID]database.Workspace{}
 	for _, workspace := range workspaces {
 		workspaceByID[workspace.ID] = workspace
@@ -778,7 +778,7 @@ func (api *API) convertWorkspaceBuilds(
 	}
 
 	// Should never be nil for API consistency
-	apiBuilds := []codersdk.WorkspaceBuild{}
+	apiBuilds := []wirtualsdk.WorkspaceBuild{}
 	for _, build := range workspaceBuilds {
 		job, exists := jobByID[build.JobID]
 		if !exists {
@@ -826,7 +826,7 @@ func (api *API) convertWorkspaceBuild(
 	agentScripts []database.WorkspaceAgentScript,
 	agentLogSources []database.WorkspaceAgentLogSource,
 	templateVersion database.TemplateVersion,
-) (codersdk.WorkspaceBuild, error) {
+) (wirtualsdk.WorkspaceBuild, error) {
 	resourcesByJobID := map[uuid.UUID][]database.WorkspaceResource{}
 	for _, resource := range workspaceResources {
 		resourcesByJobID[resource.JobID] = append(resourcesByJobID[resource.JobID], resource)
@@ -853,7 +853,7 @@ func (api *API) convertWorkspaceBuild(
 	}
 
 	resources := resourcesByJobID[job.ProvisionerJob.ID]
-	apiResources := make([]codersdk.WorkspaceResource, 0)
+	apiResources := make([]wirtualsdk.WorkspaceResource, 0)
 	resourceAgentsMinOrder := map[uuid.UUID]int32{} // map[resource.ID]minOrder
 	for _, resource := range resources {
 		agents := agentsByResourceID[resource.ID]
@@ -864,7 +864,7 @@ func (api *API) convertWorkspaceBuild(
 			return agents[i].Name < agents[j].Name
 		})
 
-		apiAgents := make([]codersdk.WorkspaceAgent, 0)
+		apiAgents := make([]wirtualsdk.WorkspaceAgent, 0)
 		resourceAgentsMinOrder[resource.ID] = math.MaxInt32
 
 		for _, agent := range agents {
@@ -878,7 +878,7 @@ func (api *API) convertWorkspaceBuild(
 				api.DeploymentValues.AgentFallbackTroubleshootingURL.String(),
 			)
 			if err != nil {
-				return codersdk.WorkspaceBuild{}, xerrors.Errorf("converting workspace agent: %w", err)
+				return wirtualsdk.WorkspaceBuild{}, xerrors.Errorf("converting workspace agent: %w", err)
 			}
 			apiAgents = append(apiAgents, apiAgent)
 		}
@@ -895,8 +895,8 @@ func (api *API) convertWorkspaceBuild(
 	})
 
 	apiJob := convertProvisionerJob(job)
-	transition := codersdk.WorkspaceTransition(build.Transition)
-	return codersdk.WorkspaceBuild{
+	transition := wirtualsdk.WorkspaceTransition(build.Transition)
+	return wirtualsdk.WorkspaceBuild{
 		ID:                      build.ID,
 		CreatedAt:               build.CreatedAt,
 		UpdatedAt:               build.UpdatedAt,
@@ -912,30 +912,30 @@ func (api *API) convertWorkspaceBuild(
 		InitiatorID:             build.InitiatorID,
 		InitiatorUsername:       build.InitiatorByUsername,
 		Job:                     apiJob,
-		Deadline:                codersdk.NewNullTime(build.Deadline, !build.Deadline.IsZero()),
-		MaxDeadline:             codersdk.NewNullTime(build.MaxDeadline, !build.MaxDeadline.IsZero()),
-		Reason:                  codersdk.BuildReason(build.Reason),
+		Deadline:                wirtualsdk.NewNullTime(build.Deadline, !build.Deadline.IsZero()),
+		MaxDeadline:             wirtualsdk.NewNullTime(build.MaxDeadline, !build.MaxDeadline.IsZero()),
+		Reason:                  wirtualsdk.BuildReason(build.Reason),
 		Resources:               apiResources,
-		Status:                  codersdk.ConvertWorkspaceStatus(apiJob.Status, transition),
+		Status:                  wirtualsdk.ConvertWorkspaceStatus(apiJob.Status, transition),
 		DailyCost:               build.DailyCost,
 	}, nil
 }
 
-func convertWorkspaceResource(resource database.WorkspaceResource, agents []codersdk.WorkspaceAgent, metadata []database.WorkspaceResourceMetadatum) codersdk.WorkspaceResource {
-	var convertedMetadata []codersdk.WorkspaceResourceMetadata
+func convertWorkspaceResource(resource database.WorkspaceResource, agents []wirtualsdk.WorkspaceAgent, metadata []database.WorkspaceResourceMetadatum) wirtualsdk.WorkspaceResource {
+	var convertedMetadata []wirtualsdk.WorkspaceResourceMetadata
 	for _, field := range metadata {
-		convertedMetadata = append(convertedMetadata, codersdk.WorkspaceResourceMetadata{
+		convertedMetadata = append(convertedMetadata, wirtualsdk.WorkspaceResourceMetadata{
 			Key:       field.Key,
 			Value:     field.Value.String,
 			Sensitive: field.Sensitive,
 		})
 	}
 
-	return codersdk.WorkspaceResource{
+	return wirtualsdk.WorkspaceResource{
 		ID:         resource.ID,
 		CreatedAt:  resource.CreatedAt,
 		JobID:      resource.JobID,
-		Transition: codersdk.WorkspaceTransition(resource.Transition),
+		Transition: wirtualsdk.WorkspaceTransition(resource.Transition),
 		Type:       resource.Type,
 		Name:       resource.Name,
 		Hide:       resource.Hide,
@@ -946,21 +946,21 @@ func convertWorkspaceResource(resource database.WorkspaceResource, agents []code
 	}
 }
 
-func (api *API) buildTimings(ctx context.Context, build database.WorkspaceBuild) (codersdk.WorkspaceBuildTimings, error) {
+func (api *API) buildTimings(ctx context.Context, build database.WorkspaceBuild) (wirtualsdk.WorkspaceBuildTimings, error) {
 	provisionerTimings, err := api.Database.GetProvisionerJobTimingsByJobID(ctx, build.JobID)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return codersdk.WorkspaceBuildTimings{}, xerrors.Errorf("fetching provisioner job timings: %w", err)
+		return wirtualsdk.WorkspaceBuildTimings{}, xerrors.Errorf("fetching provisioner job timings: %w", err)
 	}
 
 	//nolint:gocritic // Already checked if the build can be fetched.
 	agentScriptTimings, err := api.Database.GetWorkspaceAgentScriptTimingsByBuildID(dbauthz.AsSystemRestricted(ctx), build.ID)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return codersdk.WorkspaceBuildTimings{}, xerrors.Errorf("fetching workspace agent script timings: %w", err)
+		return wirtualsdk.WorkspaceBuildTimings{}, xerrors.Errorf("fetching workspace agent script timings: %w", err)
 	}
 
 	resources, err := api.Database.GetWorkspaceResourcesByJobID(ctx, build.JobID)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return codersdk.WorkspaceBuildTimings{}, xerrors.Errorf("fetching workspace resources: %w", err)
+		return wirtualsdk.WorkspaceBuildTimings{}, xerrors.Errorf("fetching workspace resources: %w", err)
 	}
 	resourceIDs := make([]uuid.UUID, 0, len(resources))
 	for _, resource := range resources {
@@ -969,19 +969,19 @@ func (api *API) buildTimings(ctx context.Context, build database.WorkspaceBuild)
 	//nolint:gocritic // Already checked if the build can be fetched.
 	agents, err := api.Database.GetWorkspaceAgentsByResourceIDs(dbauthz.AsSystemRestricted(ctx), resourceIDs)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return codersdk.WorkspaceBuildTimings{}, xerrors.Errorf("fetching workspace agents: %w", err)
+		return wirtualsdk.WorkspaceBuildTimings{}, xerrors.Errorf("fetching workspace agents: %w", err)
 	}
 
-	res := codersdk.WorkspaceBuildTimings{
-		ProvisionerTimings:     make([]codersdk.ProvisionerTiming, 0, len(provisionerTimings)),
-		AgentScriptTimings:     make([]codersdk.AgentScriptTiming, 0, len(agentScriptTimings)),
-		AgentConnectionTimings: make([]codersdk.AgentConnectionTiming, 0, len(agents)),
+	res := wirtualsdk.WorkspaceBuildTimings{
+		ProvisionerTimings:     make([]wirtualsdk.ProvisionerTiming, 0, len(provisionerTimings)),
+		AgentScriptTimings:     make([]wirtualsdk.AgentScriptTiming, 0, len(agentScriptTimings)),
+		AgentConnectionTimings: make([]wirtualsdk.AgentConnectionTiming, 0, len(agents)),
 	}
 
 	for _, t := range provisionerTimings {
-		res.ProvisionerTimings = append(res.ProvisionerTimings, codersdk.ProvisionerTiming{
+		res.ProvisionerTimings = append(res.ProvisionerTimings, wirtualsdk.ProvisionerTiming{
 			JobID:     t.JobID,
-			Stage:     codersdk.TimingStage(t.Stage),
+			Stage:     wirtualsdk.TimingStage(t.Stage),
 			Source:    t.Source,
 			Action:    t.Action,
 			Resource:  t.Resource,
@@ -990,11 +990,11 @@ func (api *API) buildTimings(ctx context.Context, build database.WorkspaceBuild)
 		})
 	}
 	for _, t := range agentScriptTimings {
-		res.AgentScriptTimings = append(res.AgentScriptTimings, codersdk.AgentScriptTiming{
+		res.AgentScriptTimings = append(res.AgentScriptTimings, wirtualsdk.AgentScriptTiming{
 			StartedAt:          t.StartedAt,
 			EndedAt:            t.EndedAt,
 			ExitCode:           t.ExitCode,
-			Stage:              codersdk.TimingStage(t.Stage),
+			Stage:              wirtualsdk.TimingStage(t.Stage),
 			Status:             string(t.Status),
 			DisplayName:        t.DisplayName,
 			WorkspaceAgentID:   t.WorkspaceAgentID.String(),
@@ -1002,11 +1002,11 @@ func (api *API) buildTimings(ctx context.Context, build database.WorkspaceBuild)
 		})
 	}
 	for _, agent := range agents {
-		res.AgentConnectionTimings = append(res.AgentConnectionTimings, codersdk.AgentConnectionTiming{
+		res.AgentConnectionTimings = append(res.AgentConnectionTimings, wirtualsdk.AgentConnectionTiming{
 			WorkspaceAgentID:   agent.ID.String(),
 			WorkspaceAgentName: agent.Name,
 			StartedAt:          agent.CreatedAt,
-			Stage:              codersdk.TimingStageConnect,
+			Stage:              wirtualsdk.TimingStageConnect,
 			EndedAt:            agent.FirstConnectedAt.Time,
 		})
 	}

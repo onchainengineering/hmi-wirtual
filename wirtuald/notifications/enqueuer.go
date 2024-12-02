@@ -12,11 +12,11 @@ import (
 	"cdr.dev/slog"
 	"github.com/coder/quartz"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/notifications/render"
-	"github.com/coder/coder/v2/coderd/notifications/types"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/notifications/render"
+	"github.com/coder/coder/v2/wirtuald/notifications/types"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 var (
@@ -37,7 +37,7 @@ type StoreEnqueuer struct {
 }
 
 // NewStoreEnqueuer creates an Enqueuer implementation which can persist notification messages in the store.
-func NewStoreEnqueuer(cfg codersdk.NotificationsConfig, store Store, helpers template.FuncMap, log slog.Logger, clock quartz.Clock) (*StoreEnqueuer, error) {
+func NewStoreEnqueuer(cfg wirtualsdk.NotificationsConfig, store Store, helpers template.FuncMap, log slog.Logger, clock quartz.Clock) (*StoreEnqueuer, error) {
 	var method database.NotificationMethod
 	if err := method.Scan(cfg.Method.String()); err != nil {
 		return nil, xerrors.Errorf("given notification method %q is invalid", cfg.Method)

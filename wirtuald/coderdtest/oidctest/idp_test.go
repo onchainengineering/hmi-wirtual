@@ -15,8 +15,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/oauth2"
 
-	"github.com/coder/coder/v2/coderd"
-	"github.com/coder/coder/v2/coderd/coderdtest/oidctest"
+	"github.com/coder/coder/v2/wirtuald"
+	"github.com/coder/coder/v2/wirtuald/coderdtest/oidctest"
 	"github.com/coder/coder/v2/testutil"
 )
 
@@ -107,7 +107,7 @@ func TestIDPIssuerMismatch(t *testing.T) {
 	require.NoError(t, err, "failed to create OIDC provider")
 
 	oauthConfig := fake.OauthConfig(t, nil)
-	cfg := &coderd.OIDCConfig{
+	cfg := &wirtuald.OIDCConfig{
 		OAuth2Config: oauthConfig,
 		Provider:     p,
 		Verifier: oidc.NewVerifier(fake.WellknownConfig().Issuer, &oidc.StaticKeySet{

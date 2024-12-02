@@ -12,14 +12,14 @@ import (
 	"cdr.dev/slog"
 
 	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/database/pubsub"
-	"github.com/coder/coder/v2/coderd/prometheusmetrics"
-	"github.com/coder/coder/v2/coderd/schedule"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/coderd/workspaceapps"
-	"github.com/coder/coder/v2/coderd/wspubsub"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/database/pubsub"
+	"github.com/coder/coder/v2/wirtuald/prometheusmetrics"
+	"github.com/coder/coder/v2/wirtuald/schedule"
+	"github.com/coder/coder/v2/wirtuald/util/slice"
+	"github.com/coder/coder/v2/wirtuald/workspaceapps"
+	"github.com/coder/coder/v2/wirtuald/wspubsub"
 )
 
 type ReporterOptions struct {
@@ -99,7 +99,7 @@ func (r *Reporter) ReportAppStats(ctx context.Context, stats []workspaceapps.Sta
 		// TODO: We currently measure workspace usage based on when we get stats from it.
 		// There are currently two paths for this:
 		// 1) From SSH -> workspace agent stats POSTed from agent
-		// 2) From workspace apps / rpty -> workspace app stats (from coderd / wsproxy)
+		// 2) From workspace apps / rpty -> workspace app stats (from wirtuald / wsproxy)
 		// Ideally we would have a single code path for this.
 		uniqueIDs := slice.Unique(batch.WorkspaceID)
 		if err := tx.BatchUpdateWorkspaceLastUsedAt(ctx, database.BatchUpdateWorkspaceLastUsedAtParams{

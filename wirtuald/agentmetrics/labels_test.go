@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/agentmetrics"
+	"github.com/coder/coder/v2/wirtuald/agentmetrics"
 )
 
 func TestValidateAggregationLabels(t *testing.T) {

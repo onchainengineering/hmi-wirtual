@@ -1,4 +1,4 @@
-package coderd
+package wirtuald
 
 import (
 	"database/sql"
@@ -10,13 +10,13 @@ import (
 	"github.com/sqlc-dev/pqtype"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/db2sdk"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/externalauth"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/externalauth"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Get external auth by ID
@@ -25,19 +25,19 @@ import (
 // @Tags Git
 // @Produce json
 // @Param externalauth path string true "Git Provider ID" format(string)
-// @Success 200 {object} codersdk.ExternalAuth
+// @Success 200 {object} wirtualsdk.ExternalAuth
 // @Router /external-auth/{externalauth} [get]
 func (api *API) externalAuthByID(w http.ResponseWriter, r *http.Request) {
 	config := httpmw.ExternalAuthParam(r)
 	apiKey := httpmw.APIKey(r)
 	ctx := r.Context()
 
-	res := codersdk.ExternalAuth{
+	res := wirtualsdk.ExternalAuth{
 		Authenticated:    false,
 		Device:           config.DeviceAuth != nil,
 		AppInstallURL:    config.AppInstallURL,
 		DisplayName:      config.DisplayName,
-		AppInstallations: []codersdk.ExternalAuthAppInstallation{},
+		AppInstallations: []wirtualsdk.ExternalAuthAppInstallation{},
 	}
 
 	link, err := api.Database.GetExternalAuthLink(ctx, database.GetExternalAuthLinkParams{
@@ -46,7 +46,7 @@ func (api *API) externalAuthByID(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
-			httpapi.Write(ctx, w, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, w, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Failed to get external auth link.",
 				Detail:  err.Error(),
 			})
@@ -67,14 +67,14 @@ func (api *API) externalAuthByID(w http.ResponseWriter, r *http.Request) {
 	})
 	err = eg.Wait()
 	if err != nil {
-		httpapi.Write(ctx, w, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, w, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to validate token.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 	if res.AppInstallations == nil {
-		res.AppInstallations = []codersdk.ExternalAuthAppInstallation{}
+		res.AppInstallations = []wirtualsdk.ExternalAuthAppInstallation{}
 	}
 	httpapi.Write(ctx, w, http.StatusOK, res)
 }
@@ -102,7 +102,7 @@ func (api *API) deleteExternalAuthByID(w http.ResponseWriter, r *http.Request) {
 			httpapi.ResourceNotFound(w)
 			return
 		}
-		httpapi.Write(ctx, w, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, w, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to delete external auth link.",
 			Detail:  err.Error(),
 		})
@@ -124,13 +124,13 @@ func (api *API) postExternalAuthDeviceByID(rw http.ResponseWriter, r *http.Reque
 	apiKey := httpmw.APIKey(r)
 	config := httpmw.ExternalAuthParam(r)
 
-	var req codersdk.ExternalAuthDeviceExchange
+	var req wirtualsdk.ExternalAuthDeviceExchange
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
 
 	if config.DeviceAuth == nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Git auth provider does not support device flow.",
 		})
 		return
@@ -138,7 +138,7 @@ func (api *API) postExternalAuthDeviceByID(rw http.ResponseWriter, r *http.Reque
 
 	token, err := config.DeviceAuth.ExchangeDeviceCode(ctx, req.DeviceCode)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Failed to exchange device code.",
 			Detail:  err.Error(),
 		})
@@ -151,7 +151,7 @@ func (api *API) postExternalAuthDeviceByID(rw http.ResponseWriter, r *http.Reque
 	})
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Failed to get external auth link.",
 				Detail:  err.Error(),
 			})
@@ -172,7 +172,7 @@ func (api *API) postExternalAuthDeviceByID(rw http.ResponseWriter, r *http.Reque
 			OAuthExtra: pqtype.NullRawMessage{},
 		})
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Failed to insert external auth link.",
 				Detail:  err.Error(),
 			})
@@ -191,7 +191,7 @@ func (api *API) postExternalAuthDeviceByID(rw http.ResponseWriter, r *http.Reque
 			OAuthExtra:             pqtype.NullRawMessage{},
 		})
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Failed to update external auth link.",
 				Detail:  err.Error(),
 			})
@@ -207,14 +207,14 @@ func (api *API) postExternalAuthDeviceByID(rw http.ResponseWriter, r *http.Reque
 // @Produce json
 // @Tags Git
 // @Param externalauth path string true "Git Provider ID" format(string)
-// @Success 200 {object} codersdk.ExternalAuthDevice
+// @Success 200 {object} wirtualsdk.ExternalAuthDevice
 // @Router /external-auth/{externalauth}/device [get]
 func (*API) externalAuthDeviceByID(rw http.ResponseWriter, r *http.Request) {
 	config := httpmw.ExternalAuthParam(r)
 	ctx := r.Context()
 
 	if config.DeviceAuth == nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Git auth device flow not supported.",
 		})
 		return
@@ -222,7 +222,7 @@ func (*API) externalAuthDeviceByID(rw http.ResponseWriter, r *http.Request) {
 
 	deviceAuth, err := config.DeviceAuth.AuthorizeDevice(r.Context())
 	if err != nil {
-		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to authorize device.",
 			Detail:  err.Error(),
 		})
@@ -242,7 +242,7 @@ func (api *API) externalAuthCallback(externalAuthConfig *externalauth.Config) ht
 
 		extra, err := externalAuthConfig.GenerateTokenExtra(state.Token)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Failed to generate token extra.",
 				Detail:  err.Error(),
 			})
@@ -254,7 +254,7 @@ func (api *API) externalAuthCallback(externalAuthConfig *externalauth.Config) ht
 		})
 		if err != nil {
 			if !errors.Is(err, sql.ErrNoRows) {
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "Failed to get external auth link.",
 					Detail:  err.Error(),
 				})
@@ -274,7 +274,7 @@ func (api *API) externalAuthCallback(externalAuthConfig *externalauth.Config) ht
 				OAuthExtra:             extra,
 			})
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "Failed to insert external auth link.",
 					Detail:  err.Error(),
 				})
@@ -293,7 +293,7 @@ func (api *API) externalAuthCallback(externalAuthConfig *externalauth.Config) ht
 				OAuthExtra:             extra,
 			})
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "Failed to update external auth link.",
 					Detail:  err.Error(),
 				})
@@ -320,7 +320,7 @@ func (api *API) externalAuthCallback(externalAuthConfig *externalauth.Config) ht
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Git
-// @Success 200 {object} codersdk.ExternalAuthLink
+// @Success 200 {object} wirtualsdk.ExternalAuthLink
 // @Router /external-auth [get]
 func (api *API) listUserExternalAuths(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -332,7 +332,7 @@ func (api *API) listUserExternalAuths(rw http.ResponseWriter, r *http.Request) {
 			httpapi.ResourceNotFound(rw)
 			return
 		}
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching user's external auths.",
 			Detail:  err.Error(),
 		})
@@ -375,14 +375,14 @@ func (api *API) listUserExternalAuths(rw http.ResponseWriter, r *http.Request) {
 	// refresh expired tokens too. For now, I do not want to cause the excess
 	// traffic on this request, so the user will have to do this with a separate
 	// call.
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.ListUserExternalAuthResponse{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.ListUserExternalAuthResponse{
 		Providers: ExternalAuthConfigs(api.ExternalAuthConfigs),
 		Links:     db2sdk.ExternalAuths(links, linkMeta),
 	})
 }
 
-func ExternalAuthConfigs(auths []*externalauth.Config) []codersdk.ExternalAuthLinkProvider {
-	out := make([]codersdk.ExternalAuthLinkProvider, 0, len(auths))
+func ExternalAuthConfigs(auths []*externalauth.Config) []wirtualsdk.ExternalAuthLinkProvider {
+	out := make([]wirtualsdk.ExternalAuthLinkProvider, 0, len(auths))
 	for _, auth := range auths {
 		if auth == nil {
 			continue
@@ -392,8 +392,8 @@ func ExternalAuthConfigs(auths []*externalauth.Config) []codersdk.ExternalAuthLi
 	return out
 }
 
-func ExternalAuthConfig(cfg *externalauth.Config) codersdk.ExternalAuthLinkProvider {
-	return codersdk.ExternalAuthLinkProvider{
+func ExternalAuthConfig(cfg *externalauth.Config) wirtualsdk.ExternalAuthLinkProvider {
+	return wirtualsdk.ExternalAuthLinkProvider{
 		ID:            cfg.ID,
 		Type:          cfg.Type,
 		Device:        cfg.DeviceAuth != nil,

@@ -8,7 +8,7 @@ import (
 
 	"github.com/coder/coder/v2/cli/cliui"
 	"github.com/coder/coder/v2/cli/cliutil/levenshtein"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -23,34 +23,34 @@ const (
 )
 
 type ParameterResolver struct {
-	lastBuildParameters       []codersdk.WorkspaceBuildParameter
-	sourceWorkspaceParameters []codersdk.WorkspaceBuildParameter
+	lastBuildParameters       []wirtualsdk.WorkspaceBuildParameter
+	sourceWorkspaceParameters []wirtualsdk.WorkspaceBuildParameter
 
-	richParameters         []codersdk.WorkspaceBuildParameter
+	richParameters         []wirtualsdk.WorkspaceBuildParameter
 	richParametersDefaults map[string]string
 	richParametersFile     map[string]string
-	ephemeralParameters    []codersdk.WorkspaceBuildParameter
+	ephemeralParameters    []wirtualsdk.WorkspaceBuildParameter
 
 	promptRichParameters      bool
 	promptEphemeralParameters bool
 }
 
-func (pr *ParameterResolver) WithLastBuildParameters(params []codersdk.WorkspaceBuildParameter) *ParameterResolver {
+func (pr *ParameterResolver) WithLastBuildParameters(params []wirtualsdk.WorkspaceBuildParameter) *ParameterResolver {
 	pr.lastBuildParameters = params
 	return pr
 }
 
-func (pr *ParameterResolver) WithSourceWorkspaceParameters(params []codersdk.WorkspaceBuildParameter) *ParameterResolver {
+func (pr *ParameterResolver) WithSourceWorkspaceParameters(params []wirtualsdk.WorkspaceBuildParameter) *ParameterResolver {
 	pr.sourceWorkspaceParameters = params
 	return pr
 }
 
-func (pr *ParameterResolver) WithRichParameters(params []codersdk.WorkspaceBuildParameter) *ParameterResolver {
+func (pr *ParameterResolver) WithRichParameters(params []wirtualsdk.WorkspaceBuildParameter) *ParameterResolver {
 	pr.richParameters = params
 	return pr
 }
 
-func (pr *ParameterResolver) WithEphemeralParameters(params []codersdk.WorkspaceBuildParameter) *ParameterResolver {
+func (pr *ParameterResolver) WithEphemeralParameters(params []wirtualsdk.WorkspaceBuildParameter) *ParameterResolver {
 	pr.ephemeralParameters = params
 	return pr
 }
@@ -60,7 +60,7 @@ func (pr *ParameterResolver) WithRichParametersFile(fileMap map[string]string) *
 	return pr
 }
 
-func (pr *ParameterResolver) WithRichParametersDefaults(params []codersdk.WorkspaceBuildParameter) *ParameterResolver {
+func (pr *ParameterResolver) WithRichParametersDefaults(params []wirtualsdk.WorkspaceBuildParameter) *ParameterResolver {
 	if pr.richParametersDefaults == nil {
 		pr.richParametersDefaults = make(map[string]string)
 	}
@@ -80,8 +80,8 @@ func (pr *ParameterResolver) WithPromptEphemeralParameters(promptEphemeralParame
 	return pr
 }
 
-func (pr *ParameterResolver) Resolve(inv *serpent.Invocation, action WorkspaceCLIAction, templateVersionParameters []codersdk.TemplateVersionParameter) ([]codersdk.WorkspaceBuildParameter, error) {
-	var staged []codersdk.WorkspaceBuildParameter
+func (pr *ParameterResolver) Resolve(inv *serpent.Invocation, action WorkspaceCLIAction, templateVersionParameters []wirtualsdk.TemplateVersionParameter) ([]wirtualsdk.WorkspaceBuildParameter, error) {
+	var staged []wirtualsdk.WorkspaceBuildParameter
 	var err error
 
 	staged = pr.resolveWithParametersMapFile(staged)
@@ -97,7 +97,7 @@ func (pr *ParameterResolver) Resolve(inv *serpent.Invocation, action WorkspaceCL
 	return staged, nil
 }
 
-func (pr *ParameterResolver) resolveWithParametersMapFile(resolved []codersdk.WorkspaceBuildParameter) []codersdk.WorkspaceBuildParameter {
+func (pr *ParameterResolver) resolveWithParametersMapFile(resolved []wirtualsdk.WorkspaceBuildParameter) []wirtualsdk.WorkspaceBuildParameter {
 next:
 	for name, value := range pr.richParametersFile {
 		for i, r := range resolved {
@@ -107,7 +107,7 @@ next:
 			}
 		}
 
-		resolved = append(resolved, codersdk.WorkspaceBuildParameter{
+		resolved = append(resolved, wirtualsdk.WorkspaceBuildParameter{
 			Name:  name,
 			Value: value,
 		})
@@ -115,7 +115,7 @@ next:
 	return resolved
 }
 
-func (pr *ParameterResolver) resolveWithCommandLineOrEnv(resolved []codersdk.WorkspaceBuildParameter) []codersdk.WorkspaceBuildParameter {
+func (pr *ParameterResolver) resolveWithCommandLineOrEnv(resolved []wirtualsdk.WorkspaceBuildParameter) []wirtualsdk.WorkspaceBuildParameter {
 nextRichParameter:
 	for _, richParameter := range pr.richParameters {
 		for i, r := range resolved {
@@ -142,7 +142,7 @@ nextEphemeralParameter:
 	return resolved
 }
 
-func (pr *ParameterResolver) resolveWithLastBuildParameters(resolved []codersdk.WorkspaceBuildParameter, templateVersionParameters []codersdk.TemplateVersionParameter) []codersdk.WorkspaceBuildParameter {
+func (pr *ParameterResolver) resolveWithLastBuildParameters(resolved []wirtualsdk.WorkspaceBuildParameter, templateVersionParameters []wirtualsdk.TemplateVersionParameter) []wirtualsdk.WorkspaceBuildParameter {
 	if pr.promptRichParameters {
 		return resolved // don't pull parameters from last build
 	}
@@ -178,7 +178,7 @@ next:
 	return resolved
 }
 
-func (pr *ParameterResolver) resolveWithSourceBuildParameters(resolved []codersdk.WorkspaceBuildParameter, templateVersionParameters []codersdk.TemplateVersionParameter) []codersdk.WorkspaceBuildParameter {
+func (pr *ParameterResolver) resolveWithSourceBuildParameters(resolved []wirtualsdk.WorkspaceBuildParameter, templateVersionParameters []wirtualsdk.TemplateVersionParameter) []wirtualsdk.WorkspaceBuildParameter {
 next:
 	for _, buildParameter := range pr.sourceWorkspaceParameters {
 		tvp := findTemplateVersionParameter(buildParameter, templateVersionParameters)
@@ -202,7 +202,7 @@ next:
 	return resolved
 }
 
-func (pr *ParameterResolver) verifyConstraints(resolved []codersdk.WorkspaceBuildParameter, action WorkspaceCLIAction, templateVersionParameters []codersdk.TemplateVersionParameter) error {
+func (pr *ParameterResolver) verifyConstraints(resolved []wirtualsdk.WorkspaceBuildParameter, action WorkspaceCLIAction, templateVersionParameters []wirtualsdk.TemplateVersionParameter) error {
 	for _, r := range resolved {
 		tvp := findTemplateVersionParameter(r, templateVersionParameters)
 		if tvp == nil {
@@ -220,7 +220,7 @@ func (pr *ParameterResolver) verifyConstraints(resolved []codersdk.WorkspaceBuil
 	return nil
 }
 
-func (pr *ParameterResolver) resolveWithInput(resolved []codersdk.WorkspaceBuildParameter, inv *serpent.Invocation, action WorkspaceCLIAction, templateVersionParameters []codersdk.TemplateVersionParameter) ([]codersdk.WorkspaceBuildParameter, error) {
+func (pr *ParameterResolver) resolveWithInput(resolved []wirtualsdk.WorkspaceBuildParameter, inv *serpent.Invocation, action WorkspaceCLIAction, templateVersionParameters []wirtualsdk.TemplateVersionParameter) ([]wirtualsdk.WorkspaceBuildParameter, error) {
 	for _, tvp := range templateVersionParameters {
 		p := findWorkspaceBuildParameter(tvp.Name, resolved)
 		if p != nil {
@@ -243,7 +243,7 @@ func (pr *ParameterResolver) resolveWithInput(resolved []codersdk.WorkspaceBuild
 				return nil, err
 			}
 
-			resolved = append(resolved, codersdk.WorkspaceBuildParameter{
+			resolved = append(resolved, wirtualsdk.WorkspaceBuildParameter{
 				Name:  tvp.Name,
 				Value: parameterValue,
 			})
@@ -258,7 +258,7 @@ func (pr *ParameterResolver) isFirstTimeUse(parameterName string) bool {
 	return findWorkspaceBuildParameter(parameterName, pr.lastBuildParameters) == nil
 }
 
-func (pr *ParameterResolver) isLastBuildParameterInvalidOption(templateVersionParameter codersdk.TemplateVersionParameter) bool {
+func (pr *ParameterResolver) isLastBuildParameterInvalidOption(templateVersionParameter wirtualsdk.TemplateVersionParameter) bool {
 	if len(templateVersionParameter.Options) == 0 {
 		return false
 	}
@@ -271,7 +271,7 @@ func (pr *ParameterResolver) isLastBuildParameterInvalidOption(templateVersionPa
 	return false
 }
 
-func findTemplateVersionParameter(workspaceBuildParameter codersdk.WorkspaceBuildParameter, templateVersionParameters []codersdk.TemplateVersionParameter) *codersdk.TemplateVersionParameter {
+func findTemplateVersionParameter(workspaceBuildParameter wirtualsdk.WorkspaceBuildParameter, templateVersionParameters []wirtualsdk.TemplateVersionParameter) *wirtualsdk.TemplateVersionParameter {
 	for _, tvp := range templateVersionParameters {
 		if tvp.Name == workspaceBuildParameter.Name {
 			return &tvp
@@ -280,7 +280,7 @@ func findTemplateVersionParameter(workspaceBuildParameter codersdk.WorkspaceBuil
 	return nil
 }
 
-func findWorkspaceBuildParameter(parameterName string, params []codersdk.WorkspaceBuildParameter) *codersdk.WorkspaceBuildParameter {
+func findWorkspaceBuildParameter(parameterName string, params []wirtualsdk.WorkspaceBuildParameter) *wirtualsdk.WorkspaceBuildParameter {
 	for _, p := range params {
 		if p.Name == parameterName {
 			return &p
@@ -289,7 +289,7 @@ func findWorkspaceBuildParameter(parameterName string, params []codersdk.Workspa
 	return nil
 }
 
-func isValidTemplateParameterOption(buildParameter codersdk.WorkspaceBuildParameter, options []codersdk.TemplateVersionParameterOption) bool {
+func isValidTemplateParameterOption(buildParameter wirtualsdk.WorkspaceBuildParameter, options []wirtualsdk.TemplateVersionParameterOption) bool {
 	for _, opt := range options {
 		if opt.Value == buildParameter.Value {
 			return true
@@ -298,7 +298,7 @@ func isValidTemplateParameterOption(buildParameter codersdk.WorkspaceBuildParame
 	return false
 }
 
-func templateVersionParametersNotFound(unknown string, params []codersdk.TemplateVersionParameter) error {
+func templateVersionParametersNotFound(unknown string, params []wirtualsdk.TemplateVersionParameter) error {
 	var sb strings.Builder
 	_, _ = sb.WriteString(fmt.Sprintf("parameter %q is not present in the template.", unknown))
 	// Going with a fairly generous edit distance

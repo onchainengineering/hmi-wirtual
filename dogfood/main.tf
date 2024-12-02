@@ -1,7 +1,7 @@
 terraform {
   required_providers {
-    coderd = {
-      source = "coder/coderd"
+    wirtuald = {
+      source = "coder/wirtuald"
     }
   }
   backend "gcs" {

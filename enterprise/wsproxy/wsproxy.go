@@ -28,13 +28,13 @@ import (
 	"cdr.dev/slog"
 	"github.com/coder/coder/v2/buildinfo"
 	"github.com/coder/coder/v2/cli/cliutil"
-	"github.com/coder/coder/v2/coderd"
-	"github.com/coder/coder/v2/coderd/cryptokeys"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/coderd/workspaceapps"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald"
+	"github.com/coder/coder/v2/wirtuald/cryptokeys"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtuald/tracing"
+	"github.com/coder/coder/v2/wirtuald/workspaceapps"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/enterprise/derpmesh"
 	"github.com/coder/coder/v2/enterprise/replicasync"
 	"github.com/coder/coder/v2/enterprise/wsproxy/wsproxysdk"
@@ -44,10 +44,10 @@ import (
 
 type Options struct {
 	Logger      slog.Logger
-	Experiments codersdk.Experiments
+	Experiments wirtualsdk.Experiments
 
 	HTTPClient *http.Client
-	// DashboardURL is the URL of the primary coderd instance.
+	// DashboardURL is the URL of the primary wirtuald instance.
 	DashboardURL *url.URL
 	// AccessURL is the URL of the WorkspaceProxy.
 	AccessURL *url.URL
@@ -83,7 +83,7 @@ type Options struct {
 
 	// ReplicaErrCallback is called when the proxy replica successfully or
 	// unsuccessfully pings its peers in the mesh.
-	ReplicaErrCallback func(replicas []codersdk.Replica, err string)
+	ReplicaErrCallback func(replicas []wirtualsdk.Replica, err string)
 
 	ProxySessionToken string
 	// AllowAllCors will set all CORs headers to '*'.
@@ -111,7 +111,7 @@ func (o *Options) Validate() error {
 }
 
 // Server is an external workspace proxy server. This server can communicate
-// directly with a workspace. It requires a primary coderd to establish a said
+// directly with a workspace. It requires a primary wirtuald to establish a said
 // connection.
 type Server struct {
 	Options *Options
@@ -125,7 +125,7 @@ type Server struct {
 	TracerProvider     trace.TracerProvider
 	PrometheusRegistry *prometheus.Registry
 
-	// SDKClient is a client to the primary coderd instance authenticated with
+	// SDKClient is a client to the primary wirtuald instance authenticated with
 	// the moon's token.
 	SDKClient *wsproxysdk.Client
 
@@ -150,7 +150,7 @@ type Server struct {
 	registerLoop  *wsproxysdk.RegisterWorkspaceProxyLoop
 }
 
-// New creates a new workspace proxy server. This requires a primary coderd
+// New creates a new workspace proxy server. This requires a primary wirtuald
 // instance to be reachable and the correct authorization access token to be
 // provided. If the proxy cannot authenticate with the primary, this will fail.
 func New(ctx context.Context, opts *Options) (*Server, error) {
@@ -176,12 +176,12 @@ func New(ctx context.Context, opts *Options) (*Server, error) {
 	info, err := client.SDKClient.BuildInfo(ctx)
 	if err != nil {
 		return nil, xerrors.Errorf("buildinfo: %w", errors.Join(
-			xerrors.Errorf("unable to fetch build info from primary coderd. Are you sure %q is a coderd instance?", opts.DashboardURL),
+			xerrors.Errorf("unable to fetch build info from primary wirtuald. Are you sure %q is a wirtuald instance?", opts.DashboardURL),
 			err,
 		))
 	}
 	if info.WorkspaceProxy {
-		return nil, xerrors.Errorf("%q is a workspace proxy, not a primary coderd instance", opts.DashboardURL)
+		return nil, xerrors.Errorf("%q is a workspace proxy, not a primary wirtuald instance", opts.DashboardURL)
 	}
 	// We don't want to crash the proxy if the versions don't match because
 	// it'll enter crash loop backoff (and most patches don't make any backwards
@@ -204,7 +204,7 @@ func New(ctx context.Context, opts *Options) (*Server, error) {
 	encryptionCache, err := cryptokeys.NewEncryptionCache(ctx,
 		opts.Logger,
 		&ProxyFetcher{Client: client},
-		codersdk.CryptoKeyFeatureWorkspaceAppsAPIKey,
+		wirtualsdk.CryptoKeyFeatureWorkspaceAppsAPIKey,
 	)
 	if err != nil {
 		cancel()
@@ -213,7 +213,7 @@ func New(ctx context.Context, opts *Options) (*Server, error) {
 	signingCache, err := cryptokeys.NewSigningCache(ctx,
 		opts.Logger,
 		&ProxyFetcher{Client: client},
-		codersdk.CryptoKeyFeatureWorkspaceAppsToken,
+		wirtualsdk.CryptoKeyFeatureWorkspaceAppsToken,
 	)
 	if err != nil {
 		cancel()
@@ -238,7 +238,7 @@ func New(ctx context.Context, opts *Options) (*Server, error) {
 		appTokenSigningKeycache:  signingCache,
 	}
 
-	// Register the workspace proxy with the primary coderd instance and start a
+	// Register the workspace proxy with the primary wirtuald instance and start a
 	// goroutine to periodically re-register.
 	registerLoop, regResp, err := client.RegisterWorkspaceProxyLoop(ctx, wsproxysdk.RegisterWorkspaceProxyLoopOpts{
 		Logger: opts.Logger,
@@ -272,7 +272,7 @@ func New(ctx context.Context, opts *Options) (*Server, error) {
 	if err != nil {
 		return nil, xerrors.Errorf("create tailnet dialer: %w", err)
 	}
-	agentProvider, err := coderd.NewServerTailnet(ctx,
+	agentProvider, err := wirtuald.NewServerTailnet(ctx,
 		s.Logger,
 		nil,
 		dialer,
@@ -321,7 +321,7 @@ func New(ctx context.Context, opts *Options) (*Server, error) {
 	derpHandler := derphttp.Handler(derpServer)
 	derpHandler, s.derpCloseFunc = tailnet.WithWebsocketSupport(derpServer, derpHandler)
 
-	// The primary coderd dashboard needs to make some GET requests to
+	// The primary wirtuald dashboard needs to make some GET requests to
 	// the workspace proxies to check latency.
 	corsMW := httpmw.Cors(opts.AllowAllCors, opts.DashboardURL.String())
 	prometheusMW := httpmw.Prometheus(s.PrometheusRegistry)
@@ -346,7 +346,7 @@ func New(ctx context.Context, opts *Options) (*Server, error) {
 		// Build-Version is helpful for debugging.
 		func(next http.Handler) http.Handler {
 			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.Header().Add(codersdk.BuildVersionHeader, buildinfo.Version())
+				w.Header().Add(wirtualsdk.BuildVersionHeader, buildinfo.Version())
 				next.ServeHTTP(w, r)
 			})
 		},
@@ -405,7 +405,7 @@ func New(ctx context.Context, opts *Options) (*Server, error) {
 	} else {
 		r.Route("/derp", func(r chi.Router) {
 			r.HandleFunc("/*", func(rw http.ResponseWriter, r *http.Request) {
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "DERP is disabled on this proxy.",
 				})
 			})
@@ -428,10 +428,10 @@ func New(ctx context.Context, opts *Options) (*Server, error) {
 		})
 	})
 
-	// See coderd/coderd.go for why we need this.
+	// See wirtuald/wirtuald.go for why we need this.
 	rootRouter := chi.NewRouter()
 	// Make sure to add the cors middleware to the latency check route.
-	rootRouter.Get("/latency-check", tracing.StatusWriterMiddleware(prometheusMW(coderd.LatencyCheck())).ServeHTTP)
+	rootRouter.Get("/latency-check", tracing.StatusWriterMiddleware(prometheusMW(wirtuald.LatencyCheck())).ServeHTTP)
 	rootRouter.Mount("/", r)
 	s.Handler = rootRouter
 
@@ -483,7 +483,7 @@ func (s *Server) handleRegister(res wsproxysdk.RegisterWorkspaceProxyResponse) e
 	return nil
 }
 
-func (s *Server) pingSiblingReplicas(replicas []codersdk.Replica) {
+func (s *Server) pingSiblingReplicas(replicas []wirtualsdk.Replica) {
 	ctx, cancel := context.WithTimeout(s.ctx, 10*time.Second)
 	defer cancel()
 
@@ -496,7 +496,7 @@ func (s *Server) pingSiblingReplicas(replicas []codersdk.Replica) {
 	}
 }
 
-func pingSiblingReplicas(ctx context.Context, logger slog.Logger, sf *singleflight.Group, derpMeshTLSConfig *tls.Config, replicas []codersdk.Replica) string {
+func pingSiblingReplicas(ctx context.Context, logger slog.Logger, sf *singleflight.Group, derpMeshTLSConfig *tls.Config, replicas []wirtualsdk.Replica) string {
 	if len(replicas) == 0 {
 		return ""
 	}
@@ -522,7 +522,7 @@ func pingSiblingReplicas(ctx context.Context, logger slog.Logger, sf *singleflig
 
 		errs := make(chan error, len(replicas))
 		for _, peer := range replicas {
-			go func(peer codersdk.Replica) {
+			go func(peer wirtualsdk.Replica) {
 				err := replicasync.PingPeerReplica(ctx, client, peer.RelayAddress)
 				if err != nil {
 					errs <- xerrors.Errorf("ping sibling replica %s (%s): %w", peer.Hostname, peer.RelayAddress, err)
@@ -566,10 +566,10 @@ func (s *Server) handleRegisterFailure(err error) {
 }
 
 func (s *Server) buildInfo(rw http.ResponseWriter, r *http.Request) {
-	httpapi.Write(r.Context(), rw, http.StatusOK, codersdk.BuildInfoResponse{
+	httpapi.Write(r.Context(), rw, http.StatusOK, wirtualsdk.BuildInfoResponse{
 		ExternalURL:     buildinfo.ExternalURL(),
 		Version:         buildinfo.Version(),
-		AgentAPIVersion: coderd.AgentAPIVersionREST,
+		AgentAPIVersion: wirtuald.AgentAPIVersionREST,
 		DashboardURL:    s.DashboardURL.String(),
 		WorkspaceProxy:  true,
 	})
@@ -578,15 +578,15 @@ func (s *Server) buildInfo(rw http.ResponseWriter, r *http.Request) {
 // healthReport is a more thorough health check than the '/healthz' endpoint.
 // This endpoint not only responds if the server is running, but can do some
 // internal diagnostics to ensure that the server is running correctly. The
-// primary coderd will use this to determine if this workspace proxy can be used
+// primary wirtuald will use this to determine if this workspace proxy can be used
 // by the users. This endpoint will take longer to respond than the '/healthz'.
 // Checks:
-// - Can communicate with primary coderd
+// - Can communicate with primary wirtuald
 //
 // TODO: Config checks to ensure consistent with primary
 func (s *Server) healthReport(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	var report codersdk.ProxyHealthReport
+	var report wirtualsdk.ProxyHealthReport
 
 	// This is to catch edge cases where the server is shutting down, but might
 	// still serve a web request that returns "healthy". This is mainly just for
@@ -609,14 +609,14 @@ func (s *Server) healthReport(rw http.ResponseWriter, r *http.Request) {
 	if primaryBuild.WorkspaceProxy {
 		// This could be a simple mistake of using a proxy url as the dashboard url.
 		report.Errors = append(report.Errors,
-			fmt.Sprintf("dashboard url (%s) is a workspace proxy, must be a primary coderd", s.DashboardURL.String()))
+			fmt.Sprintf("dashboard url (%s) is a workspace proxy, must be a primary wirtuald", s.DashboardURL.String()))
 	}
 
 	// If we are in dev mode, never check versions.
 	if !buildinfo.IsDev() && !buildinfo.VersionsMatch(primaryBuild.Version, buildinfo.Version()) {
 		// Version mismatches are not fatal, but should be reported.
 		report.Warnings = append(report.Warnings,
-			fmt.Sprintf("version mismatch: primary coderd (%s) != workspace proxy (%s)", primaryBuild.Version, buildinfo.Version()))
+			fmt.Sprintf("version mismatch: primary wirtuald (%s) != workspace proxy (%s)", primaryBuild.Version, buildinfo.Version()))
 	}
 
 	s.replicaErrMut.Lock()

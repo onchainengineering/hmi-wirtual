@@ -17,12 +17,12 @@ import (
 
 	"github.com/coder/coder/v2/agent"
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/coder/coder/v2/wirtuald"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbfake"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 	"github.com/coder/coder/v2/provisionersdk/proto"
 	"github.com/coder/coder/v2/testutil"
 )
@@ -219,7 +219,7 @@ func TestWorkspaceAgent(t *testing.T) {
 			"--log-dir", logDir,
 		)
 		// Set the subsystems for the agent.
-		inv.Environ.Set(agent.EnvAgentSubsystem, fmt.Sprintf("%s,%s", codersdk.AgentSubsystemExectrace, codersdk.AgentSubsystemEnvbox))
+		inv.Environ.Set(agent.EnvAgentSubsystem, fmt.Sprintf("%s,%s", wirtualsdk.AgentSubsystemExectrace, wirtualsdk.AgentSubsystemEnvbox))
 
 		clitest.Start(t, inv)
 
@@ -229,13 +229,13 @@ func TestWorkspaceAgent(t *testing.T) {
 		require.Len(t, resources[0].Agents, 1)
 		require.Len(t, resources[0].Agents[0].Subsystems, 2)
 		// Sorted
-		require.Equal(t, codersdk.AgentSubsystemEnvbox, resources[0].Agents[0].Subsystems[0])
-		require.Equal(t, codersdk.AgentSubsystemExectrace, resources[0].Agents[0].Subsystems[1])
+		require.Equal(t, wirtualsdk.AgentSubsystemEnvbox, resources[0].Agents[0].Subsystems[0])
+		require.Equal(t, wirtualsdk.AgentSubsystemExectrace, resources[0].Agents[0].Subsystems[1])
 	})
 	t.Run("Headers&DERPHeaders", func(t *testing.T) {
 		t.Parallel()
 
-		// Create a coderd API instance the hard way since we need to change the
+		// Create a wirtuald API instance the hard way since we need to change the
 		// handler to inject our custom /derp handler.
 		dv := coderdtest.DeploymentValues(t)
 		dv.DERP.Config.BlockDirect = true
@@ -244,13 +244,13 @@ func TestWorkspaceAgent(t *testing.T) {
 		})
 
 		// We set the handler after server creation for the access URL.
-		coderAPI := coderd.New(newOptions)
+		coderAPI := wirtuald.New(newOptions)
 		setHandler(coderAPI.RootHandler)
 		provisionerCloser := coderdtest.NewProvisionerDaemon(t, coderAPI)
 		t.Cleanup(func() {
 			_ = provisionerCloser.Close()
 		})
-		client := codersdk.New(serverURL)
+		client := wirtualsdk.New(serverURL)
 		t.Cleanup(func() {
 			cancelFunc()
 			_ = provisionerCloser.Close()
@@ -316,12 +316,12 @@ func TestWorkspaceAgent(t *testing.T) {
 		err := clientInv.WithContext(ctx).Run()
 		require.NoError(t, err)
 
-		require.Greater(t, atomic.LoadInt64(&called), int64(0), "expected coderd to be reached with custom headers")
+		require.Greater(t, atomic.LoadInt64(&called), int64(0), "expected wirtuald to be reached with custom headers")
 		require.Greater(t, atomic.LoadInt64(&derpCalled), int64(0), "expected /derp to be called with custom headers")
 	})
 }
 
-func matchAgentWithVersion(rs []codersdk.WorkspaceResource) bool {
+func matchAgentWithVersion(rs []wirtualsdk.WorkspaceResource) bool {
 	if len(rs) < 1 {
 		return false
 	}
@@ -334,7 +334,7 @@ func matchAgentWithVersion(rs []codersdk.WorkspaceResource) bool {
 	return true
 }
 
-func matchAgentWithSubsystems(rs []codersdk.WorkspaceResource) bool {
+func matchAgentWithSubsystems(rs []wirtualsdk.WorkspaceResource) bool {
 	if len(rs) < 1 {
 		return false
 	}

@@ -7,14 +7,14 @@ import (
 
 	agpl "github.com/coder/coder/v2/cli"
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
 
 func (r *RootCmd) groupDelete() *serpent.Command {
 	orgContext := agpl.NewOrganizationContext()
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "delete <name>",
 		Short: "Delete a user group",

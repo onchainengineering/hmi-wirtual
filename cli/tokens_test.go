@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/testutil"
 )
 
@@ -108,7 +108,7 @@ func TestTokens(t *testing.T) {
 	err = inv.WithContext(ctx).Run()
 	require.NoError(t, err)
 
-	var tokens []codersdk.APIKey
+	var tokens []wirtualsdk.APIKey
 	require.NoError(t, json.Unmarshal(buf.Bytes(), &tokens))
 	require.Len(t, tokens, 1)
 	require.Equal(t, id, tokens[0].ID)

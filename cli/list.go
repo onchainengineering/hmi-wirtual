@@ -10,7 +10,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -20,7 +20,7 @@ import (
 // other.
 type workspaceListRow struct {
 	// For JSON format:
-	codersdk.Workspace `table:"-"`
+	wirtualsdk.Workspace `table:"-"`
 
 	// For table format:
 	Favorite         bool      `json:"-" table:"favorite"`
@@ -40,8 +40,8 @@ type workspaceListRow struct {
 	DailyCost        string    `json:"-" table:"daily cost"`
 }
 
-func workspaceListRowFromWorkspace(now time.Time, workspace codersdk.Workspace) workspaceListRow {
-	status := codersdk.WorkspaceDisplayStatus(workspace.LatestBuild.Job.Status, workspace.LatestBuild.Transition)
+func workspaceListRowFromWorkspace(now time.Time, workspace wirtualsdk.Workspace) workspaceListRow {
+	status := wirtualsdk.WorkspaceDisplayStatus(workspace.LatestBuild.Job.Status, workspace.LatestBuild.Transition)
 
 	lastBuilt := now.UTC().Sub(workspace.LatestBuild.Job.CreatedAt).Truncate(time.Second)
 	schedRow := scheduleListRowFromWorkspace(now, workspace)
@@ -96,7 +96,7 @@ func (r *RootCmd) list() *serpent.Command {
 			cliui.JSONFormat(),
 		)
 	)
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Annotations: workspaceCommand,
 		Use:         "list",
@@ -135,11 +135,11 @@ func (r *RootCmd) list() *serpent.Command {
 }
 
 // queryConvertWorkspaces is a helper function for converting
-// codersdk.Workspaces to a different type.
+// wirtualsdk.Workspaces to a different type.
 // It's used by the list command to convert workspaces to
 // workspaceListRow, and by the schedule command to
 // convert workspaces to scheduleListRow.
-func queryConvertWorkspaces[T any](ctx context.Context, client *codersdk.Client, filter codersdk.WorkspaceFilter, convertF func(time.Time, codersdk.Workspace) T) ([]T, error) {
+func queryConvertWorkspaces[T any](ctx context.Context, client *wirtualsdk.Client, filter wirtualsdk.WorkspaceFilter, convertF func(time.Time, wirtualsdk.Workspace) T) ([]T, error) {
 	var empty []T
 	workspaces, err := client.Workspaces(ctx, filter)
 	if err != nil {

@@ -15,32 +15,32 @@ type Metrics struct {
 func NewMetrics(reg prometheus.Registerer, labelNames ...string) *Metrics {
 	m := &Metrics{
 		BytesReadTotal: *prometheus.NewCounterVec(prometheus.CounterOpts{
-			Namespace: "coderd",
+			Namespace: "wirtuald",
 			Subsystem: "scaletest",
 			Name:      "bytes_read_total",
 		}, labelNames),
 		BytesWrittenTotal: *prometheus.NewCounterVec(prometheus.CounterOpts{
-			Namespace: "coderd",
+			Namespace: "wirtuald",
 			Subsystem: "scaletest",
 			Name:      "bytes_written_total",
 		}, labelNames),
 		ReadErrorsTotal: *prometheus.NewCounterVec(prometheus.CounterOpts{
-			Namespace: "coderd",
+			Namespace: "wirtuald",
 			Subsystem: "scaletest",
 			Name:      "read_errors_total",
 		}, labelNames),
 		WriteErrorsTotal: *prometheus.NewCounterVec(prometheus.CounterOpts{
-			Namespace: "coderd",
+			Namespace: "wirtuald",
 			Subsystem: "scaletest",
 			Name:      "write_errors_total",
 		}, labelNames),
 		ReadLatencySeconds: *prometheus.NewHistogramVec(prometheus.HistogramOpts{
-			Namespace: "coderd",
+			Namespace: "wirtuald",
 			Subsystem: "scaletest",
 			Name:      "read_latency_seconds",
 		}, labelNames),
 		WriteLatencySeconds: *prometheus.NewHistogramVec(prometheus.HistogramOpts{
-			Namespace: "coderd",
+			Namespace: "wirtuald",
 			Subsystem: "scaletest",
 			Name:      "write_latency_seconds",
 		}, labelNames),

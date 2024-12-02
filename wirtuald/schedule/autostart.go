@@ -3,7 +3,7 @@ package schedule
 import (
 	"time"
 
-	"github.com/coder/coder/v2/coderd/schedule/cron"
+	"github.com/coder/coder/v2/wirtuald/schedule/cron"
 )
 
 // NextAutostart takes the workspace and template schedule and returns the next autostart schedule

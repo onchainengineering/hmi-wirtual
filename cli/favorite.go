@@ -5,12 +5,12 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 )
 
 func (r *RootCmd) favorite() *serpent.Command {
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Aliases:     []string{"fav", "favou" + "rite"},
 		Annotations: workspaceCommand,
@@ -37,7 +37,7 @@ func (r *RootCmd) favorite() *serpent.Command {
 }
 
 func (r *RootCmd) unfavorite() *serpent.Command {
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Aliases:     []string{"unfav", "unfavou" + "rite"},
 		Annotations: workspaceCommand,

@@ -1,4 +1,4 @@
-package coderd
+package wirtuald
 
 import (
 	"context"
@@ -41,46 +41,46 @@ import (
 	"github.com/coder/quartz"
 	"github.com/coder/serpent"
 
-	"github.com/coder/coder/v2/coderd/cryptokeys"
-	"github.com/coder/coder/v2/coderd/entitlements"
-	"github.com/coder/coder/v2/coderd/idpsync"
-	"github.com/coder/coder/v2/coderd/runtimeconfig"
+	"github.com/coder/coder/v2/wirtuald/cryptokeys"
+	"github.com/coder/coder/v2/wirtuald/entitlements"
+	"github.com/coder/coder/v2/wirtuald/idpsync"
+	"github.com/coder/coder/v2/wirtuald/runtimeconfig"
 
 	agentproto "github.com/coder/coder/v2/agent/proto"
 	"github.com/coder/coder/v2/buildinfo"
-	_ "github.com/coder/coder/v2/coderd/apidoc" // Used for swagger docs.
-	"github.com/coder/coder/v2/coderd/appearance"
-	"github.com/coder/coder/v2/coderd/audit"
-	"github.com/coder/coder/v2/coderd/awsidentity"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/database/dbrollup"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/database/pubsub"
-	"github.com/coder/coder/v2/coderd/externalauth"
-	"github.com/coder/coder/v2/coderd/gitsshkey"
-	"github.com/coder/coder/v2/coderd/healthcheck"
-	"github.com/coder/coder/v2/coderd/healthcheck/derphealth"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/metricscache"
-	"github.com/coder/coder/v2/coderd/notifications"
-	"github.com/coder/coder/v2/coderd/portsharing"
-	"github.com/coder/coder/v2/coderd/prometheusmetrics"
-	"github.com/coder/coder/v2/coderd/provisionerdserver"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/rbac/policy"
-	"github.com/coder/coder/v2/coderd/rbac/rolestore"
-	"github.com/coder/coder/v2/coderd/schedule"
-	"github.com/coder/coder/v2/coderd/telemetry"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/coderd/updatecheck"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/coderd/workspaceapps"
-	"github.com/coder/coder/v2/coderd/workspacestats"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/drpc"
-	"github.com/coder/coder/v2/codersdk/healthsdk"
+	_ "github.com/coder/coder/v2/wirtuald/apidoc" // Used for swagger docs.
+	"github.com/coder/coder/v2/wirtuald/appearance"
+	"github.com/coder/coder/v2/wirtuald/audit"
+	"github.com/coder/coder/v2/wirtuald/awsidentity"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/coder/coder/v2/wirtuald/database/dbrollup"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/database/pubsub"
+	"github.com/coder/coder/v2/wirtuald/externalauth"
+	"github.com/coder/coder/v2/wirtuald/gitsshkey"
+	"github.com/coder/coder/v2/wirtuald/healthcheck"
+	"github.com/coder/coder/v2/wirtuald/healthcheck/derphealth"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtuald/metricscache"
+	"github.com/coder/coder/v2/wirtuald/notifications"
+	"github.com/coder/coder/v2/wirtuald/portsharing"
+	"github.com/coder/coder/v2/wirtuald/prometheusmetrics"
+	"github.com/coder/coder/v2/wirtuald/provisionerdserver"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/rbac/policy"
+	"github.com/coder/coder/v2/wirtuald/rbac/rolestore"
+	"github.com/coder/coder/v2/wirtuald/schedule"
+	"github.com/coder/coder/v2/wirtuald/telemetry"
+	"github.com/coder/coder/v2/wirtuald/tracing"
+	"github.com/coder/coder/v2/wirtuald/updatecheck"
+	"github.com/coder/coder/v2/wirtuald/util/slice"
+	"github.com/coder/coder/v2/wirtuald/workspaceapps"
+	"github.com/coder/coder/v2/wirtuald/workspacestats"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/drpc"
+	"github.com/coder/coder/v2/wirtualsdk/healthsdk"
 	"github.com/coder/coder/v2/provisionerd/proto"
 	"github.com/coder/coder/v2/provisionersdk"
 	"github.com/coder/coder/v2/site"
@@ -89,7 +89,7 @@ import (
 
 // We must only ever instantiate one httpSwagger.Handler because of a data race
 // inside the handler. This issue is triggered by tests that create multiple
-// coderd instances.
+// wirtuald instances.
 //
 // See https://github.com/swaggo/http-swagger/issues/78
 var globalHTTPSwaggerHandler http.HandlerFunc
@@ -161,7 +161,7 @@ type Options struct {
 	TracerProvider                 trace.TracerProvider
 	ExternalAuthConfigs            []*externalauth.Config
 	RealIPConfig                   *httpmw.RealIPConfig
-	TrialGenerator                 func(ctx context.Context, body codersdk.LicensorTrialRequest) error
+	TrialGenerator                 func(ctx context.Context, body wirtualsdk.LicensorTrialRequest) error
 	// RefreshEntitlements is used to set correct entitlements after creating first user and generating trial license.
 	RefreshEntitlements func(ctx context.Context) error
 	// Entitlements can come from the enterprise caller if enterprise code is
@@ -210,7 +210,7 @@ type Options struct {
 
 	MetricsCacheRefreshInterval time.Duration
 	AgentStatsRefreshInterval   time.Duration
-	DeploymentValues            *codersdk.DeploymentValues
+	DeploymentValues            *wirtualsdk.DeploymentValues
 	// DeploymentOptions do contain the copy of DeploymentValues, and contain
 	// contextual information about how the values were set.
 	// Do not use DeploymentOptions to retrieve values, use DeploymentValues instead.
@@ -219,7 +219,7 @@ type Options struct {
 	UpdateCheckOptions *updatecheck.Options // Set non-nil to enable update checking.
 
 	// SSHConfig is the response clients use to configure config-ssh locally.
-	SSHConfig codersdk.SSHConfigResponse
+	SSHConfig wirtualsdk.SSHConfigResponse
 
 	HTTPClient *http.Client
 
@@ -260,7 +260,7 @@ type Options struct {
 
 // @title Coder API
 // @version 2.0
-// @description Coderd is the service created by running coder server. It is a thin API that connects workspaces, provisioners and users. coderd stores its state in Postgres and is the only service that communicates with Postgres.
+// @description Coderd is the service created by running coder server. It is a thin API that connects workspaces, provisioners and users. wirtuald stores its state in Postgres and is the only service that communicates with Postgres.
 // @termsOfService https://coder.com/legal/terms-of-service
 
 // @contact.name API Support
@@ -330,7 +330,7 @@ func New(options *Options) *API {
 		options.Logger, options.DeploymentValues.Experiments.Value(),
 	)
 	if options.AppHostname != "" && options.AppHostnameRegex == nil || options.AppHostname == "" && options.AppHostnameRegex != nil {
-		panic("coderd: both AppHostname and AppHostnameRegex must be set or unset")
+		panic("wirtuald: both AppHostname and AppHostnameRegex must be set or unset")
 	}
 	if options.AgentConnectionUpdateFrequency == 0 {
 		options.AgentConnectionUpdateFrequency = 15 * time.Second
@@ -426,7 +426,7 @@ func New(options *Options) *API {
 			TemplateBuildTimes: options.MetricsCacheRefreshInterval,
 			DeploymentStats:    options.AgentStatsRefreshInterval,
 		},
-		experiments.Enabled(codersdk.ExperimentWorkspaceUsage),
+		experiments.Enabled(wirtualsdk.ExperimentWorkspaceUsage),
 	)
 
 	oauthConfigs := &httpmw.OAuth2Configs{
@@ -465,7 +465,7 @@ func New(options *Options) *API {
 		options.OIDCConvertKeyCache, err = cryptokeys.NewSigningCache(ctx,
 			options.Logger.Named("oidc_convert_keycache"),
 			fetcher,
-			codersdk.CryptoKeyFeatureOIDCConvert,
+			wirtualsdk.CryptoKeyFeatureOIDCConvert,
 		)
 		if err != nil {
 			options.Logger.Fatal(ctx, "failed to properly instantiate oidc convert signing cache", slog.Error(err))
@@ -476,7 +476,7 @@ func New(options *Options) *API {
 		options.AppSigningKeyCache, err = cryptokeys.NewSigningCache(ctx,
 			options.Logger.Named("app_signing_keycache"),
 			fetcher,
-			codersdk.CryptoKeyFeatureWorkspaceAppsToken,
+			wirtualsdk.CryptoKeyFeatureWorkspaceAppsToken,
 		)
 		if err != nil {
 			options.Logger.Fatal(ctx, "failed to properly instantiate app signing key cache", slog.Error(err))
@@ -487,7 +487,7 @@ func New(options *Options) *API {
 		options.AppEncryptionKeyCache, err = cryptokeys.NewEncryptionCache(ctx,
 			options.Logger,
 			fetcher,
-			codersdk.CryptoKeyFeatureWorkspaceAppsAPIKey,
+			wirtualsdk.CryptoKeyFeatureWorkspaceAppsAPIKey,
 		)
 		if err != nil {
 			options.Logger.Fatal(ctx, "failed to properly instantiate app encryption key cache", slog.Error(err))
@@ -502,7 +502,7 @@ func New(options *Options) *API {
 		resumeKeycache, err := cryptokeys.NewSigningCache(ctx,
 			options.Logger,
 			fetcher,
-			codersdk.CryptoKeyFeatureTailnetResume,
+			wirtualsdk.CryptoKeyFeatureTailnetResume,
 		)
 		if err != nil {
 			options.Logger.Fatal(ctx, "failed to properly instantiate tailnet resume signing cache", slog.Error(err))
@@ -564,7 +564,7 @@ func New(options *Options) *API {
 	f := appearance.NewDefaultFetcher(api.DeploymentValues.DocsURL.String())
 	api.AppearanceFetcher.Store(&f)
 	api.PortSharer.Store(&portsharing.DefaultPortSharer)
-	buildInfo := codersdk.BuildInfoResponse{
+	buildInfo := wirtualsdk.BuildInfoResponse{
 		ExternalURL:           buildinfo.ExternalURL(),
 		Version:               buildinfo.Version(),
 		AgentAPIVersion:       AgentAPIVersionREST,
@@ -791,7 +791,7 @@ func New(options *Options) *API {
 		// Build-Version is helpful for debugging.
 		func(next http.Handler) http.Handler {
 			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.Header().Add(codersdk.BuildVersionHeader, buildinfo.Version())
+				w.Header().Add(wirtualsdk.BuildVersionHeader, buildinfo.Version())
 				next.ServeHTTP(w, r)
 			})
 		},
@@ -1372,7 +1372,7 @@ func New(options *Options) *API {
 		r.Get("/swagger/*", globalHTTPSwaggerHandler)
 	} else {
 		swaggerDisabled := http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-			httpapi.Write(context.Background(), rw, http.StatusNotFound, codersdk.Response{
+			httpapi.Write(context.Background(), rw, http.StatusNotFound, wirtualsdk.Response{
 				Message: "Swagger documentation is disabled.",
 			})
 		})
@@ -1486,7 +1486,7 @@ type API struct {
 
 	// Experiments contains the list of experiments currently enabled.
 	// This is used to gate features that are not yet ready for production.
-	Experiments codersdk.Experiments
+	Experiments wirtualsdk.Experiments
 
 	healthCheckGroup *singleflight.Group[string, *healthsdk.HealthcheckReport]
 	healthCheckCache atomic.Pointer[healthsdk.HealthcheckReport]
@@ -1518,7 +1518,7 @@ func (api *API) Close() error {
 		close(wsDone)
 	}()
 	// This will technically leak the above func if the timer fires, but this is
-	// maintly a last ditch effort to un-stuck coderd on shutdown. This
+	// maintly a last ditch effort to un-stuck wirtuald on shutdown. This
 	// shouldn't affect tests at all.
 	select {
 	case <-wsDone:
@@ -1577,12 +1577,12 @@ func compressHandler(h http.Handler) http.Handler {
 }
 
 // CreateInMemoryProvisionerDaemon is an in-memory connection to a provisionerd.
-// Useful when starting coderd and provisionerd in the same process.
-func (api *API) CreateInMemoryProvisionerDaemon(dialCtx context.Context, name string, provisionerTypes []codersdk.ProvisionerType) (client proto.DRPCProvisionerDaemonClient, err error) {
+// Useful when starting wirtuald and provisionerd in the same process.
+func (api *API) CreateInMemoryProvisionerDaemon(dialCtx context.Context, name string, provisionerTypes []wirtualsdk.ProvisionerType) (client proto.DRPCProvisionerDaemonClient, err error) {
 	return api.CreateInMemoryTaggedProvisionerDaemon(dialCtx, name, provisionerTypes, nil)
 }
 
-func (api *API) CreateInMemoryTaggedProvisionerDaemon(dialCtx context.Context, name string, provisionerTypes []codersdk.ProvisionerType, provisionerTags map[string]string) (client proto.DRPCProvisionerDaemonClient, err error) {
+func (api *API) CreateInMemoryTaggedProvisionerDaemon(dialCtx context.Context, name string, provisionerTypes []wirtualsdk.ProvisionerType, provisionerTags map[string]string) (client proto.DRPCProvisionerDaemonClient, err error) {
 	tracer := api.TracerProvider.Tracer(tracing.TracerName)
 	clientSession, serverSession := drpc.MemTransportPipe()
 	defer func() {
@@ -1604,7 +1604,7 @@ func (api *API) CreateInMemoryTaggedProvisionerDaemon(dialCtx context.Context, n
 		dbTypes = append(dbTypes, database.ProvisionerType(tp))
 	}
 
-	keyID, err := uuid.Parse(string(codersdk.ProvisionerKeyIDBuiltIn))
+	keyID, err := uuid.Parse(string(wirtualsdk.ProvisionerKeyIDBuiltIn))
 	if err != nil {
 		return nil, xerrors.Errorf("failed to parse built-in provisioner key ID: %w", err)
 	}
@@ -1703,15 +1703,15 @@ func (api *API) DERPMap() *tailcfg.DERPMap {
 }
 
 // nolint:revive
-func ReadExperiments(log slog.Logger, raw []string) codersdk.Experiments {
-	exps := make([]codersdk.Experiment, 0, len(raw))
+func ReadExperiments(log slog.Logger, raw []string) wirtualsdk.Experiments {
+	exps := make([]wirtualsdk.Experiment, 0, len(raw))
 	for _, v := range raw {
 		switch v {
 		case "*":
-			exps = append(exps, codersdk.ExperimentsAll...)
+			exps = append(exps, wirtualsdk.ExperimentsAll...)
 		default:
-			ex := codersdk.Experiment(strings.ToLower(v))
-			if !slice.Contains(codersdk.ExperimentsAll, ex) {
+			ex := wirtualsdk.Experiment(strings.ToLower(v))
+			if !slice.Contains(wirtualsdk.ExperimentsAll, ex) {
 				log.Warn(context.Background(), "🐉 HERE BE DRAGONS: opting into hidden experiment", slog.F("experiment", ex))
 			}
 			exps = append(exps, ex)

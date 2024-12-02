@@ -405,7 +405,7 @@ const BuiltinProvisionerTitle: FC = () => {
 					<HelpTooltipContent>
 						<HelpTooltipTitle>Built-in provisioners</HelpTooltipTitle>
 						<HelpTooltipText>
-							These provisioners are running as part of a coderd instance.
+							These provisioners are running as part of a wirtuald instance.
 							Built-in provisioners are only available for the default
 							organization. <Link href={docs("/")}>Learn more&hellip;</Link>
 						</HelpTooltipText>

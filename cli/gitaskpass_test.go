@@ -12,9 +12,9 @@ import (
 
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
 	"github.com/coder/coder/v2/pty/ptytest"
 )
 
@@ -48,7 +48,7 @@ func TestGitAskpass(t *testing.T) {
 	t.Run("NoHost", func(t *testing.T) {
 		t.Parallel()
 		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			httpapi.Write(context.Background(), w, http.StatusNotFound, codersdk.Response{
+			httpapi.Write(context.Background(), w, http.StatusNotFound, wirtualsdk.Response{
 				Message: "Nope!",
 			})
 		}))

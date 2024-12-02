@@ -7,7 +7,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -42,8 +42,8 @@ func (r *RootCmd) templates() *serpent.Command {
 	return cmd
 }
 
-func selectTemplate(inv *serpent.Invocation, client *codersdk.Client, organization codersdk.Organization) (codersdk.Template, error) {
-	var empty codersdk.Template
+func selectTemplate(inv *serpent.Invocation, client *wirtualsdk.Client, organization wirtualsdk.Organization) (wirtualsdk.Template, error) {
+	var empty wirtualsdk.Template
 	ctx := inv.Context()
 	allTemplates, err := client.TemplatesByOrganization(ctx, organization.ID)
 	if err != nil {
@@ -76,7 +76,7 @@ func selectTemplate(inv *serpent.Invocation, client *codersdk.Client, organizati
 
 type templateTableRow struct {
 	// Used by json format:
-	Template codersdk.Template
+	Template wirtualsdk.Template
 
 	// Used by table format:
 	Name             string                   `json:"-" table:"name,default_sort"`
@@ -84,7 +84,7 @@ type templateTableRow struct {
 	LastUpdated      string                   `json:"-" table:"last updated"`
 	OrganizationID   uuid.UUID                `json:"-" table:"organization id"`
 	OrganizationName string                   `json:"-" table:"organization name"`
-	Provisioner      codersdk.ProvisionerType `json:"-" table:"provisioner"`
+	Provisioner      wirtualsdk.ProvisionerType `json:"-" table:"provisioner"`
 	ActiveVersionID  uuid.UUID                `json:"-" table:"active version id"`
 	UsedBy           string                   `json:"-" table:"used by"`
 	DefaultTTL       time.Duration            `json:"-" table:"default ttl"`
@@ -92,7 +92,7 @@ type templateTableRow struct {
 
 // templateToRows converts a list of templates to a list of templateTableRow for
 // outputting.
-func templatesToRows(templates ...codersdk.Template) []templateTableRow {
+func templatesToRows(templates ...wirtualsdk.Template) []templateTableRow {
 	rows := make([]templateTableRow, len(templates))
 	for i, template := range templates {
 		rows[i] = templateTableRow{

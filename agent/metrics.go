@@ -39,7 +39,7 @@ func newAgentMetrics(registerer prometheus.Registerer) *agentMetrics {
 	registerer.MustRegister(reconnectingPTYErrors)
 
 	startupScriptSeconds := prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "agentstats",
 		Name:      "startup_script_seconds",
 		Help:      "Amount of time taken to run the startup script in seconds.",
@@ -47,7 +47,7 @@ func newAgentMetrics(registerer prometheus.Registerer) *agentMetrics {
 	registerer.MustRegister(startupScriptSeconds)
 
 	currentConnections := prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "agentstats",
 		Name:      "currently_reachable_peers",
 		Help:      "The number of peers (e.g. clients) that are currently reachable over the encrypted network.",

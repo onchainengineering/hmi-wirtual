@@ -12,8 +12,8 @@ import (
 	"github.com/coder/serpent"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/util/ptr"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 func (r *RootCmd) templateCreate() *serpent.Command {
@@ -33,7 +33,7 @@ func (r *RootCmd) templateCreate() *serpent.Command {
 		uploadFlags templateUploadFlags
 		orgContext  = NewOrganizationContext()
 	)
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "create [name]",
 		Short: "DEPRECATED: Create a template from the current directory or as specified by flag",
@@ -50,20 +50,20 @@ func (r *RootCmd) templateCreate() *serpent.Command {
 
 			if isTemplateSchedulingOptionsSet || requireActiveVersion {
 				entitlements, err := client.Entitlements(inv.Context())
-				if cerr, ok := codersdk.AsError(err); ok && cerr.StatusCode() == http.StatusNotFound {
+				if cerr, ok := wirtualsdk.AsError(err); ok && cerr.StatusCode() == http.StatusNotFound {
 					return xerrors.Errorf("your deployment appears to be an AGPL deployment, so you cannot set enterprise-only flags")
 				} else if err != nil {
 					return xerrors.Errorf("get entitlements: %w", err)
 				}
 
 				if isTemplateSchedulingOptionsSet {
-					if !entitlements.Features[codersdk.FeatureAdvancedTemplateScheduling].Enabled {
+					if !entitlements.Features[wirtualsdk.FeatureAdvancedTemplateScheduling].Enabled {
 						return xerrors.Errorf("your license is not entitled to use advanced template scheduling, so you cannot set --failure-ttl, or --inactivity-ttl")
 					}
 				}
 
 				if requireActiveVersion {
-					if !entitlements.Features[codersdk.FeatureAccessControl].Enabled {
+					if !entitlements.Features[wirtualsdk.FeatureAccessControl].Enabled {
 						return xerrors.Errorf("your license is not entitled to use enterprise access control, so you cannot set --require-active-version")
 					}
 				}
@@ -97,7 +97,7 @@ func (r *RootCmd) templateCreate() *serpent.Command {
 
 			var varsFiles []string
 			if !uploadFlags.stdin(inv) {
-				varsFiles, err = codersdk.DiscoverVarsFiles(uploadFlags.directory)
+				varsFiles, err = wirtualsdk.DiscoverVarsFiles(uploadFlags.directory)
 				if err != nil {
 					return err
 				}
@@ -118,7 +118,7 @@ func (r *RootCmd) templateCreate() *serpent.Command {
 				return err
 			}
 
-			userVariableValues, err := codersdk.ParseUserVariableValues(
+			userVariableValues, err := wirtualsdk.ParseUserVariableValues(
 				varsFiles,
 				variablesFile,
 				commandLineVariables)
@@ -130,7 +130,7 @@ func (r *RootCmd) templateCreate() *serpent.Command {
 				Message:            message,
 				Client:             client,
 				Organization:       organization,
-				Provisioner:        codersdk.ProvisionerType(provisioner),
+				Provisioner:        wirtualsdk.ProvisionerType(provisioner),
 				FileID:             resp.ID,
 				ProvisionerTags:    tags,
 				UserVariableValues: userVariableValues,
@@ -149,7 +149,7 @@ func (r *RootCmd) templateCreate() *serpent.Command {
 				}
 			}
 
-			createReq := codersdk.CreateTemplateRequest{
+			createReq := wirtualsdk.CreateTemplateRequest{
 				Name:                           templateName,
 				VersionID:                      job.ID,
 				DefaultTTLMillis:               ptr.Ref(defaultTTL.Milliseconds()),

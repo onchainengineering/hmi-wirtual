@@ -15,9 +15,9 @@ Coder dogfoods on a beefy, single Teraswitch machine.
 
 ## Provisioner Configuration
 
-Our dogfood coderd box runs an SSH tunnel to our dogfood Docker host's docker socket.
+Our dogfood wirtuald box runs an SSH tunnel to our dogfood Docker host's docker socket.
 
-The socket is mounted onto `/var/run/dogfood-docker.sock` in the coderd box.
+The socket is mounted onto `/var/run/dogfood-docker.sock` in the wirtuald box.
 
 The SSH tunnel command can be found hanging out in the screen session named `forward`.
 

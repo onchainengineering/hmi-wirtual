@@ -1,4 +1,4 @@
-package coderd
+package wirtuald
 
 import (
 	"context"
@@ -16,14 +16,14 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/coderd/audit"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/db2sdk"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/searchquery"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/audit"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
+	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtuald/searchquery"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Get audit logs
@@ -34,7 +34,7 @@ import (
 // @Param q query string false "Search query"
 // @Param limit query int true "Page limit"
 // @Param offset query int false "Page offset"
-// @Success 200 {object} codersdk.AuditLogResponse
+// @Success 200 {object} wirtualsdk.AuditLogResponse
 // @Router /audit [get]
 func (api *API) auditLogs(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -48,7 +48,7 @@ func (api *API) auditLogs(rw http.ResponseWriter, r *http.Request) {
 	queryStr := r.URL.Query().Get("q")
 	filter, errs := searchquery.AuditLogs(ctx, api.Database, queryStr)
 	if len(errs) > 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message:     "Invalid audit search query.",
 			Validations: errs,
 		})
@@ -74,14 +74,14 @@ func (api *API) auditLogs(rw http.ResponseWriter, r *http.Request) {
 	// GetAuditLogsOffset does not return ErrNoRows because it uses a window function to get the count.
 	// So we need to check if the dblogs is empty and return an empty array if so.
 	if len(dblogs) == 0 {
-		httpapi.Write(ctx, rw, http.StatusOK, codersdk.AuditLogResponse{
-			AuditLogs: []codersdk.AuditLog{},
+		httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.AuditLogResponse{
+			AuditLogs: []wirtualsdk.AuditLog{},
 			Count:     0,
 		})
 		return
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.AuditLogResponse{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.AuditLogResponse{
 		AuditLogs: api.convertAuditLogs(ctx, dblogs),
 		Count:     dblogs[0].Count,
 	})
@@ -92,7 +92,7 @@ func (api *API) auditLogs(rw http.ResponseWriter, r *http.Request) {
 // @Security CoderSessionToken
 // @Accept json
 // @Tags Audit
-// @Param request body codersdk.CreateTestAuditLogRequest true "Audit log request"
+// @Param request body wirtualsdk.CreateTestAuditLogRequest true "Audit log request"
 // @Success 204
 // @Router /audit/testgenerate [post]
 // @x-apidocgen {"skip": true}
@@ -106,8 +106,8 @@ func (api *API) generateFakeAuditLog(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	diff, err := json.Marshal(codersdk.AuditDiff{
-		"foo": codersdk.AuditDiffField{Old: "bar", New: "baz"},
+	diff, err := json.Marshal(wirtualsdk.AuditDiff{
+		"foo": wirtualsdk.AuditDiffField{Old: "bar", New: "baz"},
 	})
 	if err != nil {
 		httpapi.InternalServerError(rw, err)
@@ -126,15 +126,15 @@ func (api *API) generateFakeAuditLog(rw http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	var params codersdk.CreateTestAuditLogRequest
+	var params wirtualsdk.CreateTestAuditLogRequest
 	if !httpapi.Read(ctx, rw, r, &params) {
 		return
 	}
 	if params.Action == "" {
-		params.Action = codersdk.AuditActionWrite
+		params.Action = wirtualsdk.AuditActionWrite
 	}
 	if params.ResourceType == "" {
-		params.ResourceType = codersdk.ResourceTypeUser
+		params.ResourceType = wirtualsdk.ResourceTypeUser
 	}
 	if params.ResourceID == uuid.Nil {
 		params.ResourceID = uuid.New()
@@ -171,8 +171,8 @@ func (api *API) generateFakeAuditLog(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusNoContent)
 }
 
-func (api *API) convertAuditLogs(ctx context.Context, dblogs []database.GetAuditLogsOffsetRow) []codersdk.AuditLog {
-	alogs := make([]codersdk.AuditLog, 0, len(dblogs))
+func (api *API) convertAuditLogs(ctx context.Context, dblogs []database.GetAuditLogsOffsetRow) []wirtualsdk.AuditLog {
+	alogs := make([]wirtualsdk.AuditLog, 0, len(dblogs))
 
 	for _, dblog := range dblogs {
 		alogs = append(alogs, api.convertAuditLog(ctx, dblog))
@@ -181,13 +181,13 @@ func (api *API) convertAuditLogs(ctx context.Context, dblogs []database.GetAudit
 	return alogs
 }
 
-func (api *API) convertAuditLog(ctx context.Context, dblog database.GetAuditLogsOffsetRow) codersdk.AuditLog {
+func (api *API) convertAuditLog(ctx context.Context, dblog database.GetAuditLogsOffsetRow) wirtualsdk.AuditLog {
 	ip, _ := netip.AddrFromSlice(dblog.AuditLog.Ip.IPNet.IP)
 
-	diff := codersdk.AuditDiff{}
+	diff := wirtualsdk.AuditDiff{}
 	_ = json.Unmarshal(dblog.AuditLog.Diff, &diff)
 
-	var user *codersdk.User
+	var user *wirtualsdk.User
 	if dblog.UserUsername.Valid {
 		// Leaving the organization IDs blank for now; not sure they are useful for
 		// the audit query anyway?
@@ -238,7 +238,7 @@ func (api *API) convertAuditLog(ctx context.Context, dblog database.GetAuditLogs
 		resourceLink = api.auditLogResourceLink(ctx, dblog, additionalFields)
 	}
 
-	alog := codersdk.AuditLog{
+	alog := wirtualsdk.AuditLog{
 		ID:        dblog.AuditLog.ID,
 		RequestID: dblog.AuditLog.RequestID,
 		Time:      dblog.AuditLog.Time,
@@ -246,11 +246,11 @@ func (api *API) convertAuditLog(ctx context.Context, dblog database.GetAuditLogs
 		OrganizationID:   dblog.AuditLog.OrganizationID,
 		IP:               ip,
 		UserAgent:        dblog.AuditLog.UserAgent.String,
-		ResourceType:     codersdk.ResourceType(dblog.AuditLog.ResourceType),
+		ResourceType:     wirtualsdk.ResourceType(dblog.AuditLog.ResourceType),
 		ResourceID:       dblog.AuditLog.ResourceID,
 		ResourceTarget:   dblog.AuditLog.ResourceTarget,
 		ResourceIcon:     dblog.AuditLog.ResourceIcon,
-		Action:           codersdk.AuditAction(dblog.AuditLog.Action),
+		Action:           wirtualsdk.AuditAction(dblog.AuditLog.Action),
 		Diff:             diff,
 		StatusCode:       dblog.AuditLog.StatusCode,
 		AdditionalFields: dblog.AuditLog.AdditionalFields,
@@ -261,7 +261,7 @@ func (api *API) convertAuditLog(ctx context.Context, dblog database.GetAuditLogs
 	}
 
 	if dblog.AuditLog.OrganizationID != uuid.Nil {
-		alog.Organization = &codersdk.MinimalOrganization{
+		alog.Organization = &wirtualsdk.MinimalOrganization{
 			ID:          dblog.AuditLog.OrganizationID,
 			Name:        dblog.OrganizationName,
 			DisplayName: dblog.OrganizationDisplayName,
@@ -287,7 +287,7 @@ func auditLogDescription(alog database.GetAuditLogsOffsetRow) string {
 		_, _ = b.WriteString("unsuccessfully attempted to ")
 		_, _ = b.WriteString(string(alog.AuditLog.Action))
 	} else {
-		_, _ = b.WriteString(codersdk.AuditAction(alog.AuditLog.Action).Friendly())
+		_, _ = b.WriteString(wirtualsdk.AuditAction(alog.AuditLog.Action).Friendly())
 	}
 
 	// API Key resources (used for authentication) do not have targets and follow the below format:
@@ -301,7 +301,7 @@ func auditLogDescription(alog database.GetAuditLogsOffsetRow) string {
 	// make too much sense to display.
 	if alog.AuditLog.ResourceType == database.ResourceTypeGitSshKey {
 		_, _ = b.WriteString(" the ")
-		_, _ = b.WriteString(codersdk.ResourceType(alog.AuditLog.ResourceType).FriendlyString())
+		_, _ = b.WriteString(wirtualsdk.ResourceType(alog.AuditLog.ResourceType).FriendlyString())
 		return b.String()
 	}
 
@@ -309,7 +309,7 @@ func auditLogDescription(alog database.GetAuditLogsOffsetRow) string {
 		_, _ = b.WriteString(" for")
 	} else {
 		_, _ = b.WriteString(" ")
-		_, _ = b.WriteString(codersdk.ResourceType(alog.AuditLog.ResourceType).FriendlyString())
+		_, _ = b.WriteString(wirtualsdk.ResourceType(alog.AuditLog.ResourceType).FriendlyString())
 	}
 
 	if alog.AuditLog.ResourceType == database.ResourceTypeConvertLogin {

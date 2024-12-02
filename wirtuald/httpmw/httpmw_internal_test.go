@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 const (
@@ -48,7 +48,7 @@ func TestParseUUID_Invalid(t *testing.T) {
 	assert.False(t, ok, "UUID should not be parsed")
 	assert.Equal(t, http.StatusBadRequest, rw.Code)
 
-	var response codersdk.Response
+	var response wirtualsdk.Response
 	err := json.Unmarshal(rw.Body.Bytes(), &response)
 	require.NoError(t, err)
 	assert.Contains(t, response.Message, `Invalid UUID "wrong-id"`)

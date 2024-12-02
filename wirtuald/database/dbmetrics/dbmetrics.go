@@ -9,7 +9,7 @@ import (
 	"golang.org/x/exp/slices"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/coderd/database"
+	"github.com/coder/coder/v2/wirtuald/database"
 )
 
 type metricsStore struct {
@@ -31,7 +31,7 @@ func NewDBMetrics(s database.Store, logger slog.Logger, reg prometheus.Registere
 		return s
 	}
 	txRetries := prometheus.NewCounterVec(prometheus.CounterOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "db",
 		Name:      "tx_executions_count",
 		Help:      "Total count of transactions executed. 'retries' is expected to be 0 for a successful transaction.",
@@ -46,7 +46,7 @@ func NewDBMetrics(s database.Store, logger slog.Logger, reg prometheus.Registere
 	reg.MustRegister(txRetries)
 
 	txDuration := prometheus.NewHistogramVec(prometheus.HistogramOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "db",
 		Name:      "tx_duration_seconds",
 		Help:      "Duration of transactions in seconds.",

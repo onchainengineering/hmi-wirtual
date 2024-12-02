@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/schedule/cron"
+	"github.com/coder/coder/v2/wirtuald/schedule/cron"
 )
 
 func Test_Weekly(t *testing.T) {

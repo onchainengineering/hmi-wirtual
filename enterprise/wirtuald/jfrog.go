@@ -1,0 +1,117 @@
+package wirtuald
+
+import (
+	"net/http"
+
+	"github.com/google/uuid"
+
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtualsdk"
+)
+
+// Post workspace agent results for a JFrog XRay scan.
+//
+// @Summary Post JFrog XRay scan by workspace agent ID.
+// @ID post-jfrog-xray-scan-by-workspace-agent-id
+// @Security CoderSessionToken
+// @Accept json
+// @Produce json
+// @Tags Enterprise
+// @Param request body wirtualsdk.JFrogXrayScan true "Post JFrog XRay scan request"
+// @Success 200 {object} wirtualsdk.Response
+// @Router /integrations/jfrog/xray-scan [post]
+func (api *API) postJFrogXrayScan(rw http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var req wirtualsdk.JFrogXrayScan
+	if !httpapi.Read(ctx, rw, r, &req) {
+		return
+	}
+
+	err := api.Database.UpsertJFrogXrayScanByWorkspaceAndAgentID(ctx, database.UpsertJFrogXrayScanByWorkspaceAndAgentIDParams{
+		WorkspaceID: req.WorkspaceID,
+		AgentID:     req.AgentID,
+		Critical:    int32(req.Critical),
+		High:        int32(req.High),
+		Medium:      int32(req.Medium),
+		ResultsUrl:  req.ResultsURL,
+	})
+	if httpapi.Is404Error(err) {
+		httpapi.ResourceNotFound(rw)
+		return
+	}
+	if err != nil {
+		httpapi.InternalServerError(rw, err)
+		return
+	}
+
+	httpapi.Write(ctx, rw, http.StatusCreated, wirtualsdk.Response{
+		Message: "Successfully inserted JFrog XRay scan!",
+	})
+}
+
+// Get workspace agent results for a JFrog XRay scan.
+//
+// @Summary Get JFrog XRay scan by workspace agent ID.
+// @ID get-jfrog-xray-scan-by-workspace-agent-id
+// @Security CoderSessionToken
+// @Produce json
+// @Tags Enterprise
+// @Param workspace_id query string true "Workspace ID"
+// @Param agent_id query string true "Agent ID"
+// @Success 200 {object} wirtualsdk.JFrogXrayScan
+// @Router /integrations/jfrog/xray-scan [get]
+func (api *API) jFrogXrayScan(rw http.ResponseWriter, r *http.Request) {
+	var (
+		ctx     = r.Context()
+		vals    = r.URL.Query()
+		p       = httpapi.NewQueryParamParser()
+		wsID    = p.RequiredNotEmpty("workspace_id").UUID(vals, uuid.UUID{}, "workspace_id")
+		agentID = p.RequiredNotEmpty("agent_id").UUID(vals, uuid.UUID{}, "agent_id")
+	)
+
+	if len(p.Errors) > 0 {
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
+			Message:     "Invalid query params.",
+			Validations: p.Errors,
+		})
+		return
+	}
+
+	scan, err := api.Database.GetJFrogXrayScanByWorkspaceAndAgentID(ctx, database.GetJFrogXrayScanByWorkspaceAndAgentIDParams{
+		WorkspaceID: wsID,
+		AgentID:     agentID,
+	})
+	if httpapi.Is404Error(err) {
+		httpapi.ResourceNotFound(rw)
+		return
+	}
+	if err != nil {
+		httpapi.InternalServerError(rw, err)
+		return
+	}
+
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.JFrogXrayScan{
+		WorkspaceID: scan.WorkspaceID,
+		AgentID:     scan.AgentID,
+		Critical:    int(scan.Critical),
+		High:        int(scan.High),
+		Medium:      int(scan.Medium),
+		ResultsURL:  scan.ResultsUrl,
+	})
+}
+
+func (api *API) jfrogEnabledMW(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		// This doesn't actually use the external auth feature but we want
+		// to lock this behind an enterprise license and it's somewhat
+		// related to external auth (in that it is JFrog integration).
+		if !api.Entitlements.Enabled(wirtualsdk.FeatureMultipleExternalAuth) {
+			httpapi.RouteNotFound(rw)
+			return
+		}
+
+		next.ServeHTTP(rw, r)
+	})
+}

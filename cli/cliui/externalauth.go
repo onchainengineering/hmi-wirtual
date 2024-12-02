@@ -8,11 +8,11 @@ import (
 
 	"github.com/briandowns/spinner"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 type ExternalAuthOptions struct {
-	Fetch         func(context.Context) ([]codersdk.TemplateVersionExternalAuth, error)
+	Fetch         func(context.Context) ([]wirtualsdk.TemplateVersionExternalAuth, error)
 	FetchInterval time.Duration
 }
 

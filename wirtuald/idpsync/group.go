@@ -10,13 +10,13 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/db2sdk"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/runtimeconfig"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
+	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/coder/coder/v2/wirtuald/runtimeconfig"
+	"github.com/coder/coder/v2/wirtuald/util/ptr"
+	"github.com/coder/coder/v2/wirtuald/util/slice"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 type GroupParams struct {
@@ -58,7 +58,7 @@ func (s AGPLIDPSync) GroupSyncSettings(ctx context.Context, orgID uuid.UUID, db 
 				return nil, xerrors.Errorf("get default organization: %w", err)
 			}
 			if defaultOrganization.ID == orgID {
-				settings = ptr.Ref(GroupSyncSettings(codersdk.GroupSyncSettings{
+				settings = ptr.Ref(GroupSyncSettings(wirtualsdk.GroupSyncSettings{
 					Field:             s.Legacy.GroupField,
 					LegacyNameMapping: s.Legacy.GroupMapping,
 					RegexFilter:       s.Legacy.GroupFilter,
@@ -261,7 +261,7 @@ func (s AGPLIDPSync) ApplyGroupDifference(ctx context.Context, tx database.Store
 	return nil
 }
 
-type GroupSyncSettings codersdk.GroupSyncSettings
+type GroupSyncSettings wirtualsdk.GroupSyncSettings
 
 func (s *GroupSyncSettings) Set(v string) error {
 	return json.Unmarshal([]byte(v), s)

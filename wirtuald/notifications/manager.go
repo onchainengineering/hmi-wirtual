@@ -13,9 +13,9 @@ import (
 	"cdr.dev/slog"
 	"github.com/coder/quartz"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/notifications/dispatch"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/notifications/dispatch"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 var ErrInvalidDispatchTimeout = xerrors.New("dispatch timeout must be less than lease period")
@@ -38,7 +38,7 @@ var ErrInvalidDispatchTimeout = xerrors.New("dispatch timeout must be less than 
 // we split notifiers out into separate targets for greater processing throughput; in this case we will need an
 // alternative mechanism for handling backpressure.
 type Manager struct {
-	cfg codersdk.NotificationsConfig
+	cfg wirtualsdk.NotificationsConfig
 
 	store Store
 	log   slog.Logger
@@ -75,7 +75,7 @@ func WithTestClock(clock quartz.Clock) ManagerOption {
 //
 // helpers is a map of template helpers which are used to customize notification messages to use global settings like
 // access URL etc.
-func NewManager(cfg codersdk.NotificationsConfig, store Store, helpers template.FuncMap, metrics *Metrics, log slog.Logger, opts ...ManagerOption) (*Manager, error) {
+func NewManager(cfg wirtualsdk.NotificationsConfig, store Store, helpers template.FuncMap, metrics *Metrics, log slog.Logger, opts ...ManagerOption) (*Manager, error) {
 	// TODO(dannyk): add the ability to use multiple notification methods.
 	var method database.NotificationMethod
 	if err := method.Scan(cfg.Method.String()); err != nil {
@@ -121,7 +121,7 @@ func NewManager(cfg codersdk.NotificationsConfig, store Store, helpers template.
 }
 
 // defaultHandlers builds a set of known handlers; panics if any error occurs as these handlers should be valid at compile time.
-func defaultHandlers(cfg codersdk.NotificationsConfig, log slog.Logger) map[database.NotificationMethod]Handler {
+func defaultHandlers(cfg wirtualsdk.NotificationsConfig, log slog.Logger) map[database.NotificationMethod]Handler {
 	return map[database.NotificationMethod]Handler{
 		database.NotificationMethodSmtp:    dispatch.NewSMTPHandler(cfg.SMTP, log.Named("dispatcher.smtp")),
 		database.NotificationMethodWebhook: dispatch.NewWebhookHandler(cfg.Webhook, log.Named("dispatcher.webhook")),

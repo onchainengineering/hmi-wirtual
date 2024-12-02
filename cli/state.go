@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 )
 
@@ -28,7 +28,7 @@ func (r *RootCmd) state() *serpent.Command {
 
 func (r *RootCmd) statePull() *serpent.Command {
 	var buildNumber int64
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "pull <workspace> [file]",
 		Short: "Pull a Terraform state file from a workspace.",
@@ -38,7 +38,7 @@ func (r *RootCmd) statePull() *serpent.Command {
 		),
 		Handler: func(inv *serpent.Invocation) error {
 			var err error
-			var build codersdk.WorkspaceBuild
+			var build wirtualsdk.WorkspaceBuild
 			if buildNumber == 0 {
 				workspace, err := namedWorkspace(inv.Context(), client, inv.Args[0])
 				if err != nil {
@@ -86,7 +86,7 @@ func buildNumberOption(n *int64) serpent.Option {
 
 func (r *RootCmd) statePush() *serpent.Command {
 	var buildNumber int64
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "push <workspace> <file>",
 		Short: "Push a Terraform state file to a workspace.",
@@ -99,7 +99,7 @@ func (r *RootCmd) statePush() *serpent.Command {
 			if err != nil {
 				return err
 			}
-			var build codersdk.WorkspaceBuild
+			var build wirtualsdk.WorkspaceBuild
 			if buildNumber == 0 {
 				build = workspace.LatestBuild
 			} else {
@@ -123,7 +123,7 @@ func (r *RootCmd) statePush() *serpent.Command {
 				return err
 			}
 
-			build, err = client.CreateWorkspaceBuild(inv.Context(), workspace.ID, codersdk.CreateWorkspaceBuildRequest{
+			build, err = client.CreateWorkspaceBuild(inv.Context(), workspace.ID, wirtualsdk.CreateWorkspaceBuildRequest{
 				TemplateVersionID: build.TemplateVersionID,
 				Transition:        build.Transition,
 				ProvisionerState:  state,

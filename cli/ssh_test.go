@@ -36,13 +36,13 @@ import (
 	agentproto "github.com/coder/coder/v2/agent/proto"
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/workspacestats/workspacestatstest"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbfake"
+	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/workspacestats/workspacestatstest"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/provisionersdk/proto"
 	"github.com/coder/coder/v2/pty"
@@ -50,7 +50,7 @@ import (
 	"github.com/coder/coder/v2/testutil"
 )
 
-func setupWorkspaceForAgent(t *testing.T, mutations ...func([]*proto.Agent) []*proto.Agent) (*codersdk.Client, database.WorkspaceTable, string) {
+func setupWorkspaceForAgent(t *testing.T, mutations ...func([]*proto.Agent) []*proto.Agent) (*wirtualsdk.Client, database.WorkspaceTable, string) {
 	t.Helper()
 
 	client, store := coderdtest.NewWithDatabase(t, nil)
@@ -130,7 +130,7 @@ func TestSSH(t *testing.T) {
 		for {
 			workspace, err = client.Workspace(ctx, workspace.ID)
 			require.NoError(t, err)
-			if workspace.LatestBuild.Transition == codersdk.WorkspaceTransitionStart {
+			if workspace.LatestBuild.Transition == wirtualsdk.WorkspaceTransitionStart {
 				break
 			}
 			time.Sleep(testutil.IntervalFast)
@@ -163,8 +163,8 @@ func TestSSH(t *testing.T) {
 		coderdtest.AwaitTemplateVersionJobCompleted(t, ownerClient, version.ID)
 		template := coderdtest.CreateTemplate(t, ownerClient, owner.OrganizationID, version.ID)
 
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
-			cwr.AutomaticUpdates = codersdk.AutomaticUpdatesAlways
+		workspace := coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+			cwr.AutomaticUpdates = wirtualsdk.AutomaticUpdatesAlways
 		})
 		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
@@ -181,7 +181,7 @@ func TestSSH(t *testing.T) {
 		}
 		version = coderdtest.UpdateTemplateVersion(t, ownerClient, owner.OrganizationID, echoResponses2, template.ID)
 		coderdtest.AwaitTemplateVersionJobCompleted(t, ownerClient, version.ID)
-		err := ownerClient.UpdateActiveTemplateVersion(context.Background(), template.ID, codersdk.UpdateActiveTemplateVersion{
+		err := ownerClient.UpdateActiveTemplateVersion(context.Background(), template.ID, wirtualsdk.UpdateActiveTemplateVersion{
 			ID: version.ID,
 		})
 		require.NoError(t, err)
@@ -478,7 +478,7 @@ func TestSSH(t *testing.T) {
 		for {
 			workspace, err = client.Workspace(ctx, workspace.ID)
 			require.NoError(t, err)
-			if workspace.LatestBuild.Transition == codersdk.WorkspaceTransitionStart {
+			if workspace.LatestBuild.Transition == wirtualsdk.WorkspaceTransitionStart {
 				break
 			}
 			time.Sleep(testutil.IntervalFast)
@@ -1355,7 +1355,7 @@ func TestSSH(t *testing.T) {
 
 				dv := coderdtest.DeploymentValues(t)
 				if tc.experiment {
-					dv.Experiments = []string{string(codersdk.ExperimentWorkspaceUsage)}
+					dv.Experiments = []string{string(wirtualsdk.ExperimentWorkspaceUsage)}
 				}
 				batcher := &workspacestatstest.StatsBatcher{
 					LastStats: &agentproto.Stats{},

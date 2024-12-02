@@ -14,30 +14,30 @@ import (
 	"tailscale.com/tailcfg"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/workspaceapps"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtuald/workspaceapps"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 	agpl "github.com/coder/coder/v2/tailnet"
 )
 
 // Client is a HTTP client for a subset of Coder API routes that external
 // proxies need.
 type Client struct {
-	SDKClient *codersdk.Client
+	SDKClient *wirtualsdk.Client
 	// HACK: the issue-signed-app-token requests may issue redirect responses
 	// (which need to be forwarded to the client), so the client we use to make
 	// those requests must ignore redirects.
-	sdkClientIgnoreRedirects *codersdk.Client
+	sdkClientIgnoreRedirects *wirtualsdk.Client
 }
 
 // New creates a external proxy client for the provided primary coder server
 // URL.
 func New(serverURL *url.URL) *Client {
-	sdkClient := codersdk.New(serverURL)
+	sdkClient := wirtualsdk.New(serverURL)
 	sdkClient.SessionTokenHeader = httpmw.WorkspaceProxyAuthTokenHeader
 
-	sdkClientIgnoreRedirects := codersdk.New(serverURL)
+	sdkClientIgnoreRedirects := wirtualsdk.New(serverURL)
 	sdkClientIgnoreRedirects.HTTPClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 		return http.ErrUseLastResponse
 	}
@@ -62,18 +62,18 @@ func (c *Client) SessionToken() string {
 	return c.SDKClient.SessionToken()
 }
 
-// Request wraps the underlying codersdk.Client's Request method.
-func (c *Client) Request(ctx context.Context, method, path string, body interface{}, opts ...codersdk.RequestOption) (*http.Response, error) {
+// Request wraps the underlying wirtualsdk.Client's Request method.
+func (c *Client) Request(ctx context.Context, method, path string, body interface{}, opts ...wirtualsdk.RequestOption) (*http.Response, error) {
 	return c.SDKClient.Request(ctx, method, path, body, opts...)
 }
 
-// RequestIgnoreRedirects wraps the underlying codersdk.Client's Request method
+// RequestIgnoreRedirects wraps the underlying wirtualsdk.Client's Request method
 // on the client that ignores redirects.
-func (c *Client) RequestIgnoreRedirects(ctx context.Context, method, path string, body interface{}, opts ...codersdk.RequestOption) (*http.Response, error) {
+func (c *Client) RequestIgnoreRedirects(ctx context.Context, method, path string, body interface{}, opts ...wirtualsdk.RequestOption) (*http.Response, error) {
 	return c.sdkClientIgnoreRedirects.Request(ctx, method, path, body, opts...)
 }
 
-// DialWorkspaceAgent calls the underlying codersdk.Client's DialWorkspaceAgent
+// DialWorkspaceAgent calls the underlying wirtualsdk.Client's DialWorkspaceAgent
 // method.
 func (c *Client) DialWorkspaceAgent(ctx context.Context, agentID uuid.UUID, options *workspacesdk.DialAgentOptions) (agentConn *workspacesdk.AgentConn, err error) {
 	return workspacesdk.New(c.SDKClient).DialAgent(ctx, agentID, options)
@@ -98,7 +98,7 @@ func (c *Client) IssueSignedAppToken(ctx context.Context, req workspaceapps.Issu
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusCreated {
-		return IssueSignedAppTokenResponse{}, codersdk.ReadBodyAsError(resp)
+		return IssueSignedAppTokenResponse{}, wirtualsdk.ReadBodyAsError(resp)
 	}
 
 	var res IssueSignedAppTokenResponse
@@ -110,7 +110,7 @@ func (c *Client) IssueSignedAppToken(ctx context.Context, req workspaceapps.Issu
 // written directly to the provided http.ResponseWriter.
 func (c *Client) IssueSignedAppTokenHTML(ctx context.Context, rw http.ResponseWriter, req workspaceapps.IssueTokenRequest) (IssueSignedAppTokenResponse, bool) {
 	writeError := func(rw http.ResponseWriter, err error) {
-		res := codersdk.Response{
+		res := wirtualsdk.Response{
 			Message: "Internal server error",
 			Detail:  err.Error(),
 		}
@@ -162,7 +162,7 @@ func (c *Client) ReportAppStats(ctx context.Context, req ReportAppStatsRequest) 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusNoContent {
-		return codersdk.ReadBodyAsError(resp)
+		return wirtualsdk.ReadBodyAsError(resp)
 	}
 
 	return nil
@@ -209,7 +209,7 @@ type RegisterWorkspaceProxyResponse struct {
 	DERPForceWebSockets bool             `json:"derp_force_websockets"`
 	// SiblingReplicas is a list of all other replicas of the proxy that have
 	// not timed out.
-	SiblingReplicas []codersdk.Replica `json:"sibling_replicas"`
+	SiblingReplicas []wirtualsdk.Replica `json:"sibling_replicas"`
 }
 
 func (c *Client) RegisterWorkspaceProxy(ctx context.Context, req RegisterWorkspaceProxyRequest) (RegisterWorkspaceProxyResponse, error) {
@@ -223,7 +223,7 @@ func (c *Client) RegisterWorkspaceProxy(ctx context.Context, req RegisterWorkspa
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusCreated {
-		return RegisterWorkspaceProxyResponse{}, codersdk.ReadBodyAsError(res)
+		return RegisterWorkspaceProxyResponse{}, wirtualsdk.ReadBodyAsError(res)
 	}
 	var resp RegisterWorkspaceProxyResponse
 	return resp, json.NewDecoder(res.Body).Decode(&resp)
@@ -247,7 +247,7 @@ func (c *Client) DeregisterWorkspaceProxy(ctx context.Context, req DeregisterWor
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusNoContent {
-		return codersdk.ReadBodyAsError(res)
+		return wirtualsdk.ReadBodyAsError(res)
 	}
 	return nil
 }
@@ -507,7 +507,7 @@ func (c *Client) TailnetDialer() (*workspacesdk.WebsocketDialer, error) {
 		return nil, xerrors.Errorf("parse url: %w", err)
 	}
 	coordinateHeaders := make(http.Header)
-	tokenHeader := codersdk.SessionTokenHeader
+	tokenHeader := wirtualsdk.SessionTokenHeader
 	if c.SDKClient.SessionTokenHeader != "" {
 		tokenHeader = c.SDKClient.SessionTokenHeader
 	}
@@ -520,13 +520,13 @@ func (c *Client) TailnetDialer() (*workspacesdk.WebsocketDialer, error) {
 }
 
 type CryptoKeysResponse struct {
-	CryptoKeys []codersdk.CryptoKey `json:"crypto_keys"`
+	CryptoKeys []wirtualsdk.CryptoKey `json:"crypto_keys"`
 }
 
-func (c *Client) CryptoKeys(ctx context.Context, feature codersdk.CryptoKeyFeature) (CryptoKeysResponse, error) {
+func (c *Client) CryptoKeys(ctx context.Context, feature wirtualsdk.CryptoKeyFeature) (CryptoKeysResponse, error) {
 	res, err := c.Request(ctx, http.MethodGet,
 		"/api/v2/workspaceproxies/me/crypto-keys", nil,
-		codersdk.WithQueryParam("feature", string(feature)),
+		wirtualsdk.WithQueryParam("feature", string(feature)),
 	)
 	if err != nil {
 		return CryptoKeysResponse{}, xerrors.Errorf("make request: %w", err)
@@ -534,7 +534,7 @@ func (c *Client) CryptoKeys(ctx context.Context, feature codersdk.CryptoKeyFeatu
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		return CryptoKeysResponse{}, codersdk.ReadBodyAsError(res)
+		return CryptoKeysResponse{}, wirtualsdk.ReadBodyAsError(res)
 	}
 	var resp CryptoKeysResponse
 	return resp, json.NewDecoder(res.Body).Decode(&resp)

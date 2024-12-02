@@ -10,7 +10,7 @@ import (
 	"go.uber.org/goleak"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/coderd/database"
+	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/enterprise/provisionerd"
 	"github.com/coder/coder/v2/provisioner/echo"
 	agpl "github.com/coder/coder/v2/provisionerd"

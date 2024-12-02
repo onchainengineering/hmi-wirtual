@@ -230,7 +230,7 @@ data "coder_parameter" "region" {
 
 # Configure the DigitalOcean Provider
 provider "digitalocean" {
-  # Recommended: use environment variable DIGITALOCEAN_TOKEN with your personal access token when starting coderd
+  # Recommended: use environment variable DIGITALOCEAN_TOKEN with your personal access token when starting wirtuald
   # alternatively, you can pass the token via a variable.
 }
 

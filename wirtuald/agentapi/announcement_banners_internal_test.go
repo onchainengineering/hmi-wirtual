@@ -9,9 +9,9 @@ import (
 	"golang.org/x/xerrors"
 
 	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/coderd/appearance"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
+	"github.com/coder/coder/v2/wirtuald/appearance"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
 )
 
 func TestGetAnnouncementBanners(t *testing.T) {
@@ -20,13 +20,13 @@ func TestGetAnnouncementBanners(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		cfg := []codersdk.BannerConfig{{
+		cfg := []wirtualsdk.BannerConfig{{
 			Enabled:         true,
 			Message:         "The beep-bop will be boop-beeped on Saturday at 12AM PST.",
 			BackgroundColor: "#00FF00",
 		}}
 
-		var ff appearance.Fetcher = fakeFetcher{cfg: codersdk.AppearanceConfig{AnnouncementBanners: cfg}}
+		var ff appearance.Fetcher = fakeFetcher{cfg: wirtualsdk.AppearanceConfig{AnnouncementBanners: cfg}}
 		ptr := atomic.Pointer[appearance.Fetcher]{}
 		ptr.Store(&ff)
 
@@ -54,10 +54,10 @@ func TestGetAnnouncementBanners(t *testing.T) {
 }
 
 type fakeFetcher struct {
-	cfg codersdk.AppearanceConfig
+	cfg wirtualsdk.AppearanceConfig
 	err error
 }
 
-func (f fakeFetcher) Fetch(context.Context) (codersdk.AppearanceConfig, error) {
+func (f fakeFetcher) Fetch(context.Context) (wirtualsdk.AppearanceConfig, error) {
 	return f.cfg, f.err
 }

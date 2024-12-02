@@ -13,21 +13,21 @@ import (
 
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/sloghuman"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/coder/coder/v2/wirtuald/tracing"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 	"github.com/coder/coder/v2/scaletest/harness"
 	"github.com/coder/coder/v2/scaletest/loadtestutil"
 )
 
 type Runner struct {
-	client *codersdk.Client
+	client *wirtualsdk.Client
 	cfg    Config
 }
 
 var _ harness.Runnable = &Runner{}
 
-func NewRunner(client *codersdk.Client, cfg Config) *Runner {
+func NewRunner(client *wirtualsdk.Client, cfg Config) *Runner {
 	return &Runner{
 		client: client,
 		cfg:    cfg,
@@ -59,7 +59,7 @@ func (r *Runner) Run(ctx context.Context, _ string, logs io.Writer) error {
 		height = DefaultHeight
 	}
 
-	_, _ = fmt.Fprintln(logs, "Opening reconnecting PTY connection to agent via coderd...")
+	_, _ = fmt.Fprintln(logs, "Opening reconnecting PTY connection to agent via wirtuald...")
 	_, _ = fmt.Fprintf(logs, "\tID:      %s\n", id.String())
 	_, _ = fmt.Fprintf(logs, "\tWidth:   %d\n", width)
 	_, _ = fmt.Fprintf(logs, "\tHeight:  %d\n", height)

@@ -41,11 +41,11 @@ import (
 	"github.com/coder/coder/v2/cli"
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/cli/config"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/telemetry"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/telemetry"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/cryptorand"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/tailnet/tailnettest"
@@ -396,7 +396,7 @@ func TestServer(t *testing.T) {
 		// Verify HTTPS
 		accessURL := waitAccessURL(t, cfg)
 		require.Equal(t, "https", accessURL.Scheme)
-		client := codersdk.New(accessURL)
+		client := wirtualsdk.New(accessURL)
 		client.HTTPClient = &http.Client{
 			Transport: &http.Transport{
 				TLSClientConfig: &tls.Config{
@@ -441,7 +441,7 @@ func TestServer(t *testing.T) {
 			expectAddr string
 			dials      int64
 		)
-		client := codersdk.New(accessURL)
+		client := wirtualsdk.New(accessURL)
 		client.HTTPClient = &http.Client{
 			Transport: &http.Transport{
 				DialTLSContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
@@ -526,7 +526,7 @@ func TestServer(t *testing.T) {
 		// Verify HTTP
 		httpURL, err := url.Parse(httpAddr)
 		require.NoError(t, err)
-		client := codersdk.New(httpURL)
+		client := wirtualsdk.New(httpURL)
 		client.HTTPClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		}
@@ -536,7 +536,7 @@ func TestServer(t *testing.T) {
 		// Verify TLS
 		tlsURL, err := url.Parse(tlsAddr)
 		require.NoError(t, err)
-		client = codersdk.New(tlsURL)
+		client = wirtualsdk.New(tlsURL)
 		client.HTTPClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		}
@@ -676,7 +676,7 @@ func TestServer(t *testing.T) {
 				if c.httpListener {
 					httpURL, err := url.Parse(httpAddr)
 					require.NoError(t, err)
-					client := codersdk.New(httpURL)
+					client := wirtualsdk.New(httpURL)
 					client.HTTPClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 						return http.ErrUseLastResponse
 					}
@@ -843,7 +843,7 @@ func TestServer(t *testing.T) {
 
 			accessURL := waitAccessURL(t, cfg)
 			require.Equal(t, "http", accessURL.Scheme)
-			client := codersdk.New(accessURL)
+			client := wirtualsdk.New(accessURL)
 			_, err := client.HasFirstUser(ctx)
 			require.NoError(t, err)
 		})
@@ -873,7 +873,7 @@ func TestServer(t *testing.T) {
 
 			accessURL := waitAccessURL(t, cfg)
 			require.Equal(t, "https", accessURL.Scheme)
-			client := codersdk.New(accessURL)
+			client := wirtualsdk.New(accessURL)
 			client.HTTPClient = &http.Client{
 				Transport: &http.Transport{
 					TLSClientConfig: &tls.Config{
@@ -1063,7 +1063,7 @@ func TestServer(t *testing.T) {
 		)
 		clitest.Start(t, inv)
 		accessURL := waitAccessURL(t, cfg)
-		client := codersdk.New(accessURL)
+		client := wirtualsdk.New(accessURL)
 		client.HTTPClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		}
@@ -1112,12 +1112,12 @@ func TestServer(t *testing.T) {
 			// Ensure that the server starts up without error.
 			clitest.Start(t, inv)
 			accessURL := waitAccessURL(t, cfg)
-			client := codersdk.New(accessURL)
+			client := wirtualsdk.New(accessURL)
 
 			randPassword, err := cryptorand.String(24)
 			require.NoError(t, err)
 
-			_, err = client.CreateFirstUser(ctx, codersdk.CreateFirstUserRequest{
+			_, err = client.CreateFirstUser(ctx, wirtualsdk.CreateFirstUserRequest{
 				Email:    "admin@coder.com",
 				Password: randPassword,
 				Username: "admin",
@@ -1125,7 +1125,7 @@ func TestServer(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			loginResp, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+			loginResp, err := client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 				Email:    "admin@coder.com",
 				Password: randPassword,
 			})
@@ -1140,7 +1140,7 @@ func TestServer(t *testing.T) {
 			// The client secret is not returned from the API.
 			require.Empty(t, deploymentConfig.Values.OIDC.ClientSecret.Value())
 			require.Equal(t, oidcServer.URL, deploymentConfig.Values.OIDC.IssuerURL.Value())
-			// These are the default values returned from the API. See codersdk/deployment.go for the default values.
+			// These are the default values returned from the API. See wirtualsdk/deployment.go for the default values.
 			require.True(t, deploymentConfig.Values.OIDC.AllowSignups.Value())
 			require.Empty(t, deploymentConfig.Values.OIDC.EmailDomain.Value())
 			require.Equal(t, []string{"openid", "profile", "email"}, deploymentConfig.Values.OIDC.Scopes.Value())
@@ -1200,12 +1200,12 @@ func TestServer(t *testing.T) {
 			// Ensure that the server starts up without error.
 			clitest.Start(t, inv)
 			accessURL := waitAccessURL(t, cfg)
-			client := codersdk.New(accessURL)
+			client := wirtualsdk.New(accessURL)
 
 			randPassword, err := cryptorand.String(24)
 			require.NoError(t, err)
 
-			_, err = client.CreateFirstUser(ctx, codersdk.CreateFirstUserRequest{
+			_, err = client.CreateFirstUser(ctx, wirtualsdk.CreateFirstUserRequest{
 				Email:    "admin@coder.com",
 				Password: randPassword,
 				Username: "admin",
@@ -1213,7 +1213,7 @@ func TestServer(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			loginResp, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+			loginResp, err := client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 				Email:    "admin@coder.com",
 				Password: randPassword,
 			})
@@ -1279,7 +1279,7 @@ func TestServer(t *testing.T) {
 				serverErr <- root.WithContext(ctx).Run()
 			}()
 			accessURL := waitAccessURL(t, cfg)
-			client := codersdk.New(accessURL)
+			client := wirtualsdk.New(accessURL)
 
 			resp, err := client.Request(ctx, http.MethodGet, "/api/v2/buildinfo", nil)
 			require.NoError(t, err)
@@ -1308,7 +1308,7 @@ func TestServer(t *testing.T) {
 				serverErr <- root.WithContext(ctx).Run()
 			}()
 			accessURL := waitAccessURL(t, cfg)
-			client := codersdk.New(accessURL)
+			client := wirtualsdk.New(accessURL)
 
 			resp, err := client.Request(ctx, http.MethodGet, "/api/v2/buildinfo", nil)
 			require.NoError(t, err)
@@ -1336,7 +1336,7 @@ func TestServer(t *testing.T) {
 				serverErr <- root.WithContext(ctx).Run()
 			}()
 			accessURL := waitAccessURL(t, cfg)
-			client := codersdk.New(accessURL)
+			client := wirtualsdk.New(accessURL)
 
 			resp, err := client.Request(ctx, http.MethodGet, "/api/v2/buildinfo", nil)
 			require.NoError(t, err)
@@ -1528,7 +1528,7 @@ func TestServer(t *testing.T) {
 			inv = inv.WithContext(ctx)
 			w := clitest.StartWithWaiter(t, inv)
 			gotURL := waitAccessURL(t, cfg)
-			client := codersdk.New(gotURL)
+			client := wirtualsdk.New(gotURL)
 
 			_ = coderdtest.CreateFirstUser(t, client)
 			wantConfig, err := client.DeploymentConfig(ctx)
@@ -1555,7 +1555,7 @@ func TestServer(t *testing.T) {
 			// and ensure that the live configuration is equivalent.
 			inv, cfg = clitest.New(t, "server", "--config="+fi.Name())
 			w = clitest.StartWithWaiter(t, inv)
-			client = codersdk.New(waitAccessURL(t, cfg))
+			client = wirtualsdk.New(waitAccessURL(t, cfg))
 			_ = coderdtest.CreateFirstUser(t, client)
 			gotConfig, err := client.DeploymentConfig(ctx)
 			require.NoError(t, err, "config:\n%s\nargs: %+v", conf.String(), inv.Args)
@@ -1612,7 +1612,7 @@ func TestServer_Production(t *testing.T) {
 	)
 	clitest.Start(t, inv.WithContext(ctx))
 	accessURL := waitAccessURL(t, cfg)
-	client := codersdk.New(accessURL)
+	client := wirtualsdk.New(accessURL)
 
 	_, err = client.CreateFirstUser(ctx, coderdtest.FirstUserParams)
 	require.NoError(t, err)
@@ -1643,7 +1643,7 @@ func TestServer_TelemetryDisable(t *testing.T) {
 			inv.Environ.Set(tt.key, tt.val)
 			clitest.Run(t, inv)
 
-			var dv codersdk.DeploymentValues
+			var dv wirtualsdk.DeploymentValues
 			err := yaml.Unmarshal(b.Bytes(), &dv)
 			require.NoError(t, err)
 			assert.Equal(t, tt.want, dv.Telemetry.Enable.Value())
@@ -1800,7 +1800,7 @@ func waitAccessURL(t *testing.T, cfg config.Root) *url.URL {
 func TestServerYAMLConfig(t *testing.T) {
 	t.Parallel()
 
-	var deployValues codersdk.DeploymentValues
+	var deployValues wirtualsdk.DeploymentValues
 	opts := deployValues.Options()
 
 	err := opts.SetDefaults()

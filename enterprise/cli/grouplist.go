@@ -9,7 +9,7 @@ import (
 
 	agpl "github.com/coder/coder/v2/cli"
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 )
 
@@ -20,7 +20,7 @@ func (r *RootCmd) groupList() *serpent.Command {
 	)
 	orgContext := agpl.NewOrganizationContext()
 
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "list",
 		Short: "List user groups",
@@ -65,7 +65,7 @@ func (r *RootCmd) groupList() *serpent.Command {
 
 type groupTableRow struct {
 	// For json output:
-	Group codersdk.Group `table:"-"`
+	Group wirtualsdk.Group `table:"-"`
 
 	// For table output:
 	Name           string    `json:"-" table:"name,default_sort"`
@@ -75,7 +75,7 @@ type groupTableRow struct {
 	AvatarURL      string    `json:"-" table:"avatar url"`
 }
 
-func groupsToRows(groups ...codersdk.Group) []groupTableRow {
+func groupsToRows(groups ...wirtualsdk.Group) []groupTableRow {
 	rows := make([]groupTableRow, 0, len(groups))
 	for _, group := range groups {
 		members := make([]string, 0, len(group.Members))

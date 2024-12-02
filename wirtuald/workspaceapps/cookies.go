@@ -3,17 +3,17 @@ package workspaceapps
 import (
 	"net/http"
 
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // AppConnectSessionTokenCookieName returns the cookie name for the session
 // token for the given access method.
 func AppConnectSessionTokenCookieName(accessMethod AccessMethod) string {
 	if accessMethod == AccessMethodSubdomain {
-		return codersdk.SubdomainAppSessionTokenCookie
+		return wirtualsdk.SubdomainAppSessionTokenCookie
 	}
-	return codersdk.PathAppSessionTokenCookie
+	return wirtualsdk.PathAppSessionTokenCookie
 }
 
 // AppConnectSessionTokenFromRequest returns the session token from the request

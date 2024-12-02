@@ -16,8 +16,8 @@ import (
 	"github.com/coder/coder/v2/testutil"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/serpent"
 )
@@ -36,13 +36,13 @@ func TestProvisionerJob(t *testing.T) {
 		testutil.Go(t, func() {
 			<-test.Next
 			test.JobMutex.Lock()
-			test.Job.Status = codersdk.ProvisionerJobRunning
+			test.Job.Status = wirtualsdk.ProvisionerJobRunning
 			now := dbtime.Now()
 			test.Job.StartedAt = &now
 			test.JobMutex.Unlock()
 			<-test.Next
 			test.JobMutex.Lock()
-			test.Job.Status = codersdk.ProvisionerJobSucceeded
+			test.Job.Status = wirtualsdk.ProvisionerJobSucceeded
 			now = dbtime.Now()
 			test.Job.CompletedAt = &now
 			close(test.Logs)
@@ -69,17 +69,17 @@ func TestProvisionerJob(t *testing.T) {
 		testutil.Go(t, func() {
 			<-test.Next
 			test.JobMutex.Lock()
-			test.Job.Status = codersdk.ProvisionerJobRunning
+			test.Job.Status = wirtualsdk.ProvisionerJobRunning
 			now := dbtime.Now()
 			test.Job.StartedAt = &now
-			test.Logs <- codersdk.ProvisionerJobLog{
+			test.Logs <- wirtualsdk.ProvisionerJobLog{
 				CreatedAt: dbtime.Now(),
 				Stage:     "Something",
 			}
 			test.JobMutex.Unlock()
 			<-test.Next
 			test.JobMutex.Lock()
-			test.Job.Status = codersdk.ProvisionerJobSucceeded
+			test.Job.Status = wirtualsdk.ProvisionerJobSucceeded
 			now = dbtime.Now()
 			test.Job.CompletedAt = &now
 			close(test.Logs)
@@ -141,13 +141,13 @@ func TestProvisionerJob(t *testing.T) {
 				testutil.Go(t, func() {
 					<-test.Next
 					test.JobMutex.Lock()
-					test.Job.Status = codersdk.ProvisionerJobRunning
+					test.Job.Status = wirtualsdk.ProvisionerJobRunning
 					now := dbtime.Now()
 					test.Job.StartedAt = &now
 					test.JobMutex.Unlock()
 					<-test.Next
 					test.JobMutex.Lock()
-					test.Job.Status = codersdk.ProvisionerJobSucceeded
+					test.Job.Status = wirtualsdk.ProvisionerJobSucceeded
 					now = dbtime.Now()
 					test.Job.CompletedAt = &now
 					close(test.Logs)
@@ -189,7 +189,7 @@ func TestProvisionerJob(t *testing.T) {
 			assert.NoError(t, err)
 			<-test.Next
 			test.JobMutex.Lock()
-			test.Job.Status = codersdk.ProvisionerJobCanceled
+			test.Job.Status = wirtualsdk.ProvisionerJobCanceled
 			now := dbtime.Now()
 			test.Job.CompletedAt = &now
 			close(test.Logs)
@@ -208,24 +208,24 @@ func TestProvisionerJob(t *testing.T) {
 
 type provisionerJobTest struct {
 	Next     chan struct{}
-	Job      *codersdk.ProvisionerJob
+	Job      *wirtualsdk.ProvisionerJob
 	JobMutex *sync.Mutex
-	Logs     chan codersdk.ProvisionerJobLog
+	Logs     chan wirtualsdk.ProvisionerJobLog
 	PTY      *ptytest.PTY
 }
 
 func newProvisionerJob(t *testing.T) provisionerJobTest {
-	job := &codersdk.ProvisionerJob{
-		Status:    codersdk.ProvisionerJobPending,
+	job := &wirtualsdk.ProvisionerJob{
+		Status:    wirtualsdk.ProvisionerJobPending,
 		CreatedAt: dbtime.Now(),
 	}
 	jobLock := sync.Mutex{}
-	logs := make(chan codersdk.ProvisionerJobLog, 1)
+	logs := make(chan wirtualsdk.ProvisionerJobLog, 1)
 	cmd := &serpent.Command{
 		Handler: func(inv *serpent.Invocation) error {
 			return cliui.ProvisionerJob(inv.Context(), inv.Stdout, cliui.ProvisionerJobOptions{
 				FetchInterval: time.Millisecond,
-				Fetch: func() (codersdk.ProvisionerJob, error) {
+				Fetch: func() (wirtualsdk.ProvisionerJob, error) {
 					jobLock.Lock()
 					defer jobLock.Unlock()
 					return *job, nil
@@ -233,7 +233,7 @@ func newProvisionerJob(t *testing.T) provisionerJobTest {
 				Cancel: func() error {
 					return nil
 				},
-				Logs: func() (<-chan codersdk.ProvisionerJobLog, io.Closer, error) {
+				Logs: func() (<-chan wirtualsdk.ProvisionerJobLog, io.Closer, error) {
 					return logs, closeFunc(func() error {
 						return nil
 					}), nil

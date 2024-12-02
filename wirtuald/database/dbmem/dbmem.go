@@ -22,15 +22,15 @@ import (
 	"golang.org/x/exp/slices"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/notifications/types"
+	"github.com/coder/coder/v2/wirtuald/notifications/types"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/rbac/regosql"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/coderd/workspaceapps/appurl"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/rbac/regosql"
+	"github.com/coder/coder/v2/wirtuald/util/slice"
+	"github.com/coder/coder/v2/wirtuald/workspaceapps/appurl"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/provisionersdk"
 )
 
@@ -113,33 +113,33 @@ func New() database.Store {
 	q.defaultProxyIconURL = "/emojis/1f3e1.png"
 
 	_, err = q.InsertProvisionerKey(context.Background(), database.InsertProvisionerKeyParams{
-		ID:             uuid.MustParse(codersdk.ProvisionerKeyIDBuiltIn),
+		ID:             uuid.MustParse(wirtualsdk.ProvisionerKeyIDBuiltIn),
 		OrganizationID: defaultOrg.ID,
 		CreatedAt:      dbtime.Now(),
 		HashedSecret:   []byte{},
-		Name:           codersdk.ProvisionerKeyNameBuiltIn,
+		Name:           wirtualsdk.ProvisionerKeyNameBuiltIn,
 		Tags:           map[string]string{},
 	})
 	if err != nil {
 		panic(xerrors.Errorf("failed to create built-in provisioner key: %w", err))
 	}
 	_, err = q.InsertProvisionerKey(context.Background(), database.InsertProvisionerKeyParams{
-		ID:             uuid.MustParse(codersdk.ProvisionerKeyIDUserAuth),
+		ID:             uuid.MustParse(wirtualsdk.ProvisionerKeyIDUserAuth),
 		OrganizationID: defaultOrg.ID,
 		CreatedAt:      dbtime.Now(),
 		HashedSecret:   []byte{},
-		Name:           codersdk.ProvisionerKeyNameUserAuth,
+		Name:           wirtualsdk.ProvisionerKeyNameUserAuth,
 		Tags:           map[string]string{},
 	})
 	if err != nil {
 		panic(xerrors.Errorf("failed to create user-auth provisioner key: %w", err))
 	}
 	_, err = q.InsertProvisionerKey(context.Background(), database.InsertProvisionerKeyParams{
-		ID:             uuid.MustParse(codersdk.ProvisionerKeyIDPSK),
+		ID:             uuid.MustParse(wirtualsdk.ProvisionerKeyIDPSK),
 		OrganizationID: defaultOrg.ID,
 		CreatedAt:      dbtime.Now(),
 		HashedSecret:   []byte{},
-		Name:           codersdk.ProvisionerKeyNamePSK,
+		Name:           wirtualsdk.ProvisionerKeyNamePSK,
 		Tags:           map[string]string{},
 	})
 	if err != nil {
@@ -277,7 +277,7 @@ func validateDatabaseTypeWithValid(v reflect.Value) (handled bool, err error) {
 	}
 
 	if v.CanInterface() {
-		if !strings.Contains(v.Type().PkgPath(), "coderd/database") {
+		if !strings.Contains(v.Type().PkgPath(), "wirtuald/database") {
 			return true, nil
 		}
 		if valid, ok := v.Interface().(interface{ Valid() bool }); ok {
@@ -421,7 +421,7 @@ func convertUsers(users []database.User, count int64) []database.GetUsersRow {
 }
 
 // mapAgentStatus determines the agent status based on different timestamps like created_at, last_connected_at, disconnected_at, etc.
-// The function must be in sync with: coderd/workspaceagents.go:convertWorkspaceAgent.
+// The function must be in sync with: wirtuald/workspaceagents.go:convertWorkspaceAgent.
 func mapAgentStatus(dbAgent database.WorkspaceAgent, agentInactiveDisconnectTimeoutSeconds int64) string {
 	var status string
 	connectionTimeout := time.Duration(dbAgent.ConnectionTimeoutSeconds) * time.Second
@@ -1204,7 +1204,7 @@ func (q *FakeQuerier) AcquireProvisionerJob(_ context.Context, arg database.Acqu
 		}
 
 		// Special case for untagged provisioners: only match untagged jobs.
-		// Ref: coderd/database/queries/provisionerjobs.sql:24-30
+		// Ref: wirtuald/database/queries/provisionerjobs.sql:24-30
 		// CASE WHEN nested.tags :: jsonb = '{"scope": "organization", "owner": ""}' :: jsonb
 		//      THEN nested.tags :: jsonb = @tags :: jsonb
 		if tagsEqual(provisionerJob.Tags, tagsUntagged) && !tagsEqual(provisionerJob.Tags, tags) {
@@ -3637,7 +3637,7 @@ func (q *FakeQuerier) GetProvisionerDaemonsByOrganization(_ context.Context, arg
 			continue
 		}
 		// Special case for untagged provisioners: only match untagged jobs.
-		// Ref: coderd/database/queries/provisionerjobs.sql:24-30
+		// Ref: wirtuald/database/queries/provisionerjobs.sql:24-30
 		// CASE WHEN nested.tags :: jsonb = '{"scope": "organization", "owner": ""}' :: jsonb
 		//      THEN nested.tags :: jsonb = @tags :: jsonb
 		if tagsEqual(arg.WantTags, tagsUntagged) && !tagsEqual(arg.WantTags, daemon.Tags) {
@@ -8383,9 +8383,9 @@ func (q *FakeQuerier) ListProvisionerKeysByOrganizationExcludeReserved(_ context
 
 	keys := make([]database.ProvisionerKey, 0)
 	for _, key := range q.provisionerKeys {
-		if key.ID.String() == codersdk.ProvisionerKeyIDBuiltIn ||
-			key.ID.String() == codersdk.ProvisionerKeyIDUserAuth ||
-			key.ID.String() == codersdk.ProvisionerKeyIDPSK {
+		if key.ID.String() == wirtualsdk.ProvisionerKeyIDBuiltIn ||
+			key.ID.String() == wirtualsdk.ProvisionerKeyIDUserAuth ||
+			key.ID.String() == wirtualsdk.ProvisionerKeyIDPSK {
 			continue
 		}
 		if key.OrganizationID == organizationID {
