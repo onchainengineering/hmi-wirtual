@@ -1,6 +1,6 @@
 # coder -- Common configuration options.
 coder:
-  # coder.env -- The environment variables to set. These can be used to
+  # wirtual.env -- The environment variables to set. These can be used to
   # configure all aspects of Coder provisioner daemon. Please see
   # `coder provisionerd start --help for information about what environment
   # variables can be set.

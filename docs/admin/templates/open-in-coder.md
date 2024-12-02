@@ -4,7 +4,7 @@ You can embed an "Open in Coder" button into your git repos or internal wikis to
 let developers quickly launch a new workspace.
 
 <video autoplay playsinline loop>
-  <source src="https://github.com/onchainengineering/hmi-wirtual/blob/main/docs/images/templates/open-in-coder.mp4?raw=true" type="video/mp4">
+  <source src="https://github.com/onchainengineering/hmi-wirtual/blob/main/docs/images/templates/open-in-wirtual.mp4?raw=true" type="video/mp4">
 Your browser does not support the video tag.
 </video>
 
@@ -117,4 +117,4 @@ specified in your template in the `disable_params` search params list
 ### Example: Kubernetes
 
 For a full example of the Open in Coder flow in Kubernetes, check out
-[this example template](https://github.com/bpmct/coder-templates/tree/main/kubernetes-open-in-coder).
+[this example template](https://github.com/bpmct/coder-templates/tree/main/kubernetes-open-in-wirtual).

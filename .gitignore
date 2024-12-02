@@ -49,7 +49,7 @@ site/stats/
 *.lock.hcl
 .terraform/
 
-**/.coderv2/*
+**/.wirtual/*
 **/__debug_bin
 
 # direnv

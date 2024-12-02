@@ -123,7 +123,7 @@ if [[ "${SCALETEST_SKIP_CLEANUP}" == 1 ]]; then
 	log "WARNING: you told me to not clean up after myself, so this is now your job!"
 fi
 
-CONFIG_DIR="${PROJECT_ROOT}/scaletest/.coderv2"
+CONFIG_DIR="${PROJECT_ROOT}/scaletest/.wirtual"
 if [[ -d "${CONFIG_DIR}" ]] && files=$(ls -qAH -- "${CONFIG_DIR}") && [[ -z "$files" ]]; then
 	echo "Cleaning previous configuration"
 	maybedryrun "$DRY_RUN" rm -fv "${CONFIG_DIR}/*"
@@ -154,7 +154,7 @@ if [[ "${DRY_RUN}" != 1 ]]; then
 else
 	SCALETEST_CODER_URL="http://coder.dryrun.local:3000"
 fi
-KUBECONFIG="${PROJECT_ROOT}/scaletest/.coderv2/${SCALETEST_NAME}-cluster.kubeconfig"
+KUBECONFIG="${PROJECT_ROOT}/scaletest/.wirtual/${SCALETEST_NAME}-cluster.kubeconfig"
 echo "Waiting for Coder deployment at ${SCALETEST_CODER_URL} to become ready"
 max_attempts=10
 for attempt in $(seq 1 $max_attempts); do

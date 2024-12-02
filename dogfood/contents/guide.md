@@ -54,16 +54,16 @@ The following explains how to do certain things related to dogfooding.
        👈 Backend devs will want to talk to this
     2. `[http://localhost:8080](http://localhost:8080)` — Node.js dev server
        👈 Frontend devs will want to talk to this
-5.  Ensure that you’re logged in: `./scripts/coder-dev.sh list` — should return
+5.  Ensure that you’re logged in: `./scripts/wirtual-dev.sh list` — should return
     no workspace. If this returns an error, double-check the output of running
     `scripts/develop.sh`.
 6.  A template named `docker-amd64` (or `docker-arm64` if you’re on ARM) will
     have automatically been created for you. If you just want to create a
     workspace quickly, you can run
-    `./scripts/coder-dev.sh create myworkspace -t docker-amd64` and this will
+    `./scripts/wirtual-dev.sh create myworkspace -t docker-amd64` and this will
     get you going quickly!
 7.  To create your own template, you can do:
-    `./scripts/coder-dev.sh templates init` and choose your preferred option.
+    `./scripts/wirtual-dev.sh templates init` and choose your preferred option.
     For example, choosing “Develop in Docker” will create a new folder `docker`
     that contains the bare bones for starting a Docker workspace template. Then,
     enter the folder that was just created and customize as you wish.

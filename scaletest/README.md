@@ -8,7 +8,7 @@ At a high level, it performs the following steps:
   > **Note: You must have an existing Google Cloud project available.**
 - Creates a dedicated namespace for Coder and installs Coder using the Helm chart in this namespace.
 - Configures the Coder deployment with random credentials and a predefined Kubernetes template.
-  > **Note:** These credentials are stored in `${PROJECT_ROOT}/scaletest/.coderv2/coder.env`.
+  > **Note:** These credentials are stored in `${PROJECT_ROOT}/scaletest/.wirtual/wirtual.env`.
 - Creates a number of workspaces and waits for them to all start successfully. These workspaces
   are ephemeral and do not contain any persistent resources.
 - Waits for 10 minutes to allow things to settle and establish a baseline.
@@ -84,7 +84,7 @@ A number of utility scripts are provided in `lib`, and are used by `scaletest.sh
   modifying a user's existing Coder CLI configuration.
 - `coder_init.sh`: Performs first-time user setup of an existing Coder instance, generating
   a random password for the admin user. The admin user is named `admin@coder.com` by default.
-  Credentials are written to `scaletest/.coderv2/coder.env`.
+  Credentials are written to `scaletest/.wirtual/wirtual.env`.
 - `coder_workspacetraffic.sh`: Runs traffic generation against the loadtest cluster and creates
   a monitoring manifest for the traffic generation pod. This pod will restart automatically
   after the traffic generation has completed.

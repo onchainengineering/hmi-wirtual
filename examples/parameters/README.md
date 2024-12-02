@@ -15,5 +15,5 @@ mutability, ephemeral (one-time) parameters, etc.
 Update the template and push it using the following command:
 
 ```bash
-./scripts/coder-dev.sh templates push examples-parameters -d examples/parameters --create
+./scripts/wirtual-dev.sh templates push examples-parameters -d examples/parameters --create
 ```

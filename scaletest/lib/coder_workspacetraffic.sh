@@ -53,7 +53,7 @@ fi
 
 CODER_TOKEN=$("${PROJECT_ROOT}/scaletest/lib/coder_shim.sh" tokens create)
 CODER_URL="http://coder.coder-${SCALETEST_NAME}.svc.cluster.local"
-export KUBECONFIG="${PROJECT_ROOT}/scaletest/.coderv2/${SCALETEST_NAME}-cluster.kubeconfig"
+export KUBECONFIG="${PROJECT_ROOT}/scaletest/.wirtual/${SCALETEST_NAME}-cluster.kubeconfig"
 
 # Clean up any pre-existing pods
 kubectl -n "coder-${SCALETEST_NAME}" delete pod coder-scaletest-workspace-traffic --force || true

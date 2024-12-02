@@ -68,7 +68,7 @@ winget uninstall Coder.Coder
 ## Coder as a system service configuration
 
 ```shell
-sudo rm /etc/coder.d/coder.env
+sudo rm /etc/coder.d/wirtual.env
 ```
 
 ## Coder settings and the optional built-in PostgreSQL database

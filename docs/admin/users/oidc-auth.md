@@ -20,7 +20,7 @@ coder server --oidc-issuer-url="https://issuer.corp.com" --oidc-email-domain="yo
 
 If you are running Coder as a system service, you can achieve the same result as
 the command above by adding the following environment variables to the
-`/etc/coder.d/coder.env` file:
+`/etc/coder.d/wirtual.env` file:
 
 ```env
 CODER_OIDC_ISSUER_URL="https://issuer.corp.com"

@@ -59,7 +59,7 @@ env:
   # Set the default access URL so a `helm apply` works by default.
   # See: https://github.com/onchainengineering/hmi-wirtual/issues/5024
 {{- $hasAccessURL := false }}
-{{- range .Values.coder.env }}
+{{- range .Values.wirtual.env }}
 {{- if eq .name "CODER_URL" }}
 {{- $hasAccessURL = true }}
 {{- end }}
@@ -68,11 +68,11 @@ env:
 - name: CODER_URL
   value: {{ include "coder.defaultAccessURL" . | quote }}
 {{- end }}
-{{- with .Values.coder.env }}
+{{- with .Values.wirtual.env }}
 {{ toYaml . }}
 {{- end }}
 ports:
-  {{- range .Values.coder.env }}
+  {{- range .Values.wirtual.env }}
   {{- if eq .name "CODER_PROMETHEUS_ENABLE" }}
   {{/*
     This sadly has to be nested to avoid evaluating the second part

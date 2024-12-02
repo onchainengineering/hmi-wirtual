@@ -181,7 +181,7 @@ func dbNameFromConnectionURL(t testing.TB, connectionURL string) string {
 //   - Import the file into the above database:
 //     psql 'postgres://postgres:postgres@127.0.0.1:5432/<dbname>?sslmode=disable' -f <path to file.test.sql>
 //   - Run a dev server against that database:
-//     ./scripts/coder-dev.sh server --postgres-url='postgres://postgres:postgres@127.0.0.1:5432/<dbname>?sslmode=disable'
+//     ./scripts/wirtual-dev.sh server --postgres-url='postgres://postgres:postgres@127.0.0.1:5432/<dbname>?sslmode=disable'
 func DumpOnFailure(t testing.TB, connectionURL string) {
 	if !t.Failed() {
 		return

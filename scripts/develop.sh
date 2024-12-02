@@ -78,7 +78,7 @@ GOARCH="$(go env GOARCH)"
 make -j "build/coder_${GOOS}_${GOARCH}"
 
 # Use the coder dev shim so we don't overwrite the user's existing Coder config.
-CODER_DEV_SHIM="${PROJECT_ROOT}/scripts/coder-dev.sh"
+CODER_DEV_SHIM="${PROJECT_ROOT}/scripts/wirtual-dev.sh"
 
 # Stores the pid of the subshell that runs our main routine.
 ppid=0
@@ -160,7 +160,7 @@ fatal() {
 	wait $!
 
 	# Check if credentials are already set up to avoid setting up again.
-	"${CODER_DEV_SHIM}" list >/dev/null 2>&1 && touch "${PROJECT_ROOT}/.coderv2/developsh-did-first-setup"
+	"${CODER_DEV_SHIM}" list >/dev/null 2>&1 && touch "${PROJECT_ROOT}/.wirtual/developsh-did-first-setup"
 
 	if ! "${CODER_DEV_SHIM}" whoami >/dev/null 2>&1; then
 		# Try to create the initial admin user.
@@ -169,7 +169,7 @@ fatal() {
 		if "${CODER_DEV_SHIM}" login http://127.0.0.1:3000 --first-user-username=admin --first-user-email=admin@coder.com --first-user-password="${password}" --first-user-full-name="Admin User" --first-user-trial=false; then
 			# Only create this file if an admin user was successfully
 			# created, otherwise we won't retry on a later attempt.
-			touch "${PROJECT_ROOT}/.coderv2/developsh-did-first-setup"
+			touch "${PROJECT_ROOT}/.wirtual/developsh-did-first-setup"
 		else
 			echo 'Failed to create admin user. To troubleshoot, try running this command manually.'
 		fi
@@ -274,8 +274,8 @@ fatal() {
 		done
 	fi
 	log "==                                                                =="
-	log "==      Use ./scripts/coder-dev.sh to talk to this instance!      =="
-	log "$(printf "==       alias cdr=%s/scripts/coder-dev.sh%$((space_padding - ${#PWD}))s==" "$PWD" "")"
+	log "==      Use ./scripts/wirtual-dev.sh to talk to this instance!      =="
+	log "$(printf "==       alias cdr=%s/scripts/wirtual-dev.sh%$((space_padding - ${#PWD}))s==" "$PWD" "")"
 	log "===================================================================="
 	log
 

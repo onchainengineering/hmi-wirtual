@@ -278,7 +278,7 @@ EOF
 }
 
 resource "local_file" "kubernetes_template" {
-  filename = "${path.module}/../.coderv2/templates/kubernetes/main.tf"
+  filename = "${path.module}/../.wirtual/templates/kubernetes/main.tf"
   content  = <<EOF
     terraform {
       required_providers {
@@ -365,7 +365,7 @@ resource "local_file" "kubernetes_template" {
 }
 
 resource "local_file" "output_vars" {
-  filename = "${path.module}/../../.coderv2/url"
+  filename = "${path.module}/../../.wirtual/url"
   content  = local.coder_url
 }
 

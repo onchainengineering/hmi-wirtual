@@ -28,7 +28,7 @@ See [Workspace Tags](https://coder.com/docs/templates/workspace-tags) for more i
 Update the template and push it using the following command:
 
 ```
-./scripts/coder-dev.sh templates push examples-workspace-tags \
+./scripts/wirtual-dev.sh templates push examples-workspace-tags \
   -d examples/workspace-tags \
   -y
 ```

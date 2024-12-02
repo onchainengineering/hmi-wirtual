@@ -17,7 +17,7 @@ authorized to perform.
 
 ## Exploitability: HIGH
 
-The CLI writes the API key to `~/.coderv2/session` by default, so any deleted
+The CLI writes the API key to `~/.wirtual/session` by default, so any deleted
 user who previously logged in via the Coder CLI has the potential to exploit
 this. Note that there is a time window for exploitation; API tokens have a
 maximum lifetime after which they are no longer valid.

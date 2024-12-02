@@ -56,7 +56,7 @@ output "prometheus_postgres_user" {
 }
 
 resource "local_file" "outputs" {
-  filename = "${path.module}/../../.coderv2/infra_outputs.tfvars"
+  filename = "${path.module}/../../.wirtual/infra_outputs.tfvars"
   content  = <<EOF
   coder_db_url = "${local.coder_db_url}"
   coder_address = "${google_compute_address.coder.address}"

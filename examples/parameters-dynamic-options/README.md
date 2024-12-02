@@ -32,7 +32,7 @@ The template admin needs to update image references, publish a new version of th
 Update the template and push it using the following command:
 
 ```bash
-./scripts/coder-dev.sh templates push examples-parameters-dynamic-options \
+./scripts/wirtual-dev.sh templates push examples-parameters-dynamic-options \
   -d examples/parameters-dynamic-options \
   --variables-file examples/parameters-dynamic-options/variables.yml \
   -y

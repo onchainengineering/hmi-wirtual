@@ -30,9 +30,9 @@ args:
   {{- end }}
 - server
 {{- end }}
-{{- if .Values.coder.envFrom }}
+{{- if .Values.wirtual.envFrom }}
 envFrom:
-{{- with .Values.coder.envFrom }}
+{{- with .Values.wirtual.envFrom }}
 {{ toYaml . }}
 {{- end }}
 {{- end }}
@@ -51,12 +51,12 @@ env:
   # Set the default access URL so a `helm apply` works by default.
   # See: https://github.com/onchainengineering/hmi-wirtual/issues/5024
 {{- $hasAccessURL := false }}
-{{- range .Values.coder.env }}
+{{- range .Values.wirtual.env }}
 {{- if eq .name "CODER_ACCESS_URL" }}
 {{- $hasAccessURL = true }}
 {{- end }}
 {{- end }}
-{{- if and (not $hasAccessURL) .Values.coder.envUseClusterAccessURL }}
+{{- if and (not $hasAccessURL) .Values.wirtual.envUseClusterAccessURL }}
 - name: CODER_ACCESS_URL
   value: {{ include "coder.defaultAccessURL" . | quote }}
 {{- end }}
@@ -68,7 +68,7 @@ env:
 - name: CODER_DERP_SERVER_RELAY_URL
   value: "http://$(KUBE_POD_IP):8080"
 {{- include "coder.tlsEnv" . }}
-{{- with .Values.coder.env }}
+{{- with .Values.wirtual.env }}
 {{ toYaml . }}
 {{- end }}
 ports:
@@ -80,7 +80,7 @@ ports:
   containerPort: 8443
   protocol: TCP
   {{- end }}
-  {{- range .Values.coder.env }}
+  {{- range .Values.wirtual.env }}
   {{- if eq .name "CODER_PROMETHEUS_ENABLE" }}
   {{/*
     This sadly has to be nested to avoid evaluating the second part

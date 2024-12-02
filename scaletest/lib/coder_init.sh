@@ -15,14 +15,14 @@ DRY_RUN="${DRY_RUN:-0}"
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
 # shellcheck source=scripts/lib.sh
 source "${PROJECT_ROOT}/scripts/lib.sh"
-CONFIG_DIR="${PROJECT_ROOT}/scaletest/.coderv2"
+CONFIG_DIR="${PROJECT_ROOT}/scaletest/.wirtual"
 ARCH="$(arch)"
 if [[ "$ARCH" == "x86_64" ]]; then
 	ARCH="amd64"
 fi
 
-if [[ -f "${CONFIG_DIR}/coder.env" ]]; then
-	echo "Found existing coder.env in ${CONFIG_DIR}!"
+if [[ -f "${CONFIG_DIR}/wirtual.env" ]]; then
+	echo "Found existing wirtual.env in ${CONFIG_DIR}!"
 	echo "Nothing to do, exiting."
 	exit 0
 fi
@@ -59,8 +59,8 @@ DRY_RUN="$DRY_RUN" "${PROJECT_ROOT}/scaletest/lib/coder_shim.sh" login "${CODER_
 	--first-user-password="${CODER_FIRST_USER_PASSWORD}" \
 	--first-user-trial=false
 
-echo "Writing credentials to ${CONFIG_DIR}/coder.env"
-maybedryrun "$DRY_RUN" cat <<EOF >"${CONFIG_DIR}/coder.env"
+echo "Writing credentials to ${CONFIG_DIR}/wirtual.env"
+maybedryrun "$DRY_RUN" cat <<EOF >"${CONFIG_DIR}/wirtual.env"
 CODER_FIRST_USER_EMAIL=admin@coder.com
 CODER_FIRST_USER_USERNAME=coder
 CODER_FIRST_USER_PASSWORD="${RANDOM_ADMIN_PASSWORD}"
