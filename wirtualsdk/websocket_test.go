@@ -10,8 +10,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"nhooyr.io/websocket"
 
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 // TestWebsocketNetConn_LargeWrites tests that we can write large amounts of data thru the netconn

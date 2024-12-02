@@ -84,7 +84,7 @@ This additional layer allows admins to:
 ## How much does it cost?
 
 Coder is free and open source under
-[GNU Affero General Public License v3.0](https://github.com/coder/coder/blob/main/LICENSE).
+[GNU Affero General Public License v3.0](https://github.com/onchainengineering/hmi-wirtual/blob/main/LICENSE).
 All developer productivity features are included in the Open Source version of
 Coder.
 A [Premium license is available](https://coder.com/pricing#compare-plans) for enhanced

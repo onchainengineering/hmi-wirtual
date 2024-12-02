@@ -9,18 +9,18 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/pty/ptytest"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/agent/agenttest"
+	"github.com/onchainengineering/hmi-wirtual/cli"
+	"github.com/onchainengineering/hmi-wirtual/cli/clitest"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/wirtualdtest"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/pty/ptytest"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 func TestSpeedtest(t *testing.T) {
 	t.Parallel()
-	t.Skip("Flaky test - see https://github.com/coder/coder/issues/6321")
+	t.Skip("Flaky test - see https://github.com/onchainengineering/hmi-wirtual/issues/6321")
 	if testing.Short() {
 		t.Skip("This test takes a minimum of 5ms per a hardcoded value in Tailscale!")
 	}
@@ -60,7 +60,7 @@ func TestSpeedtest(t *testing.T) {
 
 func TestSpeedtestJson(t *testing.T) {
 	t.Parallel()
-	t.Skip("Potentially flaky test - see https://github.com/coder/coder/issues/6321")
+	t.Skip("Potentially flaky test - see https://github.com/onchainengineering/hmi-wirtual/issues/6321")
 	if testing.Short() {
 		t.Skip("This test takes a minimum of 5ms per a hardcoded value in Tailscale!")
 	}

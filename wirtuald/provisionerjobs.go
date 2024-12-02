@@ -16,13 +16,13 @@ import (
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
-	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
-	"github.com/coder/coder/v2/wirtuald/database/pubsub"
-	"github.com/coder/coder/v2/wirtuald/httpapi"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/provisionersdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/db2sdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbauthz"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/pubsub"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/httpapi"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk"
 )
 
 // Returns provisioner logs based on query parameters.

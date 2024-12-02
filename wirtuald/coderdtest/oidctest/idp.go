@@ -36,13 +36,13 @@ import (
 
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/slogtest"
-	"github.com/coder/coder/v2/wirtuald"
-	"github.com/coder/coder/v2/wirtuald/externalauth"
-	"github.com/coder/coder/v2/wirtuald/httpapi"
-	"github.com/coder/coder/v2/wirtuald/promoauth"
-	"github.com/coder/coder/v2/wirtuald/util/syncmap"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/externalauth"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/httpapi"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/promoauth"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/syncmap"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 type token struct {

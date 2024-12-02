@@ -9,9 +9,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/entitlements"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/enterprise/wirtuald/license"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/entitlements"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/wirtuald/license"
 )
 
 func TestCollectLicenseMetrics(t *testing.T) {

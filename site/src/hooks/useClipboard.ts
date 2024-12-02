@@ -35,7 +35,7 @@ export type UseClipboardResult = Readonly<{
 	 * Trying to make this property accurate enough that it could safely be called
 	 * `isCopied` led to browser compatibility issues in Safari.
 	 *
-	 * @see {@link https://github.com/coder/coder/pull/11863}
+	 * @see {@link https://github.com/onchainengineering/hmi-wirtual/pull/11863}
 	 */
 	showCopiedSuccess: boolean;
 }>;

@@ -28,7 +28,7 @@ import (
 	"tailscale.com/wgengine/wgcfg/nmcfg"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/tailnet/proto"
+	"github.com/onchainengineering/hmi-wirtual/tailnet/proto"
 	"github.com/coder/quartz"
 )
 

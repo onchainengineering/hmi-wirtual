@@ -5,9 +5,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/database/dbmem"
-	"github.com/coder/coder/v2/wirtuald/runtimeconfig"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbmem"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/runtimeconfig"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 	"github.com/coder/serpent"
 )
 

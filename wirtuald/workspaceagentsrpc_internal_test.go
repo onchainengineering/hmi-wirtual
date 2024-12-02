@@ -8,18 +8,18 @@ import (
 	"testing"
 	"time"
 
-	"github.com/coder/coder/v2/wirtuald/util/ptr"
-	"github.com/coder/coder/v2/wirtuald/wspubsub"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/ptr"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/wspubsub"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 	"nhooyr.io/websocket"
 
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/dbmock"
-	"github.com/coder/coder/v2/wirtuald/database/dbtime"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbmock"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbtime"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 func TestAgentConnectionMonitor_ContextCancel(t *testing.T) {

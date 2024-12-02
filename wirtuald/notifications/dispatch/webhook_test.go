@@ -18,10 +18,10 @@ import (
 	"cdr.dev/slog/sloggers/slogtest"
 	"github.com/coder/serpent"
 
-	"github.com/coder/coder/v2/wirtuald/notifications/dispatch"
-	"github.com/coder/coder/v2/wirtuald/notifications/types"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications/dispatch"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications/types"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 func TestWebhook(t *testing.T) {

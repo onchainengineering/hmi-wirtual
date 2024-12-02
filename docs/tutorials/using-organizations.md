@@ -35,7 +35,7 @@ wirtuald:
 ```
 
 > See all
-> [preview images](https://github.com/coder/coder/pkgs/container/coder-preview)
+> [preview images](https://github.com/onchainengineering/hmi-wirtual/pkgs/container/coder-preview)
 > in GitHub. Preview images prefixed with `main-` expire after a week.
 
 Then, upgrade your deployment:

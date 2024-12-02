@@ -43,18 +43,18 @@ import (
 
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/slogtest"
-	"github.com/coder/coder/v2/agent"
-	"github.com/coder/coder/v2/agent/agentssh"
-	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
-	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
-	"github.com/coder/coder/v2/cryptorand"
-	"github.com/coder/coder/v2/pty/ptytest"
-	"github.com/coder/coder/v2/tailnet"
-	"github.com/coder/coder/v2/tailnet/tailnettest"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/agent"
+	"github.com/onchainengineering/hmi-wirtual/agent/agentssh"
+	"github.com/onchainengineering/hmi-wirtual/agent/agenttest"
+	"github.com/onchainengineering/hmi-wirtual/agent/proto"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk/agentsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk/workspacesdk"
+	"github.com/onchainengineering/hmi-wirtual/cryptorand"
+	"github.com/onchainengineering/hmi-wirtual/pty/ptytest"
+	"github.com/onchainengineering/hmi-wirtual/tailnet"
+	"github.com/onchainengineering/hmi-wirtual/tailnet/tailnettest"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 func TestMain(m *testing.M) {
@@ -711,7 +711,7 @@ func TestAgent_Session_TTY_FastCommandHasOutput(t *testing.T) {
 	// This test is here to prevent regressions where quickly executing
 	// commands (with TTY) don't sync their output to the SSH session.
 	//
-	// See: https://github.com/coder/coder/issues/6656
+	// See: https://github.com/onchainengineering/hmi-wirtual/issues/6656
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
 	//nolint:dogsled
@@ -761,7 +761,7 @@ func TestAgent_Session_TTY_HugeOutputIsNotLost(t *testing.T) {
 	// SSH session. On unix systems, this was fixed by duplicating the file
 	// descriptor of the PTY master and using it for copying the output.
 	//
-	// See: https://github.com/coder/coder/issues/6656
+	// See: https://github.com/onchainengineering/hmi-wirtual/issues/6656
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
 	//nolint:dogsled

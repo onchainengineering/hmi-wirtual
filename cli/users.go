@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 	"github.com/coder/serpent"
 )
 

@@ -12,10 +12,10 @@ import (
 	"golang.org/x/exp/maps"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/examples"
-	"github.com/coder/coder/v2/provisionersdk"
+	"github.com/onchainengineering/hmi-wirtual/cli/cliui"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/examples"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )

@@ -8,9 +8,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/prometheus/client_golang/prometheus"
 
-	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
-	"github.com/coder/coder/v2/wirtuald/rbac"
-	"github.com/coder/coder/v2/wirtuald/rbac/policy"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbauthz"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac/policy"
 )
 
 type FakeEnqueuer struct {
@@ -28,7 +28,7 @@ type FakeNotification struct {
 }
 
 // TODO: replace this with actual calls to dbauthz.
-// See: https://github.com/coder/coder/issues/15481
+// See: https://github.com/onchainengineering/hmi-wirtual/issues/15481
 func (f *FakeEnqueuer) assertRBACNoLock(ctx context.Context) {
 	if f.mu.TryLock() {
 		panic("Developer error: do not call assertRBACNoLock outside of a mutex lock!")

@@ -14,9 +14,9 @@ import (
 
 	"cdr.dev/slog/sloggers/slogtest"
 
-	"github.com/coder/coder/v2/wirtuald/database/dbmem"
-	"github.com/coder/coder/v2/wirtuald/updatecheck"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbmem"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/updatecheck"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 func TestChecker_Notify(t *testing.T) {

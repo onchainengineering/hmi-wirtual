@@ -6,8 +6,8 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtuald/userpassword"
-	"github.com/coder/coder/v2/cryptorand"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/userpassword"
+	"github.com/onchainengineering/hmi-wirtual/cryptorand"
 )
 
 type OAuth2ProviderAppSecret struct {

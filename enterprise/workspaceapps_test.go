@@ -4,13 +4,13 @@ import (
 	"net"
 	"testing"
 
-	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
-	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
-	"github.com/coder/coder/v2/wirtuald/httpmw"
-	"github.com/coder/coder/v2/wirtuald/workspaceapps/apptest"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
-	"github.com/coder/coder/v2/enterprise/wirtuald/license"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/wirtualdtest"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbtestutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/httpmw"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/workspaceapps/apptest"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/wirtuald/wirtualdenttest"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/wirtuald/license"
 	"github.com/coder/serpent"
 )
 

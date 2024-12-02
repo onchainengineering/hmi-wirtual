@@ -46,7 +46,7 @@ export const WorkspaceTimings: FC<WorkspaceTimingsProps> = ({
 	const [view, setView] = useState<TimingView>({ name: "default" });
 	// This is a workaround to deal with the BE returning multiple timings for a
 	// single agent script when it should return only one. Reference:
-	// https://github.com/coder/coder/issues/15413#issuecomment-2493663571
+	// https://github.com/onchainengineering/hmi-wirtual/issues/15413#issuecomment-2493663571
 	const uniqScriptTimings = uniqBy(
 		sortBy(agentScriptTimings, (t) => new Date(t.started_at).getTime() * -1),
 		(t) => t.display_name,

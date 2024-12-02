@@ -16,12 +16,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/httpapi"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
-	"github.com/coder/coder/v2/pty/ptytest"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/cli/clitest"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/httpapi"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/wirtuald/wirtualdenttest"
+	"github.com/onchainengineering/hmi-wirtual/pty/ptytest"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 	"github.com/coder/serpent"
 )
 

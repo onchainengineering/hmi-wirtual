@@ -11,22 +11,22 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/wirtuald/audit"
-	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
-	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
-	"github.com/coder/coder/v2/wirtuald/database/dbtime"
-	"github.com/coder/coder/v2/wirtuald/notifications"
-	"github.com/coder/coder/v2/wirtuald/notifications/notificationstest"
-	"github.com/coder/coder/v2/wirtuald/rbac"
-	"github.com/coder/coder/v2/wirtuald/schedule"
-	"github.com/coder/coder/v2/wirtuald/util/ptr"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
-	"github.com/coder/coder/v2/provisioner/echo"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/agent/agenttest"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/audit"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/wirtualdtest"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbauthz"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbtestutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbtime"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications/notificationstest"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/schedule"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/ptr"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk/workspacesdk"
+	"github.com/onchainengineering/hmi-wirtual/provisioner/echo"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 func TestTemplate(t *testing.T) {
@@ -1298,7 +1298,7 @@ func TestDeleteTemplate(t *testing.T) {
 func TestTemplateMetrics(t *testing.T) {
 	t.Parallel()
 
-	t.Skip("flaky test: https://github.com/coder/coder/issues/6481")
+	t.Skip("flaky test: https://github.com/onchainengineering/hmi-wirtual/issues/6481")
 
 	client := wirtualdtest.New(t, &wirtualdtest.Options{
 		IncludeProvisionerDaemon:    true,

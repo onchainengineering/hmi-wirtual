@@ -21,8 +21,8 @@ import (
 	"tailscale.com/wgengine/router"
 	"tailscale.com/wgengine/wgcfg"
 
-	"github.com/coder/coder/v2/tailnet/proto"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/tailnet/proto"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 	"github.com/coder/quartz"
 )
 

@@ -6,12 +6,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/dbgen"
-	"github.com/coder/coder/v2/wirtuald/database/dbmem"
-	"github.com/coder/coder/v2/wirtuald/rbac"
-	"github.com/coder/coder/v2/wirtuald/rbac/rolestore"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbgen"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbmem"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac/rolestore"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 func TestExpandCustomRoleRoles(t *testing.T) {

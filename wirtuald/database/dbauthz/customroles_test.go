@@ -8,15 +8,15 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
-	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
-	"github.com/coder/coder/v2/wirtuald/database/dbmem"
-	"github.com/coder/coder/v2/wirtuald/rbac"
-	"github.com/coder/coder/v2/wirtuald/rbac/policy"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/wirtualdtest"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/db2sdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbauthz"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbmem"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac/policy"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 // TestInsertCustomRoles verifies creating custom roles cannot escalate permissions.

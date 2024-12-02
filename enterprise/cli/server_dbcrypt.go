@@ -10,11 +10,11 @@ import (
 
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/sloghuman"
-	"github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/wirtuald/database/awsiamrds"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/enterprise/dbcrypt"
+	"github.com/onchainengineering/hmi-wirtual/cli"
+	"github.com/onchainengineering/hmi-wirtual/cli/cliui"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/awsiamrds"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/dbcrypt"
 	"github.com/coder/serpent"
 
 	"golang.org/x/xerrors"

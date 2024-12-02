@@ -8,11 +8,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/coder/coder/v2/wirtuald"
-	"github.com/coder/coder/v2/wirtuald/wirtualdtest/oidctest"
-	"github.com/coder/coder/v2/wirtuald/notifications"
-	"github.com/coder/coder/v2/wirtuald/notifications/notificationstest"
-	"github.com/coder/coder/v2/wirtuald/rbac/policy"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/wirtualdtest/oidctest"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications/notificationstest"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac/policy"
 	"github.com/coder/serpent"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -23,18 +23,18 @@ import (
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtuald/audit"
-	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
-	"github.com/coder/coder/v2/wirtuald/database/dbfake"
-	"github.com/coder/coder/v2/wirtuald/database/dbgen"
-	"github.com/coder/coder/v2/wirtuald/database/dbtime"
-	"github.com/coder/coder/v2/wirtuald/rbac"
-	"github.com/coder/coder/v2/wirtuald/util/ptr"
-	"github.com/coder/coder/v2/wirtuald/util/slice"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/audit"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/wirtualdtest"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbauthz"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbfake"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbgen"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbtime"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/ptr"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/slice"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 func TestFirstUser(t *testing.T) {
@@ -1914,7 +1914,7 @@ func TestDormantUser(t *testing.T) {
 // This is mainly to confirm the db fake has the same behavior.
 func TestSuspendedPagination(t *testing.T) {
 	t.Parallel()
-	t.Skip("This fails when two users are created at the exact same time. The reason is unknown... See: https://github.com/coder/coder/actions/runs/3057047622/jobs/4931863163")
+	t.Skip("This fails when two users are created at the exact same time. The reason is unknown... See: https://github.com/onchainengineering/hmi-wirtual/actions/runs/3057047622/jobs/4931863163")
 	client := wirtualdtest.New(t, nil)
 	wirtualdtest.CreateFirstUser(t, client)
 

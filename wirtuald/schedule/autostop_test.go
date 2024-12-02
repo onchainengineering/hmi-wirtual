@@ -11,13 +11,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/dbgen"
-	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
-	"github.com/coder/coder/v2/wirtuald/database/dbtime"
-	"github.com/coder/coder/v2/wirtuald/schedule"
-	"github.com/coder/coder/v2/wirtuald/schedule/cron"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbgen"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbtestutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbtime"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/schedule"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/schedule/cron"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 func TestCalculateAutoStop(t *testing.T) {

@@ -101,7 +101,7 @@ func UserRealNameValid(str string) error {
 func GroupNameValid(str string) error {
 	// We want to support longer names for groups to allow users to sync their
 	// group names with their identity providers without manual mapping. Related
-	// to: https://github.com/coder/coder/issues/15184
+	// to: https://github.com/onchainengineering/hmi-wirtual/issues/15184
 	limit := 255
 	if len(str) > limit {
 		return xerrors.New(fmt.Sprintf("must be <= %d characters", limit))

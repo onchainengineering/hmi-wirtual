@@ -2,10 +2,10 @@
 
 Frequently asked questions on Coder OSS and licensed deployments. These FAQs
 come from our community and customers, feel free to
-[contribute to this page](https://github.com/coder/coder/edit/main/docs/tutorials/faqs.md).
+[contribute to this page](https://github.com/onchainengineering/hmi-wirtual/edit/main/docs/tutorials/faqs.md).
 
 For other community resources, see our
-[GitHub discussions](https://github.com/coder/coder/discussions), or join our
+[GitHub discussions](https://github.com/onchainengineering/hmi-wirtual/discussions), or join our
 [Discord server](https://discord.gg/coder).
 
 ### How do I add a Premium trial license?
@@ -292,8 +292,8 @@ tar -cvh -C ./template_1 | coder templates <push|create> -d - <name>
 
 References:
 
-- [Public GitHub Issue 6117](https://github.com/coder/coder/issues/6117)
-- [Public GitHub Issue 5677](https://github.com/coder/coder/issues/5677)
+- [Public GitHub Issue 6117](https://github.com/onchainengineering/hmi-wirtual/issues/6117)
+- [Public GitHub Issue 5677](https://github.com/onchainengineering/hmi-wirtual/issues/5677)
 - [Coder docs: Templates/Change Management](../admin/templates/managing-templates/change-management.md)
 
 ### Can I run Coder in an air-gapped or offline mode? (no Internet)?
@@ -466,7 +466,7 @@ resource "coder_app" "code-server" {
 
 ### Why am I getting this "remote host doesn't meet VS Code Server's prerequisites" error when opening up VSCode remote in a Linux environment?
 
-![VS Code Server prerequisite](https://github.com/coder/coder/assets/10648092/150c5996-18b1-4fae-afd0-be2b386a3239)
+![VS Code Server prerequisite](https://github.com/onchainengineering/hmi-wirtual/assets/10648092/150c5996-18b1-4fae-afd0-be2b386a3239)
 
 It is because, more than likely, the supported OS of either the container image
 or VM/VPS doesn't have the proper C libraries to run the VS Code Server. For

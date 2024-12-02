@@ -5,7 +5,7 @@
 ## Summary
 
 Coder identified an issue in
-[https://github.com/coder/coder](https://github.com/coder/coder) where API
+[https://github.com/onchainengineering/hmi-wirtual](https://github.com/onchainengineering/hmi-wirtual) where API
 tokens belonging to a deleted user were not invalidated. A deleted user in
 possession of a valid and non-expired API token is still able to use the above
 token with their full suite of capabilities.
@@ -31,7 +31,7 @@ this issue.
 All versions of Coder between v0.8.15 and v0.22.2 (inclusive) are affected.
 
 All customers are advised to upgrade to
-[v0.23.0](https://github.com/coder/coder/releases/tag/v0.23.0) as soon as
+[v0.23.0](https://github.com/onchainengineering/hmi-wirtual/releases/tag/v0.23.0) as soon as
 possible.
 
 ## Details

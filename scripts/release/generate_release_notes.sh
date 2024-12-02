@@ -179,7 +179,7 @@ stable_since=
 if ((mainline)); then
 	blurb="
 > [!NOTE]
-> This is a mainline Coder release. We advise enterprise customers without a staging environment to install our [latest stable release](https://github.com/coder/coder/releases/latest) while we refine this version. Learn more about our [Release Schedule](https://coder.com/docs/install/releases).
+> This is a mainline Coder release. We advise enterprise customers without a staging environment to install our [latest stable release](https://github.com/onchainengineering/hmi-wirtual/releases/latest) while we refine this version. Learn more about our [Release Schedule](https://coder.com/docs/install/releases).
 "
 else
 	# Date format: April 23, 2024
@@ -190,7 +190,7 @@ fi
 echo -e "${stable_since}## Changelog
 ${blurb}${changelog}
 
-Compare: [\`${old_version}...${new_version}\`](https://github.com/coder/coder/compare/${old_version}...${new_version})
+Compare: [\`${old_version}...${new_version}\`](https://github.com/onchainengineering/hmi-wirtual/compare/${old_version}...${new_version})
 
 ## Container image
 

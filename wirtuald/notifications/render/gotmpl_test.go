@@ -5,9 +5,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/notifications/render"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications/render"
 
-	"github.com/coder/coder/v2/wirtuald/notifications/types"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications/types"
 )
 
 func TestGoTemplate(t *testing.T) {

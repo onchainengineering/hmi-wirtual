@@ -148,7 +148,7 @@ log "Checking remote ${remote} for repo..."
 remote_url=$(git remote get-url "${remote}")
 # Allow either SSH or HTTPS URLs.
 if ! [[ ${remote_url} =~ [@/]github.com ]] && ! [[ ${remote_url} =~ [:/]coder/coder(\.git)?$ ]]; then
-	error "This script is only intended to be run with github.com/coder/coder repository set as ${remote}."
+	error "This script is only intended to be run with github.com/onchainengineering/hmi-wirtual repository set as ${remote}."
 fi
 
 # Make sure the repository is up-to-date before generating release notes.
@@ -172,8 +172,8 @@ versions_out="$(gh api -H "Accept: application/vnd.github+json" /repos/coder/cod
 mapfile -t versions <<<"${versions_out}"
 latest_mainline_version=${versions[0]}
 
-latest_stable_version="$(curl -fsSLI -o /dev/null -w "%{url_effective}" https://github.com/coder/coder/releases/latest)"
-latest_stable_version="${latest_stable_version#https://github.com/coder/coder/releases/tag/}"
+latest_stable_version="$(curl -fsSLI -o /dev/null -w "%{url_effective}" https://github.com/onchainengineering/hmi-wirtual/releases/latest)"
+latest_stable_version="${latest_stable_version#https://github.com/onchainengineering/hmi-wirtual/releases/tag/}"
 
 log "Latest mainline release: ${latest_mainline_version}"
 log "Latest stable release: ${latest_stable_version}"
@@ -353,11 +353,11 @@ done
 if [[ ${create_pr} =~ ^[Yy]$ ]]; then
 	pr_branch=autoversion/${new_version}
 	title="docs: bump ${channel} version to ${new_version}"
-	body="This PR was automatically created by the [release script](https://github.com/coder/coder/blob/main/scripts/release.sh).
+	body="This PR was automatically created by the [release script](https://github.com/onchainengineering/hmi-wirtual/blob/main/scripts/release.sh).
 
 Please review the changes and merge if they look good and the release is complete.
 
-You can follow the release progress [here](https://github.com/coder/coder/actions/workflows/release.yaml) and view the published release [here](https://github.com/coder/coder/releases/tag/${new_version}) (once complete)."
+You can follow the release progress [here](https://github.com/onchainengineering/hmi-wirtual/actions/workflows/release.yaml) and view the published release [here](https://github.com/onchainengineering/hmi-wirtual/releases/tag/${new_version}) (once complete)."
 
 	log
 	log "Creating branch \"${pr_branch}\" and updating versions..."

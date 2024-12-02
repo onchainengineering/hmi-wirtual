@@ -1,7 +1,7 @@
 # Remote Desktops
 
 > Built-in remote desktop is on the roadmap
-> ([#2106](https://github.com/coder/coder/issues/2106)).
+> ([#2106](https://github.com/onchainengineering/hmi-wirtual/issues/2106)).
 
 ## VNC Desktop
 

@@ -12,9 +12,9 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/httpapi"
-	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/httpapi"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 // AuditLogs requires the database to fetch an organization by name

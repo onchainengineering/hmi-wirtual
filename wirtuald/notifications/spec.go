@@ -6,9 +6,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/notifications/dispatch"
-	"github.com/coder/coder/v2/wirtuald/notifications/types"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications/dispatch"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications/types"
 )
 
 // Store defines the API between the notifications system and the storage.

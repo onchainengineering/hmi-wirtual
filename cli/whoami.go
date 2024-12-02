@@ -3,8 +3,8 @@ package cli
 import (
 	"fmt"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/cli/cliui"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )

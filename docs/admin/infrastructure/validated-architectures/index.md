@@ -151,14 +151,14 @@ from dropping pods, and thus dropping user connections to the dashboard UI and
 their workspaces.
 
 Coder's Helm Chart supports
-[defining nodeSelectors, affinities, and tolerations](https://github.com/coder/coder/blob/e96652ebbcdd7554977594286b32015115c3f5b6/helm/coder/values.yaml#L221-L249)
+[defining nodeSelectors, affinities, and tolerations](https://github.com/onchainengineering/hmi-wirtual/blob/e96652ebbcdd7554977594286b32015115c3f5b6/helm/coder/values.yaml#L221-L249)
 to schedule the control plane pods on the appropriate node group.
 
 #### Workspace nodes
 
 Coder workspaces can be deployed either as Pods or Deployments in Kubernetes.
 See our
-[example Kubernetes workspace template](https://github.com/coder/coder/tree/main/examples/templates/kubernetes).
+[example Kubernetes workspace template](https://github.com/onchainengineering/hmi-wirtual/tree/main/examples/templates/kubernetes).
 Configure the workspace node group to be auto-scaling, to dynamically allocate
 compute as users start/stop workspaces at the beginning and end of their day.
 Set nodeSelectors, affinities, and tolerations in Coder templates to assign
@@ -252,7 +252,7 @@ and/or by our customers:
 - [cephfs](https://kubernetes.io/docs/concepts/storage/volumes/#cephfs)
 
 Our
-[example Kubernetes workspace template](https://github.com/coder/coder/blob/5b9a65e5c137232351381fc337d9784bc9aeecfc/examples/templates/kubernetes/main.tf#L191-L219)
+[example Kubernetes workspace template](https://github.com/onchainengineering/hmi-wirtual/blob/5b9a65e5c137232351381fc337d9784bc9aeecfc/examples/templates/kubernetes/main.tf#L191-L219)
 provisions a PersistentVolumeClaim block storage device, attached to the
 Deployment.
 
@@ -325,7 +325,7 @@ could affect workspace users experience once the platform is live.
 ### Helm Chart Configuration
 
 1. Reference our
-   [Helm chart values file](https://github.com/coder/coder/blob/main/helm/coder/values.yaml)
+   [Helm chart values file](https://github.com/onchainengineering/hmi-wirtual/blob/main/helm/coder/values.yaml)
    and identify the required values for deployment.
 1. Create a `values.yaml` and add it to your version control system.
 1. Determine the necessary environment variables. Here is the

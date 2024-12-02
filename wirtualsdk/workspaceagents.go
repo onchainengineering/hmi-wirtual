@@ -14,7 +14,7 @@ import (
 	"golang.org/x/xerrors"
 	"nhooyr.io/websocket"
 
-	"github.com/coder/coder/v2/wirtuald/tracing"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/tracing"
 )
 
 type WorkspaceAgentStatus string

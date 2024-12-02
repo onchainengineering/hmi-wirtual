@@ -105,7 +105,7 @@ export const NavigateToStartStage: Story = {
 	},
 };
 
-// Test case for https://github.com/coder/coder/issues/15413
+// Test case for https://github.com/onchainengineering/hmi-wirtual/issues/15413
 export const DuplicatedScriptTiming: Story = {
 	args: {
 		agentScriptTimings: [

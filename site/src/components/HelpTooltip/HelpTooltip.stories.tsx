@@ -18,10 +18,10 @@ const meta: Meta<typeof HelpTooltip> = {
 					A template is a common configuration for your team&apos;s workspaces.
 				</HelpTooltipText>
 				<HelpTooltipLinksGroup>
-					<HelpTooltipLink href="https://github.com/coder/coder/">
+					<HelpTooltipLink href="https://github.com/onchainengineering/hmi-wirtual/">
 						Creating a template
 					</HelpTooltipLink>
-					<HelpTooltipLink href="https://github.com/coder/coder/">
+					<HelpTooltipLink href="https://github.com/onchainengineering/hmi-wirtual/">
 						Updating a template
 					</HelpTooltipLink>
 				</HelpTooltipLinksGroup>

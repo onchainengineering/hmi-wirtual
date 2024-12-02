@@ -11,10 +11,10 @@ import (
 	"golang.org/x/xerrors"
 	protobuf "google.golang.org/protobuf/proto"
 
-	"github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/wirtuald/database/dbtime"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/agent/proto"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbtime"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 func TestLogSender_Mainline(t *testing.T) {

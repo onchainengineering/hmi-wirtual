@@ -6,8 +6,8 @@ import (
 	"runtime/debug"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/wirtuald/httpapi"
-	"github.com/coder/coder/v2/wirtuald/tracing"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/httpapi"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/tracing"
 )
 
 func Recover(log slog.Logger) func(h http.Handler) http.Handler {

@@ -7,10 +7,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/dbmem"
-	"github.com/coder/coder/v2/enterprise/audit"
-	"github.com/coder/coder/v2/enterprise/audit/audittest"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbmem"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/audit"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/audit/audittest"
 )
 
 func TestAuditor(t *testing.T) {

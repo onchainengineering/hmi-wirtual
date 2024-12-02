@@ -8,11 +8,11 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/wirtuald/schedule/cron"
-	"github.com/coder/coder/v2/wirtuald/util/ptr"
-	"github.com/coder/coder/v2/wirtuald/util/tz"
-	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/cli/cliui"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/schedule/cron"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/ptr"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/tz"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 	"github.com/coder/serpent"
 )
 

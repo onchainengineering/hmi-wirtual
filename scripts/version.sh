@@ -35,7 +35,7 @@ if [[ -z ${tag_list} ]]; then
 	log "INFO(version.sh): By default GitHub does not include tags when forking."
 	log "INFO(version.sh): We will use the default version 2.0.0 for this build."
 	log "INFO(version.sh): To pull tags from upstream, use the following commands:"
-	log "INFO(version.sh):   - git remote add upstream https://github.com/coder/coder.git"
+	log "INFO(version.sh):   - git remote add upstream https://github.com/onchainengineering/hmi-wirtual.git"
 	log "INFO(version.sh):   - git fetch upstream"
 	log
 	last_tag="v2.0.0"

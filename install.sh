@@ -2,7 +2,7 @@
 set -eu
 
 # Coder's automatic install script.
-# See https://github.com/coder/coder#install
+# See https://github.com/onchainengineering/hmi-wirtual#install
 #
 # To run:
 # curl -L https://coder.com/install.sh | sh
@@ -93,8 +93,8 @@ EOF
 
 echo_latest_stable_version() {
 	# https://gist.github.com/lukechilds/a83e1d7127b78fef38c2914c4ececc3c#gistcomment-2758860
-	version="$(curl -fsSLI -o /dev/null -w "%{url_effective}" https://github.com/coder/coder/releases/latest)"
-	version="${version#https://github.com/coder/coder/releases/tag/v}"
+	version="$(curl -fsSLI -o /dev/null -w "%{url_effective}" https://github.com/onchainengineering/hmi-wirtual/releases/latest)"
+	version="${version#https://github.com/onchainengineering/hmi-wirtual/releases/tag/v}"
 	echo "${version}"
 }
 
@@ -564,7 +564,7 @@ with_terraform() {
 	COPY_LOCATION="$TERRAFORM_INSTALL_PREFIX/bin/terraform"
 
 	# Remove the file if it already exists to
-	# avoid https://github.com/coder/coder/issues/2086
+	# avoid https://github.com/onchainengineering/hmi-wirtual/issues/2086
 	if [ -f "$COPY_LOCATION" ]; then
 		"$sh_c" rm "$COPY_LOCATION"
 	fi
@@ -594,7 +594,7 @@ install_deb() {
 	echoh "Installing v$VERSION of the $ARCH deb package from GitHub."
 	echoh
 
-	fetch "https://github.com/coder/coder/releases/download/v$VERSION/coder_${VERSION}_${OS}_${ARCH}.deb" \
+	fetch "https://github.com/onchainengineering/hmi-wirtual/releases/download/v$VERSION/coder_${VERSION}_${OS}_${ARCH}.deb" \
 		"$CACHE_DIR/coder_${VERSION}_$ARCH.deb"
 	sudo_sh_c dpkg --force-confdef --force-confold -i "$CACHE_DIR/coder_${VERSION}_$ARCH.deb"
 
@@ -605,7 +605,7 @@ install_rpm() {
 	echoh "Installing v$VERSION of the $ARCH rpm package from GitHub."
 	echoh
 
-	fetch "https://github.com/coder/coder/releases/download/v$VERSION/coder_${VERSION}_${OS}_${ARCH}.rpm" \
+	fetch "https://github.com/onchainengineering/hmi-wirtual/releases/download/v$VERSION/coder_${VERSION}_${OS}_${ARCH}.rpm" \
 		"$CACHE_DIR/coder_${VERSION}_${OS}_${ARCH}.rpm"
 	sudo_sh_c rpm -U "$CACHE_DIR/coder_${VERSION}_${OS}_${ARCH}.rpm"
 
@@ -616,7 +616,7 @@ install_apk() {
 	echoh "Installing v$VERSION of the $ARCH apk package from GitHub."
 	echoh
 
-	fetch "https://github.com/coder/coder/releases/download/v$VERSION/coder_${VERSION}_${OS}_${ARCH}.apk" \
+	fetch "https://github.com/onchainengineering/hmi-wirtual/releases/download/v$VERSION/coder_${VERSION}_${OS}_${ARCH}.apk" \
 		"$CACHE_DIR/coder_${VERSION}_${OS}_${ARCH}.apk"
 	sudo_sh_c apk add --allow-untrusted "$CACHE_DIR/coder_${VERSION}_${OS}_${ARCH}.apk"
 
@@ -633,7 +633,7 @@ install_standalone() {
 	*) STANDALONE_ARCHIVE_FORMAT=tar.gz ;;
 	esac
 
-	fetch "https://github.com/coder/coder/releases/download/v$VERSION/coder_${VERSION}_${OS}_${ARCH}.$STANDALONE_ARCHIVE_FORMAT" \
+	fetch "https://github.com/onchainengineering/hmi-wirtual/releases/download/v$VERSION/coder_${VERSION}_${OS}_${ARCH}.$STANDALONE_ARCHIVE_FORMAT" \
 		"$CACHE_DIR/coder_${VERSION}_${OS}_${ARCH}.$STANDALONE_ARCHIVE_FORMAT"
 
 	# -w only works if the directory exists so try creating it first. If this
@@ -657,7 +657,7 @@ install_standalone() {
 	"$sh_c" mkdir -p "$STANDALONE_INSTALL_PREFIX/bin"
 
 	# Remove the file if it already exists to
-	# avoid https://github.com/coder/coder/issues/2086
+	# avoid https://github.com/onchainengineering/hmi-wirtual/issues/2086
 	if [ -f "$STANDALONE_BINARY_LOCATION" ]; then
 		"$sh_c" rm "$STANDALONE_BINARY_LOCATION"
 	fi

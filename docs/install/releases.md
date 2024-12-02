@@ -1,16 +1,16 @@
 # Releases
 
 Coder releases are cut directly from main in our
-[GitHub](https://github.com/coder/coder) on the first Tuesday of each month.
+[GitHub](https://github.com/onchainengineering/hmi-wirtual) on the first Tuesday of each month.
 
 We recommend enterprise customers test the compatibility of new releases with
 their infrastructure on a staging environment before upgrading a production
 deployment.
 
 We support two release channels:
-[mainline](https://github.com/coder/coder/releases/tag/v2.16.0) for the bleeding
+[mainline](https://github.com/onchainengineering/hmi-wirtual/releases/tag/v2.16.0) for the bleeding
 edge version of Coder and
-[stable](https://github.com/coder/coder/releases/latest) for those with lower
+[stable](https://github.com/onchainengineering/hmi-wirtual/releases/latest) for those with lower
 tolerance for fault. We field our mainline releases publicly for one month
 before promoting them to stable. The version prior to stable receives patches
 only for security issues or CVEs.
@@ -38,7 +38,7 @@ only for security issues or CVEs.
 ## Installing stable
 
 When installing Coder, we generally advise specifying the desired version from
-our GitHub [releases page](https://github.com/coder/coder/releases).
+our GitHub [releases page](https://github.com/onchainengineering/hmi-wirtual/releases).
 
 You can also use our `install.sh` script with the `stable` flag to install the
 latest stable release:
@@ -64,7 +64,7 @@ pages.
 | 2.18.x       | December 03, 2024  | Not Released     |
 
 > **Tip**: We publish a
-> [`preview`](https://github.com/coder/coder/pkgs/container/coder-preview) image
+> [`preview`](https://github.com/onchainengineering/hmi-wirtual/pkgs/container/coder-preview) image
 > `ghcr.io/coder/coder-preview` on each commit to the `main` branch. This can be
 > used to test under-development features and bug fixes that have not yet been
 > released to [`mainline`](#mainline-releases) or [`stable`](#stable-releases).

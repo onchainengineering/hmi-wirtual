@@ -122,7 +122,7 @@ if [[ "$sign_windows" == 1 ]]; then
 fi
 
 ldflags=(
-	-X "'github.com/coder/coder/v2/buildinfo.tag=$version'"
+	-X "'github.com/onchainengineering/hmi-wirtual/buildinfo.tag=$version'"
 )
 # Disable deubgger information if not building a binary for debuggers.
 if [[ "$debug" == 0 ]]; then
@@ -140,7 +140,7 @@ fi
 if [[ "$agpl" == 1 ]]; then
 	# We don't use a tag to control AGPL because we don't want code to depend on
 	# a flag to control AGPL vs. enterprise behavior.
-	ldflags+=(-X "'github.com/coder/coder/v2/buildinfo.agpl=true'")
+	ldflags+=(-X "'github.com/onchainengineering/hmi-wirtual/buildinfo.agpl=true'")
 fi
 build_args+=(-ldflags "${ldflags[*]}")
 

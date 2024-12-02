@@ -18,10 +18,10 @@ import (
 	"cdr.dev/slog"
 	"github.com/coder/terraform-provider-coder/provider"
 
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/tracing"
-	"github.com/coder/coder/v2/provisionersdk"
-	"github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/tracing"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk/proto"
 )
 
 const staleTerraformPluginRetention = 30 * 24 * time.Hour
@@ -119,7 +119,7 @@ func (s *server) Plan(
 
 		s.logger.Debug(ctx, "init failed", slog.Error(err))
 
-		// Special handling for "text file busy" c.f. https://github.com/coder/coder/issues/14726
+		// Special handling for "text file busy" c.f. https://github.com/onchainengineering/hmi-wirtual/issues/14726
 		// We believe this might be due to some race condition that prevents the
 		// terraform-provider-coder process from exiting.  When terraform tries to install the
 		// provider during this init, it copies over the local cache. Normally this isn't an issue,

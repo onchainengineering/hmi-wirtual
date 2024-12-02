@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cryptorand"
+	"github.com/onchainengineering/hmi-wirtual/cryptorand"
 )
 
 func TestInt63(t *testing.T) {

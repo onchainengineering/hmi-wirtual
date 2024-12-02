@@ -17,14 +17,14 @@ import (
 	"go.uber.org/goleak"
 	"golang.org/x/exp/slices"
 
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/dbmem"
-	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
-	"github.com/coder/coder/v2/wirtuald/database/dbtime"
-	"github.com/coder/coder/v2/wirtuald/database/provisionerjobs"
-	"github.com/coder/coder/v2/wirtuald/database/pubsub"
-	"github.com/coder/coder/v2/wirtuald/provisionerdserver"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbmem"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbtestutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbtime"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/provisionerjobs"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/pubsub"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/provisionerdserver"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 func TestMain(m *testing.M) {

@@ -20,13 +20,13 @@ import (
 	"github.com/coder/quartz"
 	"github.com/coder/serpent"
 
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
-	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
-	"github.com/coder/coder/v2/wirtuald/notifications"
-	"github.com/coder/coder/v2/wirtuald/notifications/dispatch"
-	"github.com/coder/coder/v2/wirtuald/notifications/types"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbauthz"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbtestutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications/dispatch"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications/types"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 func TestMetrics(t *testing.T) {

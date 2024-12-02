@@ -20,10 +20,10 @@ import (
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/wirtuald/tracing"
-	"github.com/coder/coder/v2/wirtuald/util/ptr"
-	"github.com/coder/coder/v2/provisionerd/proto"
-	sdkproto "github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/tracing"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/ptr"
+	"github.com/onchainengineering/hmi-wirtual/provisionerd/proto"
+	sdkproto "github.com/onchainengineering/hmi-wirtual/provisionersdk/proto"
 )
 
 const (

@@ -57,7 +57,7 @@ env:
   value: {{ include "provisioner.tags" . }}
 {{- end }}
   # Set the default access URL so a `helm apply` works by default.
-  # See: https://github.com/coder/coder/issues/5024
+  # See: https://github.com/onchainengineering/hmi-wirtual/issues/5024
 {{- $hasAccessURL := false }}
 {{- range .Values.coder.env }}
 {{- if eq .name "CODER_URL" }}

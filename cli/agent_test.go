@@ -15,16 +15,16 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/agent"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald"
-	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/dbfake"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/agent"
+	"github.com/onchainengineering/hmi-wirtual/cli/clitest"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/wirtualdtest"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbfake"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk/workspacesdk"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk/proto"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 func TestWorkspaceAgent(t *testing.T) {

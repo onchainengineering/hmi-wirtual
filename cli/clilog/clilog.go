@@ -15,8 +15,8 @@ import (
 	"cdr.dev/slog/sloggers/sloghuman"
 	"cdr.dev/slog/sloggers/slogjson"
 	"cdr.dev/slog/sloggers/slogstackdriver"
-	"github.com/coder/coder/v2/wirtuald/tracing"
-	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/tracing"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 	"github.com/coder/serpent"
 )
 

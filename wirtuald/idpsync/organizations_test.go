@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cdr.dev/slog/sloggers/slogtest"
-	"github.com/coder/coder/v2/wirtuald/idpsync"
-	"github.com/coder/coder/v2/wirtuald/runtimeconfig"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/idpsync"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/runtimeconfig"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 func TestParseOrganizationClaims(t *testing.T) {

@@ -7,12 +7,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/httpapi"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/scaletest/agentconn"
-	"github.com/coder/coder/v2/scaletest/createworkspaces"
-	"github.com/coder/coder/v2/scaletest/reconnectingpty"
-	"github.com/coder/coder/v2/scaletest/workspacebuild"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/httpapi"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/scaletest/agentconn"
+	"github.com/onchainengineering/hmi-wirtual/scaletest/createworkspaces"
+	"github.com/onchainengineering/hmi-wirtual/scaletest/reconnectingpty"
+	"github.com/onchainengineering/hmi-wirtual/scaletest/workspacebuild"
 )
 
 func Test_UserConfig(t *testing.T) {

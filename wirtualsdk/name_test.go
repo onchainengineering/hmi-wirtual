@@ -7,9 +7,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/cryptorand"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/cryptorand"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 func TestUsernameValid(t *testing.T) {

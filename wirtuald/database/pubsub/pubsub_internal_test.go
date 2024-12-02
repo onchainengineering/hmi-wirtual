@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 func Test_msgQueue_ListenerWithError(t *testing.T) {
@@ -177,7 +177,7 @@ func TestPubSub_DoesntBlockNotify(t *testing.T) {
 }
 
 // TestPubSub_DoesntRaceListenUnlisten tests for regressions of
-// https://github.com/coder/coder/issues/15312
+// https://github.com/onchainengineering/hmi-wirtual/issues/15312
 func TestPubSub_DoesntRaceListenUnlisten(t *testing.T) {
 	t.Parallel()
 	ctx := testutil.Context(t, testutil.WaitShort)
@@ -236,7 +236,7 @@ const (
 )
 
 // fakePqListener is a fake version of pq.Listener.  This test code tests for regressions of
-// https://github.com/coder/coder/issues/11950 where pq.Listener deadlocked because we blocked the
+// https://github.com/onchainengineering/hmi-wirtual/issues/11950 where pq.Listener deadlocked because we blocked the
 // PGPubsub.listen() goroutine while calling other pq.Listener functions.  So, all function calls
 // into the fakePqListener will send 5 notifications before returning to ensure the listen()
 // goroutine is unblocked.

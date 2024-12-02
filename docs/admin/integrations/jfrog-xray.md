@@ -12,7 +12,7 @@ March 17, 2024
 
 This guide will walk you through the process of adding
 [JFrog Xray](https://jfrog.com/xray/) integration to Coder Kubernetes workspaces
-using Coder's [JFrog Xray Integration](https://github.com/coder/coder-xray).
+using Coder's [JFrog Xray Integration](https://github.com/onchainengineering/hmi-wirtual-xray).
 
 ## Prerequisites
 
@@ -52,7 +52,7 @@ using Coder's [JFrog Xray Integration](https://github.com/coder/coder-xray).
 
 ### Updating the Coder template
 
-[`coder-xray`](https://github.com/coder/coder-xray) will scan all kubernetes
+[`coder-xray`](https://github.com/onchainengineering/hmi-wirtual-xray) will scan all kubernetes
 workspaces in the specified namespace. It depends on the `image` available in
 Artifactory and indexed by Xray. To ensure that the images are available in
 Artifactory, update the Coder template to use the Artifactory registry.

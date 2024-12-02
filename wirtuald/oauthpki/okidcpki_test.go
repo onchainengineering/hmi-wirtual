@@ -18,11 +18,11 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtuald"
-	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
-	"github.com/coder/coder/v2/wirtuald/wirtualdtest/oidctest"
-	"github.com/coder/coder/v2/wirtuald/oauthpki"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/wirtualdtest"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/wirtualdtest/oidctest"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/oauthpki"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 //nolint:gosec // these are just for testing

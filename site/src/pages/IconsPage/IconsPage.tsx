@@ -97,7 +97,7 @@ export const IconsPage: FC = () => {
 								</p>
 							}
 						>
-							<Link href="https://github.com/coder/coder/tree/main/site/static/icon">
+							<Link href="https://github.com/onchainengineering/hmi-wirtual/tree/main/site/static/icon">
 								Suggest an icon
 							</Link>
 						</Tooltip>

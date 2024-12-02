@@ -22,14 +22,14 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/cli/clilog"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/wirtuald"
-	"github.com/coder/coder/v2/wirtuald/httpmw"
-	"github.com/coder/coder/v2/wirtuald/workspaceapps/appurl"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/enterprise/wsproxy"
+	"github.com/onchainengineering/hmi-wirtual/cli"
+	"github.com/onchainengineering/hmi-wirtual/cli/clilog"
+	"github.com/onchainengineering/hmi-wirtual/cli/cliui"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/httpmw"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/workspaceapps/appurl"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/wsproxy"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -287,7 +287,7 @@ func (r *RootCmd) proxyServer() *serpent.Command {
 			closers.Add(shutdownConns)
 			// ReadHeaderTimeout is purposefully not enabled. It caused some
 			// issues with websockets over the dev tunnel.
-			// See: https://github.com/coder/coder/pull/3730
+			// See: https://github.com/onchainengineering/hmi-wirtual/pull/3730
 			//nolint:gosec
 			httpServer := &http.Server{
 				// These errors are typically noise like "TLS: EOF". Vault does

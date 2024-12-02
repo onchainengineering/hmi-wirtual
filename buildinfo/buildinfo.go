@@ -117,7 +117,7 @@ func IsBoringCrypto() bool {
 // For development builds, this will link to a commit.
 func ExternalURL() string {
 	readExternalURL.Do(func() {
-		repo := "https://github.com/coder/coder"
+		repo := "https://github.com/onchainengineering/hmi-wirtual"
 		revision, valid := revision()
 		if !valid {
 			externalURL = repo

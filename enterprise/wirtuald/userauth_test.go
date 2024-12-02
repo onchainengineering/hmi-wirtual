@@ -11,21 +11,21 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtuald"
-	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
-	"github.com/coder/coder/v2/wirtuald/wirtualdtest/oidctest"
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
-	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
-	"github.com/coder/coder/v2/wirtuald/database/dbgen"
-	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
-	"github.com/coder/coder/v2/wirtuald/rbac"
-	"github.com/coder/coder/v2/wirtuald/util/slice"
-	"github.com/coder/coder/v2/wirtualsdk"
-	wirtualden "github.com/coder/coder/v2/enterprise/wirtuald"
-	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
-	"github.com/coder/coder/v2/enterprise/wirtuald/license"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/wirtualdtest"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/wirtualdtest/oidctest"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/db2sdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbauthz"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbgen"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbtestutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/slice"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	wirtualden "github.com/onchainengineering/hmi-wirtual/enterprise/wirtuald"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/wirtuald/wirtualdenttest"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/wirtuald/license"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 	"github.com/coder/serpent"
 )
 
@@ -330,7 +330,7 @@ func TestUserOIDC(t *testing.T) {
 		// roles from an updated claim.
 		t.Run("NewUserAndRemoveRolesOnRefresh", func(t *testing.T) {
 			// TODO: Implement new feature to update roles/groups on OIDC
-			// refresh tokens. https://github.com/coder/coder/issues/9312
+			// refresh tokens. https://github.com/onchainengineering/hmi-wirtual/issues/9312
 			t.Skip("Refreshing tokens does not update roles :(")
 			t.Parallel()
 
@@ -514,7 +514,7 @@ func TestUserOIDC(t *testing.T) {
 			t.Parallel()
 
 			// TODO: Implement new feature to update roles/groups on OIDC
-			// refresh tokens. https://github.com/coder/coder/issues/9312
+			// refresh tokens. https://github.com/onchainengineering/hmi-wirtual/issues/9312
 			t.Skip("Refreshing tokens does not update groups :(")
 
 			const groupClaim = "custom-groups"

@@ -8,10 +8,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/dbmock"
-	agpl "github.com/coder/coder/v2/wirtuald/schedule"
-	"github.com/coder/coder/v2/enterprise/wirtuald/schedule"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbmock"
+	agpl "github.com/onchainengineering/hmi-wirtual/wirtuald/schedule"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/wirtuald/schedule"
 )
 
 func TestEnterpriseUserQuietHoursSchedule(t *testing.T) {

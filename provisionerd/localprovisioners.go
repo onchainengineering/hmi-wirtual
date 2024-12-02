@@ -5,9 +5,9 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/provisionerd/proto"
+	"github.com/onchainengineering/hmi-wirtual/provisionerd/proto"
 
-	sdkproto "github.com/coder/coder/v2/provisionersdk/proto"
+	sdkproto "github.com/onchainengineering/hmi-wirtual/provisionersdk/proto"
 )
 
 // LocalProvisioners is a Connector that stores a static set of in-process

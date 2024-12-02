@@ -11,10 +11,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
-	"github.com/coder/coder/v2/enterprise/wirtuald/license"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/wirtuald/wirtualdenttest"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/wirtuald/license"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 func TestPostLicense(t *testing.T) {

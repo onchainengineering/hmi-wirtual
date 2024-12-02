@@ -1300,7 +1300,7 @@ class ApiMethods {
 	};
 
 	// API definition:
-	// https://github.com/coder/coder/blob/db665e7261f3c24a272ccec48233a3e276878239/wirtuald/users.go#L33-L53
+	// https://github.com/onchainengineering/hmi-wirtual/blob/db665e7261f3c24a272ccec48233a3e276878239/wirtuald/users.go#L33-L53
 	hasFirstUser = async (): Promise<boolean> => {
 		try {
 			// If it is success, it is true

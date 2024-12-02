@@ -45,7 +45,7 @@ while read -r run; do
 	run_url="${parts[5]}"
 
 	# Check if this run predates the stats PR, if yes, skip it:
-	# https://github.com/coder/coder/issues/6676
+	# https://github.com/onchainengineering/hmi-wirtual/issues/6676
 	if [[ ${database_id} -le 4595490577 ]]; then
 		echo "Skipping ${database_id} (${display_title}), too old..."
 		continue
@@ -85,7 +85,7 @@ while read -r run; do
 				# name in the log output.
 				#
 				# TODO(mafredri): This would be more reliably fetched from the following URL:
-				# https://github.com/coder/coder/commit/${head_sha}/checks/${job_database_id}/logs/${job_step_number}
+				# https://github.com/onchainengineering/hmi-wirtual/commit/${head_sha}/checks/${job_database_id}/logs/${job_step_number}
 				# but it requires browser-level authentication(?).
 				#
 				# Example output:

@@ -8,13 +8,13 @@ environments. However, some changes to your configuration are necessary.
 
 |                    | Public deployments                                                                                                                                                                                                                                                 | Offline deployments                                                                                                                                                                                                                                       |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Terraform binary   | By default, Coder downloads Terraform binary from [releases.hashicorp.com](https://releases.hashicorp.com)                                                                                                                                                         | Terraform binary must be included in `PATH` for the VM or container image. [Supported versions](https://github.com/coder/coder/blob/main/provisioner/terraform/install.go#L23-L24)                                                                        |
+| Terraform binary   | By default, Coder downloads Terraform binary from [releases.hashicorp.com](https://releases.hashicorp.com)                                                                                                                                                         | Terraform binary must be included in `PATH` for the VM or container image. [Supported versions](https://github.com/onchainengineering/hmi-wirtual/blob/main/provisioner/terraform/install.go#L23-L24)                                                                        |
 | Terraform registry | Coder templates will attempt to download providers from [registry.terraform.io](https://registry.terraform.io) or [custom source addresses](https://developer.hashicorp.com/terraform/language/providers/requirements#source-addresses) specified in each template | [Custom source addresses](https://developer.hashicorp.com/terraform/language/providers/requirements#source-addresses) can be specified in each Coder template, or a custom registry/mirror can be used. More details below                                |
 | STUN               | By default, Coder uses Google's public STUN server for direct workspace connections                                                                                                                                                                                | STUN can be safely [disabled](../reference/ users can still connect via [relayed connections](../admin/networking/index.md#-geo-distribution). Alternatively, you can set a [custom DERP server](../reference/cli/server.md#--derp-server-stun-addresses) |
 | DERP               | By default, Coder's built-in DERP relay can be used, or [Tailscale's public relays](../admin/networking/index.md#relayed-connections).                                                                                                                             | By default, Coder's built-in DERP relay can be used, or [custom relays](../admin/networking/index.md#custom-relays).                                                                                                                                      |
 | PostgreSQL         | If no [PostgreSQL connection URL](../reference/cli/server.md#--postgres-url) is specified, Coder will download Postgres from [repo1.maven.org](https://repo1.maven.org)                                                                                            | An external database is required, you must specify a [PostgreSQL connection URL](../reference/cli/server.md#--postgres-url)                                                                                                                               |
 | Telemetry          | Telemetry is on by default, and [can be disabled](../reference/cli/server.md#--telemetry)                                                                                                                                                                          | Telemetry [can be disabled](../reference/cli/server.md#--telemetry)                                                                                                                                                                                       |
-| Update check       | By default, Coder checks for updates from [GitHub releases](https://github.com/coder/coder/releases)                                                                                                                                                               | Update checks [can be disabled](../reference/cli/server.md#--update-check)                                                                                                                                                                                |
+| Update check       | By default, Coder checks for updates from [GitHub releases](https://github.com/onchainengineering/hmi-wirtual/releases)                                                                                                                                                               | Update checks [can be disabled](../reference/cli/server.md#--update-check)                                                                                                                                                                                |
 
 ## Offline container images
 
@@ -32,7 +32,7 @@ following:
     See below for details.
 
 > Note: Coder includes the latest
-> [supported version](https://github.com/coder/coder/blob/main/provisioner/terraform/install.go#L23-L24)
+> [supported version](https://github.com/onchainengineering/hmi-wirtual/blob/main/provisioner/terraform/install.go#L23-L24)
 > of Terraform in the official Docker images. If you need to bundle a different
 > version of terraform, you can do so by customizing the image.
 
@@ -49,10 +49,10 @@ RUN apk add curl unzip
 RUN mkdir -p /opt/terraform
 
 # Terraform is already included in the official Coder image.
-# See https://github.com/coder/coder/blob/main/scripts/Dockerfile.base#L15
+# See https://github.com/onchainengineering/hmi-wirtual/blob/main/scripts/Dockerfile.base#L15
 # If you need to install a different version of Terraform, you can do so here.
 # The below step is optional if you wish to keep the existing version.
-# See https://github.com/coder/coder/blob/main/provisioner/terraform/install.go#L23-L24
+# See https://github.com/onchainengineering/hmi-wirtual/blob/main/provisioner/terraform/install.go#L23-L24
 # for supported Terraform versions.
 ARG TERRAFORM_VERSION=1.9.8
 RUN apk update && \
@@ -114,7 +114,7 @@ ENV TF_CLI_CONFIG_FILE=/home/coder/.terraformrc
 
 > If you are bundling Terraform providers into your Coder image, be sure the
 > provider version matches any templates or
-> [example templates](https://github.com/coder/coder/tree/main/examples/templates)
+> [example templates](https://github.com/onchainengineering/hmi-wirtual/tree/main/examples/templates)
 > you intend to use.
 
 ```tf
@@ -181,7 +181,7 @@ services:
 ## Run offline via Kubernetes
 
 We publish the Helm chart for download on
-[GitHub Releases](https://github.com/coder/coder/releases/latest). Follow our
+[GitHub Releases](https://github.com/onchainengineering/hmi-wirtual/releases/latest). Follow our
 [Kubernetes](./kubernetes.md) documentation and modify the Helm values to
 specify your custom Coder image.
 
@@ -217,7 +217,7 @@ own server. The docs are exported as static files that you can host on any web
 server, as demonstrated in the example below:
 
 1. Go to the release page. In this case, we want to use the
-   [latest version](https://github.com/coder/coder/releases/latest).
+   [latest version](https://github.com/onchainengineering/hmi-wirtual/releases/latest).
 2. Download the documentation files from the "Assets" section. It is named as
    `coder_docs_<version>.tgz`.
 3. Extract the file and move its contents to your server folder.

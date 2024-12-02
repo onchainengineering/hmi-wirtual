@@ -4,7 +4,7 @@ We scale-test Coder with [a built-in utility](#scale-testing-utility) that can
 be used in your environment for insights into how Coder scales with your
 infrastructure. For scale-testing Kubernetes clusters we recommend to install
 and use the dedicated Coder template,
-[scaletest-runner](https://github.com/coder/coder/tree/main/scaletest/templates/scaletest-runner).
+[scaletest-runner](https://github.com/onchainengineering/hmi-wirtual/tree/main/scaletest/templates/scaletest-runner).
 
 Learn more about [Coder’s architecture](./architecture.md) and our
 [scale-testing methodology](./scale-testing.md).
@@ -38,7 +38,7 @@ environments.
 > guarantees, and may cause interruptions for your users. To avoid potential
 > outages and orphaned resources, we recommend running scale tests on a
 > secondary "staging" environment or a dedicated
-> [Kubernetes playground cluster](https://github.com/coder/coder/tree/main/scaletest/terraform).
+> [Kubernetes playground cluster](https://github.com/onchainengineering/hmi-wirtual/tree/main/scaletest/terraform).
 > Run it against a production environment at your own risk.
 
 ### Create workspaces
@@ -123,7 +123,7 @@ This will delete all workspaces and users with the prefix `scaletest-`.
 ## Scale testing template
 
 Consider using a dedicated
-[scaletest-runner](https://github.com/coder/coder/tree/main/scaletest/templates/scaletest-runner)
+[scaletest-runner](https://github.com/onchainengineering/hmi-wirtual/tree/main/scaletest/templates/scaletest-runner)
 template alongside the CLI utility for testing large-scale Kubernetes clusters.
 
 The template deploys a main workspace with scripts used to orchestrate Coder,
@@ -162,7 +162,7 @@ Scale testing concurrency can be controlled with the following parameters:
 It is recommended to learn how to operate the _scaletest-runner_ before running
 it against the staging cluster (or production at your own risk). Coder provides
 different
-[workspace configurations](https://github.com/coder/coder/tree/main/scaletest/templates)
+[workspace configurations](https://github.com/onchainengineering/hmi-wirtual/tree/main/scaletest/templates)
 that operators can deploy depending on the traffic projections.
 
 There are a few cluster options available:
@@ -190,7 +190,7 @@ Use this template variant to verify limits of the cluster performance.
 
 During scale tests, operators can monitor progress using a Grafana dashboard.
 Coder offers a comprehensive overview
-[dashboard](https://github.com/coder/coder/blob/main/scaletest/scaletest_dashboard.json)
+[dashboard](https://github.com/onchainengineering/hmi-wirtual/blob/main/scaletest/scaletest_dashboard.json)
 that can seamlessly integrate into the internal Grafana deployment.
 
 This dashboard provides insights into various aspects, including:

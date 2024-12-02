@@ -8,22 +8,22 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/cli/clitest"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 func TestVersion(t *testing.T) {
 	t.Parallel()
 
 	expectedText := `Coder v0.0.0-devel
-https://github.com/coder/coder
+https://github.com/onchainengineering/hmi-wirtual
 
 Full build of Coder, supports the server subcommand.
 `
 	expectedJSON := `{
   "version": "v0.0.0-devel",
   "build_time": "0001-01-01T00:00:00Z",
-  "external_url": "https://github.com/coder/coder",
+  "external_url": "https://github.com/onchainengineering/hmi-wirtual",
   "slim": false,
   "agpl": false,
   "boring_crypto": false

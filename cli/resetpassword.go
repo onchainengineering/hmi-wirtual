@@ -11,10 +11,10 @@ import (
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/migrations"
-	"github.com/coder/coder/v2/wirtuald/userpassword"
+	"github.com/onchainengineering/hmi-wirtual/cli/cliui"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/migrations"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/userpassword"
 )
 
 func (*RootCmd) resetPassword() *serpent.Command {

@@ -1,7 +1,7 @@
 apiVersion: v2
 name: libcoder
 description: Coder library chart
-home: https://github.com/coder/coder
+home: https://github.com/onchainengineering/hmi-wirtual
 
 type: library
 version: "0.1.0"

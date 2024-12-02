@@ -15,8 +15,8 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
-	"github.com/coder/coder/v2/wirtuald/database/migrations"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbtestutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/migrations"
 )
 
 // This script validates the migration path between two versions.

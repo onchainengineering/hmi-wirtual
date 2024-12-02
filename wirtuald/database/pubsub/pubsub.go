@@ -15,7 +15,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
 
 	"cdr.dev/slog"
 )
@@ -277,7 +277,7 @@ func (p *PGPubsub) subscribeQueue(event string, newQ *msgQueue) (cancel func(), 
 	if unlistenInProgress != nil {
 		// We have to wait here because we don't want our `Listen` call to happen before the other
 		// goroutine calls `Unlisten`.  That would result in this subscription not getting any
-		// events.  c.f. https://github.com/coder/coder/issues/15312
+		// events.  c.f. https://github.com/onchainengineering/hmi-wirtual/issues/15312
 		p.logger.Debug(context.Background(), "waiting for Unlisten in progress", slog.F("event", event))
 		<-unlistenInProgress
 		p.logger.Debug(context.Background(), "unlistening complete", slog.F("event", event))
@@ -300,7 +300,7 @@ func (p *PGPubsub) subscribeQueue(event string, newQ *msgQueue) (cancel func(), 
 	// The pgListener waits for the response to `LISTEN` on a mainloop that also dispatches
 	// notifies.  We need to avoid holding the mutex while this happens, since holding the mutex
 	// blocks reading notifications and can deadlock the pgListener.
-	// c.f. https://github.com/coder/coder/issues/11950
+	// c.f. https://github.com/onchainengineering/hmi-wirtual/issues/11950
 	err = p.pgListener.Listen(event)
 	if err == nil {
 		p.logger.Debug(context.Background(), "started listening to event channel", slog.F("event", event))

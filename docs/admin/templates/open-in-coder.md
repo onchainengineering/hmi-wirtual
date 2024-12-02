@@ -4,7 +4,7 @@ You can embed an "Open in Coder" button into your git repos or internal wikis to
 let developers quickly launch a new workspace.
 
 <video autoplay playsinline loop>
-  <source src="https://github.com/coder/coder/blob/main/docs/images/templates/open-in-coder.mp4?raw=true" type="video/mp4">
+  <source src="https://github.com/onchainengineering/hmi-wirtual/blob/main/docs/images/templates/open-in-coder.mp4?raw=true" type="video/mp4">
 Your browser does not support the video tag.
 </video>
 
@@ -39,7 +39,7 @@ resource "coder_agent" "dev" {
     # Clone repo from GitHub
     if [ ! -d "coder" ]
     then
-        git clone https://github.com/coder/coder
+        git clone https://github.com/onchainengineering/hmi-wirtual
     fi
 
     EOF
@@ -65,7 +65,7 @@ data "coder_external_auth" "github" {
 data "coder_parameter" "git_repo" {
     name          = "git_repo"
     display_name  = "Git repository"
-    default       = "https://github.com/coder/coder"
+    default       = "https://github.com/onchainengineering/hmi-wirtual"
 }
 
 locals {

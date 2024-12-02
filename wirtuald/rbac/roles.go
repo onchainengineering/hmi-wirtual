@@ -11,8 +11,8 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtuald/rbac/policy"
-	"github.com/coder/coder/v2/wirtuald/util/slice"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac/policy"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/slice"
 )
 
 const (
@@ -215,7 +215,7 @@ func allPermsExcept(excepts ...Objecter) []Permission {
 // it's just easier as a function right now.
 //
 // This map will be replaced by database storage defined by this ticket.
-// https://github.com/coder/coder/issues/1194
+// https://github.com/onchainengineering/hmi-wirtual/issues/1194
 var builtInRoles map[string]func(orgID uuid.UUID) Role
 
 type RoleOptions struct {

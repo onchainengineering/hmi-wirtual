@@ -34,15 +34,15 @@ iterate on their development environments.
 
 ## Example templates
 
-- [Devcontainers (Docker)](https://github.com/coder/coder/tree/main/examples/templates/devcontainer-docker)
+- [Devcontainers (Docker)](https://github.com/onchainengineering/hmi-wirtual/tree/main/examples/templates/devcontainer-docker)
   provisions a development container using Docker.
-- [Devcontainers (Kubernetes)](https://github.com/coder/coder/tree/main/examples/templates/devcontainer-kubernetes)
+- [Devcontainers (Kubernetes)](https://github.com/onchainengineering/hmi-wirtual/tree/main/examples/templates/devcontainer-kubernetes)
   provisions a development container on the Kubernetes.
-- [Google Compute Engine (Devcontainer)](https://github.com/coder/coder/tree/main/examples/templates/gcp-devcontainer)
+- [Google Compute Engine (Devcontainer)](https://github.com/onchainengineering/hmi-wirtual/tree/main/examples/templates/gcp-devcontainer)
   runs a development container inside a single GCP instance. It also mounts the
   Docker socket from the VM inside the container to enable Docker inside the
   workspace.
-- [AWS EC2 (Devcontainer)](https://github.com/coder/coder/tree/main/examples/templates/aws-devcontainer)
+- [AWS EC2 (Devcontainer)](https://github.com/onchainengineering/hmi-wirtual/tree/main/examples/templates/aws-devcontainer)
   runs a development container inside a single EC2 instance. It also mounts the
   Docker socket from the VM inside the container to enable Docker inside the
   workspace.

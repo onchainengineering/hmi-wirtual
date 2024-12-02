@@ -35,7 +35,7 @@ locals {
 data "coder_parameter" "devcontainer_repo" {
   type        = "string"
   name        = "Devcontainer Repository"
-  default     = "https://github.com/coder/coder"
+  default     = "https://github.com/onchainengineering/hmi-wirtual"
   description = "Repo containing a devcontainer.json. This is only cloned once."
   mutable     = false
 }

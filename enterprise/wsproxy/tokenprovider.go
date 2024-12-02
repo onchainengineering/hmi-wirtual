@@ -7,10 +7,10 @@ import (
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/wirtuald/cryptokeys"
-	"github.com/coder/coder/v2/wirtuald/jwtutils"
-	"github.com/coder/coder/v2/wirtuald/workspaceapps"
-	"github.com/coder/coder/v2/enterprise/wsproxy/wsproxysdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/cryptokeys"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/jwtutils"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/workspaceapps"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/wsproxy/wsproxysdk"
 )
 
 var _ workspaceapps.SignedTokenProvider = (*TokenProvider)(nil)

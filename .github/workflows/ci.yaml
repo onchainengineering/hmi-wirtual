@@ -114,7 +114,7 @@ jobs:
         run: |
           echo "${{ toJSON(steps.filter )}}"
 
-  # Disabled due to instability. See: https://github.com/coder/coder/issues/14553
+  # Disabled due to instability. See: https://github.com/onchainengineering/hmi-wirtual/issues/14553
   # Re-enable once the flake hash calculation is stable.
   # update-flake:
   #   needs: changes
@@ -481,7 +481,7 @@ jobs:
       # We run race tests with reduced parallelism because they use more CPU and we were finding
       # instances where tests appear to hang for multiple seconds, resulting in flaky tests when
       # short timeouts are used.
-      # c.f. discussion on https://github.com/coder/coder/pull/15106
+      # c.f. discussion on https://github.com/onchainengineering/hmi-wirtual/pull/15106
       - name: Run Tests
         run: |
           gotestsum --junitfile="gotests.xml" -- -race -parallel 4 -p 4 ./...

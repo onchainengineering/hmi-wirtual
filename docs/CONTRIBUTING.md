@@ -100,7 +100,7 @@ this:
 
 - Run `./scripts/deploy-pr.sh`
 - Manually trigger the
-  [`pr-deploy.yaml`](https://github.com/coder/coder/actions/workflows/pr-deploy.yaml)
+  [`pr-deploy.yaml`](https://github.com/onchainengineering/hmi-wirtual/actions/workflows/pr-deploy.yaml)
   GitHub Action workflow:
 
   <Image src="./images/deploy-pr-manually.png" alt="Deploy PR manually" height="348px" align="center" />
@@ -250,11 +250,11 @@ be applied selectively or to discourage anyone from contributing.
 ## Releases
 
 Coder releases are initiated via
-[`./scripts/release.sh`](https://github.com/coder/coder/blob/main/scripts/release.sh)
+[`./scripts/release.sh`](https://github.com/onchainengineering/hmi-wirtual/blob/main/scripts/release.sh)
 and automated via GitHub Actions. Specifically, the
-[`release.yaml`](https://github.com/coder/coder/blob/main/.github/workflows/release.yaml)
+[`release.yaml`](https://github.com/onchainengineering/hmi-wirtual/blob/main/.github/workflows/release.yaml)
 workflow. They are created based on the current
-[`main`](https://github.com/coder/coder/tree/main) branch.
+[`main`](https://github.com/onchainengineering/hmi-wirtual/tree/main) branch.
 
 The release notes for a release are automatically generated from commit titles
 and metadata from PRs that are merged into `main`.
@@ -262,7 +262,7 @@ and metadata from PRs that are merged into `main`.
 ### Creating a release
 
 The creation of a release is initiated via
-[`./scripts/release.sh`](https://github.com/coder/coder/blob/main/scripts/release.sh).
+[`./scripts/release.sh`](https://github.com/onchainengineering/hmi-wirtual/blob/main/scripts/release.sh).
 This script will show a preview of the release that will be created, and if you
 choose to continue, create and push the tag which will trigger the creation of
 the release via GitHub Actions.
@@ -274,7 +274,7 @@ See `./scripts/release.sh --help` for more information.
 Typically the workflow dispatch is only used to test (dry-run) a release,
 meaning no actual release will take place. The workflow can be dispatched
 manually from
-[Actions: Release](https://github.com/coder/coder/actions/workflows/release.yaml).
+[Actions: Release](https://github.com/onchainengineering/hmi-wirtual/actions/workflows/release.yaml).
 Simply press "Run workflow" and choose dry-run.
 
 If a release has failed after the tag has been created and pushed, it can be
@@ -315,7 +315,7 @@ Breaking changes can be triggered in two ways:
 - Add `!` to the commit message title, e.g.
   `feat(api)!: remove deprecated endpoint /test`
 - Add the
-  [`release/breaking`](https://github.com/coder/coder/issues?q=sort%3Aupdated-desc+label%3Arelease%2Fbreaking)
+  [`release/breaking`](https://github.com/onchainengineering/hmi-wirtual/issues?q=sort%3Aupdated-desc+label%3Arelease%2Fbreaking)
   label to a PR that has, or will be, merged into `main`.
 
 ### Security
@@ -324,13 +324,13 @@ Breaking changes can be triggered in two ways:
 > to security@coder.com.
 
 The
-[`security`](https://github.com/coder/coder/issues?q=sort%3Aupdated-desc+label%3Asecurity)
+[`security`](https://github.com/onchainengineering/hmi-wirtual/issues?q=sort%3Aupdated-desc+label%3Asecurity)
 label can be added to PRs that have, or will be, merged into `main`. Doing so
 will make sure the change stands out in the release notes.
 
 ### Experimental
 
 The
-[`release/experimental`](https://github.com/coder/coder/issues?q=sort%3Aupdated-desc+label%3Arelease%2Fexperimental)
+[`release/experimental`](https://github.com/onchainengineering/hmi-wirtual/issues?q=sort%3Aupdated-desc+label%3Arelease%2Fexperimental)
 label can be used to move the note to the bottom of the release notes under a
 separate title.

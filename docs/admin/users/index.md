@@ -93,7 +93,7 @@ with the user so that they can log into Coder:
 
 ```console
 Download the Coder command line for your operating system:
-https://github.com/coder/coder/releases/latest
+https://github.com/onchainengineering/hmi-wirtual/releases/latest
 
 Run  coder login https://<accessURL>.coder.app  to authenticate.
 
@@ -193,7 +193,7 @@ The following filters are supported:
 - `status` - Indicates the status of the user. It can be either `active`,
   `dormant` or `suspended`.
 - `role` - Represents the role of the user. You can refer to the
-  [TemplateRole documentation](https://pkg.go.dev/github.com/coder/coder/v2/wirtualsdk#TemplateRole)
+  [TemplateRole documentation](https://pkg.go.dev/github.com/onchainengineering/hmi-wirtual/wirtualsdk#TemplateRole)
   for a list of supported user roles.
 - `last_seen_before` and `last_seen_after` - The last time a used has used the
   platform (e.g. logging in, any API requests, connecting to workspaces). Uses

@@ -341,4 +341,4 @@ _Unknown Error_
 deployment health. It may resolve on its own.
 
 **Solution:** This may be a bug.
-[File a GitHub issue](https://github.com/coder/coder/issues/new)!
+[File a GitHub issue](https://github.com/onchainengineering/hmi-wirtual/issues/new)!

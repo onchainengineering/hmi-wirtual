@@ -9,8 +9,8 @@ import (
 	"tailscale.com/tailcfg"
 	"tailscale.com/types/key"
 
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/tailnet/proto"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/tailnet/proto"
 )
 
 func UUIDToByteSlice(u uuid.UUID) []byte {

@@ -20,13 +20,13 @@ base64 -d <<<"${SCRIPTS_ZIP}" >/tmp/scripts.zip
 rm -rf "${SCRIPTS_DIR}" || true
 mkdir -p "${SCRIPTS_DIR}"
 unzip -o /tmp/scripts.zip -d "${SCRIPTS_DIR}"
-# Chmod to work around https://github.com/coder/coder/issues/10034
+# Chmod to work around https://github.com/onchainengineering/hmi-wirtual/issues/10034
 chmod +x "${SCRIPTS_DIR}"/*.sh
 rm /tmp/scripts.zip
 
 echo "Cloning coder/coder repo..."
 if [[ ! -d "${HOME}/coder" ]]; then
-	git clone https://github.com/coder/coder.git "${HOME}/coder"
+	git clone https://github.com/onchainengineering/hmi-wirtual.git "${HOME}/coder"
 fi
 (cd "${HOME}/coder" && git fetch -a && git checkout "${SCALETEST_PARAM_REPO_BRANCH}" && git pull)
 

@@ -8,8 +8,8 @@ import (
 	"github.com/sqlc-dev/pqtype"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/enterprise/audit"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/audit"
 )
 
 type slogBackend struct {

@@ -32,7 +32,7 @@ wirtuald_api_active_users_duration_hour 0
 ### Kubernetes deployment
 
 The Prometheus endpoint can be enabled in the
-[Helm chart's](https://github.com/coder/coder/tree/main/helm) `values.yml` by
+[Helm chart's](https://github.com/onchainengineering/hmi-wirtual/tree/main/helm) `values.yml` by
 setting the environment variable `CODER_PROMETHEUS_ADDRESS` to `0.0.0.0:2112`.
 The environment variable `CODER_PROMETHEUS_ENABLE` will be enabled
 automatically. A Service Endpoint will not be exposed; if you need to expose the

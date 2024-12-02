@@ -9,14 +9,14 @@ import (
 
 	"github.com/go-jose/go-jose/v4/jwt"
 
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/jwtutils"
-	"github.com/coder/coder/v2/wirtuald/workspaceapps"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/jwtutils"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/workspaceapps"
 )
 
 func Test_TokenMatchesRequest(t *testing.T) {

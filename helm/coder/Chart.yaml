@@ -1,7 +1,7 @@
 apiVersion: v2
 name: coder
 description: Remote development environments on your infrastructure
-home: https://github.com/coder/coder
+home: https://github.com/onchainengineering/hmi-wirtual
 
 # version and appVersion are injected at release and will always be shown as
 # 0.1.0 in the repository.
@@ -21,7 +21,7 @@ keywords:
   - coder
   - terraform
 sources:
-  - https://github.com/coder/coder/tree/main/helm/coder
+  - https://github.com/onchainengineering/hmi-wirtual/tree/main/helm/coder
 icon: https://helm.coder.com/coder_logo_black.png
 maintainers:
   - name: Xtressials Corp, Inc.

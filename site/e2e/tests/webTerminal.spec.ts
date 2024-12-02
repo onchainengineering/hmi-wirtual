@@ -53,7 +53,7 @@ test("web terminal", async ({ context, page }) => {
 	await terminal.keyboard.press("Enter");
 
 	// Check if "echo" command was executed
-	// try-catch is used temporarily to find the root cause: https://github.com/coder/coder/actions/runs/6176958762/job/16767089943
+	// try-catch is used temporarily to find the root cause: https://github.com/onchainengineering/hmi-wirtual/actions/runs/6176958762/job/16767089943
 	try {
 		await terminal.waitForSelector(
 			'div.xterm-rows span:text-matches("hello123456")',

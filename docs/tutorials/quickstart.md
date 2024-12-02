@@ -58,7 +58,7 @@ persistent environment from your main device, a tablet, or your phone.
 
    - For standalone binaries, system packages, or other alternate installation
      methods, refer to the
-     [latest release on GitHub](https://github.com/coder/coder/releases/latest).
+     [latest release on GitHub](https://github.com/onchainengineering/hmi-wirtual/releases/latest).
 
 1. Start Coder:
 
@@ -148,7 +148,7 @@ To clone an existing repository:
 1. Select **Clone Repository** and enter the repository URL.
 
    For example, to clone the Coder repo, enter
-   `https://github.com/coder/coder.git`.
+   `https://github.com/onchainengineering/hmi-wirtual.git`.
 
    Learn more about how to find the repository URL in the
    [GitHub documentation](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository).

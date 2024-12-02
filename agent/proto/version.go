@@ -1,7 +1,7 @@
 package proto
 
 import (
-	"github.com/coder/coder/v2/tailnet/proto"
+	"github.com/onchainengineering/hmi-wirtual/tailnet/proto"
 )
 
 // CurrentVersion is the current version of the agent API.  It is tied to the

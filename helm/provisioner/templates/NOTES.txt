@@ -8,5 +8,5 @@ Deprecation notices:
   information, see: https://coder.com/docs/admin/provisioners#authentication
 {{- end }}
 
-Enjoy Coder! Please create an issue at https://github.com/coder/coder if you run
+Enjoy Coder! Please create an issue at https://github.com/onchainengineering/hmi-wirtual if you run
 into any problems! :)

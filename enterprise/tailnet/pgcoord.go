@@ -14,13 +14,13 @@ import (
 	gProto "google.golang.org/protobuf/proto"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
-	"github.com/coder/coder/v2/wirtuald/database/pubsub"
-	"github.com/coder/coder/v2/wirtuald/rbac"
-	"github.com/coder/coder/v2/wirtuald/rbac/policy"
-	agpl "github.com/coder/coder/v2/tailnet"
-	"github.com/coder/coder/v2/tailnet/proto"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbauthz"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/pubsub"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac/policy"
+	agpl "github.com/onchainengineering/hmi-wirtual/tailnet"
+	"github.com/onchainengineering/hmi-wirtual/tailnet/proto"
 	"github.com/coder/quartz"
 )
 
@@ -231,7 +231,7 @@ func (c *pgCoord) Coordinate(
 		// If the coordinator is unhealthy, we don't want to hook this Coordinate call up to the
 		// binder, as that can cause an unnecessary call to DeleteTailnetPeer when the connIO is
 		// closed.  Instead, we just close the response channel and bail out.
-		// c.f. https://github.com/coder/coder/issues/12923
+		// c.f. https://github.com/onchainengineering/hmi-wirtual/issues/12923
 		c.logger.Info(ctx, "closed incoming coordinate call while unhealthy",
 			slog.F("peer_id", id),
 		)

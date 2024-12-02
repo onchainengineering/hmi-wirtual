@@ -20,7 +20,7 @@ import (
 	"golang.org/x/oauth2/jws"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtuald/promoauth"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/promoauth"
 )
 
 // Config uses jwt assertions over client_secret for oauth2 authentication of

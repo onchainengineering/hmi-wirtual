@@ -1,4 +1,4 @@
-module github.com/coder/coder/v2
+module github.com/onchainengineering/hmi-wirtual
 
 go 1.22.8
 
@@ -47,7 +47,7 @@ replace tailscale.com => github.com/coder/tailscale v1.1.1-0.20241003034647-0228
 replace github.com/tailscale/wireguard-go => github.com/coder/wireguard-go v0.0.0-20240522052547-769cdd7f7818
 
 // Switch to our fork that imports fixes from http://github.com/tailscale/ssh.
-// See: https://github.com/coder/coder/issues/3371
+// See: https://github.com/onchainengineering/hmi-wirtual/issues/3371
 //
 // Note that http://github.com/tailscale/ssh has been merged into the Tailscale
 // repo as tailscale.com/tempfork/gliderlabs/ssh, however, we can't replace the
@@ -59,7 +59,7 @@ replace github.com/gliderlabs/ssh => github.com/coder/ssh v0.0.0-20231128192721-
 replace github.com/imulab/go-scim/pkg/v2 => github.com/coder/go-scim/pkg/v2 v2.0.0-20230221055123-1d63c1222136
 
 // Waiting on https://github.com/pkg/sftp/pull/567
-// Fixes https://github.com/coder/coder/issues/6685
+// Fixes https://github.com/onchainengineering/hmi-wirtual/issues/6685
 replace github.com/pkg/sftp => github.com/mafredri/sftp v1.13.6-0.20231212144145-8218e927edb0
 
 // Adds support for a new Listener from a driver.Connector

@@ -445,7 +445,7 @@ jobs:
             https://${{ env.PR_HOSTNAME }}
 
           # Create a user for the github.actor
-          # TODO: update once https://github.com/coder/coder/issues/15466 is resolved
+          # TODO: update once https://github.com/onchainengineering/hmi-wirtual/issues/15466 is resolved
           # coder users create \
           #   --username ${{ github.actor }} \
           #   --login-type github

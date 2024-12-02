@@ -10,7 +10,7 @@ test("Show the new Coder version notification", async () => {
 			return HttpResponse.json({
 				current: false,
 				version: "v0.12.9",
-				url: "https://github.com/coder/coder/releases/tag/v0.12.9",
+				url: "https://github.com/onchainengineering/hmi-wirtual/releases/tag/v0.12.9",
 			});
 		}),
 	);

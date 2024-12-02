@@ -5,8 +5,8 @@ import (
 	"os"
 	_ "time/tzdata"
 
-	"github.com/coder/coder/v2/agent/agentexec"
-	entcli "github.com/coder/coder/v2/enterprise/cli"
+	"github.com/onchainengineering/hmi-wirtual/agent/agentexec"
+	entcli "github.com/onchainengineering/hmi-wirtual/enterprise/cli"
 )
 
 func main() {

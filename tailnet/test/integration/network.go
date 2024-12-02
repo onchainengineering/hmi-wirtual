@@ -17,7 +17,7 @@ import (
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/cryptorand"
+	"github.com/onchainengineering/hmi-wirtual/cryptorand"
 )
 
 const (

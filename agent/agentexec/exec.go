@@ -11,7 +11,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/pty"
+	"github.com/onchainengineering/hmi-wirtual/pty"
 )
 
 const (

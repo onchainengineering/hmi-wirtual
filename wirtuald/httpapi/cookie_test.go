@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/httpapi"
 )
 
 func TestStripCoderCookies(t *testing.T) {

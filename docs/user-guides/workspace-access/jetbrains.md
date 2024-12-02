@@ -26,7 +26,7 @@ manually setting up an SSH connection.
 ### How to use the plugin
 
 > If you experience problems, please
-> [create a GitHub issue](https://github.com/coder/coder/issues) or share in
+> [create a GitHub issue](https://github.com/onchainengineering/hmi-wirtual/issues) or share in
 > [our Discord channel](https://discord.gg/coder).
 
 1. [Install Gateway](https://www.jetbrains.com/help/idea/jetbrains-gateway.html)
@@ -390,5 +390,5 @@ Fleet can connect to a Coder workspace by following these steps.
    ![Fleet Connect to Coder](../../images/fleet/ssh-connect-to-coder.png)
 
 > If you experience problems, please
-> [create a GitHub issue](https://github.com/coder/coder/issues) or share in
+> [create a GitHub issue](https://github.com/onchainengineering/hmi-wirtual/issues) or share in
 > [our Discord channel](https://discord.gg/coder).

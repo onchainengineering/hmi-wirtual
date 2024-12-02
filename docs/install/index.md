@@ -19,7 +19,7 @@ Our install script is the fastest way to install Coder on Linux/macOS:
 curl -L https://coder.com/install.sh | sh
 ```
 
-Refer to [GitHub releases](https://github.com/coder/coder/releases) for
+Refer to [GitHub releases](https://github.com/onchainengineering/hmi-wirtual/releases) for
 alternate installation methods (e.g. standalone binaries, system packages).
 
 ## Windows
@@ -29,7 +29,7 @@ alternate installation methods (e.g. standalone binaries, system packages).
 > [Visual C++ Runtime](https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist#latest-microsoft-visual-c-redistributable-version)
 > is installed.
 
-Use [GitHub releases](https://github.com/coder/coder/releases) to download the
+Use [GitHub releases](https://github.com/onchainengineering/hmi-wirtual/releases) to download the
 Windows installer (`.msi`) or standalone binary (`.exe`).
 
 ![Windows setup wizard](../images/install/windows-installer.png)

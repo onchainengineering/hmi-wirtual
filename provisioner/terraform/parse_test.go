@@ -8,8 +8,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk/proto"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 func TestParse(t *testing.T) {

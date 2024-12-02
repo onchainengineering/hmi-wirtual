@@ -239,7 +239,7 @@ export const MockSupportLinks: TypesGen.LinkConfig[] = [
 	{
 		name: "Third link",
 		target:
-			"https://github.com/coder/coder/issues/new?labels=needs+grooming&body={CODER_BUILD_INFO}",
+			"https://github.com/onchainengineering/hmi-wirtual/issues/new?labels=needs+grooming&body={CODER_BUILD_INFO}",
 		icon: "",
 	},
 ];
@@ -2733,7 +2733,7 @@ export const MockTemplateACLEmpty: TypesGen.TemplateACL = {
 
 export const MockTemplateExample: TypesGen.TemplateExample = {
 	id: "aws-windows",
-	url: "https://github.com/coder/coder/tree/main/examples/templates/aws-windows",
+	url: "https://github.com/onchainengineering/hmi-wirtual/tree/main/examples/templates/aws-windows",
 	name: "Develop in an ECS-hosted container",
 	description: "Get started with Linux development on AWS ECS.",
 	markdown:
@@ -2744,7 +2744,7 @@ export const MockTemplateExample: TypesGen.TemplateExample = {
 
 export const MockTemplateExample2: TypesGen.TemplateExample = {
 	id: "aws-linux",
-	url: "https://github.com/coder/coder/tree/main/examples/templates/aws-linux",
+	url: "https://github.com/onchainengineering/hmi-wirtual/tree/main/examples/templates/aws-linux",
 	name: "Develop in Linux on AWS EC2",
 	description: "Get started with Linux development on AWS EC2.",
 	markdown:

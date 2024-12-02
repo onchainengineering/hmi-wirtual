@@ -33,7 +33,7 @@ labels:
 # List of resources to make available to the offline build context
 resources:
   # Coder binary
-  - url: "https://github.com/coder/coder/releases/download/v0.15.3/coder_0.15.3_linux_amd64.tar.gz"
+  - url: "https://github.com/onchainengineering/hmi-wirtual/releases/download/v0.15.3/coder_0.15.3_linux_amd64.tar.gz"
     filename: "coder.tar.gz"
     validation:
       type: sha256

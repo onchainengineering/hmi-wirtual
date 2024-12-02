@@ -22,16 +22,16 @@ import (
 	"golang.org/x/exp/slices"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtuald/notifications/types"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications/types"
 
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/dbtime"
-	"github.com/coder/coder/v2/wirtuald/rbac"
-	"github.com/coder/coder/v2/wirtuald/rbac/regosql"
-	"github.com/coder/coder/v2/wirtuald/util/slice"
-	"github.com/coder/coder/v2/wirtuald/workspaceapps/appurl"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/provisionersdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbtime"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac/regosql"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/slice"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/workspaceapps/appurl"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk"
 )
 
 var validProxyByHostnameRegex = regexp.MustCompile(`^[a-zA-Z0-9._-]+$`)

@@ -1,7 +1,7 @@
 # Install Coder via Docker
 
 You can install and run Coder using the official Docker images published on
-[GitHub Container Registry](https://github.com/coder/coder/pkgs/container/coder).
+[GitHub Container Registry](https://github.com/onchainengineering/hmi-wirtual/pkgs/container/coder).
 
 ## Requirements
 
@@ -50,14 +50,14 @@ docker run --rm -it \
 ## Install Coder via `docker compose`
 
 Coder's publishes a
-[docker-compose example](https://github.com/coder/coder/blob/main/docker-compose.yaml)
+[docker-compose example](https://github.com/onchainengineering/hmi-wirtual/blob/main/docker-compose.yaml)
 which includes an PostgreSQL container and volume.
 
 1. Make sure you have [Docker Compose](https://docs.docker.com/compose/install/)
    installed.
 
 2. Download the
-   [`docker-compose.yaml`](https://github.com/coder/coder/blob/main/docker-compose.yaml)
+   [`docker-compose.yaml`](https://github.com/onchainengineering/hmi-wirtual/blob/main/docker-compose.yaml)
    file.
 
 3. Update `group_add:` in `docker-compose.yaml` with the `gid` of `docker`

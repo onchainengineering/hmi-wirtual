@@ -12,7 +12,7 @@ linters-settings:
       - 'httpmw\.\w+'
       # We want to enforce all values are specified when inserting or updating
       # a database row. Ref: #9936
-      - 'github.com/coder/coder/v2/wirtuald/database\.[^G][^e][^t]\w+Params'
+      - 'github.com/onchainengineering/hmi-wirtual/wirtuald/database\.[^G][^e][^t]\w+Params'
   gocognit:
     min-complexity: 300
 

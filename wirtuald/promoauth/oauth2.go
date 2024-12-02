@@ -102,7 +102,7 @@ func NewFactory(registry prometheus.Registerer) *Factory {
 				"resource",
 			}),
 			// TODO: deprecated: remove in the future
-			// See: https://github.com/coder/coder/issues/12999
+			// See: https://github.com/onchainengineering/hmi-wirtual/issues/12999
 			// Deprecation reason: gauge metrics should avoid suffix `_total``
 			rateLimitDeprecated: factory.NewGaugeVec(prometheus.GaugeOpts{
 				Namespace: "wirtuald",

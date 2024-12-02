@@ -9,9 +9,9 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/tailnet"
+	"github.com/onchainengineering/hmi-wirtual/agent/proto"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/tailnet"
 )
 
 func ManifestFromProto(manifest *proto.Manifest) (Manifest, error) {

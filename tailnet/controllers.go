@@ -19,8 +19,8 @@ import (
 	"tailscale.com/util/dnsname"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/tailnet/proto"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/tailnet/proto"
 	"github.com/coder/quartz"
 	"github.com/coder/retry"
 )

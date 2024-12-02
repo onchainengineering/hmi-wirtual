@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/coder/coder/v2/cli"
+	"github.com/onchainengineering/hmi-wirtual/cli"
 	"github.com/coder/serpent"
 )
 

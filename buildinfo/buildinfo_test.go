@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/mod/semver"
 
-	"github.com/coder/coder/v2/buildinfo"
+	"github.com/onchainengineering/hmi-wirtual/buildinfo"
 )
 
 func TestBuildInfo(t *testing.T) {
@@ -22,7 +22,7 @@ func TestBuildInfo(t *testing.T) {
 	})
 	t.Run("ExternalURL", func(t *testing.T) {
 		t.Parallel()
-		require.Equal(t, "https://github.com/coder/coder", buildinfo.ExternalURL())
+		require.Equal(t, "https://github.com/onchainengineering/hmi-wirtual", buildinfo.ExternalURL())
 	})
 	// Tests don't include Go build info.
 	t.Run("NoTime", func(t *testing.T) {

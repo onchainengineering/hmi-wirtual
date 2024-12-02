@@ -3,7 +3,7 @@ package health_test
 import (
 	"testing"
 
-	"github.com/coder/coder/v2/wirtuald/healthcheck/health"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/healthcheck/health"
 
 	"github.com/stretchr/testify/assert"
 )

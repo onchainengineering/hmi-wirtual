@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/archive"
+	"github.com/onchainengineering/hmi-wirtual/archive"
 )
 
 // Creates an in-memory tar of the files provided.

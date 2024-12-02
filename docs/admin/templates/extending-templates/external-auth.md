@@ -17,7 +17,7 @@ authenticate. After that, Coder will store and refresh tokens for future
 operations.
 
 <video autoplay playsinline loop>
-  <source src="https://github.com/coder/coder/blob/main/site/static/external-auth.mp4?raw=true" type="video/mp4">
+  <source src="https://github.com/onchainengineering/hmi-wirtual/blob/main/site/static/external-auth.mp4?raw=true" type="video/mp4">
 Your browser does not support the video tag.
 </video>
 
@@ -85,7 +85,7 @@ resource "coder_agent" "dev" {
   }
   startup_script = <<EOF
 if [ ! -d ~/coder ]; then
-    git clone https://github.com/coder/coder
+    git clone https://github.com/onchainengineering/hmi-wirtual
 fi
 EOF
 }

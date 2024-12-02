@@ -23,11 +23,11 @@
 [Quickstart](#quickstart) | [Docs](https://coder.com/docs) | [Why Coder](https://coder.com/why) | [Premium](https://coder.com/pricing#compare-plans)
 
 [![discord](https://img.shields.io/discord/747933592273027093?label=discord)](https://discord.gg/coder)
-[![release](https://img.shields.io/github/v/release/coder/coder)](https://github.com/coder/coder/releases/latest)
-[![godoc](https://pkg.go.dev/badge/github.com/coder/wirtual.svg)](https://pkg.go.dev/github.com/coder/coder)
-[![Go Report Card](https://goreportcard.com/badge/github.com/coder/coder/v2)](https://goreportcard.com/report/github.com/coder/coder/v2)
+[![release](https://img.shields.io/github/v/release/coder/coder)](https://github.com/onchainengineering/hmi-wirtual/releases/latest)
+[![godoc](https://pkg.go.dev/badge/github.com/coder/wirtual.svg)](https://pkg.go.dev/github.com/onchainengineering/hmi-wirtual)
+[![Go Report Card](https://goreportcard.com/badge/github.com/onchainengineering/hmi-wirtual)](https://goreportcard.com/report/github.com/onchainengineering/hmi-wirtual)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9511/badge)](https://www.bestpractices.dev/projects/9511)
-[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/coder/coder/badge)](https://scorecard.dev/viewer/?uri=github.com%2Fcoder%2Fcoder)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/onchainengineering/hmi-wirtual/badge)](https://scorecard.dev/viewer/?uri=github.com%2Fcoder%2Fcoder)
 [![license](https://img.shields.io/github/license/coder/coder)](./LICENSE)
 
 </div>
@@ -61,7 +61,7 @@ coder server
 ## Install
 
 The easiest way to install Coder is to use our
-[install script](https://github.com/coder/coder/blob/main/install.sh) for Linux
+[install script](https://github.com/onchainengineering/hmi-wirtual/blob/main/install.sh) for Linux
 and macOS. For Windows, use the latest `..._installer.exe` file from GitHub
 Releases.
 
@@ -97,7 +97,7 @@ Browse our docs [here](https://coder.com/docs) or visit a specific section below
 
 ## Support
 
-Feel free to [open an issue](https://github.com/coder/coder/issues/new) if you have questions, run into bugs, or have a feature request.
+Feel free to [open an issue](https://github.com/onchainengineering/hmi-wirtual/issues/new) if you have questions, run into bugs, or have a feature request.
 
 [Join our Discord](https://discord.gg/coder) to provide feedback on in-progress features and chat with the community using Coder!
 
@@ -111,7 +111,7 @@ We are always working on new integrations. Please feel free to open an issue and
 - [**JetBrains Gateway Extension**](https://plugins.jetbrains.com/plugin/19620-coder): Open any Coder workspace in JetBrains Gateway with a single click
 - [**Dev Container Builder**](https://github.com/coder/envbuilder): Build development environments using `devcontainer.json` on Docker, Kubernetes, and OpenShift
 - [**Module Registry**](https://registry.coder.com): Extend development environments with common use-cases
-- [**Kubernetes Log Stream**](https://github.com/coder/coder-logstream-kube): Stream Kubernetes Pod events to the Coder startup logs
+- [**Kubernetes Log Stream**](https://github.com/onchainengineering/hmi-wirtual-logstream-kube): Stream Kubernetes Pod events to the Coder startup logs
 - [**Self-Hosted VS Code Extension Marketplace**](https://github.com/coder/code-marketplace): A private extension marketplace that works in restricted or airgapped networks integrating with [code-server](https://github.com/coder/code-server).
 - [**Setup Coder**](https://github.com/marketplace/actions/setup-coder): An action to setup coder CLI in GitHub workflows.
 

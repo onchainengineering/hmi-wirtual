@@ -14,19 +14,19 @@ import (
 	"tailscale.com/derp"
 	"tailscale.com/types/key"
 
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/cryptorand"
-	"github.com/coder/coder/v2/enterprise/audit"
-	"github.com/coder/coder/v2/enterprise/audit/backends"
-	"github.com/coder/coder/v2/enterprise/wirtuald"
-	"github.com/coder/coder/v2/enterprise/wirtuald/dormancy"
-	"github.com/coder/coder/v2/enterprise/dbcrypt"
-	"github.com/coder/coder/v2/enterprise/trialer"
-	"github.com/coder/coder/v2/tailnet"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/cryptorand"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/audit"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/audit/backends"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/wirtuald"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/wirtuald/dormancy"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/dbcrypt"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/trialer"
+	"github.com/onchainengineering/hmi-wirtual/tailnet"
 	"github.com/coder/quartz"
 	"github.com/coder/serpent"
 
-	agplwirtuald "github.com/coder/coder/v2/wirtuald"
+	agplwirtuald "github.com/onchainengineering/hmi-wirtual/wirtuald"
 )
 
 func (r *RootCmd) Server(_ func()) *serpent.Command {

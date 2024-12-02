@@ -7,7 +7,7 @@ import (
 
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/sloghuman"
-	"github.com/coder/coder/v2/vpn"
+	"github.com/onchainengineering/hmi-wirtual/vpn"
 	"github.com/coder/serpent"
 )
 

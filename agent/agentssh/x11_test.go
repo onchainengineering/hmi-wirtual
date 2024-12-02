@@ -21,8 +21,8 @@ import (
 	"github.com/stretchr/testify/require"
 	gossh "golang.org/x/crypto/ssh"
 
-	"github.com/coder/coder/v2/agent/agentssh"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/agent/agentssh"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 func TestServer_X11(t *testing.T) {

@@ -7,8 +7,8 @@ import (
 	"github.com/spf13/afero"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/clistat"
-	"github.com/coder/coder/v2/cli/cliui"
+	"github.com/onchainengineering/hmi-wirtual/cli/clistat"
+	"github.com/onchainengineering/hmi-wirtual/cli/cliui"
 	"github.com/coder/serpent"
 )
 

@@ -2,5 +2,5 @@
 Deprecation notices:
 */}}
 
-Enjoy Coder! Please create an issue at https://github.com/coder/coder if you run
+Enjoy Coder! Please create an issue at https://github.com/onchainengineering/hmi-wirtual if you run
 into any problems! :)

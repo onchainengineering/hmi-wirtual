@@ -66,7 +66,7 @@ export const RuntimeErrorState: FC<RuntimeErrorStateProps> = ({ error }) => {
 							</Link>{" "}
 							or{" "}
 							<Link
-								href={`https://github.com/coder/coder/issues/new?body=${encodeURIComponent(
+								href={`https://github.com/onchainengineering/hmi-wirtual/issues/new?body=${encodeURIComponent(
 									[
 										["**Version**", coderVersion ?? "-- Set version --"].join(
 											"\n",

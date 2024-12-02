@@ -22,9 +22,9 @@ import (
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/tracing"
-	"github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/tracing"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk/proto"
 )
 
 var version170 = version.Must(version.NewVersion("1.7.0"))

@@ -18,11 +18,11 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/wirtuald/workspaceapps/appurl"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/enterprise/wirtuald"
-	"github.com/coder/coder/v2/enterprise/wsproxy"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/workspaceapps/appurl"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/wirtuald"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/wsproxy"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 type ProxyOptions struct {

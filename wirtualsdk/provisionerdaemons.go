@@ -17,10 +17,10 @@ import (
 	"golang.org/x/xerrors"
 	"nhooyr.io/websocket"
 
-	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/wirtualsdk/drpc"
-	"github.com/coder/coder/v2/provisionerd/proto"
-	"github.com/coder/coder/v2/provisionerd/runner"
+	"github.com/onchainengineering/hmi-wirtual/buildinfo"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk/drpc"
+	"github.com/onchainengineering/hmi-wirtual/provisionerd/proto"
+	"github.com/onchainengineering/hmi-wirtual/provisionerd/runner"
 )
 
 type LogSource string

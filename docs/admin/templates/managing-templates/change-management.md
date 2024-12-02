@@ -58,7 +58,7 @@ resource "wirtuald_template" "kubernetes" {
 ```
 
 For an example, see how we push our development image and template
-[with GitHub actions](https://github.com/coder/coder/blob/main/.github/workflows/dogfood.yaml).
+[with GitHub actions](https://github.com/onchainengineering/hmi-wirtual/blob/main/.github/workflows/dogfood.yaml).
 
 ## Coder CLI
 

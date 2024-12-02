@@ -1,7 +1,7 @@
 # Kubernetes event logs
 
 To stream Kubernetes events into your workspace startup logs, you can use
-Coder's [`coder-logstream-kube`](https://github.com/coder/coder-logstream-kube)
+Coder's [`coder-logstream-kube`](https://github.com/onchainengineering/hmi-wirtual-logstream-kube)
 tool. `coder-logstream-kube` provides useful information about the workspace pod
 or deployment, such as:
 
@@ -74,5 +74,5 @@ coder-logstream-kube listens for pod creation events with containers that have
 the CODER_AGENT_TOKEN environment variable set. All pod events are streamed as
 logs to the Coder API using the agent token for authentication. For more
 details, see the
-[coder-logstream-kube](https://github.com/coder/coder-logstream-kube)
+[coder-logstream-kube](https://github.com/onchainengineering/hmi-wirtual-logstream-kube)
 repository.

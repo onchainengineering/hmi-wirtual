@@ -53,5 +53,5 @@ coder {{version}}
 {{- if .Parent }}
 Run `coder --help` for a list of global options.
 {{- else }}
-Report bugs and request features at https://github.com/coder/coder/issues/new
+Report bugs and request features at https://github.com/onchainengineering/hmi-wirtual/issues/new
 {{- end }}

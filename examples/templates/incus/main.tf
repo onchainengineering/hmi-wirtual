@@ -56,7 +56,7 @@ data "coder_parameter" "memory" {
 data "coder_parameter" "git_repo" {
   type        = "string"
   name        = "Git repository"
-  default     = "https://github.com/coder/coder"
+  default     = "https://github.com/onchainengineering/hmi-wirtual"
   description = "Clone a git repo into [base directory]"
   mutable     = true
 }

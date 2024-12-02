@@ -3,7 +3,7 @@
 package cli
 
 import (
-	agplcli "github.com/coder/coder/v2/cli"
+	agplcli "github.com/onchainengineering/hmi-wirtual/cli"
 	"github.com/coder/serpent"
 )
 

@@ -9,9 +9,9 @@ import (
 
 	"github.com/coder/pretty"
 
-	agpl "github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/wirtualsdk"
+	agpl "github.com/onchainengineering/hmi-wirtual/cli"
+	"github.com/onchainengineering/hmi-wirtual/cli/cliui"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 	"github.com/coder/serpent"
 )
 

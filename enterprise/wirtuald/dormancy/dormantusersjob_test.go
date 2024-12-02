@@ -10,10 +10,10 @@ import (
 
 	"cdr.dev/slog/sloggers/slogtest"
 
-	"github.com/coder/coder/v2/wirtuald/audit"
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/dbmem"
-	"github.com/coder/coder/v2/enterprise/wirtuald/dormancy"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/audit"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbmem"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/wirtuald/dormancy"
 	"github.com/coder/quartz"
 )
 

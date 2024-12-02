@@ -22,7 +22,7 @@ The following explains how to do certain things related to dogfooding.
 ### Run Coder in your Coder Workspace
 
 1.  Clone the Git repo
-    `[https://github.com/coder/coder](https://github.com/coder/coder)` and `cd`
+    `[https://github.com/onchainengineering/hmi-wirtual](https://github.com/onchainengineering/hmi-wirtual)` and `cd`
     into it
 2.  Run `sudo apt update` and then `sudo apt install -y netcat`
     - skip this step if using the `coder` template

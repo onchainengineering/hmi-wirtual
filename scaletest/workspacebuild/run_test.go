@@ -14,14 +14,14 @@ import (
 
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/slogtest"
-	"github.com/coder/coder/v2/agent"
-	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
-	"github.com/coder/coder/v2/provisioner/echo"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/scaletest/workspacebuild"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/agent"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/wirtualdtest"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk/agentsdk"
+	"github.com/onchainengineering/hmi-wirtual/provisioner/echo"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk/proto"
+	"github.com/onchainengineering/hmi-wirtual/scaletest/workspacebuild"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 func Test_Runner(t *testing.T) {

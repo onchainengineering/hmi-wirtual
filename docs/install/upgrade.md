@@ -47,7 +47,7 @@ See
 ## Via Windows
 
 Download the latest Windows installer or binary from
-[GitHub releases](https://github.com/coder/coder/releases/latest), or upgrade
+[GitHub releases](https://github.com/onchainengineering/hmi-wirtual/releases/latest), or upgrade
 from Winget.
 
 ```pwsh

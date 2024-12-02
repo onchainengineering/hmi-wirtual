@@ -113,9 +113,9 @@ coder:
 ```
 
 > You can view our
-> [Helm README](https://github.com/coder/coder/blob/main/helm#readme) for
+> [Helm README](https://github.com/onchainengineering/hmi-wirtual/blob/main/helm#readme) for
 > details on the values that are available, or you can view the
-> [values.yaml](https://github.com/coder/coder/blob/main/helm/coder/values.yaml)
+> [values.yaml](https://github.com/onchainengineering/hmi-wirtual/blob/main/helm/coder/values.yaml)
 > file directly.
 
 We support two release channels: mainline and stable - read the
@@ -189,26 +189,26 @@ reference, and not all security requirements may apply to your business.
 
    - Control plane - To pull the control plane image from the appropriate
      registry,
-     [update this Helm chart value](https://github.com/coder/coder/blob/f57ce97b5aadd825ddb9a9a129bb823a3725252b/helm/coder/values.yaml#L43-L50).
+     [update this Helm chart value](https://github.com/onchainengineering/hmi-wirtual/blob/f57ce97b5aadd825ddb9a9a129bb823a3725252b/helm/coder/values.yaml#L43-L50).
    - Workspaces - To pull the workspace image from your registry,
-     [update the Terraform template code here](https://github.com/coder/coder/blob/f57ce97b5aadd825ddb9a9a129bb823a3725252b/examples/templates/kubernetes/main.tf#L271).
+     [update the Terraform template code here](https://github.com/onchainengineering/hmi-wirtual/blob/f57ce97b5aadd825ddb9a9a129bb823a3725252b/examples/templates/kubernetes/main.tf#L271).
      This assumes your cluster nodes are authenticated to pull from the internal
      registry.
 
 2. **All containers must run as non-root user**
 
    - Control plane - Our control plane pod
-     [runs as non-root by default](https://github.com/coder/coder/blob/f57ce97b5aadd825ddb9a9a129bb823a3725252b/helm/coder/values.yaml#L124-L127).
+     [runs as non-root by default](https://github.com/onchainengineering/hmi-wirtual/blob/f57ce97b5aadd825ddb9a9a129bb823a3725252b/helm/coder/values.yaml#L124-L127).
    - Workspaces - Workspace pod UID is
-     [set in the Terraform template here](https://github.com/coder/coder/blob/f57ce97b5aadd825ddb9a9a129bb823a3725252b/examples/templates/kubernetes/main.tf#L274-L276),
+     [set in the Terraform template here](https://github.com/onchainengineering/hmi-wirtual/blob/f57ce97b5aadd825ddb9a9a129bb823a3725252b/examples/templates/kubernetes/main.tf#L274-L276),
      and are not required to run as `root`.
 
 3. **Containers cannot run privileged**
 
    - Coder's control plane does not run as privileged.
-     [We disable](https://github.com/coder/coder/blob/f57ce97b5aadd825ddb9a9a129bb823a3725252b/helm/coder/values.yaml#L141)
+     [We disable](https://github.com/onchainengineering/hmi-wirtual/blob/f57ce97b5aadd825ddb9a9a129bb823a3725252b/helm/coder/values.yaml#L141)
      `allowPrivilegeEscalation`
-     [by default](https://github.com/coder/coder/blob/f57ce97b5aadd825ddb9a9a129bb823a3725252b/helm/coder/values.yaml#L141).
+     [by default](https://github.com/onchainengineering/hmi-wirtual/blob/f57ce97b5aadd825ddb9a9a129bb823a3725252b/helm/coder/values.yaml#L141).
    - Workspace pods do not require any elevated privileges, with the exception
      of our `envbox` workspace template (used for docker-in-docker workspaces,
      not required).
@@ -232,7 +232,7 @@ reference, and not all security requirements may apply to your business.
 
    - Control plane - The control plane Deployment has liveness and readiness
      probes
-     [configured by default here](https://github.com/coder/coder/blob/f57ce97b5aadd825ddb9a9a129bb823a3725252b/helm/coder/templates/_coder.tpl#L98-L107).
+     [configured by default here](https://github.com/onchainengineering/hmi-wirtual/blob/f57ce97b5aadd825ddb9a9a129bb823a3725252b/helm/coder/templates/_coder.tpl#L98-L107).
    - Workspaces - the Kubernetes Deployment template does not configure
      liveness/readiness probes for the workspace, but this can be added to the
      Terraform template, and is supported.

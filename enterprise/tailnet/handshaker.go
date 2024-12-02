@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/wirtuald/database/pubsub"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/pubsub"
 )
 
 type readyForHandshake struct {

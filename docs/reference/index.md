@@ -8,7 +8,7 @@ are several ways to extend/automate Coder:
 - [wirtuald Terraform Provider](https://registry.terraform.io/providers/coder/wirtuald/latest)
 - [CLI](../reference/cli/index.md)
 - [REST API](../reference/api/index.md)
-- [Coder SDK](https://pkg.go.dev/github.com/coder/coder/v2/wirtualsdk)
+- [Coder SDK](https://pkg.go.dev/github.com/onchainengineering/hmi-wirtual/wirtualsdk)
 - [Agent API](../reference/agent-api/index.md)
 
 ## Quickstart
@@ -64,7 +64,7 @@ activity.
 - [Custom workspace logs](../reference/api/agents.md#patch-workspace-agent-logs):
   Expose messages prior to the Coder init script running (e.g. pulling image, VM
   starting, restoring snapshot).
-  [coder-logstream-kube](https://github.com/coder/coder-logstream-kube) uses
+  [coder-logstream-kube](https://github.com/onchainengineering/hmi-wirtual-logstream-kube) uses
   this to show Kubernetes events, such as image pulls or ResourceQuota
   restrictions.
 

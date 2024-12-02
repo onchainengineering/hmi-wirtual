@@ -11,7 +11,7 @@ the data.
 ## What we collect
 
 You can find a full list of the data we collect in our source code
-[here](https://github.com/coder/coder/blob/main/wirtuald/telemetry/telemetry.go).
+[here](https://github.com/onchainengineering/hmi-wirtual/blob/main/wirtuald/telemetry/telemetry.go).
 In particular, look at the struct types such as `Template` or `Workspace`.
 
 As a rule, we **do not collect** the following types of information:

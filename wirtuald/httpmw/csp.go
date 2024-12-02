@@ -52,7 +52,7 @@ const (
 //   - staticAdditions: a map of CSP directives to append to the default CSP headers.
 //     Used to allow specific static additions to the CSP headers. Allows some niche
 //     use cases, such as embedding Coder in an iframe.
-//     Example: https://github.com/coder/coder/issues/15118
+//     Example: https://github.com/onchainengineering/hmi-wirtual/issues/15118
 //
 //nolint:revive
 func CSPHeaders(telemetry bool, websocketHosts func() []string, staticAdditions map[CSPFetchDirective][]string) func(next http.Handler) http.Handler {

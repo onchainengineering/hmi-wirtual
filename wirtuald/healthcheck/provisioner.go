@@ -6,17 +6,17 @@ import (
 
 	"golang.org/x/mod/semver"
 
-	"github.com/coder/coder/v2/apiversion"
-	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
-	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
-	"github.com/coder/coder/v2/wirtuald/database/dbtime"
-	"github.com/coder/coder/v2/wirtuald/healthcheck/health"
-	"github.com/coder/coder/v2/wirtuald/provisionerdserver"
-	"github.com/coder/coder/v2/wirtuald/util/ptr"
-	"github.com/coder/coder/v2/wirtualsdk/healthsdk"
-	"github.com/coder/coder/v2/provisionerd/proto"
+	"github.com/onchainengineering/hmi-wirtual/apiversion"
+	"github.com/onchainengineering/hmi-wirtual/buildinfo"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/db2sdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbauthz"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbtime"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/healthcheck/health"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/provisionerdserver"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/ptr"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk/healthsdk"
+	"github.com/onchainengineering/hmi-wirtual/provisionerd/proto"
 )
 
 type ProvisionerDaemonsReport healthsdk.ProvisionerDaemonsReport

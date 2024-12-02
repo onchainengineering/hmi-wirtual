@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/httpmw"
 )
 
 func TestHSTS(t *testing.T) {

@@ -106,5 +106,5 @@ their organization. Users can be in multiple organizations.
 ## Beta
 
 As of v2.16.0, Organizations is in beta. If you encounter any issues, please
-[file an issue](https://github.com/coder/coder/issues/new) or contact your
+[file an issue](https://github.com/onchainengineering/hmi-wirtual/issues/new) or contact your
 account team.

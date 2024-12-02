@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/coder/coder/v2/wirtuald/tracing"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/tracing"
 )
 
 // t.Parallel affects the result of these tests.

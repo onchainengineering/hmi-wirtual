@@ -24,26 +24,26 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/wirtuald/cryptokeys"
-	"github.com/coder/coder/v2/wirtuald/idpsync"
-	"github.com/coder/coder/v2/wirtuald/jwtutils"
-	"github.com/coder/coder/v2/wirtuald/util/ptr"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/cryptokeys"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/idpsync"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/jwtutils"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/ptr"
 
-	"github.com/coder/coder/v2/wirtuald/apikey"
-	"github.com/coder/coder/v2/wirtuald/audit"
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
-	"github.com/coder/coder/v2/wirtuald/database/dbtime"
-	"github.com/coder/coder/v2/wirtuald/externalauth"
-	"github.com/coder/coder/v2/wirtuald/httpapi"
-	"github.com/coder/coder/v2/wirtuald/httpmw"
-	"github.com/coder/coder/v2/wirtuald/notifications"
-	"github.com/coder/coder/v2/wirtuald/promoauth"
-	"github.com/coder/coder/v2/wirtuald/rbac"
-	"github.com/coder/coder/v2/wirtuald/render"
-	"github.com/coder/coder/v2/wirtuald/userpassword"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/cryptorand"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/apikey"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/audit"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbauthz"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbtime"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/externalauth"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/httpapi"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/httpmw"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/promoauth"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/render"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/userpassword"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/cryptorand"
 )
 
 const (
@@ -945,7 +945,7 @@ func (api *API) userOAuth2Github(rw http.ResponseWriter, r *http.Request) {
 	if user.ID == uuid.Nil {
 		aReq.Action = database.AuditActionRegister
 	}
-	// See: https://github.com/coder/coder/discussions/13340
+	// See: https://github.com/onchainengineering/hmi-wirtual/discussions/13340
 	// In GitHub Enterprise, admins are permitted to have `_`
 	// in their usernames. This is janky, but much better
 	// than changing the username format globally.
@@ -1185,7 +1185,7 @@ func (api *API) userOIDC(rw http.ResponseWriter, r *http.Request) {
 		// Email is an optional claim in OIDC and
 		// instead the email is frequently sent in
 		// "preferred_username". See:
-		// https://github.com/coder/coder/issues/4472
+		// https://github.com/onchainengineering/hmi-wirtual/issues/4472
 		_, err = mail.ParseAddress(username)
 		if err != nil {
 			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{

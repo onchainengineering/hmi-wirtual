@@ -14,7 +14,7 @@ import (
 
 	"github.com/coder/pretty"
 
-	"github.com/coder/coder/v2/cli/cliui"
+	"github.com/onchainengineering/hmi-wirtual/cli/cliui"
 	"github.com/coder/serpent"
 )
 
@@ -40,7 +40,7 @@ func (r *RootCmd) dotfiles() *serpent.Command {
 				cfgDir      = string(cfg)
 				dotfilesDir = filepath.Join(cfgDir, dotfilesRepoDir)
 				// This follows the same pattern outlined by others in the market:
-				// https://github.com/coder/coder/pull/1696#issue-1245742312
+				// https://github.com/onchainengineering/hmi-wirtual/pull/1696#issue-1245742312
 				installScriptSet = []string{
 					"install.sh",
 					"install",

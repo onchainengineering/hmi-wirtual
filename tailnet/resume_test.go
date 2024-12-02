@@ -9,9 +9,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/jwtutils"
-	"github.com/coder/coder/v2/tailnet"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/jwtutils"
+	"github.com/onchainengineering/hmi-wirtual/tailnet"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 	"github.com/coder/quartz"
 )
 

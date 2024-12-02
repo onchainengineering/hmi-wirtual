@@ -18,12 +18,12 @@ import (
 
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/sloghuman"
-	"github.com/coder/coder/v2/wirtuald/healthcheck/derphealth"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
-	"github.com/coder/coder/v2/wirtualsdk/healthsdk"
-	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
-	"github.com/coder/coder/v2/tailnet"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/healthcheck/derphealth"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk/agentsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk/healthsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk/workspacesdk"
+	"github.com/onchainengineering/hmi-wirtual/tailnet"
 )
 
 // Bundle is a set of information discovered about a deployment.

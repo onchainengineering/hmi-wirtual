@@ -7,7 +7,7 @@ import (
 
 	"github.com/coder/serpent"
 
-	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 func (r *RootCmd) notifications() *serpent.Command {

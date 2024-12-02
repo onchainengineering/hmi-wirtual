@@ -7,13 +7,13 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/entitlements"
-	"github.com/coder/coder/v2/wirtuald/idpsync"
-	"github.com/coder/coder/v2/wirtuald/rbac"
-	"github.com/coder/coder/v2/wirtuald/runtimeconfig"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/enterprise/wirtuald/enidpsync"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/entitlements"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/idpsync"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/runtimeconfig"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/wirtuald/enidpsync"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 func TestEnterpriseParseRoleClaims(t *testing.T) {

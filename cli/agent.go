@@ -24,14 +24,14 @@ import (
 	"cdr.dev/slog/sloggers/sloghuman"
 	"cdr.dev/slog/sloggers/slogjson"
 	"cdr.dev/slog/sloggers/slogstackdriver"
-	"github.com/coder/coder/v2/agent"
-	"github.com/coder/coder/v2/agent/agentexec"
-	"github.com/coder/coder/v2/agent/agentssh"
-	"github.com/coder/coder/v2/agent/reaper"
-	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/cli/clilog"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
+	"github.com/onchainengineering/hmi-wirtual/agent"
+	"github.com/onchainengineering/hmi-wirtual/agent/agentexec"
+	"github.com/onchainengineering/hmi-wirtual/agent/agentssh"
+	"github.com/onchainengineering/hmi-wirtual/agent/reaper"
+	"github.com/onchainengineering/hmi-wirtual/buildinfo"
+	"github.com/onchainengineering/hmi-wirtual/cli/clilog"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk/agentsdk"
 	"github.com/coder/serpent"
 )
 
@@ -465,7 +465,7 @@ func ServeHandler(ctx context.Context, logger slog.Logger, handler http.Handler,
 
 	// ReadHeaderTimeout is purposefully not enabled. It caused some issues with
 	// websockets over the dev tunnel.
-	// See: https://github.com/coder/coder/pull/3730
+	// See: https://github.com/onchainengineering/hmi-wirtual/pull/3730
 	//nolint:gosec
 	srv := &http.Server{
 		Addr:    addr,

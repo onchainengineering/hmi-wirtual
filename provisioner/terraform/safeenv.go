@@ -7,7 +7,7 @@ import (
 
 // We must clean CODER_ environment variables to avoid accidentally passing in
 // secrets like the Postgres connection string. See
-// https://github.com/coder/coder/issues/4635.
+// https://github.com/onchainengineering/hmi-wirtual/issues/4635.
 //
 // safeEnviron() is provided as an os.Environ() alternative that strips CODER_
 // variables. As an additional precaution, we check a canary variable before

@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"runtime"
 
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 // This mapping creates a relationship between an Auditable Resource
@@ -224,7 +224,7 @@ var auditableResourcesTypes = map[any]map[string]Action{
 		"notifier_paused": ActionTrack,
 	},
 	// TODO: track an ID here when the below ticket is completed:
-	// https://github.com/coder/coder/pull/6012
+	// https://github.com/onchainengineering/hmi-wirtual/pull/6012
 	&database.License{}: {
 		"id":          ActionIgnore,
 		"uploaded_at": ActionTrack,

@@ -26,22 +26,22 @@ import (
 
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/slogtest"
-	"github.com/coder/coder/v2/wirtuald"
-	"github.com/coder/coder/v2/wirtuald/audit"
-	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
-	"github.com/coder/coder/v2/wirtuald/wirtualdtest/oidctest"
-	"github.com/coder/coder/v2/wirtuald/cryptokeys"
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
-	"github.com/coder/coder/v2/wirtuald/database/dbgen"
-	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
-	"github.com/coder/coder/v2/wirtuald/jwtutils"
-	"github.com/coder/coder/v2/wirtuald/notifications"
-	"github.com/coder/coder/v2/wirtuald/notifications/notificationstest"
-	"github.com/coder/coder/v2/wirtuald/promoauth"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/cryptorand"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/audit"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/wirtualdtest"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/wirtualdtest/oidctest"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/cryptokeys"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbauthz"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbgen"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbtestutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/jwtutils"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications/notificationstest"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/promoauth"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/cryptorand"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 // This test specifically tests logging in with OIDC when an expired
@@ -763,8 +763,8 @@ func TestUserOAuth2Github(t *testing.T) {
 
 	// The bug only is exercised when a deleted user with the same linked_id exists.
 	// Still related open issues:
-	// - https://github.com/coder/coder/issues/12116
-	// - https://github.com/coder/coder/issues/12115
+	// - https://github.com/onchainengineering/hmi-wirtual/issues/12116
+	// - https://github.com/onchainengineering/hmi-wirtual/issues/12115
 	t.Run("ChangedEmail", func(t *testing.T) {
 		t.Parallel()
 
@@ -1104,7 +1104,7 @@ func TestUserOIDC(t *testing.T) {
 			StatusCode:   http.StatusOK,
 		},
 		{
-			// See: https://github.com/coder/coder/issues/4472
+			// See: https://github.com/onchainengineering/hmi-wirtual/issues/4472
 			Name: "UsernameIsEmail",
 			IDTokenClaims: jwt.MapClaims{
 				"preferred_username": "kyle@kwc.io",

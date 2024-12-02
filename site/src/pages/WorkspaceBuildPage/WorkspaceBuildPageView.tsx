@@ -216,7 +216,7 @@ const ScrollArea: FC<HTMLProps<HTMLDivElement>> = (props) => {
 	// to scroll, the parent container must have a height set. Achieving this may
 	// require significant refactoring of the layout components where we currently
 	// use height and min-height set to 100%.
-	// Issue: https://github.com/coder/coder/issues/9687
+	// Issue: https://github.com/onchainengineering/hmi-wirtual/issues/9687
 	// Reference: https://stackoverflow.com/questions/43381836/height100-works-in-chrome-but-not-in-safari
 	const contentRef = useRef<HTMLDivElement>(null);
 	const [height, setHeight] = useState<CSSProperties["height"]>("100%");

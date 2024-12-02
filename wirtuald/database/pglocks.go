@@ -10,7 +10,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"github.com/coder/coder/v2/wirtuald/util/slice"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/slice"
 )
 
 // PGLock docs see: https://www.postgresql.org/docs/current/view-pg-locks.html#VIEW-PG-LOCKS

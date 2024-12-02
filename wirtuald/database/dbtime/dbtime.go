@@ -12,7 +12,7 @@ func Now() time.Time {
 // FIXME(dannyk): refactor all calls to Time() to expect the input time to be modified to UTC; there are currently a
 //
 //	few calls whose behavior would change subtly.
-//	See https://github.com/coder/coder/pull/14274#discussion_r1718427461
+//	See https://github.com/onchainengineering/hmi-wirtual/pull/14274#discussion_r1718427461
 func Time(t time.Time) time.Time {
 	return t.Round(time.Microsecond)
 }

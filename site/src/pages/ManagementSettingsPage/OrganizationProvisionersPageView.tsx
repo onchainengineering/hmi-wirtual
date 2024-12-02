@@ -129,7 +129,7 @@ const ViewContent: FC<ViewContentProps> = ({ buildInfo, provisioners }) => {
 // not currently the case. In the meantime, these are taken from verbatim from
 // the corresponding wirtualsdk declarations. The names remain unchanged to keep
 // usage of these special values "grep-able".
-// https://github.com/coder/coder/blob/7c77a3cc832fb35d9da4ca27df163c740f786137/wirtualsdk/provisionerdaemons.go#L291-L295
+// https://github.com/onchainengineering/hmi-wirtual/blob/7c77a3cc832fb35d9da4ca27df163c740f786137/wirtualsdk/provisionerdaemons.go#L291-L295
 const ProvisionerKeyIDBuiltIn = "00000000-0000-0000-0000-000000000001";
 const ProvisionerKeyIDUserAuth = "00000000-0000-0000-0000-000000000002";
 const ProvisionerKeyIDPSK = "00000000-0000-0000-0000-000000000003";

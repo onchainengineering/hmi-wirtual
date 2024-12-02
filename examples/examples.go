@@ -16,7 +16,7 @@ import (
 	"golang.org/x/sync/singleflight"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 var (
@@ -40,7 +40,7 @@ var (
 	//go:embed templates/scratch
 	files embed.FS
 
-	exampleBasePath = "https://github.com/coder/coder/tree/main/examples/templates/"
+	exampleBasePath = "https://github.com/onchainengineering/hmi-wirtual/tree/main/examples/templates/"
 	examplesJSON    = "examples.gen.json"
 	parsedExamples  []wirtualsdk.TemplateExample
 	parseExamples   sync.Once

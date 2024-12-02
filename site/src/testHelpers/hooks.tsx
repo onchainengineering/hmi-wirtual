@@ -65,7 +65,7 @@ export type RenderHookWithAuthConfig<TProps> = Readonly<{
  *
  * Unfortunately, React Router does not make it easy to access the router after
  * it's been set up, which can lead to some chicken-or-the-egg situations
- * @see {@link https://github.com/coder/coder/pull/10362#discussion_r1380852725}
+ * @see {@link https://github.com/onchainengineering/hmi-wirtual/pull/10362#discussion_r1380852725}
  */
 export async function renderHookWithAuth<Result, Props>(
 	render: (initialProps: Props) => Result,

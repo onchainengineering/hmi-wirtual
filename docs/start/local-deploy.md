@@ -2,7 +2,7 @@
 
 For day-zero Coder users, we recommend following this guide to set up a local
 Coder deployment from our
-[open source repository](https://github.com/coder/coder).
+[open source repository](https://github.com/onchainengineering/hmi-wirtual).
 
 We'll use [Docker](https://docs.docker.com/engine) to manage the compute for a
 slim deployment to experiment with [workspaces](../user-guides/index.md) and

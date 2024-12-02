@@ -157,7 +157,7 @@ developers or stored in workspaces.
 
 If you do not want to use the official modules, you can check example template
 that uses Docker as the underlying compute
-[here](https://github.com/coder/coder/tree/main/examples/jfrog/docker). The same
+[here](https://github.com/onchainengineering/hmi-wirtual/tree/main/examples/jfrog/docker). The same
 concepts apply to all compute types.
 
 ## Offline Deployments
@@ -170,6 +170,6 @@ with Artifactory.
 ## More reading
 
 - See the full example template
-  [here](https://github.com/coder/coder/tree/main/examples/jfrog/docker).
+  [here](https://github.com/onchainengineering/hmi-wirtual/tree/main/examples/jfrog/docker).
 - To serve extensions from your own VS Code Marketplace, check out
   [code-marketplace](https://github.com/coder/code-marketplace#artifactory-storage).

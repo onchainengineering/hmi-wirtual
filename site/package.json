@@ -1,7 +1,7 @@
 {
 	"name": "coder-v2",
 	"description": "Coder V2 (Workspaces V2)",
-	"repository": "https://github.com/coder/coder",
+	"repository": "https://github.com/onchainengineering/hmi-wirtual",
 	"private": true,
 	"license": "AGPL-3.0",
 	"scripts": {

@@ -17,12 +17,12 @@ import (
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/wirtuald/agentmetrics"
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
-	"github.com/coder/coder/v2/wirtuald/database/dbtime"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/tailnet"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/agentmetrics"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbauthz"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbtime"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/tailnet"
 	"github.com/coder/quartz"
 )
 
@@ -134,7 +134,7 @@ func Workspaces(ctx context.Context, logger slog.Logger, registerer prometheus.R
 	}
 
 	// TODO: deprecated: remove in the future
-	// See: https://github.com/coder/coder/issues/12999
+	// See: https://github.com/onchainengineering/hmi-wirtual/issues/12999
 	// Deprecation reason: gauge metrics should avoid suffix `_total``
 	workspaceLatestBuildTotalsDeprecated := prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Namespace: "wirtuald",

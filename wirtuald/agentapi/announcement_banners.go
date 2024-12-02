@@ -6,9 +6,9 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/wirtuald/appearance"
-	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
+	"github.com/onchainengineering/hmi-wirtual/agent/proto"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/appearance"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk/agentsdk"
 )
 
 type AnnouncementBannerAPI struct {

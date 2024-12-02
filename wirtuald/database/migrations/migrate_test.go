@@ -22,9 +22,9 @@ import (
 	"golang.org/x/exp/slices"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
-	"github.com/coder/coder/v2/wirtuald/database/migrations"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbtestutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/migrations"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 func TestMain(m *testing.M) {
@@ -285,7 +285,7 @@ func TestMigrateUpWithFixtures(t *testing.T) {
 		if len(emptyTables) > 0 {
 			t.Logf("The following tables have zero rows, consider adding fixtures for them or create a full database dump:")
 			t.Errorf("tables have zero rows: %v", emptyTables)
-			t.Logf("See https://github.com/coder/coder/blob/main/docs/CONTRIBUTING.md#database-fixtures-for-testing-migrations for more information")
+			t.Logf("See https://github.com/onchainengineering/hmi-wirtual/blob/main/docs/CONTRIBUTING.md#database-fixtures-for-testing-migrations for more information")
 		}
 	})
 

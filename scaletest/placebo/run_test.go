@@ -9,12 +9,12 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/httpapi"
-	"github.com/coder/coder/v2/scaletest/placebo"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/httpapi"
+	"github.com/onchainengineering/hmi-wirtual/scaletest/placebo"
 )
 
 func Test_Runner(t *testing.T) {
-	t.Skip("This test is flakey, see https://github.com/coder/coder/actions/runs/3463709674/jobs/5784335013#step:9:215")
+	t.Skip("This test is flakey, see https://github.com/onchainengineering/hmi-wirtual/actions/runs/3463709674/jobs/5784335013#step:9:215")
 	t.Parallel()
 
 	t.Run("NoSleep", func(t *testing.T) {

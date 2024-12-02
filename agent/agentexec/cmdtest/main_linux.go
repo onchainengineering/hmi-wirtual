@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/coder/coder/v2/agent/agentexec"
+	"github.com/onchainengineering/hmi-wirtual/agent/agentexec"
 )
 
 func main() {

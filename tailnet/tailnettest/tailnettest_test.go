@@ -5,7 +5,7 @@ import (
 
 	"go.uber.org/goleak"
 
-	"github.com/coder/coder/v2/tailnet/tailnettest"
+	"github.com/onchainengineering/hmi-wirtual/tailnet/tailnettest"
 )
 
 func TestMain(m *testing.M) {

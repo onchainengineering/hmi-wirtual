@@ -285,9 +285,9 @@ export const DescriptionWithLinks: Story = {
 		parameter: createTemplateVersionParameter({
 			name: "Coder Repository Directory",
 			description:
-				"The directory specified will be created and [coder/coder](https://github.com/coder/coder) will be automatically cloned into it 🪄.",
+				"The directory specified will be created and [coder/coder](https://github.com/onchainengineering/hmi-wirtual) will be automatically cloned into it 🪄.",
 			description_plaintext:
-				"The directory specified will be created and coder/coder (https://github.com/coder/coder) will be automatically cloned into it 🪄.",
+				"The directory specified will be created and coder/coder (https://github.com/onchainengineering/hmi-wirtual) will be automatically cloned into it 🪄.",
 			type: "string",
 			mutable: true,
 			default_value: "~/coder",

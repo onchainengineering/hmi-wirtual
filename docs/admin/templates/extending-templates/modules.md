@@ -112,9 +112,9 @@ Based on the instructions
 #### Example template
 
 We have an example template
-[here](https://github.com/coder/coder/blob/main/examples/jfrog/remote/main.tf)
+[here](https://github.com/onchainengineering/hmi-wirtual/blob/main/examples/jfrog/remote/main.tf)
 that uses our
-[JFrog Docker](https://github.com/coder/coder/blob/main/examples/jfrog/docker/main.tf)
+[JFrog Docker](https://github.com/onchainengineering/hmi-wirtual/blob/main/examples/jfrog/docker/main.tf)
 template as the underlying module.
 
 ### Private git repository

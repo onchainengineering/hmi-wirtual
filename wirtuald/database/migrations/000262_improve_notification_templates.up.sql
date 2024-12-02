@@ -1,4 +1,4 @@
--- https://github.com/coder/coder/issues/14893
+-- https://github.com/onchainengineering/hmi-wirtual/issues/14893
 
 -- UserAccountSuspended
 UPDATE notification_templates

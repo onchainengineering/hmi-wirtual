@@ -26,12 +26,12 @@ import (
 	"storj.io/drpc/drpcconn"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/provisioner/echo"
-	agpl "github.com/coder/coder/v2/provisionerd"
-	"github.com/coder/coder/v2/provisionerd/proto"
-	"github.com/coder/coder/v2/provisionersdk"
-	sdkproto "github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/provisioner/echo"
+	agpl "github.com/onchainengineering/hmi-wirtual/provisionerd"
+	"github.com/onchainengineering/hmi-wirtual/provisionerd/proto"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk"
+	sdkproto "github.com/onchainengineering/hmi-wirtual/provisionersdk/proto"
 )
 
 // Executor is responsible for executing the remote provisioners.

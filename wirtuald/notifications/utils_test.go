@@ -12,12 +12,12 @@ import (
 
 	"github.com/coder/serpent"
 
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/dbgen"
-	"github.com/coder/coder/v2/wirtuald/notifications"
-	"github.com/coder/coder/v2/wirtuald/notifications/dispatch"
-	"github.com/coder/coder/v2/wirtuald/notifications/types"
-	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbgen"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications/dispatch"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications/types"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 func defaultNotificationsConfig(method database.NotificationMethod) wirtualsdk.NotificationsConfig {
