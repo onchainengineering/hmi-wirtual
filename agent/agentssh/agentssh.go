@@ -112,7 +112,7 @@ type Server struct {
 
 func NewServer(ctx context.Context, logger slog.Logger, prometheusRegistry *prometheus.Registry, fs afero.Fs, config *Config) (*Server, error) {
 	// Clients' should ignore the host key when connecting.
-	// The agent needs to authenticate with coderd to SSH,
+	// The agent needs to authenticate with wirtuald to SSH,
 	// so SSH authentication doesn't improve security.
 	randomHostKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {

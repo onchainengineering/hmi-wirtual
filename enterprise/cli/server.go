@@ -26,7 +26,7 @@ import (
 	"github.com/coder/quartz"
 	"github.com/coder/serpent"
 
-	agplcoderd "github.com/coder/coder/v2/coderd"
+	agplcoderd "github.com/coder/coder/v2/wirtuald"
 )
 
 func (r *RootCmd) Server(_ func()) *serpent.Command {

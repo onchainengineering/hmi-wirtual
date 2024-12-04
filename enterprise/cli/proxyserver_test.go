@@ -68,7 +68,7 @@ func TestWorkspaceProxy_Server_PrometheusEnabled(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	// Start fake coderd
+	// Start fake wirtuald
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/api/v2/workspaceproxies/me/register" {
 			// Give fake app_security_key (96 bytes)

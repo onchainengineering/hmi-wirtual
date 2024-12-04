@@ -10,8 +10,8 @@ import (
 
 	"github.com/coder/coder/v2/coderd/database"
 	"github.com/coder/coder/v2/coderd/database/dbmock"
-	agpl "github.com/coder/coder/v2/coderd/schedule"
 	"github.com/coder/coder/v2/enterprise/coderd/schedule"
+	agpl "github.com/coder/coder/v2/wirtuald/schedule"
 )
 
 func TestEnterpriseUserQuietHoursSchedule(t *testing.T) {

@@ -15,7 +15,6 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog"
-	agpl "github.com/coder/coder/v2/coderd"
 	"github.com/coder/coder/v2/coderd/audit"
 	"github.com/coder/coder/v2/coderd/database"
 	"github.com/coder/coder/v2/coderd/database/db2sdk"
@@ -32,6 +31,7 @@ import (
 	"github.com/coder/coder/v2/enterprise/coderd/proxyhealth"
 	"github.com/coder/coder/v2/enterprise/replicasync"
 	"github.com/coder/coder/v2/enterprise/wsproxy/wsproxysdk"
+	agpl "github.com/coder/coder/v2/wirtuald"
 )
 
 // whitelistedCryptoKeyFeatures is a list of crypto key features that are

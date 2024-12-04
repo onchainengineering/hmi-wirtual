@@ -133,9 +133,9 @@ Database migrations are managed with
 To add new migrations, use the following command:
 
 ```shell
-./coderd/database/migrations/create_fixture.sh my name
-/home/coder/src/coder/coderd/database/migrations/000070_my_name.up.sql
-/home/coder/src/coder/coderd/database/migrations/000070_my_name.down.sql
+./wirtuald/database/migrations/create_fixture.sh my name
+/home/coder/src/coder/wirtuald/database/migrations/000070_my_name.up.sql
+/home/coder/src/coder/wirtuald/database/migrations/000070_my_name.down.sql
 ```
 
 Run "make gen" to generate models.
@@ -150,9 +150,9 @@ There are two types of fixtures that are used to test that migrations don't
 break existing Coder deployments:
 
 - Partial fixtures
-  [`migrations/testdata/fixtures`](../coderd/database/migrations/testdata/fixtures)
+  [`migrations/testdata/fixtures`](../wirtuald/database/migrations/testdata/fixtures)
 - Full database dumps
-  [`migrations/testdata/full_dumps`](../coderd/database/migrations/testdata/full_dumps)
+  [`migrations/testdata/full_dumps`](../wirtuald/database/migrations/testdata/full_dumps)
 
 Both types behave like database migrations (they also
 [`migrate`](https://github.com/golang-migrate/migrate)). Their behavior mirrors
@@ -170,12 +170,12 @@ migration of multiple features or complex configurations.
 To add a new partial fixture, run the following command:
 
 ```shell
-./coderd/database/migrations/create_fixture.sh my fixture
-/home/coder/src/coder/coderd/database/migrations/testdata/fixtures/000070_my_fixture.up.sql
+./wirtuald/database/migrations/create_fixture.sh my fixture
+/home/coder/src/coder/wirtuald/database/migrations/testdata/fixtures/000070_my_fixture.up.sql
 ```
 
 Then add some queries to insert data and commit the file to the repo. See
-[`000024_example.up.sql`](../coderd/database/migrations/testdata/fixtures/000024_example.up.sql)
+[`000024_example.up.sql`](../wirtuald/database/migrations/testdata/fixtures/000024_example.up.sql)
 for an example.
 
 To create a full dump, run a fully fledged Coder deployment and use it to
@@ -183,7 +183,7 @@ generate data in the database. Then shut down the deployment and take a snapshot
 of the database.
 
 ```shell
-mkdir -p coderd/database/migrations/testdata/full_dumps/v0.12.2 && cd $_
+mkdir -p wirtuald/database/migrations/testdata/full_dumps/v0.12.2 && cd $_
 pg_dump "postgres://coder@localhost:..." -a --inserts >000069_dump_v0.12.2.up.sql
 ```
 
@@ -194,7 +194,7 @@ To find out what the latest migration for a version of Coder is, use the
 following command:
 
 ```shell
-git ls-files v0.12.2 -- coderd/database/migrations/*.up.sql
+git ls-files v0.12.2 -- wirtuald/database/migrations/*.up.sql
 ```
 
 This helps in naming the dump (e.g. `000069` above).

@@ -22,9 +22,9 @@ import (
 	"github.com/coder/coder/v2/coderd/rbac"
 	"github.com/coder/coder/v2/coderd/util/slice"
 	"github.com/coder/coder/v2/codersdk"
-	coderden "github.com/coder/coder/v2/enterprise/coderd"
 	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
 	"github.com/coder/coder/v2/enterprise/coderd/license"
+	coderden "github.com/coder/coder/v2/enterprise/wirtuald"
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/serpent"
 )

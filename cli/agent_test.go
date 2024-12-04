@@ -235,7 +235,7 @@ func TestWorkspaceAgent(t *testing.T) {
 	t.Run("Headers&DERPHeaders", func(t *testing.T) {
 		t.Parallel()
 
-		// Create a coderd API instance the hard way since we need to change the
+		// Create a wirtuald API instance the hard way since we need to change the
 		// handler to inject our custom /derp handler.
 		dv := coderdtest.DeploymentValues(t)
 		dv.DERP.Config.BlockDirect = true
@@ -316,7 +316,7 @@ func TestWorkspaceAgent(t *testing.T) {
 		err := clientInv.WithContext(ctx).Run()
 		require.NoError(t, err)
 
-		require.Greater(t, atomic.LoadInt64(&called), int64(0), "expected coderd to be reached with custom headers")
+		require.Greater(t, atomic.LoadInt64(&called), int64(0), "expected wirtuald to be reached with custom headers")
 		require.Greater(t, atomic.LoadInt64(&derpCalled), int64(0), "expected /derp to be called with custom headers")
 	})
 }

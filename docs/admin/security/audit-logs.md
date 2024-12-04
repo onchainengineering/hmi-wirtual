@@ -87,7 +87,7 @@ log entry:
 	"msg": "audit_log",
 	"caller": "/home/runner/work/coder/coder/enterprise/audit/backends/slog.go:36",
 	"func": "github.com/coder/coder/enterprise/audit/backends.slogBackend.Export",
-	"logger_names": ["coderd"],
+	"logger_names": ["wirtuald"],
 	"fields": {
 		"ID": "033a9ffa-b54d-4c10-8ec3-2aaf9e6d741a",
 		"Time": "2023-06-13T03:45:37.288506Z",

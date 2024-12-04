@@ -35,7 +35,7 @@ func main() {
 	flag.StringVar(&versionList, "versions", "", "Comma separated list of versions to use. This skips uses git tag to find tags.")
 	flag.BoolVar(&afterV2, "after-v2", false, "Only include releases after v2.0.0")
 	flag.BoolVar(&listMigs, "list", false, "List migrations")
-	flag.StringVar(&migrationDirectory, "dir", "coderd/database/migrations", "Migration directory")
+	flag.StringVar(&migrationDirectory, "dir", "wirtuald/database/migrations", "Migration directory")
 	flag.Parse()
 
 	if !includePatches && !includeMinors && !includeMajors && versionList == "" {

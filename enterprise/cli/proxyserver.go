@@ -65,7 +65,7 @@ func (r *RootCmd) proxyServer() *serpent.Command {
 
 		serpent.Option{
 			Name:        "Proxy Session Token",
-			Description: "Authentication token for the workspace proxy to communicate with coderd.",
+			Description: "Authentication token for the workspace proxy to communicate with wirtuald.",
 			Flag:        "proxy-session-token",
 			Env:         "CODER_PROXY_SESSION_TOKEN",
 			YAML:        "proxySessionToken",
@@ -77,7 +77,7 @@ func (r *RootCmd) proxyServer() *serpent.Command {
 
 		serpent.Option{
 			Name:        "Coderd (Primary) Access URL",
-			Description: "URL to communicate with coderd. This should match the access URL of the Coder deployment.",
+			Description: "URL to communicate with wirtuald. This should match the access URL of the Coder deployment.",
 			Flag:        "primary-access-url",
 			Env:         "CODER_PRIMARY_ACCESS_URL",
 			YAML:        "primaryAccessURL",

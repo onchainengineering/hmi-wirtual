@@ -384,7 +384,7 @@ func (r *RootCmd) configSSH() *serpent.Command {
 				// 	and remove this 404 check.
 				var sdkErr *codersdk.Error
 				if !(xerrors.As(err, &sdkErr) && sdkErr.StatusCode() == http.StatusNotFound) {
-					return xerrors.Errorf("fetch coderd config failed: %w", err)
+					return xerrors.Errorf("fetch wirtuald config failed: %w", err)
 				}
 				coderdConfig.HostnamePrefix = "coder."
 			}
@@ -456,7 +456,7 @@ func (r *RootCmd) configSSH() *serpent.Command {
 						opt := fmt.Sprintf("%s %s", k, v)
 						err := configOptions.addOptions(opt)
 						if err != nil {
-							return xerrors.Errorf("add coderd config option %q: %w", opt, err)
+							return xerrors.Errorf("add wirtuald config option %q: %w", opt, err)
 						}
 					}
 

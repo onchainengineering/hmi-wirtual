@@ -22,7 +22,7 @@ interface OrganizationProvisionersPageViewProps {
 	/** An error to display instead of the page content */
 	error?: unknown;
 
-	/** Info about the version of coderd */
+	/** Info about the version of wirtuald */
 	buildInfo?: BuildInfoResponse;
 
 	/** Groups of provisioners, along with their key information */

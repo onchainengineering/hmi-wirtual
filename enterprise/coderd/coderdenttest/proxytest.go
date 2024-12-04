@@ -59,7 +59,7 @@ type WorkspaceProxy struct {
 
 // NewWorkspaceProxyReplica will configure a wsproxy.Server with the given
 // options. The new wsproxy replica will register itself with the given
-// coderd.API instance.
+// wirtuald.API instance.
 //
 // If a token is not provided, a new workspace proxy region is created using the
 // owner client. If a token is provided, the proxy will become a replica of the
@@ -137,7 +137,7 @@ func NewWorkspaceProxyReplica(t *testing.T, coderdAPI *coderd.API, owner *coders
 		token = proxyRes.ProxyToken
 	}
 
-	// Inherit collector options from coderd, but keep the wsproxy reporter.
+	// Inherit collector options from wirtuald, but keep the wsproxy reporter.
 	statsCollectorOptions := coderdAPI.Options.WorkspaceAppsStatsCollectorOptions
 	statsCollectorOptions.Reporter = nil
 	if options.FlushStats != nil {
@@ -159,7 +159,7 @@ func NewWorkspaceProxyReplica(t *testing.T, coderdAPI *coderd.API, owner *coders
 		SecureAuthCookie:  coderdAPI.SecureAuthCookie,
 		ProxySessionToken: token,
 		DisablePathApps:   options.DisablePathApps,
-		// We need a new registry to not conflict with the coderd internal
+		// We need a new registry to not conflict with the wirtuald internal
 		// proxy metrics.
 		PrometheusRegistry:     prometheus.NewRegistry(),
 		DERPEnabled:            !options.DerpDisabled,

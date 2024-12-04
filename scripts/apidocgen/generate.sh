@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # This script generates swagger description file and required Go docs files
-# from the coderd API.
+# from the wirtuald API.
 
 set -euo pipefail
 # shellcheck source=scripts/lib.sh

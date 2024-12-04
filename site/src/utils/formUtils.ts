@@ -109,7 +109,7 @@ export const onChangeTrimmed =
 		callback?.(event.target.value);
 	};
 
-// REMARK: Keep these consts in sync with coderd/httpapi/httpapi.go
+// REMARK: Keep these consts in sync with wirtuald/httpapi/httpapi.go
 const maxLenName = 32;
 const displayNameMaxLength = 64;
 const usernameRE = /^[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*$/;

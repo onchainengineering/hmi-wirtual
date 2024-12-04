@@ -136,7 +136,7 @@ type server struct {
 
 func (s *server) startTrace(ctx context.Context, name string, opts ...trace.SpanStartOption) (context.Context, trace.Span) {
 	return s.tracer.Start(ctx, name, append(opts, trace.WithAttributes(
-		semconv.ServiceNameKey.String("coderd.provisionerd.terraform"),
+		semconv.ServiceNameKey.String("wirtuald.provisionerd.terraform"),
 	))...)
 }
 

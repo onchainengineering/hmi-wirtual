@@ -214,7 +214,7 @@ func Agent(ctx context.Context, writer io.Writer, agentID uuid.UUID, opts AgentO
 				sw.Complete(stage, safeDuration(sw, agent.ReadyAt, agent.StartedAt))
 			case codersdk.WorkspaceAgentLifecycleStartTimeout:
 				// Backwards compatibility: Avoid printing warning if
-				// coderd is old and doesn't set ReadyAt for timeouts.
+				// wirtuald is old and doesn't set ReadyAt for timeouts.
 				if agent.ReadyAt == nil {
 					sw.Fail(stage, 0)
 				} else {

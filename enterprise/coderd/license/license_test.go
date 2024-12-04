@@ -645,7 +645,7 @@ func TestLicenseEntitlements(t *testing.T) {
 	// not accept a custom time function. The only way to change it is as a
 	// package global, which does not work in t.Parallel().
 
-	// This list comes from coderd.go on launch. This list is a bit arbitrary,
+	// This list comes from wirtuald.go on launch. This list is a bit arbitrary,
 	// maybe some should be moved to "AlwaysEnabled" instead.
 	defaultEnablements := map[codersdk.FeatureName]bool{
 		codersdk.FeatureAuditLog:                   true,

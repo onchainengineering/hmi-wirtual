@@ -268,7 +268,7 @@ jobs:
 
       - name: make gen
         # no `-j` flag as `make` fails with:
-        # coderd/rbac/object_gen.go:1:1: syntax error: package statement must be first
+        # wirtuald/rbac/object_gen.go:1:1: syntax error: package statement must be first
         run: "make --output-sync -B gen"
 
       - name: Check for unstaged files
@@ -758,7 +758,7 @@ jobs:
 
       - name: Build
         # no `-j` flag as `make` fails with:
-        # coderd/rbac/object_gen.go:1:1: syntax error: package statement must be first
+        # wirtuald/rbac/object_gen.go:1:1: syntax error: package statement must be first
         run: |
           make build/coder_docs_"$(./scripts/version.sh)".tgz
 

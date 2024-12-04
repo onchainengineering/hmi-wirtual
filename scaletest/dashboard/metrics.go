@@ -19,12 +19,12 @@ type PromMetrics struct {
 func NewMetrics(reg prometheus.Registerer) *PromMetrics {
 	m := &PromMetrics{
 		durationSeconds: prometheus.NewHistogramVec(prometheus.HistogramOpts{
-			Namespace: "coderd",
+			Namespace: "wirtuald",
 			Subsystem: "scaletest_dashboard",
 			Name:      "duration_seconds",
 		}, []string{"action"}),
 		errors: prometheus.NewCounterVec(prometheus.CounterOpts{
-			Namespace: "coderd",
+			Namespace: "wirtuald",
 			Subsystem: "scaletest_dashboard",
 			Name:      "errors_total",
 		}, []string{"action"}),

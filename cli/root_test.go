@@ -159,7 +159,7 @@ func TestRoot(t *testing.T) {
 func TestDERPHeaders(t *testing.T) {
 	t.Parallel()
 
-	// Create a coderd API instance the hard way since we need to change the
+	// Create a wirtuald API instance the hard way since we need to change the
 	// handler to inject our custom /derp handler.
 	dv := coderdtest.DeploymentValues(t)
 	dv.DERP.Config.BlockDirect = true

@@ -111,7 +111,7 @@ type WorkspaceAgentMetadataResult struct {
 }
 
 // WorkspaceAgentMetadataDescription is a description of dynamic metadata the agent should report
-// back to coderd. It is provided via the `metadata` list in the `coder_agent`
+// back to wirtuald. It is provided via the `metadata` list in the `coder_agent`
 // block.
 type WorkspaceAgentMetadataDescription struct {
 	DisplayName string `json:"display_name"`

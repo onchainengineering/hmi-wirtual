@@ -91,7 +91,7 @@ CODER_HTTP_ADDRESS=0.0.0.0:80
 CODER_TLS_ADDRESS=0.0.0.0:443
 # Example: https://east.coderd.example.com
 CODER_ACCESS_URL="https://<access_url_of_proxy>"
-# Example: *.east.coderd.example.com
+# Example: *.east.wirtuald.example.com
 CODER_WILDCARD_ACCESS_URL="*.<app_hostname_of_proxy>"
 
 CODER_TLS_ENABLE=true
@@ -119,7 +119,7 @@ coder:
     # Example: https://east.coderd.example.com
     - name: CODER_ACCESS_URL
       value: "https://<access_url_of_proxy>"
-    # Example: *.east.coderd.example.com
+    # Example: *.east.wirtuald.example.com
     - name: CODER_WILDCARD_ACCESS_URL
       value: "*.<app_hostname_of_proxy>"
 

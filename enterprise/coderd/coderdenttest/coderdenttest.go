@@ -312,7 +312,7 @@ func NewExternalProvisionerDaemon(t testing.TB, client *codersdk.Client, org uui
 	if err != nil {
 		// AGPL instances will throw this error. They cannot use external
 		// provisioners.
-		t.Errorf("external provisioners requires a license with entitlements. The client failed to fetch the entitlements, is this an enterprise instance of coderd?")
+		t.Errorf("external provisioners requires a license with entitlements. The client failed to fetch the entitlements, is this an enterprise instance of wirtuald?")
 		t.FailNow()
 		return nil
 	}

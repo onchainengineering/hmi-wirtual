@@ -21,7 +21,6 @@ import (
 	"github.com/coder/coder/v2/coderd/database/dbtestutil"
 	"github.com/coder/coder/v2/coderd/notifications"
 	"github.com/coder/coder/v2/coderd/rbac"
-	agplschedule "github.com/coder/coder/v2/coderd/schedule"
 	"github.com/coder/coder/v2/coderd/schedule/cron"
 	"github.com/coder/coder/v2/coderd/util/ptr"
 	"github.com/coder/coder/v2/codersdk"
@@ -32,6 +31,7 @@ import (
 	"github.com/coder/coder/v2/enterprise/coderd/schedule"
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/testutil"
+	agplschedule "github.com/coder/coder/v2/wirtuald/schedule"
 )
 
 // agplUserQuietHoursScheduleStore is passed to
@@ -514,7 +514,7 @@ func TestWorkspaceAutobuild(t *testing.T) {
 			numWorkspaces = maxConns * 5
 		)
 		// This is a bit bizarre but necessary so that we can
-		// initialize our coderd with a real auditor and limit DB connections
+		// initialize our wirtuald with a real auditor and limit DB connections
 		// to simulate deadlock conditions.
 		db, pubsub, sdb := dbtestutil.NewDBWithSQLDB(t)
 		// Set MaxOpenConns so we can ensure we aren't inadvertently acquiring

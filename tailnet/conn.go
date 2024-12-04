@@ -104,7 +104,7 @@ type Options struct {
 	// ForceNetworkUp forces the network to be considered up. magicsock will not
 	// do anything if it thinks it can't reach the internet.
 	ForceNetworkUp bool
-	// Network Telemetry Client Type: CLI | Agent | coderd
+	// Network Telemetry Client Type: CLI | Agent | wirtuald
 	ClientType proto.TelemetryEvent_ClientType
 	// TelemetrySink is optional.
 	TelemetrySink TelemetrySink

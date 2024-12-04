@@ -519,17 +519,17 @@ gen: \
 	provisionersdk/proto/provisioner.pb.go \
 	provisionerd/proto/provisionerd.pb.go \
 	vpn/vpn.pb.go \
-	coderd/database/dump.sql \
+	wirtuald \
 	$(DB_GEN_FILES) \
 	site/src/api/typesGenerated.ts \
-	coderd/rbac/object_gen.go \
+	wirtuald \
 	codersdk/rbacresources_gen.go \
 	site/src/api/rbacresourcesGenerated.ts \
 	site/src/api/countriesGenerated.ts \
 	docs/admin/integrations/prometheus.md \
 	docs/reference/cli/index.md \
 	docs/admin/security/audit-logs.md \
-	coderd/apidoc/swagger.json \
+	wirtuald \
 	.prettierignore.include \
 	.prettierignore \
 	provisioner/terraform/testdata/version \
@@ -537,7 +537,7 @@ gen: \
 	site/src/theme/icons.json \
 	examples/examples.gen.json \
 	$(TAILNETTEST_MOCKS) \
-	coderd/database/pubsub/psmock/psmock.go
+	wirtuald
 .PHONY: gen
 
 # Mark all generated files as fresh so make thinks they're up-to-date. This is
@@ -583,19 +583,19 @@ gen/mark-fresh:
 
 # Runs migrations to output a dump of the database schema after migrations are
 # applied.
-coderd/database/dump.sql: coderd/database/gen/dump/main.go $(wildcard coderd/database/migrations/*.sql)
+coderd/database/dump.sql: wirtuald $(wildcard coderd/database/migrations/*.sql)
 	go run ./coderd/database/gen/dump/main.go
 
 # Generates Go code for querying the database.
-# coderd/database/queries.sql.go
-# coderd/database/models.go
-coderd/database/querier.go: coderd/database/sqlc.yaml coderd/database/dump.sql $(wildcard coderd/database/queries/*.sql)
+# wirtuald/database/queries.sql.go
+# wirtuald/database/models.go
+coderd/database/querier.go: wirtuald wirtuald $(wildcard coderd/database/queries/*.sql)
 	./coderd/database/generate.sh
 
-coderd/database/dbmock/dbmock.go: coderd/database/db.go coderd/database/querier.go
+coderd/database/dbmock/dbmock.go: wirtuald wirtuald
 	go generate ./coderd/database/dbmock/
 
-coderd/database/pubsub/psmock/psmock.go: coderd/database/pubsub/pubsub.go
+coderd/database/pubsub/psmock/psmock.go: wirtuald
 	go generate ./coderd/database/pubsub/psmock
 
 $(TAILNETTEST_MOCKS): tailnet/coordinator.go tailnet/service.go
@@ -656,16 +656,16 @@ site/src/theme/icons.json: $(wildcard scripts/gensite/*) $(wildcard site/static/
 examples/examples.gen.json: scripts/examplegen/main.go examples/examples.go $(shell find ./examples/templates)
 	go run ./scripts/examplegen/main.go > examples/examples.gen.json
 
-coderd/rbac/object_gen.go: scripts/typegen/rbacobject.gotmpl scripts/typegen/main.go coderd/rbac/object.go coderd/rbac/policy/policy.go
+coderd/rbac/object_gen.go: scripts/typegen/rbacobject.gotmpl scripts/typegen/main.go wirtuald wirtuald
 	go run scripts/typegen/main.go rbac object > coderd/rbac/object_gen.go
 
-codersdk/rbacresources_gen.go: scripts/typegen/codersdk.gotmpl scripts/typegen/main.go coderd/rbac/object.go coderd/rbac/policy/policy.go
+codersdk/rbacresources_gen.go: scripts/typegen/codersdk.gotmpl scripts/typegen/main.go wirtuald wirtuald
 	# Do no overwrite codersdk/rbacresources_gen.go directly, as it would make the file empty, breaking
  	# the `codersdk` package and any parallel build targets.
 	go run scripts/typegen/main.go rbac codersdk > /tmp/rbacresources_gen.go
 	mv /tmp/rbacresources_gen.go codersdk/rbacresources_gen.go
 
-site/src/api/rbacresourcesGenerated.ts: scripts/typegen/codersdk.gotmpl scripts/typegen/main.go coderd/rbac/object.go coderd/rbac/policy/policy.go
+site/src/api/rbacresourcesGenerated.ts: scripts/typegen/codersdk.gotmpl scripts/typegen/main.go wirtuald wirtuald
 	go run scripts/typegen/main.go rbac typescript > "$@"
 
 site/src/api/countriesGenerated.ts: scripts/typegen/countries.tstmpl scripts/typegen/main.go codersdk/countries.go
@@ -681,12 +681,12 @@ docs/reference/cli/index.md: scripts/clidocgen/main.go examples/examples.gen.jso
 	./scripts/pnpm_install.sh
 	pnpm exec prettier --write ./docs/reference/cli/index.md ./docs/reference/cli/*.md ./docs/manifest.json
 
-docs/admin/security/audit-logs.md: coderd/database/querier.go scripts/auditdocgen/main.go enterprise/audit/table.go coderd/rbac/object_gen.go
+docs/admin/security/audit-logs.md: wirtuald scripts/auditdocgen/main.go enterprise/audit/table.go wirtuald
 	go run scripts/auditdocgen/main.go
 	./scripts/pnpm_install.sh
 	pnpm exec prettier --write ./docs/admin/security/audit-logs.md
 
-coderd/apidoc/swagger.json: $(shell find ./scripts/apidocgen $(FIND_EXCLUSIONS) -type f) $(wildcard coderd/*.go) $(wildcard enterprise/coderd/*.go) $(wildcard codersdk/*.go) $(wildcard enterprise/wsproxy/wsproxysdk/*.go) $(DB_GEN_FILES) .swaggo docs/manifest.json coderd/rbac/object_gen.go
+coderd/apidoc/swagger.json: $(shell find ./scripts/apidocgen $(FIND_EXCLUSIONS) -type f) $(wildcard coderd/*.go) $(wildcard enterprise/coderd/*.go) $(wildcard codersdk/*.go) $(wildcard enterprise/wsproxy/wsproxysdk/*.go) $(DB_GEN_FILES) .swaggo docs/manifest.json wirtuald
 	./scripts/apidocgen/generate.sh
 	./scripts/pnpm_install.sh
 	pnpm exec prettier --write ./docs/reference/api ./docs/manifest.json ./coderd/apidoc/swagger.json
@@ -699,8 +699,8 @@ update-golden-files: \
 	enterprise/cli/testdata/.gen-golden \
 	enterprise/tailnet/testdata/.gen-golden \
 	tailnet/testdata/.gen-golden \
-	coderd/.gen-golden \
-	coderd/notifications/.gen-golden \
+	wirtuald \
+	wirtuald \
 	provisioner/terraform/testdata/.gen-golden
 .PHONY: update-golden-files
 

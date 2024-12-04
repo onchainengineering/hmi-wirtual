@@ -51,7 +51,7 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	databasePath := filepath.Join(localPath, "..", "..", "..", "coderd", "database")
+	databasePath := filepath.Join(localPath, "..", "..", "..", "wirtuald", "database")
 
 	err = orderAndStubDatabaseFunctions(filepath.Join(databasePath, "dbmem", "dbmem.go"), "q", "FakeQuerier", func(params stubParams) string {
 		return `panic("not implemented")`
@@ -98,7 +98,7 @@ func generateUniqueConstraints() error {
 	if err != nil {
 		return err
 	}
-	databasePath := filepath.Join(localPath, "..", "..", "..", "coderd", "database")
+	databasePath := filepath.Join(localPath, "..", "..", "..", "wirtuald", "database")
 
 	dump, err := os.Open(filepath.Join(databasePath, "dump.sql"))
 	if err != nil {
@@ -171,7 +171,7 @@ func generateForeignKeyConstraints() error {
 	if err != nil {
 		return err
 	}
-	databasePath := filepath.Join(localPath, "..", "..", "..", "coderd", "database")
+	databasePath := filepath.Join(localPath, "..", "..", "..", "wirtuald", "database")
 
 	dump, err := os.Open(filepath.Join(databasePath, "dump.sql"))
 	if err != nil {
@@ -495,7 +495,7 @@ type querierFunction struct {
 	Func *dst.FuncType
 }
 
-// readQuerierFunctions reads the functions from coderd/database/querier.go
+// readQuerierFunctions reads the functions from wirtuald/database/querier.go
 func readQuerierFunctions() ([]querierFunction, error) {
 	f, err := parseDBFile("querier.go")
 	if err != nil {
@@ -525,7 +525,7 @@ func parseDBFile(filename string) (*dst.File, error) {
 		return nil, err
 	}
 
-	querierPath := filepath.Join(localPath, "..", "..", "..", "coderd", "database", filename)
+	querierPath := filepath.Join(localPath, "..", "..", "..", "wirtuald", "database", filename)
 	querierData, err := os.ReadFile(querierPath)
 	if err != nil {
 		return nil, xerrors.Errorf("read %s: %w", filename, err)
@@ -603,7 +603,7 @@ func loadInterfaceFuncs(f *dst.File, interfaceName string) ([]querierFunction, e
 				if !ident.IsExported() {
 					continue
 				}
-				ident.Path = "github.com/coder/coder/v2/coderd/database"
+				ident.Path = "github.com/coder/coder/v2/wirtuald/database"
 			}
 		}
 

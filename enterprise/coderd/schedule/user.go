@@ -8,9 +8,9 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/coder/coder/v2/coderd/database"
-	agpl "github.com/coder/coder/v2/coderd/schedule"
 	"github.com/coder/coder/v2/coderd/schedule/cron"
 	"github.com/coder/coder/v2/coderd/tracing"
+	agpl "github.com/coder/coder/v2/wirtuald/schedule"
 )
 
 // enterpriseUserQuietHoursScheduleStore provides an

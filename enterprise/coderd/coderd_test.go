@@ -32,7 +32,6 @@ import (
 	"github.com/coder/coder/v2/coderd/util/ptr"
 	"github.com/coder/coder/v2/tailnet/tailnettest"
 
-	agplaudit "github.com/coder/coder/v2/coderd/audit"
 	"github.com/coder/coder/v2/coderd/coderdtest"
 	"github.com/coder/coder/v2/coderd/database"
 	"github.com/coder/coder/v2/coderd/database/dbauthz"
@@ -50,6 +49,7 @@ import (
 	"github.com/coder/coder/v2/enterprise/dbcrypt"
 	"github.com/coder/coder/v2/enterprise/replicasync"
 	"github.com/coder/coder/v2/testutil"
+	agplaudit "github.com/coder/coder/v2/wirtuald/audit"
 	"github.com/coder/retry"
 	"github.com/coder/serpent"
 )
@@ -458,7 +458,7 @@ func TestMultiReplica_EmptyRelayAddress(t *testing.T) {
 	require.NoError(t, err)
 	defer mgr.Close()
 
-	// Send a bunch of updates to see if the coderd will log errors.
+	// Send a bunch of updates to see if the wirtuald will log errors.
 	{
 		ctx, cancel := context.WithTimeout(ctx, testutil.IntervalMedium)
 		for r := retry.New(testutil.IntervalFast, testutil.IntervalFast); r.Wait(ctx); {
@@ -505,7 +505,7 @@ func TestMultiReplica_EmptyRelayAddress_DisabledDERP(t *testing.T) {
 	require.NoError(t, err)
 	defer mgr.Close()
 
-	// Send a bunch of updates to see if the coderd will log errors.
+	// Send a bunch of updates to see if the wirtuald will log errors.
 	{
 		ctx, cancel := context.WithTimeout(ctx, testutil.IntervalMedium)
 		for r := retry.New(testutil.IntervalFast, testutil.IntervalFast); r.Wait(ctx); {

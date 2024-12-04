@@ -17,10 +17,10 @@ import (
 	"github.com/coder/coder/v2/coderd/database"
 	"github.com/coder/coder/v2/coderd/entitlements"
 	"github.com/coder/coder/v2/coderd/idpsync"
-	agplportsharing "github.com/coder/coder/v2/coderd/portsharing"
 	"github.com/coder/coder/v2/coderd/rbac/policy"
 	"github.com/coder/coder/v2/enterprise/coderd/enidpsync"
 	"github.com/coder/coder/v2/enterprise/coderd/portsharing"
+	agplportsharing "github.com/coder/coder/v2/wirtuald/portsharing"
 
 	"golang.org/x/xerrors"
 	"tailscale.com/tailcfg"
@@ -32,14 +32,11 @@ import (
 	"cdr.dev/slog"
 
 	"github.com/coder/coder/v2/coderd"
-	agplaudit "github.com/coder/coder/v2/coderd/audit"
-	agpldbauthz "github.com/coder/coder/v2/coderd/database/dbauthz"
 	"github.com/coder/coder/v2/coderd/database/dbtime"
 	"github.com/coder/coder/v2/coderd/healthcheck"
 	"github.com/coder/coder/v2/coderd/httpapi"
 	"github.com/coder/coder/v2/coderd/httpmw"
 	"github.com/coder/coder/v2/coderd/rbac"
-	agplschedule "github.com/coder/coder/v2/coderd/schedule"
 	"github.com/coder/coder/v2/codersdk"
 	"github.com/coder/coder/v2/enterprise/coderd/dbauthz"
 	"github.com/coder/coder/v2/enterprise/coderd/license"
@@ -51,9 +48,12 @@ import (
 	"github.com/coder/coder/v2/enterprise/tailnet"
 	"github.com/coder/coder/v2/provisionerd/proto"
 	agpltailnet "github.com/coder/coder/v2/tailnet"
+	agplaudit "github.com/coder/coder/v2/wirtuald/audit"
+	agpldbauthz "github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	agplschedule "github.com/coder/coder/v2/wirtuald/schedule"
 )
 
-// New constructs an Enterprise coderd API instance.
+// New constructs an Enterprise wirtuald API instance.
 // This handler is designed to wrap the AGPL Coder code and
 // layer Enterprise functionality on top as much as possible.
 func New(ctx context.Context, options *Options) (_ *API, err error) {
@@ -129,7 +129,7 @@ func New(ctx context.Context, options *Options) (_ *API, err error) {
 			Entitlements: options.Entitlements,
 		},
 	}
-	// This must happen before coderd initialization!
+	// This must happen before wirtuald initialization!
 	options.PostAuthAdditionalHeadersFunc = api.writeEntitlementWarningsHeader
 	api.AGPL = coderd.New(options.Options)
 	defer func() {
@@ -1056,8 +1056,8 @@ func (api *API) runEntitlementsLoop(ctx context.Context) {
 
 	defer func() {
 		// If this function ends, it means the context was canceled and this
-		// coderd is shutting down. In this case, post a pubsub message to
-		// tell other coderd's to resync their entitlements. This is required to
+		// wirtuald is shutting down. In this case, post a pubsub message to
+		// tell other wirtuald's to resync their entitlements. This is required to
 		// make sure things like replica counts are updated in the UI.
 		// Ignore the error, as this is just a best effort. If it fails,
 		// the system will eventually recover as replicas timeout

@@ -199,7 +199,7 @@ type ActionDetails struct {
 // to the go templates. Some AST of the Action enum is also included.
 func generateRbacObjects(templateSource string) ([]byte, error) {
 	// Parse the policy.go file for the action enums
-	f, err := parser.ParseFile(token.NewFileSet(), "./coderd/rbac/policy/policy.go", nil, parser.ParseComments)
+	f, err := parser.ParseFile(token.NewFileSet(), "./wirtuald/rbac/policy/policy.go", nil, parser.ParseComments)
 	if err != nil {
 		return nil, xerrors.Errorf("parsing policy.go: %w", err)
 	}

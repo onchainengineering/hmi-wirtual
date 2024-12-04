@@ -13,7 +13,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-// Duplicated in coderd.
+// Duplicated in wirtuald.
 const insightsTimeLayout = time.RFC3339
 
 // InsightsReportInterval is the interval of time over which to generate a

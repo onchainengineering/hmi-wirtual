@@ -7,7 +7,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/coder/coder/v2/coderd/database"
-	agpldbz "github.com/coder/coder/v2/coderd/database/dbauthz"
+	agpldbz "github.com/coder/coder/v2/wirtuald/database/dbauthz"
 )
 
 type EnterpriseTemplateAccessControlStore struct{}

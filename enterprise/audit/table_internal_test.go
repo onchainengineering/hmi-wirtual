@@ -24,7 +24,7 @@ func TestAuditableResources(t *testing.T) {
 
 	pkgs, err := packages.Load(&packages.Config{
 		Mode: packages.NeedTypes | packages.NeedDeps,
-	}, "../../coderd/audit")
+	}, "../../wirtuald/audit")
 	require.NoError(t, err)
 
 	if len(pkgs) != 1 {
@@ -48,7 +48,7 @@ func TestAuditableResources(t *testing.T) {
 	expectedList := make([]string, 0)
 	// Now we check we have all the resources in the AuditableResources
 	for i := 0; i < unionType.Len(); i++ {
-		// All types come across like 'github.com/coder/coder/v2/coderd/database.<type>'
+		// All types come across like 'github.com/coder/coder/v2/wirtuald/database.<type>'
 		typeName := unionType.Term(i).Type().String()
 		_, ok := AuditableResources[typeName]
 		assert.True(t, ok, "missing resource %q from AuditableResources", typeName)

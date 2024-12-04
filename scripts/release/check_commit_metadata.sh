@@ -72,7 +72,7 @@ main() {
 		["enterprise/wsproxy"]="Workspace Proxy"
 		[agent]="Agent"
 		[cli]="CLI"
-		[coderd]="Server"
+		[wirtuald]="Server"
 		[codersdk]="SDK"
 		[docs]="Documentation"
 		[enterprise]="Enterprise"
