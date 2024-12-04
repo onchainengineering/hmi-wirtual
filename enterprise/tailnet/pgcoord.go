@@ -14,13 +14,13 @@ import (
 	gProto "google.golang.org/protobuf/proto"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/database/pubsub"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/rbac/policy"
 	agpl "github.com/coder/coder/v2/tailnet"
 	"github.com/coder/coder/v2/tailnet/proto"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/coder/coder/v2/wirtuald/database/pubsub"
+	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/rbac/policy"
 	"github.com/coder/quartz"
 )
 

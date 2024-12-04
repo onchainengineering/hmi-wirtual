@@ -20,8 +20,8 @@ import (
 	"tailscale.com/ipn/ipnstate"
 	"tailscale.com/net/speedtest"
 
-	"github.com/coder/coder/v2/coderd/tracing"
 	"github.com/coder/coder/v2/tailnet"
+	"github.com/coder/coder/v2/wirtuald/tracing"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/wirtualsdk/healthsdk"
 )

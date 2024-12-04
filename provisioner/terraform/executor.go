@@ -22,9 +22,9 @@ import (
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/tracing"
 	"github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/tracing"
 )
 
 var version170 = version.Must(version.NewVersion("1.7.0"))

@@ -16,11 +16,11 @@ import (
 
 	tfaddr "github.com/hashicorp/go-terraform-address"
 
-	"github.com/coder/coder/v2/coderd/util/slice"
-	stringutil "github.com/coder/coder/v2/coderd/util/strings"
 	"github.com/coder/coder/v2/provisioner"
 	"github.com/coder/coder/v2/provisionersdk"
 	"github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/coder/coder/v2/wirtuald/util/slice"
+	stringutil "github.com/coder/coder/v2/wirtuald/util/strings"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 

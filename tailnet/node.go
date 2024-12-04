@@ -13,7 +13,7 @@ import (
 	"tailscale.com/wgengine"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
 )
 
 type nodeUpdater struct {

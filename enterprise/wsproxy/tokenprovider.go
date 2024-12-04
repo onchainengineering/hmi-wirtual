@@ -7,10 +7,10 @@ import (
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/coderd/cryptokeys"
-	"github.com/coder/coder/v2/coderd/jwtutils"
-	"github.com/coder/coder/v2/coderd/workspaceapps"
 	"github.com/coder/coder/v2/enterprise/wsproxy/wsproxysdk"
+	"github.com/coder/coder/v2/wirtuald/cryptokeys"
+	"github.com/coder/coder/v2/wirtuald/jwtutils"
+	"github.com/coder/coder/v2/wirtuald/workspaceapps"
 )
 
 var _ workspaceapps.SignedTokenProvider = (*TokenProvider)(nil)

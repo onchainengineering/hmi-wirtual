@@ -12,9 +12,9 @@ import (
 	"github.com/coder/serpent"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/migrations"
-	"github.com/coder/coder/v2/coderd/userpassword"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/migrations"
+	"github.com/coder/coder/v2/wirtuald/userpassword"
 )
 
 func (*RootCmd) resetPassword() *serpent.Command {

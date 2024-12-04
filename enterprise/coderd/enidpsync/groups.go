@@ -6,7 +6,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v4"
 
-	"github.com/coder/coder/v2/coderd/idpsync"
+	"github.com/coder/coder/v2/wirtuald/idpsync"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 

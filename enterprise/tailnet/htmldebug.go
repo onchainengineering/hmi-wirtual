@@ -11,8 +11,8 @@ import (
 	"golang.org/x/xerrors"
 	gProto "google.golang.org/protobuf/proto"
 
-	"github.com/coder/coder/v2/coderd/database"
 	"github.com/coder/coder/v2/tailnet/proto"
+	"github.com/coder/coder/v2/wirtuald/database"
 )
 
 type HTMLDebug struct {

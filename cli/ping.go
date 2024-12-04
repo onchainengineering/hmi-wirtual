@@ -23,7 +23,7 @@ import (
 
 	"github.com/coder/coder/v2/cli/cliui"
 	"github.com/coder/coder/v2/cli/cliutil"
-	"github.com/coder/coder/v2/coderd/util/ptr"
+	"github.com/coder/coder/v2/wirtuald/util/ptr"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/wirtualsdk/healthsdk"
 	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"

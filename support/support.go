@@ -18,8 +18,8 @@ import (
 
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/sloghuman"
-	"github.com/coder/coder/v2/coderd/healthcheck/derphealth"
 	"github.com/coder/coder/v2/tailnet"
+	"github.com/coder/coder/v2/wirtuald/healthcheck/derphealth"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
 	"github.com/coder/coder/v2/wirtualsdk/healthsdk"

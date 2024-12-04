@@ -13,9 +13,9 @@ import (
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/unhanger"
 	"github.com/coder/coder/v2/provisionersdk"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/unhanger"
 )
 
 type ServeOptions struct {

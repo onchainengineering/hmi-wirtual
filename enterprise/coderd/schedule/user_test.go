@@ -8,10 +8,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbmock"
-	agpl "github.com/coder/coder/v2/coderd/schedule"
 	"github.com/coder/coder/v2/enterprise/coderd/schedule"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbmock"
+	agpl "github.com/coder/coder/v2/wirtuald/schedule"
 )
 
 func TestEnterpriseUserQuietHoursSchedule(t *testing.T) {

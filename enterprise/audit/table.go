@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"runtime"
 
-	"github.com/coder/coder/v2/coderd/database"
+	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 

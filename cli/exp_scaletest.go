@@ -27,8 +27,6 @@ import (
 	"cdr.dev/slog/sloggers/sloghuman"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/tracing"
 	"github.com/coder/coder/v2/cryptorand"
 	"github.com/coder/coder/v2/scaletest/agentconn"
 	"github.com/coder/coder/v2/scaletest/createworkspaces"
@@ -37,6 +35,8 @@ import (
 	"github.com/coder/coder/v2/scaletest/reconnectingpty"
 	"github.com/coder/coder/v2/scaletest/workspacebuild"
 	"github.com/coder/coder/v2/scaletest/workspacetraffic"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/tracing"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 	"github.com/coder/serpent"

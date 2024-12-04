@@ -12,13 +12,13 @@ import (
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/sloghuman"
 
-	"github.com/coder/coder/v2/coderd/tracing"
 	"github.com/coder/coder/v2/cryptorand"
 	"github.com/coder/coder/v2/scaletest/agentconn"
 	"github.com/coder/coder/v2/scaletest/harness"
 	"github.com/coder/coder/v2/scaletest/loadtestutil"
 	"github.com/coder/coder/v2/scaletest/reconnectingpty"
 	"github.com/coder/coder/v2/scaletest/workspacebuild"
+	"github.com/coder/coder/v2/wirtuald/tracing"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 

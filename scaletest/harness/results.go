@@ -11,7 +11,7 @@ import (
 
 	"golang.org/x/exp/maps"
 
-	"github.com/coder/coder/v2/coderd/httpapi"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
 )
 
 // Results is the full compiled results for a set of test runs.

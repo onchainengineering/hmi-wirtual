@@ -14,12 +14,12 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/notifications"
-	agpl "github.com/coder/coder/v2/coderd/schedule"
-	"github.com/coder/coder/v2/coderd/tracing"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/notifications"
+	agpl "github.com/coder/coder/v2/wirtuald/schedule"
+	"github.com/coder/coder/v2/wirtuald/tracing"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 

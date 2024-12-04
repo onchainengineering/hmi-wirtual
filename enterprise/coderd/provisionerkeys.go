@@ -7,12 +7,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/db2sdk"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/provisionerdserver"
-	"github.com/coder/coder/v2/coderd/provisionerkey"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtuald/provisionerdserver"
+	"github.com/coder/coder/v2/wirtuald/provisionerkey"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 

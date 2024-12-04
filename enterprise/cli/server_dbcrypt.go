@@ -12,8 +12,8 @@ import (
 	"cdr.dev/slog/sloggers/sloghuman"
 	"github.com/coder/coder/v2/cli"
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/database/awsiamrds"
 	"github.com/coder/coder/v2/enterprise/dbcrypt"
+	"github.com/coder/coder/v2/wirtuald/database/awsiamrds"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 

@@ -10,7 +10,7 @@ import (
 	"storj.io/drpc"
 	"storj.io/drpc/drpcconn"
 
-	"github.com/coder/coder/v2/coderd/tracing"
+	"github.com/coder/coder/v2/wirtuald/tracing"
 )
 
 const (

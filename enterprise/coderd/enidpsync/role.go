@@ -10,10 +10,10 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/idpsync"
-	"github.com/coder/coder/v2/coderd/runtimeconfig"
-	"github.com/coder/coder/v2/coderd/util/slice"
+	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/coder/coder/v2/wirtuald/idpsync"
+	"github.com/coder/coder/v2/wirtuald/runtimeconfig"
+	"github.com/coder/coder/v2/wirtuald/util/slice"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 

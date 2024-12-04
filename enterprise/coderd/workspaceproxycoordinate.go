@@ -7,8 +7,8 @@ import (
 	"nhooyr.io/websocket"
 
 	"github.com/coder/coder/v2/apiversion"
-	"github.com/coder/coder/v2/coderd/httpapi"
 	"github.com/coder/coder/v2/tailnet/proto"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 

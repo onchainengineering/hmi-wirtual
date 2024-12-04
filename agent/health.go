@@ -3,8 +3,8 @@ package agent
 import (
 	"net/http"
 
-	"github.com/coder/coder/v2/coderd/healthcheck/health"
-	"github.com/coder/coder/v2/coderd/httpapi"
+	"github.com/coder/coder/v2/wirtuald/healthcheck/health"
+	"github.com/coder/coder/v2/wirtuald/httpapi"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/wirtualsdk/healthsdk"
 )

@@ -2,9 +2,9 @@ package enidpsync
 
 import (
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/coderd/entitlements"
-	"github.com/coder/coder/v2/coderd/idpsync"
-	"github.com/coder/coder/v2/coderd/runtimeconfig"
+	"github.com/coder/coder/v2/wirtuald/entitlements"
+	"github.com/coder/coder/v2/wirtuald/idpsync"
+	"github.com/coder/coder/v2/wirtuald/runtimeconfig"
 )
 
 // EnterpriseIDPSync enabled syncing user information from an external IDP.

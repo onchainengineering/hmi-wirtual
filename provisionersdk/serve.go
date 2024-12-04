@@ -16,8 +16,8 @@ import (
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/coderd/tracing"
 	"github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/coder/coder/v2/wirtuald/tracing"
 )
 
 // ServeOptions are configurations to serve a provisioner.

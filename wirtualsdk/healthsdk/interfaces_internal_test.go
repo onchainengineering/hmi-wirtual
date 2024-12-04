@@ -10,7 +10,7 @@ import (
 	"golang.org/x/exp/slices"
 	"tailscale.com/net/interfaces"
 
-	"github.com/coder/coder/v2/coderd/healthcheck/health"
+	"github.com/coder/coder/v2/wirtuald/healthcheck/health"
 )
 
 func Test_generateInterfacesReport(t *testing.T) {
