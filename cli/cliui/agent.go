@@ -22,8 +22,8 @@ var errAgentShuttingDown = xerrors.New("agent is shutting down")
 
 type AgentOptions struct {
 	FetchInterval time.Duration
-	Fetch         func(ctx context.Context, agentID uuid.UUID) (codersdk.WorkspaceAgent, error)
-	FetchLogs     func(ctx context.Context, agentID uuid.UUID, after int64, follow bool) (<-chan []codersdk.WorkspaceAgentLog, io.Closer, error)
+	Fetch         func(ctx context.Context, agentID uuid.UUID) (wirtualsdk.WorkspaceAgent, error)
+	FetchLogs     func(ctx context.Context, agentID uuid.UUID, after int64, follow bool) (<-chan []wirtualsdk.WorkspaceAgentLog, io.Closer, error)
 	Wait          bool // If true, wait for the agent to be ready (startup script).
 	DocsURL       string
 }
@@ -37,15 +37,15 @@ func Agent(ctx context.Context, writer io.Writer, agentID uuid.UUID, opts AgentO
 		opts.FetchInterval = 500 * time.Millisecond
 	}
 	if opts.FetchLogs == nil {
-		opts.FetchLogs = func(_ context.Context, _ uuid.UUID, _ int64, _ bool) (<-chan []codersdk.WorkspaceAgentLog, io.Closer, error) {
-			c := make(chan []codersdk.WorkspaceAgentLog)
+		opts.FetchLogs = func(_ context.Context, _ uuid.UUID, _ int64, _ bool) (<-chan []wirtualsdk.WorkspaceAgentLog, io.Closer, error) {
+			c := make(chan []wirtualsdk.WorkspaceAgentLog)
 			close(c)
 			return c, closeFunc(func() error { return nil }), nil
 		}
 	}
 
 	type fetchAgent struct {
-		agent codersdk.WorkspaceAgent
+		agent wirtualsdk.WorkspaceAgent
 		err   error
 	}
 	fetchedAgent := make(chan fetchAgent, 1)
@@ -72,13 +72,13 @@ func Agent(ctx context.Context, writer io.Writer, agentID uuid.UUID, opts AgentO
 			}
 		}
 	}()
-	fetch := func() (codersdk.WorkspaceAgent, error) {
+	fetch := func() (wirtualsdk.WorkspaceAgent, error) {
 		select {
 		case <-ctx.Done():
-			return codersdk.WorkspaceAgent{}, ctx.Err()
+			return wirtualsdk.WorkspaceAgent{}, ctx.Err()
 		case f := <-fetchedAgent:
 			if f.err != nil {
-				return codersdk.WorkspaceAgent{}, f.err
+				return wirtualsdk.WorkspaceAgent{}, f.err
 			}
 			return f.agent, nil
 		}
@@ -88,7 +88,7 @@ func Agent(ctx context.Context, writer io.Writer, agentID uuid.UUID, opts AgentO
 	if err != nil {
 		return xerrors.Errorf("fetch: %w", err)
 	}
-	logSources := map[uuid.UUID]codersdk.WorkspaceAgentLogSource{}
+	logSources := map[uuid.UUID]wirtualsdk.WorkspaceAgentLogSource{}
 	for _, source := range agent.LogSources {
 		logSources[source.ID] = source
 	}
@@ -104,24 +104,24 @@ func Agent(ctx context.Context, writer io.Writer, agentID uuid.UUID, opts AgentO
 		}
 
 		switch agent.Status {
-		case codersdk.WorkspaceAgentConnecting, codersdk.WorkspaceAgentTimeout:
+		case wirtualsdk.WorkspaceAgentConnecting, wirtualsdk.WorkspaceAgentTimeout:
 			// Since we were waiting for the agent to connect, also show
 			// startup logs if applicable.
 			showStartupLogs = true
 
 			stage := "Waiting for the workspace agent to connect"
 			sw.Start(stage)
-			for agent.Status == codersdk.WorkspaceAgentConnecting {
+			for agent.Status == wirtualsdk.WorkspaceAgentConnecting {
 				if agent, err = fetch(); err != nil {
 					return xerrors.Errorf("fetch: %w", err)
 				}
 			}
 
-			if agent.Status == codersdk.WorkspaceAgentTimeout {
+			if agent.Status == wirtualsdk.WorkspaceAgentTimeout {
 				now := time.Now()
-				sw.Log(now, codersdk.LogLevelInfo, "The workspace agent is having trouble connecting, wait for it to connect or restart your workspace.")
-				sw.Log(now, codersdk.LogLevelInfo, troubleshootingMessage(agent, fmt.Sprintf("%s/templates#agent-connection-issues", opts.DocsURL)))
-				for agent.Status == codersdk.WorkspaceAgentTimeout {
+				sw.Log(now, wirtualsdk.LogLevelInfo, "The workspace agent is having trouble connecting, wait for it to connect or restart your workspace.")
+				sw.Log(now, wirtualsdk.LogLevelInfo, troubleshootingMessage(agent, fmt.Sprintf("%s/templates#agent-connection-issues", opts.DocsURL)))
+				for agent.Status == wirtualsdk.WorkspaceAgentTimeout {
 					if agent, err = fetch(); err != nil {
 						return xerrors.Errorf("fetch: %w", err)
 					}
@@ -129,8 +129,8 @@ func Agent(ctx context.Context, writer io.Writer, agentID uuid.UUID, opts AgentO
 			}
 			sw.Complete(stage, agent.FirstConnectedAt.Sub(agent.CreatedAt))
 
-		case codersdk.WorkspaceAgentConnected:
-			if !showStartupLogs && agent.LifecycleState == codersdk.WorkspaceAgentLifecycleReady {
+		case wirtualsdk.WorkspaceAgentConnected:
+			if !showStartupLogs && agent.LifecycleState == wirtualsdk.WorkspaceAgentLifecycleReady {
 				// The workspace is ready, there's nothing to do but connect.
 				return nil
 			}
@@ -142,7 +142,7 @@ func Agent(ctx context.Context, writer io.Writer, agentID uuid.UUID, opts AgentO
 			}
 			sw.Start(stage)
 			if follow {
-				sw.Log(time.Time{}, codersdk.LogLevelInfo, "==> ℹ︎ To connect immediately, reconnect with --wait=no or WIRTUAL_SSH_WAIT=no, see --help for more information.")
+				sw.Log(time.Time{}, wirtualsdk.LogLevelInfo, "==> ℹ︎ To connect immediately, reconnect with --wait=no or WIRTUAL_SSH_WAIT=no, see --help for more information.")
 			}
 
 			err = func() error { // Use func because of defer in for loop.
@@ -152,7 +152,7 @@ func Agent(ctx context.Context, writer io.Writer, agentID uuid.UUID, opts AgentO
 				}
 				defer logsCloser.Close()
 
-				var lastLog codersdk.WorkspaceAgentLog
+				var lastLog wirtualsdk.WorkspaceAgentLog
 				fetchedAgentWhileFollowing := fetchedAgent
 				if !follow {
 					fetchedAgentWhileFollowing = nil
@@ -210,9 +210,9 @@ func Agent(ctx context.Context, writer io.Writer, agentID uuid.UUID, opts AgentO
 			}
 
 			switch agent.LifecycleState {
-			case codersdk.WorkspaceAgentLifecycleReady:
+			case wirtualsdk.WorkspaceAgentLifecycleReady:
 				sw.Complete(stage, safeDuration(sw, agent.ReadyAt, agent.StartedAt))
-			case codersdk.WorkspaceAgentLifecycleStartTimeout:
+			case wirtualsdk.WorkspaceAgentLifecycleStartTimeout:
 				// Backwards compatibility: Avoid printing warning if
 				// coderd is old and doesn't set ReadyAt for timeouts.
 				if agent.ReadyAt == nil {
@@ -220,18 +220,18 @@ func Agent(ctx context.Context, writer io.Writer, agentID uuid.UUID, opts AgentO
 				} else {
 					sw.Fail(stage, safeDuration(sw, agent.ReadyAt, agent.StartedAt))
 				}
-				sw.Log(time.Time{}, codersdk.LogLevelWarn, "Warning: A startup script timed out and your workspace may be incomplete.")
-			case codersdk.WorkspaceAgentLifecycleStartError:
+				sw.Log(time.Time{}, wirtualsdk.LogLevelWarn, "Warning: A startup script timed out and your workspace may be incomplete.")
+			case wirtualsdk.WorkspaceAgentLifecycleStartError:
 				sw.Fail(stage, safeDuration(sw, agent.ReadyAt, agent.StartedAt))
 				// Use zero time (omitted) to separate these from the startup logs.
-				sw.Log(time.Time{}, codersdk.LogLevelWarn, "Warning: A startup script exited with an error and your workspace may be incomplete.")
-				sw.Log(time.Time{}, codersdk.LogLevelWarn, troubleshootingMessage(agent, fmt.Sprintf("%s/templates#startup-script-exited-with-an-error", opts.DocsURL)))
+				sw.Log(time.Time{}, wirtualsdk.LogLevelWarn, "Warning: A startup script exited with an error and your workspace may be incomplete.")
+				sw.Log(time.Time{}, wirtualsdk.LogLevelWarn, troubleshootingMessage(agent, fmt.Sprintf("%s/templates#startup-script-exited-with-an-error", opts.DocsURL)))
 			default:
 				switch {
 				case agent.LifecycleState.Starting():
 					// Use zero time (omitted) to separate these from the startup logs.
-					sw.Log(time.Time{}, codersdk.LogLevelWarn, "Notice: The startup scripts are still running and your workspace may be incomplete.")
-					sw.Log(time.Time{}, codersdk.LogLevelWarn, troubleshootingMessage(agent, fmt.Sprintf("%s/templates#your-workspace-may-be-incomplete", opts.DocsURL)))
+					sw.Log(time.Time{}, wirtualsdk.LogLevelWarn, "Notice: The startup scripts are still running and your workspace may be incomplete.")
+					sw.Log(time.Time{}, wirtualsdk.LogLevelWarn, troubleshootingMessage(agent, fmt.Sprintf("%s/templates#your-workspace-may-be-incomplete", opts.DocsURL)))
 					// Note: We don't complete or fail the stage here, it's
 					// intentionally left open to indicate this stage didn't
 					// complete.
@@ -245,18 +245,18 @@ func Agent(ctx context.Context, writer io.Writer, agentID uuid.UUID, opts AgentO
 
 			return nil
 
-		case codersdk.WorkspaceAgentDisconnected:
+		case wirtualsdk.WorkspaceAgentDisconnected:
 			// If the agent was still starting during disconnect, we'll
 			// show startup logs.
 			showStartupLogs = agent.LifecycleState.Starting()
 
 			stage := "The workspace agent lost connection"
 			sw.Start(stage)
-			sw.Log(time.Now(), codersdk.LogLevelWarn, "Wait for it to reconnect or restart your workspace.")
-			sw.Log(time.Now(), codersdk.LogLevelWarn, troubleshootingMessage(agent, fmt.Sprintf("%s/templates#agent-connection-issues", opts.DocsURL)))
+			sw.Log(time.Now(), wirtualsdk.LogLevelWarn, "Wait for it to reconnect or restart your workspace.")
+			sw.Log(time.Now(), wirtualsdk.LogLevelWarn, troubleshootingMessage(agent, fmt.Sprintf("%s/templates#agent-connection-issues", opts.DocsURL)))
 
 			disconnectedAt := agent.DisconnectedAt
-			for agent.Status == codersdk.WorkspaceAgentDisconnected {
+			for agent.Status == wirtualsdk.WorkspaceAgentDisconnected {
 				if agent, err = fetch(); err != nil {
 					return xerrors.Errorf("fetch: %w", err)
 				}
@@ -266,7 +266,7 @@ func Agent(ctx context.Context, writer io.Writer, agentID uuid.UUID, opts AgentO
 	}
 }
 
-func troubleshootingMessage(agent codersdk.WorkspaceAgent, url string) string {
+func troubleshootingMessage(agent wirtualsdk.WorkspaceAgent, url string) string {
 	m := "For more information and troubleshooting, see " + url
 	if agent.TroubleshootingURL != "" {
 		m += " and " + agent.TroubleshootingURL
@@ -286,7 +286,7 @@ func safeDuration(sw *stageWriter, a, b *time.Time) time.Duration {
 			// Ideally the message includes which fields are <nil>, but you can
 			// use the surrounding log lines to figure that out. And passing more
 			// params makes this unwieldy.
-			sw.Log(time.Now(), codersdk.LogLevelWarn, "Warning: Failed to calculate duration from a time being <nil>.")
+			sw.Log(time.Now(), wirtualsdk.LogLevelWarn, "Warning: Failed to calculate duration from a time being <nil>.")
 		}
 		return 0
 	}

@@ -15,16 +15,16 @@ import (
 // It is important to maintain this mapping when adding a new Auditable Resource to the
 // AuditableResources map (below) as our documentation - generated in scripts/auditdocgen/main.go -
 // depends upon it.
-var AuditActionMap = map[string][]codersdk.AuditAction{
-	"GitSSHKey":       {codersdk.AuditActionCreate},
-	"Template":        {codersdk.AuditActionWrite, codersdk.AuditActionDelete},
-	"TemplateVersion": {codersdk.AuditActionCreate, codersdk.AuditActionWrite},
-	"User":            {codersdk.AuditActionCreate, codersdk.AuditActionWrite, codersdk.AuditActionDelete},
-	"Workspace":       {codersdk.AuditActionCreate, codersdk.AuditActionWrite, codersdk.AuditActionDelete},
-	"WorkspaceBuild":  {codersdk.AuditActionStart, codersdk.AuditActionStop},
-	"Group":           {codersdk.AuditActionCreate, codersdk.AuditActionWrite, codersdk.AuditActionDelete},
-	"APIKey":          {codersdk.AuditActionLogin, codersdk.AuditActionLogout, codersdk.AuditActionRegister, codersdk.AuditActionCreate, codersdk.AuditActionDelete},
-	"License":         {codersdk.AuditActionCreate, codersdk.AuditActionDelete},
+var AuditActionMap = map[string][]wirtualsdk.AuditAction{
+	"GitSSHKey":       {wirtualsdk.AuditActionCreate},
+	"Template":        {wirtualsdk.AuditActionWrite, wirtualsdk.AuditActionDelete},
+	"TemplateVersion": {wirtualsdk.AuditActionCreate, wirtualsdk.AuditActionWrite},
+	"User":            {wirtualsdk.AuditActionCreate, wirtualsdk.AuditActionWrite, wirtualsdk.AuditActionDelete},
+	"Workspace":       {wirtualsdk.AuditActionCreate, wirtualsdk.AuditActionWrite, wirtualsdk.AuditActionDelete},
+	"WorkspaceBuild":  {wirtualsdk.AuditActionStart, wirtualsdk.AuditActionStop},
+	"Group":           {wirtualsdk.AuditActionCreate, wirtualsdk.AuditActionWrite, wirtualsdk.AuditActionDelete},
+	"APIKey":          {wirtualsdk.AuditActionLogin, wirtualsdk.AuditActionLogout, wirtualsdk.AuditActionRegister, wirtualsdk.AuditActionCreate, wirtualsdk.AuditActionDelete},
+	"License":         {wirtualsdk.AuditActionCreate, wirtualsdk.AuditActionDelete},
 }
 
 type Action string

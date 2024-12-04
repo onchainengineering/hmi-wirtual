@@ -67,9 +67,9 @@ func (r *RootCmd) ssh() *serpent.Command {
 		env              []string
 		usageApp         string
 		disableAutostart bool
-		appearanceConfig codersdk.AppearanceConfig
+		appearanceConfig wirtualsdk.AppearanceConfig
 	)
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Annotations: workspaceCommand,
 		Use:         "ssh <workspace>",
@@ -214,7 +214,7 @@ func (r *RootCmd) ssh() *serpent.Command {
 
 			var unsupportedWorkspace bool
 			for _, warning := range templateVersion.Warnings {
-				if warning == codersdk.TemplateVersionWarningUnsupportedWorkspaces {
+				if warning == wirtualsdk.TemplateVersionWarningUnsupportedWorkspaces {
 					unsupportedWorkspace = true
 					break
 				}
@@ -267,7 +267,7 @@ func (r *RootCmd) ssh() *serpent.Command {
 
 			usageAppName := getUsageAppName(usageApp)
 			if usageAppName != "" {
-				closeUsage := client.UpdateWorkspaceUsageWithBodyContext(ctx, workspace.ID, codersdk.PostWorkspaceUsageRequest{
+				closeUsage := client.UpdateWorkspaceUsageWithBodyContext(ctx, workspace.ID, wirtualsdk.PostWorkspaceUsageRequest{
 					AgentID: workspaceAgent.ID,
 					AppName: usageAppName,
 				})
@@ -555,7 +555,7 @@ func (r *RootCmd) ssh() *serpent.Command {
 // will usually not propagate.
 //
 // See: https://github.com/coder/coder/issues/6180
-func watchAndClose(ctx context.Context, closer func() error, logger slog.Logger, client *codersdk.Client, workspace codersdk.Workspace) {
+func watchAndClose(ctx context.Context, closer func() error, logger slog.Logger, client *wirtualsdk.Client, workspace wirtualsdk.Workspace) {
 	// Ensure session is ended on both context cancellation
 	// and workspace stop.
 	defer func() {
@@ -568,7 +568,7 @@ func watchAndClose(ctx context.Context, closer func() error, logger slog.Logger,
 startWatchLoop:
 	for {
 		logger.Debug(ctx, "connecting to the coder server to watch workspace events")
-		var wsWatch <-chan codersdk.Workspace
+		var wsWatch <-chan wirtualsdk.Workspace
 		var err error
 		for r := retry.New(time.Second, 15*time.Second); r.Wait(ctx); {
 			wsWatch, err = client.WatchWorkspace(ctx, workspace.ID)
@@ -595,14 +595,14 @@ startWatchLoop:
 				// the agent will still gracefully stop. If a new
 				// build is starting, there's no reason to wait for
 				// the agent, it should be long gone.
-				if workspace.LatestBuild.ID != w.LatestBuild.ID && w.LatestBuild.Transition == codersdk.WorkspaceTransitionStart {
+				if workspace.LatestBuild.ID != w.LatestBuild.ID && w.LatestBuild.Transition == wirtualsdk.WorkspaceTransitionStart {
 					logger.Info(ctx, "new build started")
 					return
 				}
 				// Note, we only react to the stopped state here because we
 				// want to give the agent a chance to gracefully shut down
 				// during "stopping".
-				if w.LatestBuild.Status == codersdk.WorkspaceStatusStopped {
+				if w.LatestBuild.Status == wirtualsdk.WorkspaceStatusStopped {
 					logger.Info(ctx, "workspace stopped")
 					return
 				}
@@ -614,9 +614,9 @@ startWatchLoop:
 // getWorkspaceAgent returns the workspace and agent selected using either the
 // `<workspace>[.<agent>]` syntax via `in`.
 // If autoStart is true, the workspace will be started if it is not already running.
-func getWorkspaceAndAgent(ctx context.Context, inv *serpent.Invocation, client *codersdk.Client, autostart bool, input string) (codersdk.Workspace, codersdk.WorkspaceAgent, error) { //nolint:revive
+func getWorkspaceAndAgent(ctx context.Context, inv *serpent.Invocation, client *wirtualsdk.Client, autostart bool, input string) (wirtualsdk.Workspace, wirtualsdk.WorkspaceAgent, error) { //nolint:revive
 	var (
-		workspace codersdk.Workspace
+		workspace wirtualsdk.Workspace
 		// The input will be `owner/name.agent`
 		// The agent is optional.
 		workspaceParts = strings.Split(input, ".")
@@ -625,30 +625,30 @@ func getWorkspaceAndAgent(ctx context.Context, inv *serpent.Invocation, client *
 
 	workspace, err = namedWorkspace(ctx, client, workspaceParts[0])
 	if err != nil {
-		return codersdk.Workspace{}, codersdk.WorkspaceAgent{}, err
+		return wirtualsdk.Workspace{}, wirtualsdk.WorkspaceAgent{}, err
 	}
 
-	if workspace.LatestBuild.Transition != codersdk.WorkspaceTransitionStart {
+	if workspace.LatestBuild.Transition != wirtualsdk.WorkspaceTransitionStart {
 		if !autostart {
-			return codersdk.Workspace{}, codersdk.WorkspaceAgent{}, xerrors.New("workspace must be started")
+			return wirtualsdk.Workspace{}, wirtualsdk.WorkspaceAgent{}, xerrors.New("workspace must be started")
 		}
 		// Autostart the workspace for the user.
 		// For some failure modes, return a better message.
-		if workspace.LatestBuild.Transition == codersdk.WorkspaceTransitionDelete {
+		if workspace.LatestBuild.Transition == wirtualsdk.WorkspaceTransitionDelete {
 			// Any sort of deleting status, we should reject with a nicer error.
-			return codersdk.Workspace{}, codersdk.WorkspaceAgent{}, xerrors.Errorf("workspace %q is deleted", workspace.Name)
+			return wirtualsdk.Workspace{}, wirtualsdk.WorkspaceAgent{}, xerrors.Errorf("workspace %q is deleted", workspace.Name)
 		}
-		if workspace.LatestBuild.Job.Status == codersdk.ProvisionerJobFailed {
-			return codersdk.Workspace{}, codersdk.WorkspaceAgent{},
+		if workspace.LatestBuild.Job.Status == wirtualsdk.ProvisionerJobFailed {
+			return wirtualsdk.Workspace{}, wirtualsdk.WorkspaceAgent{},
 				xerrors.Errorf("workspace %q is in failed state, unable to autostart the workspace", workspace.Name)
 		}
 		// The workspace needs to be stopped before we can start it.
 		// It cannot be in any pending or failed state.
-		if workspace.LatestBuild.Status != codersdk.WorkspaceStatusStopped {
-			return codersdk.Workspace{}, codersdk.WorkspaceAgent{},
+		if workspace.LatestBuild.Status != wirtualsdk.WorkspaceStatusStopped {
+			return wirtualsdk.Workspace{}, wirtualsdk.WorkspaceAgent{},
 				xerrors.Errorf("workspace must be started; was unable to autostart as the last build job is %q, expected %q",
 					workspace.LatestBuild.Status,
-					codersdk.WorkspaceStatusStopped,
+					wirtualsdk.WorkspaceStatusStopped,
 				)
 		}
 
@@ -657,35 +657,35 @@ func getWorkspaceAndAgent(ctx context.Context, inv *serpent.Invocation, client *
 		// workspaces with the active version.
 		_, _ = fmt.Fprintf(inv.Stderr, "Workspace was stopped, starting workspace to allow connecting to %q...\n", workspace.Name)
 		_, err = startWorkspace(inv, client, workspace, workspaceParameterFlags{}, buildFlags{}, WorkspaceStart)
-		if cerr, ok := codersdk.AsError(err); ok && cerr.StatusCode() == http.StatusForbidden {
+		if cerr, ok := wirtualsdk.AsError(err); ok && cerr.StatusCode() == http.StatusForbidden {
 			_, err = startWorkspace(inv, client, workspace, workspaceParameterFlags{}, buildFlags{}, WorkspaceUpdate)
 			if err != nil {
-				return codersdk.Workspace{}, codersdk.WorkspaceAgent{}, xerrors.Errorf("start workspace with active template version: %w", err)
+				return wirtualsdk.Workspace{}, wirtualsdk.WorkspaceAgent{}, xerrors.Errorf("start workspace with active template version: %w", err)
 			}
 			_, _ = fmt.Fprintln(inv.Stdout, "Unable to start the workspace with template version from last build. Your workspace has been updated to the current active template version.")
 		} else if err != nil {
-			return codersdk.Workspace{}, codersdk.WorkspaceAgent{}, xerrors.Errorf("start workspace with current template version: %w", err)
+			return wirtualsdk.Workspace{}, wirtualsdk.WorkspaceAgent{}, xerrors.Errorf("start workspace with current template version: %w", err)
 		}
 
 		// Refresh workspace state so that `outdated`, `build`,`template_*` fields are up-to-date.
 		workspace, err = namedWorkspace(ctx, client, workspaceParts[0])
 		if err != nil {
-			return codersdk.Workspace{}, codersdk.WorkspaceAgent{}, err
+			return wirtualsdk.Workspace{}, wirtualsdk.WorkspaceAgent{}, err
 		}
 	}
 	if workspace.LatestBuild.Job.CompletedAt == nil {
 		err := cliui.WorkspaceBuild(ctx, inv.Stderr, client, workspace.LatestBuild.ID)
 		if err != nil {
-			return codersdk.Workspace{}, codersdk.WorkspaceAgent{}, err
+			return wirtualsdk.Workspace{}, wirtualsdk.WorkspaceAgent{}, err
 		}
 		// Fetch up-to-date build information after completion.
 		workspace.LatestBuild, err = client.WorkspaceBuild(ctx, workspace.LatestBuild.ID)
 		if err != nil {
-			return codersdk.Workspace{}, codersdk.WorkspaceAgent{}, err
+			return wirtualsdk.Workspace{}, wirtualsdk.WorkspaceAgent{}, err
 		}
 	}
-	if workspace.LatestBuild.Transition == codersdk.WorkspaceTransitionDelete {
-		return codersdk.Workspace{}, codersdk.WorkspaceAgent{}, xerrors.Errorf("workspace %q is being deleted", workspace.Name)
+	if workspace.LatestBuild.Transition == wirtualsdk.WorkspaceTransitionDelete {
+		return wirtualsdk.Workspace{}, wirtualsdk.WorkspaceAgent{}, xerrors.Errorf("workspace %q is being deleted", workspace.Name)
 	}
 
 	var agentName string
@@ -694,21 +694,21 @@ func getWorkspaceAndAgent(ctx context.Context, inv *serpent.Invocation, client *
 	}
 	workspaceAgent, err := getWorkspaceAgent(workspace, agentName)
 	if err != nil {
-		return codersdk.Workspace{}, codersdk.WorkspaceAgent{}, err
+		return wirtualsdk.Workspace{}, wirtualsdk.WorkspaceAgent{}, err
 	}
 
 	return workspace, workspaceAgent, nil
 }
 
-func getWorkspaceAgent(workspace codersdk.Workspace, agentName string) (workspaceAgent codersdk.WorkspaceAgent, err error) {
+func getWorkspaceAgent(workspace wirtualsdk.Workspace, agentName string) (workspaceAgent wirtualsdk.WorkspaceAgent, err error) {
 	resources := workspace.LatestBuild.Resources
 
-	agents := make([]codersdk.WorkspaceAgent, 0)
+	agents := make([]wirtualsdk.WorkspaceAgent, 0)
 	for _, resource := range resources {
 		agents = append(agents, resource.Agents...)
 	}
 	if len(agents) == 0 {
-		return codersdk.WorkspaceAgent{}, xerrors.Errorf("workspace %q has no agents", workspace.Name)
+		return wirtualsdk.WorkspaceAgent{}, xerrors.Errorf("workspace %q has no agents", workspace.Name)
 	}
 	if agentName != "" {
 		for _, otherAgent := range agents {
@@ -719,14 +719,14 @@ func getWorkspaceAgent(workspace codersdk.Workspace, agentName string) (workspac
 			break
 		}
 		if workspaceAgent.ID == uuid.Nil {
-			return codersdk.WorkspaceAgent{}, xerrors.Errorf("agent not found by name %q", agentName)
+			return wirtualsdk.WorkspaceAgent{}, xerrors.Errorf("agent not found by name %q", agentName)
 		}
 	}
 	if workspaceAgent.ID == uuid.Nil {
 		if len(agents) > 1 {
 			workspaceAgent, err = cryptorand.Element(agents)
 			if err != nil {
-				return codersdk.WorkspaceAgent{}, err
+				return wirtualsdk.WorkspaceAgent{}, err
 			}
 		} else {
 			workspaceAgent = agents[0]
@@ -738,7 +738,7 @@ func getWorkspaceAgent(workspace codersdk.Workspace, agentName string) (workspac
 // Attempt to poll workspace autostop. We write a per-workspace lockfile to
 // avoid spamming the user with notifications in case of multiple instances
 // of the CLI running simultaneously.
-func tryPollWorkspaceAutostop(ctx context.Context, client *codersdk.Client, workspace codersdk.Workspace) (stop func()) {
+func tryPollWorkspaceAutostop(ctx context.Context, client *wirtualsdk.Client, workspace wirtualsdk.Workspace) (stop func()) {
 	lock := flock.New(filepath.Join(os.TempDir(), "coder-autostop-notify-"+workspace.ID.String()))
 	conditionCtx, cancelCondition := context.WithCancel(ctx)
 	condition := notifyCondition(conditionCtx, client, workspace.ID, lock)
@@ -752,7 +752,7 @@ func tryPollWorkspaceAutostop(ctx context.Context, client *codersdk.Client, work
 }
 
 // Notify the user if the workspace is due to shutdown.
-func notifyCondition(ctx context.Context, client *codersdk.Client, workspaceID uuid.UUID, lock *flock.Flock) notify.Condition {
+func notifyCondition(ctx context.Context, client *wirtualsdk.Client, workspaceID uuid.UUID, lock *flock.Flock) notify.Condition {
 	return func(now time.Time) (deadline time.Time, callback func()) {
 		// Keep trying to regain the lock.
 		locked, err := lock.TryLockContext(ctx, workspacePollInterval)
@@ -789,7 +789,7 @@ func notifyCondition(ctx context.Context, client *codersdk.Client, workspaceID u
 }
 
 // Verify if the user workspace is outdated and prepare an actionable message for user.
-func verifyWorkspaceOutdated(client *codersdk.Client, workspace codersdk.Workspace) (string, bool) {
+func verifyWorkspaceOutdated(client *wirtualsdk.Client, workspace wirtualsdk.Workspace) (string, bool) {
 	if !workspace.Outdated {
 		return "", false // workspace is up-to-date
 	}
@@ -799,7 +799,7 @@ func verifyWorkspaceOutdated(client *codersdk.Client, workspace codersdk.Workspa
 }
 
 // Build the user workspace link which navigates to the Coder web UI.
-func buildWorkspaceLink(serverURL *url.URL, workspace codersdk.Workspace) *url.URL {
+func buildWorkspaceLink(serverURL *url.URL, workspace wirtualsdk.Workspace) *url.URL {
 	return serverURL.ResolveReference(&url.URL{Path: fmt.Sprintf("@%s/%s", workspace.OwnerName, workspace.Name)})
 }
 
@@ -1121,19 +1121,19 @@ func (r stdioErrLogReader) Read(_ []byte) (int, error) {
 	return 0, io.EOF
 }
 
-func getUsageAppName(usageApp string) codersdk.UsageAppName {
+func getUsageAppName(usageApp string) wirtualsdk.UsageAppName {
 	if usageApp == disableUsageApp {
 		return ""
 	}
 
 	allowedUsageApps := []string{
-		string(codersdk.UsageAppNameSSH),
-		string(codersdk.UsageAppNameVscode),
-		string(codersdk.UsageAppNameJetbrains),
+		string(wirtualsdk.UsageAppNameSSH),
+		string(wirtualsdk.UsageAppNameVscode),
+		string(wirtualsdk.UsageAppNameJetbrains),
 	}
 	if slices.Contains(allowedUsageApps, usageApp) {
-		return codersdk.UsageAppName(usageApp)
+		return wirtualsdk.UsageAppName(usageApp)
 	}
 
-	return codersdk.UsageAppNameSSH
+	return wirtualsdk.UsageAppNameSSH
 }

@@ -72,19 +72,19 @@ type Options struct {
 	ProvisionerDaemonPSK       string
 }
 
-// New constructs a codersdk client connected to an in-memory Enterprise API instance.
-func New(t *testing.T, options *Options) (*codersdk.Client, codersdk.CreateFirstUserResponse) {
+// New constructs a wirtualsdk client connected to an in-memory Enterprise API instance.
+func New(t *testing.T, options *Options) (*wirtualsdk.Client, wirtualsdk.CreateFirstUserResponse) {
 	client, _, _, user := NewWithAPI(t, options)
 	return client, user
 }
 
-func NewWithDatabase(t *testing.T, options *Options) (*codersdk.Client, database.Store, codersdk.CreateFirstUserResponse) {
+func NewWithDatabase(t *testing.T, options *Options) (*wirtualsdk.Client, database.Store, wirtualsdk.CreateFirstUserResponse) {
 	client, _, api, user := NewWithAPI(t, options)
 	return client, api.Database, user
 }
 
 func NewWithAPI(t *testing.T, options *Options) (
-	*codersdk.Client, io.Closer, *coderd.API, codersdk.CreateFirstUserResponse,
+	*wirtualsdk.Client, io.Closer, *coderd.API, wirtualsdk.CreateFirstUserResponse,
 ) {
 	t.Helper()
 
@@ -125,7 +125,7 @@ func NewWithAPI(t *testing.T, options *Options) (
 		_ = provisionerCloser.Close()
 		_ = coderAPI.Close()
 	})
-	client := codersdk.New(serverURL)
+	client := wirtualsdk.New(serverURL)
 	client.HTTPClient = &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
@@ -134,7 +134,7 @@ func NewWithAPI(t *testing.T, options *Options) (
 			},
 		},
 	}
-	var user codersdk.CreateFirstUserResponse
+	var user wirtualsdk.CreateFirstUserResponse
 	if !options.DontAddFirstUser {
 		user = coderdtest.CreateFirstUser(t, client)
 		if !options.DontAddLicense {
@@ -142,7 +142,7 @@ func NewWithAPI(t *testing.T, options *Options) (
 			if options.LicenseOptions != nil {
 				lo = *options.LicenseOptions
 				// The pgCoord is not supported by the fake DB & in-memory Pubsub.  It only works on a real postgres.
-				if lo.AllFeatures || (lo.Features != nil && lo.Features[codersdk.FeatureHighAvailability] != 0) {
+				if lo.AllFeatures || (lo.Features != nil && lo.Features[wirtualsdk.FeatureHighAvailability] != 0) {
 					// we check for the in-memory test types so that the real types don't have to exported
 					_, ok := coderAPI.Pubsub.(*pubsub.MemoryPubsub)
 					require.False(t, ok, "FeatureHighAvailability is incompatible with MemoryPubsub")
@@ -163,7 +163,7 @@ type LicenseOptions struct {
 	AccountID     string
 	DeploymentIDs []string
 	Trial         bool
-	FeatureSet    codersdk.FeatureSet
+	FeatureSet    wirtualsdk.FeatureSet
 	AllFeatures   bool
 	// GraceAt is the time at which the license will enter the grace period.
 	GraceAt time.Time
@@ -203,10 +203,10 @@ func (opts *LicenseOptions) FutureTerm(now time.Time) *LicenseOptions {
 }
 
 func (opts *LicenseOptions) UserLimit(limit int64) *LicenseOptions {
-	return opts.Feature(codersdk.FeatureUserLimit, limit)
+	return opts.Feature(wirtualsdk.FeatureUserLimit, limit)
 }
 
-func (opts *LicenseOptions) Feature(name codersdk.FeatureName, value int64) *LicenseOptions {
+func (opts *LicenseOptions) Feature(name wirtualsdk.FeatureName, value int64) *LicenseOptions {
 	if opts.Features == nil {
 		opts.Features = license.Features{}
 	}
@@ -219,13 +219,13 @@ func (opts *LicenseOptions) Generate(t *testing.T) string {
 }
 
 // AddFullLicense generates a license with all features enabled.
-func AddFullLicense(t *testing.T, client *codersdk.Client) codersdk.License {
+func AddFullLicense(t *testing.T, client *wirtualsdk.Client) wirtualsdk.License {
 	return AddLicense(t, client, LicenseOptions{AllFeatures: true})
 }
 
 // AddLicense generates a new license with the options provided and inserts it.
-func AddLicense(t *testing.T, client *codersdk.Client, options LicenseOptions) codersdk.License {
-	l, err := client.AddLicense(context.Background(), codersdk.AddLicenseRequest{
+func AddLicense(t *testing.T, client *wirtualsdk.Client, options LicenseOptions) wirtualsdk.License {
+	l, err := client.AddLicense(context.Background(), wirtualsdk.AddLicenseRequest{
 		License: GenerateLicense(t, options),
 	})
 	require.NoError(t, err)
@@ -279,9 +279,9 @@ type CreateOrganizationOptions struct {
 	IncludeProvisionerDaemon bool
 }
 
-func CreateOrganization(t *testing.T, client *codersdk.Client, opts CreateOrganizationOptions, mutators ...func(*codersdk.CreateOrganizationRequest)) codersdk.Organization {
+func CreateOrganization(t *testing.T, client *wirtualsdk.Client, opts CreateOrganizationOptions, mutators ...func(*wirtualsdk.CreateOrganizationRequest)) wirtualsdk.Organization {
 	ctx := testutil.Context(t, testutil.WaitMedium)
-	req := codersdk.CreateOrganizationRequest{
+	req := wirtualsdk.CreateOrganizationRequest{
 		Name:        strings.ReplaceAll(strings.ToLower(namesgenerator.GetRandomName(0)), "_", "-"),
 		DisplayName: namesgenerator.GetRandomName(1),
 		Description: namesgenerator.GetRandomName(1),
@@ -304,7 +304,7 @@ func CreateOrganization(t *testing.T, client *codersdk.Client, opts CreateOrgani
 	return org
 }
 
-func NewExternalProvisionerDaemon(t testing.TB, client *codersdk.Client, org uuid.UUID, tags map[string]string) io.Closer {
+func NewExternalProvisionerDaemon(t testing.TB, client *wirtualsdk.Client, org uuid.UUID, tags map[string]string) io.Closer {
 	t.Helper()
 
 	// Without this check, the provisioner will silently fail.
@@ -317,8 +317,8 @@ func NewExternalProvisionerDaemon(t testing.TB, client *codersdk.Client, org uui
 		return nil
 	}
 
-	feature := entitlements.Features[codersdk.FeatureExternalProvisionerDaemons]
-	if !feature.Enabled || feature.Entitlement != codersdk.EntitlementEntitled {
+	feature := entitlements.Features[wirtualsdk.FeatureExternalProvisionerDaemons]
+	if !feature.Enabled || feature.Entitlement != wirtualsdk.EntitlementEntitled {
 		require.NoError(t, xerrors.Errorf("external provisioner daemons require an entitled license"))
 		return nil
 	}
@@ -342,11 +342,11 @@ func NewExternalProvisionerDaemon(t testing.TB, client *codersdk.Client, org uui
 	}()
 
 	daemon := provisionerd.New(func(ctx context.Context) (provisionerdproto.DRPCProvisionerDaemonClient, error) {
-		return client.ServeProvisionerDaemon(ctx, codersdk.ServeProvisionerDaemonRequest{
+		return client.ServeProvisionerDaemon(ctx, wirtualsdk.ServeProvisionerDaemonRequest{
 			ID:           uuid.New(),
 			Name:         t.Name(),
 			Organization: org,
-			Provisioners: []codersdk.ProvisionerType{codersdk.ProvisionerTypeEcho},
+			Provisioners: []wirtualsdk.ProvisionerType{wirtualsdk.ProvisionerTypeEcho},
 			Tags:         tags,
 		})
 	}, &provisionerd.Options{

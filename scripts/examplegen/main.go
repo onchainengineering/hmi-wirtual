@@ -70,7 +70,7 @@ func run(lint bool) error {
 		}
 	}
 
-	var examples []codersdk.TemplateExample
+	var examples []wirtualsdk.TemplateExample
 	var errs []error
 	for _, name := range paths {
 		te, err := parseTemplateExample(projectFS, examplesFS, name)
@@ -102,7 +102,7 @@ func run(lint bool) error {
 	return enc.Encode(examples)
 }
 
-func parseTemplateExample(projectFS, examplesFS fs.FS, name string) (te *codersdk.TemplateExample, err error) {
+func parseTemplateExample(projectFS, examplesFS fs.FS, name string) (te *wirtualsdk.TemplateExample, err error) {
 	var errs []error
 	defer func() {
 		if err != nil {
@@ -195,7 +195,7 @@ func parseTemplateExample(projectFS, examplesFS fs.FS, name string) (te *codersd
 		return nil, xerrors.New("front matter validation failed")
 	}
 
-	return &codersdk.TemplateExample{
+	return &wirtualsdk.TemplateExample{
 		ID:          exampleID,
 		Name:        displayName,
 		Description: description,

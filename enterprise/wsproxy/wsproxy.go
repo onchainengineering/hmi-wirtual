@@ -44,7 +44,7 @@ import (
 
 type Options struct {
 	Logger      slog.Logger
-	Experiments codersdk.Experiments
+	Experiments wirtualsdk.Experiments
 
 	HTTPClient *http.Client
 	// DashboardURL is the URL of the primary coderd instance.
@@ -83,7 +83,7 @@ type Options struct {
 
 	// ReplicaErrCallback is called when the proxy replica successfully or
 	// unsuccessfully pings its peers in the mesh.
-	ReplicaErrCallback func(replicas []codersdk.Replica, err string)
+	ReplicaErrCallback func(replicas []wirtualsdk.Replica, err string)
 
 	ProxySessionToken string
 	// AllowAllCors will set all CORs headers to '*'.
@@ -204,7 +204,7 @@ func New(ctx context.Context, opts *Options) (*Server, error) {
 	encryptionCache, err := cryptokeys.NewEncryptionCache(ctx,
 		opts.Logger,
 		&ProxyFetcher{Client: client},
-		codersdk.CryptoKeyFeatureWorkspaceAppsAPIKey,
+		wirtualsdk.CryptoKeyFeatureWorkspaceAppsAPIKey,
 	)
 	if err != nil {
 		cancel()
@@ -213,7 +213,7 @@ func New(ctx context.Context, opts *Options) (*Server, error) {
 	signingCache, err := cryptokeys.NewSigningCache(ctx,
 		opts.Logger,
 		&ProxyFetcher{Client: client},
-		codersdk.CryptoKeyFeatureWorkspaceAppsToken,
+		wirtualsdk.CryptoKeyFeatureWorkspaceAppsToken,
 	)
 	if err != nil {
 		cancel()
@@ -346,7 +346,7 @@ func New(ctx context.Context, opts *Options) (*Server, error) {
 		// Build-Version is helpful for debugging.
 		func(next http.Handler) http.Handler {
 			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.Header().Add(codersdk.BuildVersionHeader, buildinfo.Version())
+				w.Header().Add(wirtualsdk.BuildVersionHeader, buildinfo.Version())
 				next.ServeHTTP(w, r)
 			})
 		},
@@ -405,7 +405,7 @@ func New(ctx context.Context, opts *Options) (*Server, error) {
 	} else {
 		r.Route("/derp", func(r chi.Router) {
 			r.HandleFunc("/*", func(rw http.ResponseWriter, r *http.Request) {
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "DERP is disabled on this proxy.",
 				})
 			})
@@ -483,7 +483,7 @@ func (s *Server) handleRegister(res wsproxysdk.RegisterWorkspaceProxyResponse) e
 	return nil
 }
 
-func (s *Server) pingSiblingReplicas(replicas []codersdk.Replica) {
+func (s *Server) pingSiblingReplicas(replicas []wirtualsdk.Replica) {
 	ctx, cancel := context.WithTimeout(s.ctx, 10*time.Second)
 	defer cancel()
 
@@ -496,7 +496,7 @@ func (s *Server) pingSiblingReplicas(replicas []codersdk.Replica) {
 	}
 }
 
-func pingSiblingReplicas(ctx context.Context, logger slog.Logger, sf *singleflight.Group, derpMeshTLSConfig *tls.Config, replicas []codersdk.Replica) string {
+func pingSiblingReplicas(ctx context.Context, logger slog.Logger, sf *singleflight.Group, derpMeshTLSConfig *tls.Config, replicas []wirtualsdk.Replica) string {
 	if len(replicas) == 0 {
 		return ""
 	}
@@ -522,7 +522,7 @@ func pingSiblingReplicas(ctx context.Context, logger slog.Logger, sf *singleflig
 
 		errs := make(chan error, len(replicas))
 		for _, peer := range replicas {
-			go func(peer codersdk.Replica) {
+			go func(peer wirtualsdk.Replica) {
 				err := replicasync.PingPeerReplica(ctx, client, peer.RelayAddress)
 				if err != nil {
 					errs <- xerrors.Errorf("ping sibling replica %s (%s): %w", peer.Hostname, peer.RelayAddress, err)
@@ -566,7 +566,7 @@ func (s *Server) handleRegisterFailure(err error) {
 }
 
 func (s *Server) buildInfo(rw http.ResponseWriter, r *http.Request) {
-	httpapi.Write(r.Context(), rw, http.StatusOK, codersdk.BuildInfoResponse{
+	httpapi.Write(r.Context(), rw, http.StatusOK, wirtualsdk.BuildInfoResponse{
 		ExternalURL:     buildinfo.ExternalURL(),
 		Version:         buildinfo.Version(),
 		AgentAPIVersion: coderd.AgentAPIVersionREST,
@@ -586,7 +586,7 @@ func (s *Server) buildInfo(rw http.ResponseWriter, r *http.Request) {
 // TODO: Config checks to ensure consistent with primary
 func (s *Server) healthReport(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	var report codersdk.ProxyHealthReport
+	var report wirtualsdk.ProxyHealthReport
 
 	// This is to catch edge cases where the server is shutting down, but might
 	// still serve a web request that returns "healthy". This is mainly just for

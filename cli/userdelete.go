@@ -12,7 +12,7 @@ import (
 )
 
 func (r *RootCmd) userDelete() *serpent.Command {
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "delete <username|user_id>",
 		Short: "Delete a user by username or user_id.",

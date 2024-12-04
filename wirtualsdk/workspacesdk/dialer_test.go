@@ -63,7 +63,7 @@ func TestWebsocketDialer_TokenController(t *testing.T) {
 		if !assert.NoError(t, err) {
 			return
 		}
-		wsCtx, nc := codersdk.WebsocketNetConn(ctx, sws, websocket.MessageBinary)
+		wsCtx, nc := wirtualsdk.WebsocketNetConn(ctx, sws, websocket.MessageBinary)
 		// streamID can be empty because we don't call RPCs in this test.
 		wsErr <- svc.ServeConnV2(wsCtx, nc, tailnet.StreamID{})
 	}))
@@ -145,7 +145,7 @@ func TestWebsocketDialer_NoTokenController(t *testing.T) {
 		if !assert.NoError(t, err) {
 			return
 		}
-		wsCtx, nc := codersdk.WebsocketNetConn(ctx, sws, websocket.MessageBinary)
+		wsCtx, nc := wirtualsdk.WebsocketNetConn(ctx, sws, websocket.MessageBinary)
 		// streamID can be empty because we don't call RPCs in this test.
 		wsErr <- svc.ServeConnV2(wsCtx, nc, tailnet.StreamID{})
 	}))
@@ -205,9 +205,9 @@ func TestWebsocketDialer_ResumeTokenFailure(t *testing.T) {
 		}
 
 		if resumeToken != "" {
-			httpapi.Write(ctx, w, http.StatusUnauthorized, codersdk.Response{
+			httpapi.Write(ctx, w, http.StatusUnauthorized, wirtualsdk.Response{
 				Message: workspacesdk.CoordinateAPIInvalidResumeToken,
-				Validations: []codersdk.ValidationError{
+				Validations: []wirtualsdk.ValidationError{
 					{Field: "resume_token", Detail: workspacesdk.CoordinateAPIInvalidResumeToken},
 				},
 			})
@@ -217,7 +217,7 @@ func TestWebsocketDialer_ResumeTokenFailure(t *testing.T) {
 		if !assert.NoError(t, err) {
 			return
 		}
-		wsCtx, nc := codersdk.WebsocketNetConn(ctx, sws, websocket.MessageBinary)
+		wsCtx, nc := wirtualsdk.WebsocketNetConn(ctx, sws, websocket.MessageBinary)
 		// streamID can be empty because we don't call RPCs in this test.
 		wsErr <- svc.ServeConnV2(wsCtx, nc, tailnet.StreamID{})
 	}))
@@ -282,9 +282,9 @@ func TestWebsocketDialer_UplevelVersion(t *testing.T) {
 		// c.f. coderd/workspaceagents.go: workspaceAgentClientCoordinate
 		cVer := r.URL.Query().Get("version")
 		if err := sVer.Validate(cVer); err != nil {
-			httpapi.Write(ctx, w, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, w, http.StatusBadRequest, wirtualsdk.Response{
 				Message: workspacesdk.AgentAPIMismatchMessage,
-				Validations: []codersdk.ValidationError{
+				Validations: []wirtualsdk.ValidationError{
 					{Field: "version", Detail: err.Error()},
 				},
 			})
@@ -306,7 +306,7 @@ func TestWebsocketDialer_UplevelVersion(t *testing.T) {
 	}()
 
 	err = testutil.RequireRecvCtx(ctx, t, errCh)
-	var sdkErr *codersdk.Error
+	var sdkErr *wirtualsdk.Error
 	require.ErrorAs(t, err, &sdkErr)
 	require.Equal(t, http.StatusBadRequest, sdkErr.StatusCode())
 	require.Equal(t, workspacesdk.AgentAPIMismatchMessage, sdkErr.Message)
@@ -346,7 +346,7 @@ func TestWebsocketDialer_WorkspaceUpdates(t *testing.T) {
 		if !assert.NoError(t, err) {
 			return
 		}
-		wsCtx, nc := codersdk.WebsocketNetConn(ctx, sws, websocket.MessageBinary)
+		wsCtx, nc := wirtualsdk.WebsocketNetConn(ctx, sws, websocket.MessageBinary)
 		// streamID can be empty because we don't call RPCs in this test.
 		wsErr <- svc.ServeConnV2(wsCtx, nc, tailnet.StreamID{})
 	}))

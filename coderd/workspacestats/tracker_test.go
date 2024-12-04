@@ -194,7 +194,7 @@ func TestTracker_MultipleInstances(t *testing.T) {
 	require.Equal(t, 5, flushedB)
 
 	// Fetch updated workspaces
-	updated := make([]codersdk.Workspace, numWorkspaces)
+	updated := make([]wirtualsdk.Workspace, numWorkspaces)
 	for i := 0; i < numWorkspaces; i++ {
 		ws, err := clientA.Workspace(ctx, w[i].Workspace.ID)
 		require.NoError(t, err)

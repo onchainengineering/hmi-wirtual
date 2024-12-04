@@ -17,14 +17,14 @@ import (
 
 // PrimaryRegion exposes the user facing values of a workspace proxy to
 // be used by a user.
-func (api *API) PrimaryRegion(ctx context.Context) (codersdk.Region, error) {
+func (api *API) PrimaryRegion(ctx context.Context) (wirtualsdk.Region, error) {
 	deploymentIDStr, err := api.Database.GetDeploymentID(ctx)
 	if xerrors.Is(err, sql.ErrNoRows) {
 		// This shouldn't happen but it's pretty easy to avoid this causing
 		// issues by falling back to a nil UUID.
 		deploymentIDStr = uuid.Nil.String()
 	} else if err != nil {
-		return codersdk.Region{}, xerrors.Errorf("get deployment ID: %w", err)
+		return wirtualsdk.Region{}, xerrors.Errorf("get deployment ID: %w", err)
 	}
 	deploymentID, err := uuid.Parse(deploymentIDStr)
 	if err != nil {
@@ -34,10 +34,10 @@ func (api *API) PrimaryRegion(ctx context.Context) (codersdk.Region, error) {
 
 	proxy, err := api.Database.GetDefaultProxyConfig(ctx)
 	if err != nil {
-		return codersdk.Region{}, xerrors.Errorf("get default proxy config: %w", err)
+		return wirtualsdk.Region{}, xerrors.Errorf("get default proxy config: %w", err)
 	}
 
-	return codersdk.Region{
+	return wirtualsdk.Region{
 		ID:               deploymentID,
 		Name:             "primary",
 		DisplayName:      proxy.DisplayName,
@@ -73,7 +73,7 @@ func (api *API) PrimaryWorkspaceProxy(ctx context.Context) (database.WorkspacePr
 // @Security CoderSessionToken
 // @Produce json
 // @Tags WorkspaceProxies
-// @Success 200 {object} wirtualsdk.RegionsResponse[codersdk.Region]
+// @Success 200 {object} wirtualsdk.RegionsResponse[wirtualsdk.Region]
 // @Router /regions [get]
 func (api *API) regions(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -88,7 +88,7 @@ func (api *API) regions(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.RegionsResponse[codersdk.Region]{
-		Regions: []codersdk.Region{region},
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.RegionsResponse[wirtualsdk.Region]{
+		Regions: []wirtualsdk.Region{region},
 	})
 }

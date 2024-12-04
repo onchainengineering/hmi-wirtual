@@ -101,7 +101,7 @@ func (a *ManifestAPI) GetManifest(ctx context.Context, _ *agentproto.GetManifest
 
 	var gitAuthConfigs uint32
 	for _, cfg := range a.ExternalAuthConfigs {
-		if codersdk.EnhancedExternalAuthProvider(cfg.Type).Git() {
+		if wirtualsdk.EnhancedExternalAuthProvider(cfg.Type).Git() {
 			gitAuthConfigs++
 		}
 	}

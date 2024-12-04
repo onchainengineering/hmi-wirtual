@@ -26,7 +26,7 @@ func (*MetricsCollector) Describe(descCh chan<- *prometheus.Desc) {
 }
 
 func (mc *MetricsCollector) Collect(metricsCh chan<- prometheus.Metric) {
-	userLimitEntitlement, ok := mc.Entitlements.Feature(codersdk.FeatureUserLimit)
+	userLimitEntitlement, ok := mc.Entitlements.Feature(wirtualsdk.FeatureUserLimit)
 	if !ok {
 		return
 	}

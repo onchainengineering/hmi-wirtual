@@ -73,7 +73,7 @@ main() {
 		[agent]="Agent"
 		[cli]="CLI"
 		[coderd]="Server"
-		[codersdk]="SDK"
+		[wirtualsdk]="SDK"
 		[docs]="Documentation"
 		[enterprise]="Enterprise"
 		[examples]="Examples"

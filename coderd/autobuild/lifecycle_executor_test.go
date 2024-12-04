@@ -42,7 +42,7 @@ func TestExecutorAutostartOK(t *testing.T) {
 			AutobuildStats:           statsCh,
 		})
 		// Given: we have a user with a workspace that has autostart enabled
-		workspace = mustProvisionWorkspace(t, client, func(cwr *codersdk.CreateWorkspaceRequest) {
+		workspace = mustProvisionWorkspace(t, client, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 			cwr.AutostartSchedule = ptr.Ref(sched.String())
 		})
 	)
@@ -63,7 +63,7 @@ func TestExecutorAutostartOK(t *testing.T) {
 	assert.Equal(t, database.WorkspaceTransitionStart, stats.Transitions[workspace.ID])
 
 	workspace = coderdtest.MustWorkspace(t, client, workspace.ID)
-	assert.Equal(t, codersdk.BuildReasonAutostart, workspace.LatestBuild.Reason)
+	assert.Equal(t, wirtualsdk.BuildReasonAutostart, workspace.LatestBuild.Reason)
 	// Assert some template props. If this is not set correctly, the test
 	// will fail.
 	ctx := testutil.Context(t, testutil.WaitShort)
@@ -77,7 +77,7 @@ func TestExecutorAutostartTemplateUpdated(t *testing.T) {
 
 	testCases := []struct {
 		name                 string
-		automaticUpdates     codersdk.AutomaticUpdates
+		automaticUpdates     wirtualsdk.AutomaticUpdates
 		compatibleParameters bool
 		expectStart          bool
 		expectUpdate         bool
@@ -85,14 +85,14 @@ func TestExecutorAutostartTemplateUpdated(t *testing.T) {
 	}{
 		{
 			name:                 "Never",
-			automaticUpdates:     codersdk.AutomaticUpdatesNever,
+			automaticUpdates:     wirtualsdk.AutomaticUpdatesNever,
 			compatibleParameters: true,
 			expectStart:          true,
 			expectUpdate:         false,
 		},
 		{
 			name:                 "Always_Compatible",
-			automaticUpdates:     codersdk.AutomaticUpdatesAlways,
+			automaticUpdates:     wirtualsdk.AutomaticUpdatesAlways,
 			compatibleParameters: true,
 			expectStart:          true,
 			expectUpdate:         true,
@@ -100,7 +100,7 @@ func TestExecutorAutostartTemplateUpdated(t *testing.T) {
 		},
 		{
 			name:                 "Always_Incompatible",
-			automaticUpdates:     codersdk.AutomaticUpdatesAlways,
+			automaticUpdates:     wirtualsdk.AutomaticUpdatesAlways,
 			compatibleParameters: false,
 			expectStart:          false,
 			expectUpdate:         false,
@@ -126,7 +126,7 @@ func TestExecutorAutostartTemplateUpdated(t *testing.T) {
 					NotificationsEnqueuer:    &enqueuer,
 				})
 				// Given: we have a user with a workspace that has autostart enabled
-				workspace = mustProvisionWorkspace(t, client, func(cwr *codersdk.CreateWorkspaceRequest) {
+				workspace = mustProvisionWorkspace(t, client, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 					cwr.AutostartSchedule = ptr.Ref(sched.String())
 					// Given: automatic updates from the test case
 					cwr.AutomaticUpdates = tc.automaticUpdates
@@ -166,7 +166,7 @@ func TestExecutorAutostartTemplateUpdated(t *testing.T) {
 			newVersion := coderdtest.UpdateTemplateVersion(t, client, orgs[0].ID, res, workspace.TemplateID)
 			coderdtest.AwaitTemplateVersionJobCompleted(t, client, newVersion.ID)
 			require.NoError(t, client.UpdateActiveTemplateVersion(
-				ctx, workspace.TemplateID, codersdk.UpdateActiveTemplateVersion{
+				ctx, workspace.TemplateID, wirtualsdk.UpdateActiveTemplateVersion{
 					ID: newVersion.ID,
 				},
 			))
@@ -233,13 +233,13 @@ func TestExecutorAutostartAlreadyRunning(t *testing.T) {
 			AutobuildStats:           statsCh,
 		})
 		// Given: we have a user with a workspace that has autostart enabled
-		workspace = mustProvisionWorkspace(t, client, func(cwr *codersdk.CreateWorkspaceRequest) {
+		workspace = mustProvisionWorkspace(t, client, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 			cwr.AutostartSchedule = ptr.Ref(sched.String())
 		})
 	)
 
 	// Given: we ensure the workspace is running
-	require.Equal(t, codersdk.WorkspaceTransitionStart, workspace.LatestBuild.Transition)
+	require.Equal(t, wirtualsdk.WorkspaceTransitionStart, workspace.LatestBuild.Transition)
 
 	// When: the autobuild executor ticks
 	go func() {
@@ -265,7 +265,7 @@ func TestExecutorAutostartNotEnabled(t *testing.T) {
 			AutobuildStats:           statsCh,
 		})
 		// Given: we have a user with a workspace that does not have autostart enabled
-		workspace = mustProvisionWorkspace(t, client, func(cwr *codersdk.CreateWorkspaceRequest) {
+		workspace = mustProvisionWorkspace(t, client, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 			cwr.AutostartSchedule = nil
 		})
 	)
@@ -308,7 +308,7 @@ func TestExecutorAutostartUserSuspended(t *testing.T) {
 	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 	template := coderdtest.CreateTemplate(t, client, admin.OrganizationID, version.ID)
 	userClient, user := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
-	workspace := coderdtest.CreateWorkspace(t, userClient, template.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
+	workspace := coderdtest.CreateWorkspace(t, userClient, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 		cwr.AutostartSchedule = ptr.Ref(sched.String())
 	})
 	coderdtest.AwaitWorkspaceBuildJobCompleted(t, userClient, workspace.LatestBuild.ID)
@@ -317,7 +317,7 @@ func TestExecutorAutostartUserSuspended(t *testing.T) {
 	// Given: workspace is stopped, and the user is suspended.
 	workspace = coderdtest.MustTransitionWorkspace(t, userClient, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
 
-	_, err := client.UpdateUserStatus(ctx, user.ID.String(), codersdk.UserStatusSuspended)
+	_, err := client.UpdateUserStatus(ctx, user.ID.String(), wirtualsdk.UserStatusSuspended)
 	require.NoError(t, err, "update user status")
 
 	// When: the autobuild executor ticks after the scheduled time
@@ -347,7 +347,7 @@ func TestExecutorAutostopOK(t *testing.T) {
 		workspace = mustProvisionWorkspace(t, client)
 	)
 	// Given: workspace is running
-	require.Equal(t, codersdk.WorkspaceTransitionStart, workspace.LatestBuild.Transition)
+	require.Equal(t, wirtualsdk.WorkspaceTransitionStart, workspace.LatestBuild.Transition)
 	require.NotZero(t, workspace.LatestBuild.Deadline)
 
 	// When: the autobuild executor ticks *after* the deadline:
@@ -364,7 +364,7 @@ func TestExecutorAutostopOK(t *testing.T) {
 	assert.Equal(t, database.WorkspaceTransitionStop, stats.Transitions[workspace.ID])
 
 	workspace = coderdtest.MustWorkspace(t, client, workspace.ID)
-	assert.Equal(t, codersdk.BuildReasonAutostop, workspace.LatestBuild.Reason)
+	assert.Equal(t, wirtualsdk.BuildReasonAutostop, workspace.LatestBuild.Reason)
 }
 
 func TestExecutorAutostopExtend(t *testing.T) {
@@ -384,12 +384,12 @@ func TestExecutorAutostopExtend(t *testing.T) {
 		originalDeadline = workspace.LatestBuild.Deadline
 	)
 	// Given: workspace is running
-	require.Equal(t, codersdk.WorkspaceTransitionStart, workspace.LatestBuild.Transition)
+	require.Equal(t, wirtualsdk.WorkspaceTransitionStart, workspace.LatestBuild.Transition)
 	require.NotZero(t, originalDeadline)
 
 	// Given: we extend the workspace deadline
 	newDeadline := originalDeadline.Time.Add(30 * time.Minute)
-	err := client.PutExtendWorkspace(ctx, workspace.ID, codersdk.PutExtendWorkspaceRequest{
+	err := client.PutExtendWorkspace(ctx, workspace.ID, wirtualsdk.PutExtendWorkspaceRequest{
 		Deadline: newDeadline,
 	})
 	require.NoError(t, err, "extend workspace deadline")
@@ -430,7 +430,7 @@ func TestExecutorAutostopAlreadyStopped(t *testing.T) {
 			AutobuildStats:           statsCh,
 		})
 		// Given: we have a user with a workspace (disabling autostart)
-		workspace = mustProvisionWorkspace(t, client, func(cwr *codersdk.CreateWorkspaceRequest) {
+		workspace = mustProvisionWorkspace(t, client, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 			cwr.AutostartSchedule = nil
 		})
 	)
@@ -462,7 +462,7 @@ func TestExecutorAutostopNotEnabled(t *testing.T) {
 			AutobuildStats:           statsCh,
 		})
 		// Given: we have a user with a workspace
-		workspace = mustProvisionWorkspace(t, client, func(cwr *codersdk.CreateWorkspaceRequest) {
+		workspace = mustProvisionWorkspace(t, client, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 			cwr.TTLMillis = nil
 		})
 	)
@@ -474,7 +474,7 @@ func TestExecutorAutostopNotEnabled(t *testing.T) {
 	require.NotZero(t, workspace.LatestBuild.Job.CompletedAt)
 
 	// Given: workspace is running
-	require.Equal(t, codersdk.WorkspaceTransitionStart, workspace.LatestBuild.Transition)
+	require.Equal(t, wirtualsdk.WorkspaceTransitionStart, workspace.LatestBuild.Transition)
 
 	// When: the autobuild executor ticks a year in the future
 	go func() {
@@ -501,7 +501,7 @@ func TestExecutorWorkspaceDeleted(t *testing.T) {
 			AutobuildStats:           statsCh,
 		})
 		// Given: we have a user with a workspace that has autostart enabled
-		workspace = mustProvisionWorkspace(t, client, func(cwr *codersdk.CreateWorkspaceRequest) {
+		workspace = mustProvisionWorkspace(t, client, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 			cwr.AutostartSchedule = ptr.Ref(sched.String())
 		})
 	)
@@ -536,7 +536,7 @@ func TestExecutorWorkspaceAutostartTooEarly(t *testing.T) {
 		// futureTime     = time.Now().Add(time.Hour)
 		// futureTimeCron = fmt.Sprintf("%d %d * * *", futureTime.Minute(), futureTime.Hour())
 		// Given: we have a user with a workspace configured to autostart some time in the future
-		workspace = mustProvisionWorkspace(t, client, func(cwr *codersdk.CreateWorkspaceRequest) {
+		workspace = mustProvisionWorkspace(t, client, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 			cwr.AutostartSchedule = ptr.Ref(sched.String())
 		})
 	)
@@ -569,7 +569,7 @@ func TestExecutorWorkspaceAutostopBeforeDeadline(t *testing.T) {
 	)
 
 	// Given: workspace is running and has a non-zero deadline
-	require.Equal(t, codersdk.WorkspaceTransitionStart, workspace.LatestBuild.Transition)
+	require.Equal(t, wirtualsdk.WorkspaceTransitionStart, workspace.LatestBuild.Transition)
 	require.NotZero(t, workspace.LatestBuild.Deadline)
 
 	// When: the autobuild executor ticks before the TTL
@@ -608,8 +608,8 @@ func TestExecuteAutostopSuspendedUser(t *testing.T) {
 
 	// Given: workspace is running, and the user is suspended.
 	workspace = coderdtest.MustWorkspace(t, userClient, workspace.ID)
-	require.Equal(t, codersdk.WorkspaceStatusRunning, workspace.LatestBuild.Status)
-	_, err := client.UpdateUserStatus(ctx, user.ID.String(), codersdk.UserStatusSuspended)
+	require.Equal(t, wirtualsdk.WorkspaceStatusRunning, workspace.LatestBuild.Status)
+	_, err := client.UpdateUserStatus(ctx, user.ID.String(), wirtualsdk.UserStatusSuspended)
 	require.NoError(t, err, "update user status")
 
 	// When: the autobuild executor ticks after the scheduled time
@@ -627,7 +627,7 @@ func TestExecuteAutostopSuspendedUser(t *testing.T) {
 	// Wait for stop to complete
 	workspace = coderdtest.MustWorkspace(t, client, workspace.ID)
 	workspaceBuild := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
-	assert.Equal(t, codersdk.WorkspaceStatusStopped, workspaceBuild.Status)
+	assert.Equal(t, wirtualsdk.WorkspaceStatusStopped, workspaceBuild.Status)
 }
 
 func TestExecutorWorkspaceAutostopNoWaitChangedMyMind(t *testing.T) {
@@ -647,7 +647,7 @@ func TestExecutorWorkspaceAutostopNoWaitChangedMyMind(t *testing.T) {
 	)
 
 	// Given: the user changes their mind and decides their workspace should not autostop
-	err := client.UpdateWorkspaceTTL(ctx, workspace.ID, codersdk.UpdateWorkspaceTTLRequest{TTLMillis: nil})
+	err := client.UpdateWorkspaceTTL(ctx, workspace.ID, wirtualsdk.UpdateWorkspaceTTLRequest{TTLMillis: nil})
 	require.NoError(t, err)
 
 	// Then: the deadline should still be the original value
@@ -674,7 +674,7 @@ func TestExecutorWorkspaceAutostopNoWaitChangedMyMind(t *testing.T) {
 
 	// Given: the user changes their mind again and wants to enable autostop
 	newTTL := 8 * time.Hour
-	err = client.UpdateWorkspaceTTL(ctx, workspace.ID, codersdk.UpdateWorkspaceTTLRequest{TTLMillis: ptr.Ref(newTTL.Milliseconds())})
+	err = client.UpdateWorkspaceTTL(ctx, workspace.ID, wirtualsdk.UpdateWorkspaceTTLRequest{TTLMillis: ptr.Ref(newTTL.Milliseconds())})
 	require.NoError(t, err)
 
 	// Then: the deadline should remain at the zero value
@@ -717,7 +717,7 @@ func TestExecutorAutostartMultipleOK(t *testing.T) {
 			AutobuildStats:           statsCh2,
 		})
 		// Given: we have a user with a workspace that has autostart enabled (default)
-		workspace = mustProvisionWorkspace(t, client, func(cwr *codersdk.CreateWorkspaceRequest) {
+		workspace = mustProvisionWorkspace(t, client, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 			cwr.AutostartSchedule = ptr.Ref(sched.String())
 		})
 	)
@@ -772,9 +772,9 @@ func TestExecutorAutostartWithParameters(t *testing.T) {
 		}
 
 		// Given: we have a user with a workspace that has autostart enabled
-		workspace = mustProvisionWorkspaceWithParameters(t, client, richParameters, func(cwr *codersdk.CreateWorkspaceRequest) {
+		workspace = mustProvisionWorkspaceWithParameters(t, client, richParameters, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 			cwr.AutostartSchedule = ptr.Ref(sched.String())
-			cwr.RichParameterValues = []codersdk.WorkspaceBuildParameter{
+			cwr.RichParameterValues = []wirtualsdk.WorkspaceBuildParameter{
 				{
 					Name:  stringParameterName,
 					Value: stringParameterValue,
@@ -832,7 +832,7 @@ func TestExecutorAutostartTemplateDisabled(t *testing.T) {
 		// futureTime     = time.Now().Add(time.Hour)
 		// futureTimeCron = fmt.Sprintf("%d %d * * *", futureTime.Minute(), futureTime.Hour())
 		// Given: we have a user with a workspace configured to autostart some time in the future
-		workspace = mustProvisionWorkspace(t, client, func(cwr *codersdk.CreateWorkspaceRequest) {
+		workspace = mustProvisionWorkspace(t, client, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 			cwr.AutostartSchedule = ptr.Ref(sched.String())
 		})
 	)
@@ -874,7 +874,7 @@ func TestExecutorAutostopTemplateDisabled(t *testing.T) {
 			},
 		})
 		// Given: we have a user with a workspace configured to autostop 30 minutes in the future
-		workspace = mustProvisionWorkspace(t, client, func(cwr *codersdk.CreateWorkspaceRequest) {
+		workspace = mustProvisionWorkspace(t, client, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 			cwr.TTLMillis = ptr.Ref(30 * time.Minute.Milliseconds())
 		})
 	)
@@ -926,7 +926,7 @@ func TestExecutorRequireActiveVersion(t *testing.T) {
 	)
 	ctx := testutil.Context(t, testutil.WaitShort)
 	owner := coderdtest.CreateFirstUser(t, ownerClient)
-	me, err := ownerClient.User(ctx, codersdk.Me)
+	me, err := ownerClient.User(ctx, wirtualsdk.Me)
 	require.NoError(t, err)
 
 	// Create an active and inactive template version. We'll
@@ -943,17 +943,17 @@ func TestExecutorRequireActiveVersion(t *testing.T) {
 		RequireActiveVersion: true,
 	})
 	require.NoError(t, err)
-	inactiveVersion := coderdtest.CreateTemplateVersion(t, ownerClient, owner.OrganizationID, nil, func(ctvr *codersdk.CreateTemplateVersionRequest) {
+	inactiveVersion := coderdtest.CreateTemplateVersion(t, ownerClient, owner.OrganizationID, nil, func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
 		ctvr.TemplateID = template.ID
 	})
 	coderdtest.AwaitTemplateVersionJobCompleted(t, ownerClient, inactiveVersion.ID)
 	memberClient, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
-	ws := coderdtest.CreateWorkspace(t, memberClient, uuid.Nil, func(cwr *codersdk.CreateWorkspaceRequest) {
+	ws := coderdtest.CreateWorkspace(t, memberClient, uuid.Nil, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 		cwr.TemplateVersionID = inactiveVersion.ID
 		cwr.AutostartSchedule = ptr.Ref(sched.String())
 	})
 	_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, ownerClient, ws.LatestBuild.ID)
-	ws = coderdtest.MustTransitionWorkspace(t, memberClient, ws.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop, func(req *codersdk.CreateWorkspaceBuildRequest) {
+	ws = coderdtest.MustTransitionWorkspace(t, memberClient, ws.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop, func(req *wirtualsdk.CreateWorkspaceBuildRequest) {
 		req.TemplateVersionID = inactiveVersion.ID
 	})
 	require.Equal(t, inactiveVersion.ID, ws.LatestBuild.TemplateVersionID)
@@ -1001,13 +1001,13 @@ func TestExecutorFailedWorkspace(t *testing.T) {
 			ProvisionPlan:  echo.PlanComplete,
 			ProvisionApply: echo.ApplyFailed,
 		})
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			ctr.FailureTTLMillis = ptr.Ref[int64](failureTTL.Milliseconds())
 		})
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 		ws := coderdtest.CreateWorkspace(t, client, template.ID)
 		build := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
-		require.Equal(t, codersdk.WorkspaceStatusFailed, build.Status)
+		require.Equal(t, wirtualsdk.WorkspaceStatusFailed, build.Status)
 		ticker <- build.Job.CompletedAt.Add(failureTTL * 2)
 		stats := <-statCh
 		// Expect no transitions since we're using AGPL.
@@ -1052,12 +1052,12 @@ func TestExecutorInactiveWorkspace(t *testing.T) {
 			ProvisionApply: echo.ApplyComplete,
 		})
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			ctr.TimeTilDormantMillis = ptr.Ref[int64](inactiveTTL.Milliseconds())
 		})
 		ws := coderdtest.CreateWorkspace(t, client, template.ID)
 		build := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
-		require.Equal(t, codersdk.WorkspaceStatusRunning, build.Status)
+		require.Equal(t, wirtualsdk.WorkspaceStatusRunning, build.Status)
 		ticker <- ws.LastUsedAt.Add(inactiveTTL * 2)
 		stats := <-statCh
 		// Expect no transitions since we're using AGPL.
@@ -1129,7 +1129,7 @@ func TestNotifications(t *testing.T) {
 	})
 }
 
-func mustProvisionWorkspace(t *testing.T, client *codersdk.Client, mut ...func(*codersdk.CreateWorkspaceRequest)) codersdk.Workspace {
+func mustProvisionWorkspace(t *testing.T, client *wirtualsdk.Client, mut ...func(*wirtualsdk.CreateWorkspaceRequest)) wirtualsdk.Workspace {
 	t.Helper()
 	user := coderdtest.CreateFirstUser(t, client)
 	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
@@ -1140,7 +1140,7 @@ func mustProvisionWorkspace(t *testing.T, client *codersdk.Client, mut ...func(*
 	return coderdtest.MustWorkspace(t, client, ws.ID)
 }
 
-func mustProvisionWorkspaceWithParameters(t *testing.T, client *codersdk.Client, richParameters []*proto.RichParameter, mut ...func(*codersdk.CreateWorkspaceRequest)) codersdk.Workspace {
+func mustProvisionWorkspaceWithParameters(t *testing.T, client *wirtualsdk.Client, richParameters []*proto.RichParameter, mut ...func(*wirtualsdk.CreateWorkspaceRequest)) wirtualsdk.Workspace {
 	t.Helper()
 	user := coderdtest.CreateFirstUser(t, client)
 	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
@@ -1170,7 +1170,7 @@ func mustSchedule(t *testing.T, s string) *cron.Schedule {
 	return sched
 }
 
-func mustWorkspaceParameters(t *testing.T, client *codersdk.Client, workspaceID uuid.UUID) {
+func mustWorkspaceParameters(t *testing.T, client *wirtualsdk.Client, workspaceID uuid.UUID) {
 	ctx := testutil.Context(t, testutil.WaitShort)
 	buildParameters, err := client.WorkspaceBuildParameters(ctx, workspaceID)
 	require.NoError(t, err)

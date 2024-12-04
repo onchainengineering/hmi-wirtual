@@ -201,14 +201,14 @@ func ConvertState(ctx context.Context, modules []*tfjson.StateModule, rawGraph s
 			// Handling for deprecated attributes. login_before_ready was replaced
 			// by startup_script_behavior, but we still need to support it for
 			// backwards compatibility.
-			startupScriptBehavior := string(codersdk.WorkspaceAgentStartupScriptBehaviorNonBlocking)
+			startupScriptBehavior := string(wirtualsdk.WorkspaceAgentStartupScriptBehaviorNonBlocking)
 			if attrs.StartupScriptBehavior != "" {
 				startupScriptBehavior = attrs.StartupScriptBehavior
 			} else {
 				// Handling for provider pre-v0.6.10 (because login_before_ready
 				// defaulted to true, we must check for its presence).
 				if _, ok := tfResource.AttributeValues["login_before_ready"]; ok && !attrs.LoginBeforeReady {
-					startupScriptBehavior = string(codersdk.WorkspaceAgentStartupScriptBehaviorBlocking)
+					startupScriptBehavior = string(wirtualsdk.WorkspaceAgentStartupScriptBehaviorBlocking)
 				}
 			}
 
@@ -260,7 +260,7 @@ func ConvertState(ctx context.Context, modules []*tfjson.StateModule, rawGraph s
 					LogPath:          "coder-startup-script.log",
 					DisplayName:      "Startup Script",
 					Script:           attrs.StartupScript,
-					StartBlocksLogin: startupScriptBehavior == string(codersdk.WorkspaceAgentStartupScriptBehaviorBlocking),
+					StartBlocksLogin: startupScriptBehavior == string(wirtualsdk.WorkspaceAgentStartupScriptBehaviorBlocking),
 					RunOnStart:       true,
 				})
 			}

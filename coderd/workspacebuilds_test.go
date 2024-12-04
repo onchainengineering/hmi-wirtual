@@ -89,7 +89,7 @@ func TestWorkspaceBuildByBuildNumber(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		user, err := client.User(ctx, codersdk.Me)
+		user, err := client.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err, "fetch me")
 		version := coderdtest.CreateTemplateVersion(t, client, first.OrganizationID, nil)
 		template := coderdtest.CreateTemplate(t, client, first.OrganizationID, version.ID)
@@ -112,7 +112,7 @@ func TestWorkspaceBuildByBuildNumber(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		user, err := client.User(ctx, codersdk.Me)
+		user, err := client.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err, "fetch me")
 		version := coderdtest.CreateTemplateVersion(t, client, first.OrganizationID, nil)
 		template := coderdtest.CreateTemplate(t, client, first.OrganizationID, version.ID)
@@ -124,7 +124,7 @@ func TestWorkspaceBuildByBuildNumber(t *testing.T) {
 			workspace.Name,
 			"buildNumber",
 		)
-		var apiError *codersdk.Error
+		var apiError *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiError)
 		require.Equal(t, http.StatusBadRequest, apiError.StatusCode())
 		require.ErrorContains(t, apiError, "Failed to parse build number as integer.")
@@ -138,7 +138,7 @@ func TestWorkspaceBuildByBuildNumber(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		user, err := client.User(ctx, codersdk.Me)
+		user, err := client.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err, "fetch me")
 		version := coderdtest.CreateTemplateVersion(t, client, first.OrganizationID, nil)
 		template := coderdtest.CreateTemplate(t, client, first.OrganizationID, version.ID)
@@ -150,7 +150,7 @@ func TestWorkspaceBuildByBuildNumber(t *testing.T) {
 			"workspaceName",
 			strconv.FormatInt(int64(workspace.LatestBuild.BuildNumber), 10),
 		)
-		var apiError *codersdk.Error
+		var apiError *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiError)
 		require.Equal(t, http.StatusNotFound, apiError.StatusCode())
 		require.ErrorContains(t, apiError, "Resource not found")
@@ -164,7 +164,7 @@ func TestWorkspaceBuildByBuildNumber(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		user, err := client.User(ctx, codersdk.Me)
+		user, err := client.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err, "fetch me")
 		version := coderdtest.CreateTemplateVersion(t, client, first.OrganizationID, nil)
 		template := coderdtest.CreateTemplate(t, client, first.OrganizationID, version.ID)
@@ -176,7 +176,7 @@ func TestWorkspaceBuildByBuildNumber(t *testing.T) {
 			workspace.Name,
 			"200",
 		)
-		var apiError *codersdk.Error
+		var apiError *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiError)
 		require.Equal(t, http.StatusNotFound, apiError.StatusCode())
 		require.ErrorContains(t, apiError, fmt.Sprintf("Workspace %q Build 200 does not exist.", workspace.Name))
@@ -193,14 +193,14 @@ func TestWorkspaceBuilds(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		user, err := client.User(ctx, codersdk.Me)
+		user, err := client.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err, "fetch me")
 		version := coderdtest.CreateTemplateVersion(t, client, first.OrganizationID, nil)
 		template := coderdtest.CreateTemplate(t, client, first.OrganizationID, version.ID)
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
 		builds, err := client.WorkspaceBuilds(ctx,
-			codersdk.WorkspaceBuildsRequest{WorkspaceID: workspace.ID})
+			wirtualsdk.WorkspaceBuildsRequest{WorkspaceID: workspace.ID})
 		require.Len(t, builds, 1)
 		require.Equal(t, int32(1), builds[0].BuildNumber)
 		require.Equal(t, user.Username, builds[0].InitiatorUsername)
@@ -208,7 +208,7 @@ func TestWorkspaceBuilds(t *testing.T) {
 
 		// Test since
 		builds, err = client.WorkspaceBuilds(ctx,
-			codersdk.WorkspaceBuildsRequest{WorkspaceID: workspace.ID, Since: dbtime.Now().Add(time.Minute)},
+			wirtualsdk.WorkspaceBuildsRequest{WorkspaceID: workspace.ID, Since: dbtime.Now().Add(time.Minute)},
 		)
 		require.NoError(t, err)
 		require.Len(t, builds, 0)
@@ -216,7 +216,7 @@ func TestWorkspaceBuilds(t *testing.T) {
 		require.NotNil(t, builds)
 
 		builds, err = client.WorkspaceBuilds(ctx,
-			codersdk.WorkspaceBuildsRequest{WorkspaceID: workspace.ID, Since: dbtime.Now().Add(-time.Hour)},
+			wirtualsdk.WorkspaceBuildsRequest{WorkspaceID: workspace.ID, Since: dbtime.Now().Add(-time.Hour)},
 		)
 		require.NoError(t, err)
 		require.Len(t, builds, 1)
@@ -234,7 +234,7 @@ func TestWorkspaceBuilds(t *testing.T) {
 		version := coderdtest.CreateTemplateVersion(t, client, first.OrganizationID, nil)
 		template := coderdtest.CreateTemplate(t, client, first.OrganizationID, version.ID)
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		workspace, err := second.CreateWorkspace(ctx, first.OrganizationID, first.UserID.String(), codersdk.CreateWorkspaceRequest{
+		workspace, err := second.CreateWorkspace(ctx, first.OrganizationID, first.UserID.String(), wirtualsdk.CreateWorkspaceRequest{
 			TemplateID: template.ID,
 			Name:       "example",
 		})
@@ -244,7 +244,7 @@ func TestWorkspaceBuilds(t *testing.T) {
 		err = client.DeleteUser(ctx, secondUser.ID)
 		require.NoError(t, err)
 
-		builds, err := client.WorkspaceBuilds(ctx, codersdk.WorkspaceBuildsRequest{WorkspaceID: workspace.ID})
+		builds, err := client.WorkspaceBuilds(ctx, wirtualsdk.WorkspaceBuildsRequest{WorkspaceID: workspace.ID})
 		require.Len(t, builds, 1)
 		require.Equal(t, int32(1), builds[0].BuildNumber)
 		require.Equal(t, secondUser.Username, builds[0].InitiatorUsername)
@@ -264,13 +264,13 @@ func TestWorkspaceBuilds(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_, err := client.WorkspaceBuilds(ctx, codersdk.WorkspaceBuildsRequest{
+		_, err := client.WorkspaceBuilds(ctx, wirtualsdk.WorkspaceBuildsRequest{
 			WorkspaceID: workspace.ID,
-			Pagination: codersdk.Pagination{
+			Pagination: wirtualsdk.Pagination{
 				AfterID: uuid.New(),
 			},
 		})
-		var apiError *codersdk.Error
+		var apiError *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiError)
 		require.Equal(t, http.StatusBadRequest, apiError.StatusCode())
 		require.Contains(t, apiError.Message, "does not exist")
@@ -285,7 +285,7 @@ func TestWorkspaceBuilds(t *testing.T) {
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
 		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
-		var expectedBuilds []codersdk.WorkspaceBuild
+		var expectedBuilds []wirtualsdk.WorkspaceBuild
 		extraBuilds := 4
 		for i := 0; i < extraBuilds; i++ {
 			b := coderdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStart)
@@ -297,18 +297,18 @@ func TestWorkspaceBuilds(t *testing.T) {
 		defer cancel()
 
 		pageSize := 3
-		firstPage, err := client.WorkspaceBuilds(ctx, codersdk.WorkspaceBuildsRequest{
+		firstPage, err := client.WorkspaceBuilds(ctx, wirtualsdk.WorkspaceBuildsRequest{
 			WorkspaceID: workspace.ID,
-			Pagination:  codersdk.Pagination{Limit: pageSize, Offset: 0},
+			Pagination:  wirtualsdk.Pagination{Limit: pageSize, Offset: 0},
 		})
 		require.NoError(t, err)
 		require.Len(t, firstPage, pageSize)
 		for i := 0; i < pageSize; i++ {
 			require.Equal(t, expectedBuilds[extraBuilds-i-1].ID, firstPage[i].ID)
 		}
-		secondPage, err := client.WorkspaceBuilds(ctx, codersdk.WorkspaceBuildsRequest{
+		secondPage, err := client.WorkspaceBuilds(ctx, wirtualsdk.WorkspaceBuildsRequest{
 			WorkspaceID: workspace.ID,
-			Pagination:  codersdk.Pagination{Limit: pageSize, Offset: pageSize},
+			Pagination:  wirtualsdk.Pagination{Limit: pageSize, Offset: pageSize},
 		})
 		require.NoError(t, err)
 		require.Len(t, secondPage, 2)
@@ -335,9 +335,9 @@ func TestWorkspaceBuildsProvisionerState(t *testing.T) {
 		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
 		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
-		build, err := client.CreateWorkspaceBuild(ctx, workspace.ID, codersdk.CreateWorkspaceBuildRequest{
+		build, err := client.CreateWorkspaceBuild(ctx, workspace.ID, wirtualsdk.CreateWorkspaceBuildRequest{
 			TemplateVersionID: workspace.LatestBuild.TemplateVersionID,
-			Transition:        codersdk.WorkspaceTransitionDelete,
+			Transition:        wirtualsdk.WorkspaceTransitionDelete,
 			ProvisionerState:  []byte(" "),
 		})
 		require.Nil(t, err)
@@ -351,14 +351,14 @@ func TestWorkspaceBuildsProvisionerState(t *testing.T) {
 		workspace = coderdtest.CreateWorkspace(t, regularUser, template.ID)
 		coderdtest.AwaitWorkspaceBuildJobCompleted(t, regularUser, workspace.LatestBuild.ID)
 
-		_, err = regularUser.CreateWorkspaceBuild(ctx, workspace.ID, codersdk.CreateWorkspaceBuildRequest{
+		_, err = regularUser.CreateWorkspaceBuild(ctx, workspace.ID, wirtualsdk.CreateWorkspaceBuildRequest{
 			TemplateVersionID: workspace.LatestBuild.TemplateVersionID,
 			Transition:        workspace.LatestBuild.Transition,
 			ProvisionerState:  []byte(" "),
 		})
 		require.Error(t, err)
 
-		var cerr *codersdk.Error
+		var cerr *wirtualsdk.Error
 		require.True(t, errors.As(err, &cerr))
 
 		code := cerr.StatusCode()
@@ -381,9 +381,9 @@ func TestWorkspaceBuildsProvisionerState(t *testing.T) {
 		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		// Providing both state and orphan fails.
-		_, err := client.CreateWorkspaceBuild(ctx, workspace.ID, codersdk.CreateWorkspaceBuildRequest{
+		_, err := client.CreateWorkspaceBuild(ctx, workspace.ID, wirtualsdk.CreateWorkspaceBuildRequest{
 			TemplateVersionID: workspace.LatestBuild.TemplateVersionID,
-			Transition:        codersdk.WorkspaceTransitionDelete,
+			Transition:        wirtualsdk.WorkspaceTransitionDelete,
 			ProvisionerState:  []byte(" "),
 			Orphan:            true,
 		})
@@ -392,9 +392,9 @@ func TestWorkspaceBuildsProvisionerState(t *testing.T) {
 		require.Equal(t, http.StatusBadRequest, cerr.StatusCode())
 
 		// Regular orphan operation succeeds.
-		build, err := client.CreateWorkspaceBuild(ctx, workspace.ID, codersdk.CreateWorkspaceBuildRequest{
+		build, err := client.CreateWorkspaceBuild(ctx, workspace.ID, wirtualsdk.CreateWorkspaceBuildRequest{
 			TemplateVersionID: workspace.LatestBuild.TemplateVersionID,
-			Transition:        codersdk.WorkspaceTransitionDelete,
+			Transition:        wirtualsdk.WorkspaceTransitionDelete,
 			Orphan:            true,
 		})
 		require.NoError(t, err)
@@ -425,7 +425,7 @@ func TestPatchCancelWorkspaceBuild(t *testing.T) {
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		var build codersdk.WorkspaceBuild
+		var build wirtualsdk.WorkspaceBuild
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -433,7 +433,7 @@ func TestPatchCancelWorkspaceBuild(t *testing.T) {
 		require.Eventually(t, func() bool {
 			var err error
 			build, err = client.WorkspaceBuild(ctx, workspace.LatestBuild.ID)
-			return assert.NoError(t, err) && build.Job.Status == codersdk.ProvisionerJobRunning
+			return assert.NoError(t, err) && build.Job.Status == wirtualsdk.ProvisionerJobRunning
 		}, testutil.WaitShort, testutil.IntervalFast)
 		err := client.CancelWorkspaceBuild(ctx, build.ID)
 		require.NoError(t, err)
@@ -445,7 +445,7 @@ func TestPatchCancelWorkspaceBuild(t *testing.T) {
 			// other errors in this test.
 			return assert.NoError(t, err) &&
 				build.Job.Error == "canceled" &&
-				build.Job.Status == codersdk.ProvisionerJobFailed
+				build.Job.Status == wirtualsdk.ProvisionerJobFailed
 		}, testutil.WaitShort, testutil.IntervalFast)
 	})
 	t.Run("User is not allowed to cancel", func(t *testing.T) {
@@ -470,7 +470,7 @@ func TestPatchCancelWorkspaceBuild(t *testing.T) {
 
 		userClient, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 		workspace := coderdtest.CreateWorkspace(t, userClient, template.ID)
-		var build codersdk.WorkspaceBuild
+		var build wirtualsdk.WorkspaceBuild
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -478,10 +478,10 @@ func TestPatchCancelWorkspaceBuild(t *testing.T) {
 		require.Eventually(t, func() bool {
 			var err error
 			build, err = userClient.WorkspaceBuild(ctx, workspace.LatestBuild.ID)
-			return assert.NoError(t, err) && build.Job.Status == codersdk.ProvisionerJobRunning
+			return assert.NoError(t, err) && build.Job.Status == wirtualsdk.ProvisionerJobRunning
 		}, testutil.WaitShort, testutil.IntervalFast)
 		err := userClient.CancelWorkspaceBuild(ctx, build.ID)
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusForbidden, apiErr.StatusCode())
 	})
@@ -560,7 +560,7 @@ func TestWorkspaceBuildResources(t *testing.T) {
 	})
 }
 
-func assertWorkspaceResource(t *testing.T, actual codersdk.WorkspaceResource, name, aType string, numAgents int) {
+func assertWorkspaceResource(t *testing.T, actual wirtualsdk.WorkspaceResource, name, aType string, numAgents int) {
 	assert.Equal(t, name, actual.Name)
 	assert.Equal(t, aType, actual.Type)
 	assert.Len(t, actual.Agents, numAgents)
@@ -669,7 +669,7 @@ func TestWorkspaceBuildStatus(t *testing.T) {
 	numLogs++ // add an audit log for workspace creation
 
 	// initial returned state is "pending"
-	require.EqualValues(t, codersdk.WorkspaceStatusPending, workspace.LatestBuild.Status)
+	require.EqualValues(t, wirtualsdk.WorkspaceStatusPending, workspace.LatestBuild.Status)
 
 	closeDaemon = coderdtest.NewProvisionerDaemon(t, api)
 	// after successful build is "running"
@@ -680,7 +680,7 @@ func TestWorkspaceBuildStatus(t *testing.T) {
 
 	workspace, err := client.Workspace(ctx, workspace.ID)
 	require.NoError(t, err)
-	require.EqualValues(t, codersdk.WorkspaceStatusRunning, workspace.LatestBuild.Status)
+	require.EqualValues(t, wirtualsdk.WorkspaceStatusRunning, workspace.LatestBuild.Status)
 
 	numLogs++ // add an audit log for workspace_build starting
 
@@ -689,7 +689,7 @@ func TestWorkspaceBuildStatus(t *testing.T) {
 	_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
 	workspace, err = client.Workspace(ctx, workspace.ID)
 	require.NoError(t, err)
-	require.EqualValues(t, codersdk.WorkspaceStatusStopped, workspace.LatestBuild.Status)
+	require.EqualValues(t, wirtualsdk.WorkspaceStatusStopped, workspace.LatestBuild.Status)
 
 	// assert an audit log has been created for workspace stopping
 	numLogs++ // add an audit log for workspace_build stop
@@ -704,7 +704,7 @@ func TestWorkspaceBuildStatus(t *testing.T) {
 
 	workspace, err = client.Workspace(ctx, workspace.ID)
 	require.NoError(t, err)
-	require.EqualValues(t, codersdk.WorkspaceStatusCanceled, workspace.LatestBuild.Status)
+	require.EqualValues(t, wirtualsdk.WorkspaceStatusCanceled, workspace.LatestBuild.Status)
 
 	_ = coderdtest.NewProvisionerDaemon(t, api)
 	// after successful delete is "deleted"
@@ -712,7 +712,7 @@ func TestWorkspaceBuildStatus(t *testing.T) {
 	_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
 	workspace, err = client.DeletedWorkspace(ctx, workspace.ID)
 	require.NoError(t, err)
-	require.EqualValues(t, codersdk.WorkspaceStatusDeleted, workspace.LatestBuild.Status)
+	require.EqualValues(t, wirtualsdk.WorkspaceStatusDeleted, workspace.LatestBuild.Status)
 }
 
 func TestWorkspaceDeleteSuspendedUser(t *testing.T) {
@@ -773,18 +773,18 @@ func TestWorkspaceDeleteSuspendedUser(t *testing.T) {
 
 	// Suspend the user
 	ctx := testutil.Context(t, testutil.WaitLong)
-	_, err := owner.UpdateUserStatus(ctx, user.ID.String(), codersdk.UserStatusSuspended)
+	_, err := owner.UpdateUserStatus(ctx, user.ID.String(), wirtualsdk.UserStatusSuspended)
 	require.NoError(t, err, "suspend user")
 
 	// Now delete the workspace build
 	userSuspended = true
-	build, err := owner.CreateWorkspaceBuild(ctx, workspace.ID, codersdk.CreateWorkspaceBuildRequest{
-		Transition: codersdk.WorkspaceTransitionDelete,
+	build, err := owner.CreateWorkspaceBuild(ctx, workspace.ID, wirtualsdk.CreateWorkspaceBuildRequest{
+		Transition: wirtualsdk.WorkspaceTransitionDelete,
 	})
 	require.NoError(t, err)
 	build = coderdtest.AwaitWorkspaceBuildJobCompleted(t, owner, build.ID)
 	require.Equal(t, 2, validateCalls)
-	require.Equal(t, codersdk.WorkspaceStatusDeleted, build.Status)
+	require.Equal(t, wirtualsdk.WorkspaceStatusDeleted, build.Status)
 }
 
 func TestWorkspaceBuildDebugMode(t *testing.T) {
@@ -814,15 +814,15 @@ func TestWorkspaceBuildDebugMode(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_, err = adminClient.CreateWorkspaceBuild(ctx, workspace.ID, codersdk.CreateWorkspaceBuildRequest{
+		_, err = adminClient.CreateWorkspaceBuild(ctx, workspace.ID, wirtualsdk.CreateWorkspaceBuildRequest{
 			TemplateVersionID: workspace.LatestBuild.TemplateVersionID,
-			Transition:        codersdk.WorkspaceTransitionStart,
+			Transition:        wirtualsdk.WorkspaceTransitionStart,
 			LogLevel:          "debug",
 		})
 
 		// Template author: expect an error as the debug mode is disabled
 		require.NotNil(t, err)
-		var sdkError *codersdk.Error
+		var sdkError *wirtualsdk.Error
 		isSdkError := xerrors.As(err, &sdkError)
 		require.True(t, isSdkError)
 		require.Contains(t, sdkError.Message, "Terraform debug mode is disabled in the deployment configuration.")
@@ -851,15 +851,15 @@ func TestWorkspaceBuildDebugMode(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_, err := regularUserClient.CreateWorkspaceBuild(ctx, workspace.ID, codersdk.CreateWorkspaceBuildRequest{
+		_, err := regularUserClient.CreateWorkspaceBuild(ctx, workspace.ID, wirtualsdk.CreateWorkspaceBuildRequest{
 			TemplateVersionID: workspace.LatestBuild.TemplateVersionID,
-			Transition:        codersdk.WorkspaceTransitionStart,
+			Transition:        wirtualsdk.WorkspaceTransitionStart,
 			LogLevel:          "debug",
 		})
 
 		// Regular user: expect an error
 		require.NotNil(t, err)
-		var sdkError *codersdk.Error
+		var sdkError *wirtualsdk.Error
 		isSdkError := xerrors.As(err, &sdkError)
 		require.True(t, isSdkError)
 		require.Contains(t, sdkError.Message, "Workspace builds with a custom log level are restricted to administrators only.")
@@ -888,15 +888,15 @@ func TestWorkspaceBuildDebugMode(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_, err := templateAuthorClient.CreateWorkspaceBuild(ctx, workspace.ID, codersdk.CreateWorkspaceBuildRequest{
+		_, err := templateAuthorClient.CreateWorkspaceBuild(ctx, workspace.ID, wirtualsdk.CreateWorkspaceBuildRequest{
 			TemplateVersionID: workspace.LatestBuild.TemplateVersionID,
-			Transition:        codersdk.WorkspaceTransitionStart,
+			Transition:        wirtualsdk.WorkspaceTransitionStart,
 			LogLevel:          "debug",
 		})
 
 		// Template author: expect an error as the debug mode is disabled
 		require.NotNil(t, err)
-		var sdkError *codersdk.Error
+		var sdkError *wirtualsdk.Error
 		isSdkError := xerrors.As(err, &sdkError)
 		require.True(t, isSdkError)
 		require.Contains(t, sdkError.Message, "Workspace builds with a custom log level are restricted to administrators only.")
@@ -954,9 +954,9 @@ func TestWorkspaceBuildDebugMode(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		build, err := adminClient.CreateWorkspaceBuild(ctx, workspace.ID, codersdk.CreateWorkspaceBuildRequest{
+		build, err := adminClient.CreateWorkspaceBuild(ctx, workspace.ID, wirtualsdk.CreateWorkspaceBuildRequest{
 			TemplateVersionID: workspace.LatestBuild.TemplateVersionID,
-			Transition:        codersdk.WorkspaceTransitionStart,
+			Transition:        wirtualsdk.WorkspaceTransitionStart,
 			ProvisionerState:  []byte(" "),
 			LogLevel:          "debug",
 		})
@@ -1012,12 +1012,12 @@ func TestPostWorkspaceBuild(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_, err := client.CreateWorkspaceBuild(ctx, workspace.ID, codersdk.CreateWorkspaceBuildRequest{
+		_, err := client.CreateWorkspaceBuild(ctx, workspace.ID, wirtualsdk.CreateWorkspaceBuildRequest{
 			TemplateVersionID: uuid.New(),
-			Transition:        codersdk.WorkspaceTransitionStart,
+			Transition:        wirtualsdk.WorkspaceTransitionStart,
 		})
 		require.Error(t, err)
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 	})
@@ -1035,11 +1035,11 @@ func TestPostWorkspaceBuild(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_, err := client.CreateWorkspace(ctx, user.OrganizationID, codersdk.Me, codersdk.CreateWorkspaceRequest{
+		_, err := client.CreateWorkspace(ctx, user.OrganizationID, wirtualsdk.Me, wirtualsdk.CreateWorkspaceRequest{
 			TemplateID: template.ID,
 			Name:       "workspace",
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 	})
@@ -1060,12 +1060,12 @@ func TestPostWorkspaceBuild(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_, err := client.CreateWorkspaceBuild(ctx, workspace.ID, codersdk.CreateWorkspaceBuildRequest{
+		_, err := client.CreateWorkspaceBuild(ctx, workspace.ID, wirtualsdk.CreateWorkspaceBuildRequest{
 			TemplateVersionID: template.ActiveVersionID,
-			Transition:        codersdk.WorkspaceTransitionStart,
+			Transition:        wirtualsdk.WorkspaceTransitionStart,
 		})
 		require.Error(t, err)
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusConflict, apiErr.StatusCode())
 	})
@@ -1092,9 +1092,9 @@ func TestPostWorkspaceBuild(t *testing.T) {
 		defer cancel()
 
 		auditor.ResetLogs()
-		build, err := client.CreateWorkspaceBuild(ctx, workspace.ID, codersdk.CreateWorkspaceBuildRequest{
+		build, err := client.CreateWorkspaceBuild(ctx, workspace.ID, wirtualsdk.CreateWorkspaceBuildRequest{
 			TemplateVersionID: template.ActiveVersionID,
-			Transition:        codersdk.WorkspaceTransitionStart,
+			Transition:        wirtualsdk.WorkspaceTransitionStart,
 		})
 		require.NoError(t, err)
 		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
@@ -1119,9 +1119,9 @@ func TestPostWorkspaceBuild(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		build, err := client.CreateWorkspaceBuild(ctx, workspace.ID, codersdk.CreateWorkspaceBuildRequest{
+		build, err := client.CreateWorkspaceBuild(ctx, workspace.ID, wirtualsdk.CreateWorkspaceBuildRequest{
 			TemplateVersionID: template.ActiveVersionID,
-			Transition:        codersdk.WorkspaceTransitionStart,
+			Transition:        wirtualsdk.WorkspaceTransitionStart,
 		})
 		require.NoError(t, err)
 		require.Equal(t, workspace.LatestBuild.BuildNumber+1, build.BuildNumber)
@@ -1144,9 +1144,9 @@ func TestPostWorkspaceBuild(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		build, err := client.CreateWorkspaceBuild(ctx, workspace.ID, codersdk.CreateWorkspaceBuildRequest{
+		build, err := client.CreateWorkspaceBuild(ctx, workspace.ID, wirtualsdk.CreateWorkspaceBuildRequest{
 			TemplateVersionID: template.ActiveVersionID,
-			Transition:        codersdk.WorkspaceTransitionStart,
+			Transition:        wirtualsdk.WorkspaceTransitionStart,
 			ProvisionerState:  wantState,
 		})
 		require.NoError(t, err)
@@ -1168,14 +1168,14 @@ func TestPostWorkspaceBuild(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		build, err := client.CreateWorkspaceBuild(ctx, workspace.ID, codersdk.CreateWorkspaceBuildRequest{
-			Transition: codersdk.WorkspaceTransitionDelete,
+		build, err := client.CreateWorkspaceBuild(ctx, workspace.ID, wirtualsdk.CreateWorkspaceBuildRequest{
+			Transition: wirtualsdk.WorkspaceTransitionDelete,
 		})
 		require.NoError(t, err)
 		require.Equal(t, workspace.LatestBuild.BuildNumber+1, build.BuildNumber)
 		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
 
-		res, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		res, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			Owner: user.UserID.String(),
 		})
 		require.NoError(t, err)

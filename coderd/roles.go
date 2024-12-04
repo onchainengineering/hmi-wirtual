@@ -80,8 +80,8 @@ func (api *API) assignableOrgRoles(rw http.ResponseWriter, r *http.Request) {
 	httpapi.Write(ctx, rw, http.StatusOK, assignableRoles(actorRoles.Roles, roles, dbCustomRoles))
 }
 
-func assignableRoles(actorRoles rbac.ExpandableRoles, roles []rbac.Role, customRoles []database.CustomRole) []codersdk.AssignableRoles {
-	assignable := make([]codersdk.AssignableRoles, 0)
+func assignableRoles(actorRoles rbac.ExpandableRoles, roles []rbac.Role, customRoles []database.CustomRole) []wirtualsdk.AssignableRoles {
+	assignable := make([]wirtualsdk.AssignableRoles, 0)
 	for _, role := range roles {
 		// The member role is implied, and not assignable.
 		// If there is no display name, then the role is also unassigned.
@@ -89,7 +89,7 @@ func assignableRoles(actorRoles rbac.ExpandableRoles, roles []rbac.Role, customR
 		if role.Identifier == rbac.RoleMember() || (role.DisplayName == "") {
 			continue
 		}
-		assignable = append(assignable, codersdk.AssignableRoles{
+		assignable = append(assignable, wirtualsdk.AssignableRoles{
 			Role:       db2sdk.RBACRole(role),
 			Assignable: rbac.CanAssignRole(actorRoles, role.Identifier),
 			BuiltIn:    true,
@@ -102,7 +102,7 @@ func assignableRoles(actorRoles rbac.ExpandableRoles, roles []rbac.Role, customR
 			canAssign = rbac.CanAssignRole(actorRoles, rbac.CustomOrganizationRole(role.OrganizationID.UUID))
 		}
 
-		assignable = append(assignable, codersdk.AssignableRoles{
+		assignable = append(assignable, wirtualsdk.AssignableRoles{
 			Role:       db2sdk.Role(role),
 			Assignable: canAssign,
 			BuiltIn:    false,

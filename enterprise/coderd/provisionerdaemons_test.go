@@ -42,19 +42,19 @@ func TestProvisionerDaemonServe(t *testing.T) {
 		t.Parallel()
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureExternalProvisionerDaemons: 1,
+				wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 			},
 		}})
 		templateAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin())
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 		daemonName := testutil.MustRandString(t, 63)
-		srv, err := templateAdminClient.ServeProvisionerDaemon(ctx, codersdk.ServeProvisionerDaemonRequest{
+		srv, err := templateAdminClient.ServeProvisionerDaemon(ctx, wirtualsdk.ServeProvisionerDaemonRequest{
 			ID:           uuid.New(),
 			Name:         daemonName,
 			Organization: user.OrganizationID,
-			Provisioners: []codersdk.ProvisionerType{
-				codersdk.ProvisionerTypeEcho,
+			Provisioners: []wirtualsdk.ProvisionerType{
+				wirtualsdk.ProvisionerTypeEcho,
 			},
 			Tags: map[string]string{},
 		})
@@ -81,7 +81,7 @@ func TestProvisionerDaemonServe(t *testing.T) {
 		client, user := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 			ProvisionerDaemonPSK: "provisionersftw",
@@ -105,7 +105,7 @@ func TestProvisionerDaemonServe(t *testing.T) {
 		// Set PSK header for auth.
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, srvURL.String(), nil)
 		require.NoError(t, err)
-		req.Header.Set(codersdk.ProvisionerDaemonPSK, "provisionersftw")
+		req.Header.Set(wirtualsdk.ProvisionerDaemonPSK, "provisionersftw")
 
 		// Do the request!
 		resp, err := client.HTTPClient.Do(req)
@@ -134,7 +134,7 @@ func TestProvisionerDaemonServe(t *testing.T) {
 		client, user := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 			ProvisionerDaemonPSK: "provisionersftw",
@@ -160,7 +160,7 @@ func TestProvisionerDaemonServe(t *testing.T) {
 		// Set PSK header for auth.
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, srvURL.String(), nil)
 		require.NoError(t, err)
-		req.Header.Set(codersdk.ProvisionerDaemonPSK, "provisionersftw")
+		req.Header.Set(wirtualsdk.ProvisionerDaemonPSK, "provisionersftw")
 
 		// Do the request!
 		resp, err := client.HTTPClient.Do(req)
@@ -179,17 +179,17 @@ func TestProvisionerDaemonServe(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 		daemonName := testutil.MustRandString(t, 63)
-		_, err := templateAdminClient.ServeProvisionerDaemon(ctx, codersdk.ServeProvisionerDaemonRequest{
+		_, err := templateAdminClient.ServeProvisionerDaemon(ctx, wirtualsdk.ServeProvisionerDaemonRequest{
 			ID:           uuid.New(),
 			Name:         daemonName,
 			Organization: user.OrganizationID,
-			Provisioners: []codersdk.ProvisionerType{
-				codersdk.ProvisionerTypeEcho,
+			Provisioners: []wirtualsdk.ProvisionerType{
+				wirtualsdk.ProvisionerTypeEcho,
 			},
 			Tags: map[string]string{},
 		})
 		require.Error(t, err)
-		var apiError *codersdk.Error
+		var apiError *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiError)
 		require.Equal(t, http.StatusForbidden, apiError.StatusCode())
 	})
@@ -198,18 +198,18 @@ func TestProvisionerDaemonServe(t *testing.T) {
 		t.Parallel()
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureExternalProvisionerDaemons: 1,
+				wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 			},
 		}})
 		another, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.ScopedRoleOrgAdmin(user.OrganizationID))
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
-		_, err := another.ServeProvisionerDaemon(ctx, codersdk.ServeProvisionerDaemonRequest{
+		_, err := another.ServeProvisionerDaemon(ctx, wirtualsdk.ServeProvisionerDaemonRequest{
 			ID:           uuid.New(),
 			Name:         testutil.MustRandString(t, 63),
 			Organization: user.OrganizationID,
-			Provisioners: []codersdk.ProvisionerType{
-				codersdk.ProvisionerTypeEcho,
+			Provisioners: []wirtualsdk.ProvisionerType{
+				wirtualsdk.ProvisionerTypeEcho,
 			},
 			Tags: map[string]string{
 				provisionersdk.TagScope: provisionersdk.ScopeOrganization,
@@ -222,25 +222,25 @@ func TestProvisionerDaemonServe(t *testing.T) {
 		t.Parallel()
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureExternalProvisionerDaemons: 1,
+				wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 			},
 		}})
 		another, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
-		_, err := another.ServeProvisionerDaemon(ctx, codersdk.ServeProvisionerDaemonRequest{
+		_, err := another.ServeProvisionerDaemon(ctx, wirtualsdk.ServeProvisionerDaemonRequest{
 			ID:           uuid.New(),
 			Name:         testutil.MustRandString(t, 63),
 			Organization: user.OrganizationID,
-			Provisioners: []codersdk.ProvisionerType{
-				codersdk.ProvisionerTypeEcho,
+			Provisioners: []wirtualsdk.ProvisionerType{
+				wirtualsdk.ProvisionerTypeEcho,
 			},
 			Tags: map[string]string{
 				provisionersdk.TagScope: provisionersdk.ScopeOrganization,
 			},
 		})
 		require.Error(t, err)
-		var apiError *codersdk.Error
+		var apiError *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiError)
 		require.Equal(t, http.StatusForbidden, apiError.StatusCode())
 	})
@@ -249,7 +249,7 @@ func TestProvisionerDaemonServe(t *testing.T) {
 		t.Parallel()
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureExternalProvisionerDaemons: 1,
+				wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 			},
 		}})
 		closer := coderdenttest.NewExternalProvisionerDaemon(t, client, user.OrganizationID, map[string]string{
@@ -278,7 +278,7 @@ func TestProvisionerDaemonServe(t *testing.T) {
 		})
 		require.NoError(t, err)
 		//nolint:gocritic // Not testing file upload in this test.
-		file, err := client.Upload(context.Background(), codersdk.ContentTypeTar, bytes.NewReader(data))
+		file, err := client.Upload(context.Background(), wirtualsdk.ContentTypeTar, bytes.NewReader(data))
 		require.NoError(t, err)
 
 		require.Eventually(t, func() bool {
@@ -290,11 +290,11 @@ func TestProvisionerDaemonServe(t *testing.T) {
 				assert.Equal(t, user.UserID.String(), daemons[0].Tags[provisionersdk.TagOwner])
 		}, testutil.WaitShort, testutil.IntervalMedium)
 
-		version, err := client.CreateTemplateVersion(context.Background(), user.OrganizationID, codersdk.CreateTemplateVersionRequest{
+		version, err := client.CreateTemplateVersion(context.Background(), user.OrganizationID, wirtualsdk.CreateTemplateVersionRequest{
 			Name:          "example",
-			StorageMethod: codersdk.ProvisionerStorageMethodFile,
+			StorageMethod: wirtualsdk.ProvisionerStorageMethodFile,
 			FileID:        file.ID,
-			Provisioner:   codersdk.ProvisionerTypeEcho,
+			Provisioner:   wirtualsdk.ProvisionerTypeEcho,
 			ProvisionerTags: map[string]string{
 				provisionersdk.TagScope: provisionersdk.ScopeUser,
 			},
@@ -317,20 +317,20 @@ func TestProvisionerDaemonServe(t *testing.T) {
 		client, user := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 			ProvisionerDaemonPSK: "provisionersftw",
 		})
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
-		another := codersdk.New(client.URL)
+		another := wirtualsdk.New(client.URL)
 		daemonName := testutil.MustRandString(t, 63)
-		srv, err := another.ServeProvisionerDaemon(ctx, codersdk.ServeProvisionerDaemonRequest{
+		srv, err := another.ServeProvisionerDaemon(ctx, wirtualsdk.ServeProvisionerDaemonRequest{
 			Name:         daemonName,
 			Organization: user.OrganizationID,
-			Provisioners: []codersdk.ProvisionerType{
-				codersdk.ProvisionerTypeEcho,
+			Provisioners: []wirtualsdk.ProvisionerType{
+				wirtualsdk.ProvisionerTypeEcho,
 			},
 			Tags: map[string]string{
 				provisionersdk.TagScope: provisionersdk.ScopeOrganization,
@@ -353,18 +353,18 @@ func TestProvisionerDaemonServe(t *testing.T) {
 		t.Parallel()
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureExternalProvisionerDaemons: 1,
+				wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 			},
 		}})
 		another, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.ScopedRoleOrgAdmin(user.OrganizationID))
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
-		req := codersdk.ServeProvisionerDaemonRequest{
+		req := wirtualsdk.ServeProvisionerDaemonRequest{
 			ID:           uuid.New(),
 			Name:         testutil.MustRandString(t, 63),
 			Organization: user.OrganizationID,
-			Provisioners: []codersdk.ProvisionerType{
-				codersdk.ProvisionerTypeEcho,
+			Provisioners: []wirtualsdk.ProvisionerType{
+				wirtualsdk.ProvisionerTypeEcho,
 			},
 			Tags: map[string]string{
 				provisionersdk.TagScope: provisionersdk.ScopeOrganization,
@@ -391,8 +391,8 @@ func TestProvisionerDaemonServe(t *testing.T) {
 			UserWorkspaceQuota: 10,
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureTemplateRBAC:               1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureTemplateRBAC:               1,
 				},
 			},
 			ProvisionerDaemonPSK: provPSK,
@@ -422,14 +422,14 @@ func TestProvisionerDaemonServe(t *testing.T) {
 		connector := provisionerd.LocalProvisioners{
 			string(database.ProvisionerTypeEcho): sdkproto.NewDRPCProvisionerClient(terraformClient),
 		}
-		another := codersdk.New(client.URL)
+		another := wirtualsdk.New(client.URL)
 		pd := provisionerd.New(func(ctx context.Context) (proto.DRPCProvisionerDaemonClient, error) {
-			return another.ServeProvisionerDaemon(ctx, codersdk.ServeProvisionerDaemonRequest{
+			return another.ServeProvisionerDaemon(ctx, wirtualsdk.ServeProvisionerDaemonRequest{
 				ID:           uuid.New(),
 				Name:         testutil.MustRandString(t, 63),
 				Organization: user.OrganizationID,
-				Provisioners: []codersdk.ProvisionerType{
-					codersdk.ProvisionerTypeEcho,
+				Provisioners: []wirtualsdk.ProvisionerType{
+					wirtualsdk.ProvisionerTypeEcho,
 				},
 				Tags: map[string]string{
 					provisionersdk.TagScope: provisionersdk.ScopeOrganization,
@@ -444,7 +444,7 @@ func TestProvisionerDaemonServe(t *testing.T) {
 
 		// Patch the 'Everyone' group to give the user quota to build their workspace.
 		//nolint:gocritic // Not testing RBAC here.
-		_, err := client.PatchGroup(ctx, user.OrganizationID, codersdk.PatchGroupRequest{
+		_, err := client.PatchGroup(ctx, user.OrganizationID, wirtualsdk.PatchGroupRequest{
 			QuotaAllowance: ptr.Ref(1),
 		})
 		require.NoError(t, err)
@@ -475,7 +475,7 @@ func TestProvisionerDaemonServe(t *testing.T) {
 		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
 		build := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
-		require.Equal(t, codersdk.WorkspaceStatusRunning, build.Status)
+		require.Equal(t, wirtualsdk.WorkspaceStatusRunning, build.Status)
 
 		err = pd.Shutdown(ctx, false)
 		require.NoError(t, err)
@@ -494,20 +494,20 @@ func TestProvisionerDaemonServe(t *testing.T) {
 		client, user := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 			ProvisionerDaemonPSK: "provisionersftw",
 		})
-		another := codersdk.New(client.URL)
+		another := wirtualsdk.New(client.URL)
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
-		_, err := another.ServeProvisionerDaemon(ctx, codersdk.ServeProvisionerDaemonRequest{
+		_, err := another.ServeProvisionerDaemon(ctx, wirtualsdk.ServeProvisionerDaemonRequest{
 			ID:           uuid.New(),
 			Name:         testutil.MustRandString(t, 32),
 			Organization: user.OrganizationID,
-			Provisioners: []codersdk.ProvisionerType{
-				codersdk.ProvisionerTypeEcho,
+			Provisioners: []wirtualsdk.ProvisionerType{
+				wirtualsdk.ProvisionerTypeEcho,
 			},
 			Tags: map[string]string{
 				provisionersdk.TagScope: provisionersdk.ScopeOrganization,
@@ -515,7 +515,7 @@ func TestProvisionerDaemonServe(t *testing.T) {
 			PreSharedKey: "the wrong key",
 		})
 		require.Error(t, err)
-		var apiError *codersdk.Error
+		var apiError *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiError)
 		require.Equal(t, http.StatusUnauthorized, apiError.StatusCode())
 
@@ -529,27 +529,27 @@ func TestProvisionerDaemonServe(t *testing.T) {
 		client, user := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 			ProvisionerDaemonPSK: "provisionersftw",
 		})
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
-		another := codersdk.New(client.URL)
-		_, err := another.ServeProvisionerDaemon(ctx, codersdk.ServeProvisionerDaemonRequest{
+		another := wirtualsdk.New(client.URL)
+		_, err := another.ServeProvisionerDaemon(ctx, wirtualsdk.ServeProvisionerDaemonRequest{
 			ID:           uuid.New(),
 			Name:         testutil.MustRandString(t, 63),
 			Organization: user.OrganizationID,
-			Provisioners: []codersdk.ProvisionerType{
-				codersdk.ProvisionerTypeEcho,
+			Provisioners: []wirtualsdk.ProvisionerType{
+				wirtualsdk.ProvisionerTypeEcho,
 			},
 			Tags: map[string]string{
 				provisionersdk.TagScope: provisionersdk.ScopeOrganization,
 			},
 		})
 		require.Error(t, err)
-		var apiError *codersdk.Error
+		var apiError *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiError)
 		require.Equal(t, http.StatusUnauthorized, apiError.StatusCode())
 
@@ -563,19 +563,19 @@ func TestProvisionerDaemonServe(t *testing.T) {
 		client, user := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 		})
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
-		another := codersdk.New(client.URL)
-		_, err := another.ServeProvisionerDaemon(ctx, codersdk.ServeProvisionerDaemonRequest{
+		another := wirtualsdk.New(client.URL)
+		_, err := another.ServeProvisionerDaemon(ctx, wirtualsdk.ServeProvisionerDaemonRequest{
 			ID:           uuid.New(),
 			Name:         testutil.MustRandString(t, 63),
 			Organization: user.OrganizationID,
-			Provisioners: []codersdk.ProvisionerType{
-				codersdk.ProvisionerTypeEcho,
+			Provisioners: []wirtualsdk.ProvisionerType{
+				wirtualsdk.ProvisionerTypeEcho,
 			},
 			Tags: map[string]string{
 				provisionersdk.TagScope: provisionersdk.ScopeOrganization,
@@ -583,7 +583,7 @@ func TestProvisionerDaemonServe(t *testing.T) {
 			PreSharedKey: "provisionersftw",
 		})
 		require.Error(t, err)
-		var apiError *codersdk.Error
+		var apiError *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiError)
 		require.Equal(t, http.StatusUnauthorized, apiError.StatusCode())
 
@@ -671,10 +671,10 @@ func TestProvisionerDaemonServe(t *testing.T) {
 			t.Run(tc.name, func(t *testing.T) {
 				t.Parallel()
 				features := license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				}
 				if tc.multiOrgFeatureEnabled {
-					features[codersdk.FeatureMultipleOrganizations] = 1
+					features[wirtualsdk.FeatureMultipleOrganizations] = 1
 				}
 				dv := coderdtest.DeploymentValues(t)
 				client, db, user := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
@@ -696,20 +696,20 @@ func TestProvisionerDaemonServe(t *testing.T) {
 					require.NoError(t, err)
 				}
 
-				another := codersdk.New(client.URL)
-				srv, err := another.ServeProvisionerDaemon(ctx, codersdk.ServeProvisionerDaemonRequest{
+				another := wirtualsdk.New(client.URL)
+				srv, err := another.ServeProvisionerDaemon(ctx, wirtualsdk.ServeProvisionerDaemonRequest{
 					ID:           uuid.New(),
 					Name:         testutil.MustRandString(t, 63),
 					Organization: user.OrganizationID,
-					Provisioners: []codersdk.ProvisionerType{
-						codersdk.ProvisionerTypeEcho,
+					Provisioners: []wirtualsdk.ProvisionerType{
+						wirtualsdk.ProvisionerTypeEcho,
 					},
 					PreSharedKey:   tc.requestPSK,
 					ProvisionerKey: tc.requestProvisionerKey,
 				})
 				if tc.errStatusCode != 0 {
 					require.Error(t, err)
-					var apiError *codersdk.Error
+					var apiError *wirtualsdk.Error
 					require.ErrorAs(t, err, &apiError)
 					require.Equal(t, http.StatusUnauthorized, apiError.StatusCode())
 					return
@@ -736,8 +736,8 @@ func TestGetProvisionerDaemons(t *testing.T) {
 			ProvisionerDaemonPSK: "provisionersftw",
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureMultipleOrganizations:      1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
@@ -745,7 +745,7 @@ func TestGetProvisionerDaemons(t *testing.T) {
 		orgAdmin, _ := coderdtest.CreateAnotherUser(t, client, org.ID, rbac.ScopedRoleOrgAdmin(org.ID))
 		outsideOrg, _ := coderdtest.CreateAnotherUser(t, client, first.OrganizationID)
 
-		res, err := orgAdmin.CreateProvisionerKey(context.Background(), org.ID, codersdk.CreateProvisionerKeyRequest{
+		res, err := orgAdmin.CreateProvisionerKey(context.Background(), org.ID, wirtualsdk.CreateProvisionerKeyRequest{
 			Name: "my-key",
 		})
 		require.NoError(t, err)
@@ -757,12 +757,12 @@ func TestGetProvisionerDaemons(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 		daemonName := testutil.MustRandString(t, 63)
-		srv, err := orgAdmin.ServeProvisionerDaemon(ctx, codersdk.ServeProvisionerDaemonRequest{
+		srv, err := orgAdmin.ServeProvisionerDaemon(ctx, wirtualsdk.ServeProvisionerDaemonRequest{
 			ID:           uuid.New(),
 			Name:         daemonName,
 			Organization: org.ID,
-			Provisioners: []codersdk.ProvisionerType{
-				codersdk.ProvisionerTypeEcho,
+			Provisioners: []wirtualsdk.ProvisionerType{
+				wirtualsdk.ProvisionerTypeEcho,
 			},
 			Tags:           map[string]string{},
 			ProvisionerKey: res.Key,
@@ -939,8 +939,8 @@ func TestGetProvisionerDaemons(t *testing.T) {
 					ProvisionerDaemonPSK: "provisionersftw",
 					LicenseOptions: &coderdenttest.LicenseOptions{
 						Features: license.Features{
-							codersdk.FeatureExternalProvisionerDaemons: 1,
-							codersdk.FeatureMultipleOrganizations:      1,
+							wirtualsdk.FeatureExternalProvisionerDaemons: 1,
+							wirtualsdk.FeatureMultipleOrganizations:      1,
 						},
 					},
 				})

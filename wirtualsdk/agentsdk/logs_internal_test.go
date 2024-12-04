@@ -31,7 +31,7 @@ func TestLogSender_Mainline(t *testing.T) {
 	uut.Enqueue(ls1, Log{
 		CreatedAt: t0,
 		Output:    "test log 0, src 1",
-		Level:     codersdk.LogLevelInfo,
+		Level:     wirtualsdk.LogLevelInfo,
 	})
 
 	ls2 := uuid.UUID{0x22}
@@ -39,12 +39,12 @@ func TestLogSender_Mainline(t *testing.T) {
 		Log{
 			CreatedAt: t0,
 			Output:    "test log 0, src 2",
-			Level:     codersdk.LogLevelError,
+			Level:     wirtualsdk.LogLevelError,
 		},
 		Log{
 			CreatedAt: t0,
 			Output:    "test log 1, src 2",
-			Level:     codersdk.LogLevelWarn,
+			Level:     wirtualsdk.LogLevelWarn,
 		},
 	)
 
@@ -94,7 +94,7 @@ func TestLogSender_Mainline(t *testing.T) {
 	uut.Enqueue(ls1, Log{
 		CreatedAt: t1,
 		Output:    "test log 1, src 1",
-		Level:     codersdk.LogLevelDebug,
+		Level:     wirtualsdk.LogLevelDebug,
 	})
 	uut.Flush(ls1)
 
@@ -119,7 +119,7 @@ func TestLogSender_Mainline(t *testing.T) {
 	uut.Enqueue(ls1, Log{
 		CreatedAt: t1,
 		Output:    "test log 2, src 1",
-		Level:     codersdk.LogLevelTrace,
+		Level:     wirtualsdk.LogLevelTrace,
 	})
 }
 
@@ -136,7 +136,7 @@ func TestLogSender_LogLimitExceeded(t *testing.T) {
 	uut.Enqueue(ls1, Log{
 		CreatedAt: t0,
 		Output:    "test log 0, src 1",
-		Level:     codersdk.LogLevelInfo,
+		Level:     wirtualsdk.LogLevelInfo,
 	})
 
 	empty := make(chan error, 1)
@@ -168,7 +168,7 @@ func TestLogSender_LogLimitExceeded(t *testing.T) {
 	uut.Enqueue(ls1, Log{
 		CreatedAt: t0,
 		Output:    "test log 2, src 1",
-		Level:     codersdk.LogLevelTrace,
+		Level:     wirtualsdk.LogLevelTrace,
 	})
 	uut.L.Lock()
 	require.Len(t, uut.queues, 0)
@@ -203,12 +203,12 @@ func TestLogSender_SkipHugeLog(t *testing.T) {
 		Log{
 			CreatedAt: t0,
 			Output:    string(hugeLog),
-			Level:     codersdk.LogLevelInfo,
+			Level:     wirtualsdk.LogLevelInfo,
 		},
 		Log{
 			CreatedAt: t0,
 			Output:    "test log 1, src 1",
-			Level:     codersdk.LogLevelInfo,
+			Level:     wirtualsdk.LogLevelInfo,
 		})
 
 	loopErr := make(chan error, 1)
@@ -244,12 +244,12 @@ func TestLogSender_InvalidUTF8(t *testing.T) {
 		Log{
 			CreatedAt: t0,
 			Output:    "test log 0, src 1\xc3\x28",
-			Level:     codersdk.LogLevelInfo,
+			Level:     wirtualsdk.LogLevelInfo,
 		},
 		Log{
 			CreatedAt: t0,
 			Output:    "test log 1, src 1",
-			Level:     codersdk.LogLevelInfo,
+			Level:     wirtualsdk.LogLevelInfo,
 		})
 
 	loopErr := make(chan error, 1)
@@ -289,7 +289,7 @@ func TestLogSender_Batch(t *testing.T) {
 		logs = append(logs, Log{
 			CreatedAt: t0,
 			Output:    "r",
-			Level:     codersdk.LogLevelInfo,
+			Level:     wirtualsdk.LogLevelInfo,
 		})
 	}
 	uut.Enqueue(ls1, logs...)
@@ -344,7 +344,7 @@ func TestLogSender_MaxQueuedLogs(t *testing.T) {
 		logs = append(logs, Log{
 			CreatedAt: t0,
 			Output:    string(hugeLog),
-			Level:     codersdk.LogLevelInfo,
+			Level:     wirtualsdk.LogLevelInfo,
 		})
 	}
 	uut.Enqueue(ls1, logs...)
@@ -399,7 +399,7 @@ func TestLogSender_SendError(t *testing.T) {
 	uut.Enqueue(ls1, Log{
 		CreatedAt: t0,
 		Output:    "test log 0, src 1",
-		Level:     codersdk.LogLevelInfo,
+		Level:     wirtualsdk.LogLevelInfo,
 	})
 
 	loopErr := make(chan error, 1)
@@ -418,7 +418,7 @@ func TestLogSender_SendError(t *testing.T) {
 	uut.Enqueue(ls1, Log{
 		CreatedAt: t0,
 		Output:    "test log 2, src 1",
-		Level:     codersdk.LogLevelTrace,
+		Level:     wirtualsdk.LogLevelTrace,
 	})
 	uut.L.Lock()
 	require.Len(t, uut.queues, 1)
@@ -438,7 +438,7 @@ func TestLogSender_WaitUntilEmpty_ContextExpired(t *testing.T) {
 	uut.Enqueue(ls1, Log{
 		CreatedAt: t0,
 		Output:    "test log 0, src 1",
-		Level:     codersdk.LogLevelInfo,
+		Level:     wirtualsdk.LogLevelInfo,
 	})
 
 	empty := make(chan error, 1)

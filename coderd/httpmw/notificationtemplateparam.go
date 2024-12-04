@@ -35,7 +35,7 @@ func ExtractNotificationTemplateParam(db database.Store) func(http.Handler) http
 				return
 			}
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error fetching notification template.",
 					Detail:  err.Error(),
 				})

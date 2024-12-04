@@ -36,7 +36,7 @@ func RateLimit(count int, window time.Duration) func(http.Handler) http.Handler 
 				return httprate.KeyByIP(r)
 			}
 
-			if ok, _ := strconv.ParseBool(r.Header.Get(codersdk.BypassRatelimitHeader)); !ok {
+			if ok, _ := strconv.ParseBool(r.Header.Get(wirtualsdk.BypassRatelimitHeader)); !ok {
 				// No bypass attempt, just ratelimit.
 				return apiKey.UserID.String(), nil
 			}
@@ -60,11 +60,11 @@ func RateLimit(count int, window time.Duration) func(http.Handler) http.Handler 
 
 			return apiKey.UserID.String(), xerrors.Errorf(
 				"%q provided but user is not %v",
-				codersdk.BypassRatelimitHeader, rbac.RoleOwner(),
+				wirtualsdk.BypassRatelimitHeader, rbac.RoleOwner(),
 			)
 		}, httprate.KeyByEndpoint),
 		httprate.WithLimitHandler(func(w http.ResponseWriter, r *http.Request) {
-			httpapi.Write(r.Context(), w, http.StatusTooManyRequests, codersdk.Response{
+			httpapi.Write(r.Context(), w, http.StatusTooManyRequests, wirtualsdk.Response{
 				Message: fmt.Sprintf("You've been rate limited for sending more than %v requests in %v.", count, window),
 			})
 		}),

@@ -27,25 +27,25 @@ func TestCheckACLPermissions(t *testing.T) {
 		},
 		LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		},
 	})
 	// Create member and org adminClient
 	memberClient, _ := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
-	memberUser, err := memberClient.User(ctx, codersdk.Me)
+	memberUser, err := memberClient.User(ctx, wirtualsdk.Me)
 	require.NoError(t, err)
 	orgAdminClient, _ := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID, rbac.ScopedRoleOrgAdmin(adminUser.OrganizationID))
-	orgAdminUser, err := orgAdminClient.User(ctx, codersdk.Me)
+	orgAdminUser, err := orgAdminClient.User(ctx, wirtualsdk.Me)
 	require.NoError(t, err)
 
 	version := coderdtest.CreateTemplateVersion(t, adminClient, adminUser.OrganizationID, nil)
 	coderdtest.AwaitTemplateVersionJobCompleted(t, adminClient, version.ID)
 	template := coderdtest.CreateTemplate(t, adminClient, adminUser.OrganizationID, version.ID)
 
-	err = adminClient.UpdateTemplateACL(ctx, template.ID, codersdk.UpdateTemplateACL{
-		UserPerms: map[string]codersdk.TemplateRole{
-			memberUser.ID.String(): codersdk.TemplateRoleAdmin,
+	err = adminClient.UpdateTemplateACL(ctx, template.ID, wirtualsdk.UpdateTemplateACL{
+		UserPerms: map[string]wirtualsdk.TemplateRole{
+			memberUser.ID.String(): wirtualsdk.TemplateRoleAdmin,
 		},
 	})
 	require.NoError(t, err)
@@ -53,21 +53,21 @@ func TestCheckACLPermissions(t *testing.T) {
 	const (
 		updateSpecificTemplate = "read-specific-template"
 	)
-	params := map[string]codersdk.AuthorizationCheck{
+	params := map[string]wirtualsdk.AuthorizationCheck{
 		updateSpecificTemplate: {
-			Object: codersdk.AuthorizationObject{
-				ResourceType: codersdk.ResourceTemplate,
+			Object: wirtualsdk.AuthorizationObject{
+				ResourceType: wirtualsdk.ResourceTemplate,
 				ResourceID:   template.ID.String(),
 			},
-			Action: codersdk.ActionUpdate,
+			Action: wirtualsdk.ActionUpdate,
 		},
 	}
 
 	testCases := []struct {
 		Name   string
-		Client *codersdk.Client
+		Client *wirtualsdk.Client
 		UserID uuid.UUID
-		Check  codersdk.AuthorizationResponse
+		Check  wirtualsdk.AuthorizationResponse
 	}{
 		{
 			Name:   "Admin",
@@ -104,7 +104,7 @@ func TestCheckACLPermissions(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			t.Cleanup(cancel)
 
-			resp, err := c.Client.AuthCheck(ctx, codersdk.AuthorizationRequest{Checks: params})
+			resp, err := c.Client.AuthCheck(ctx, wirtualsdk.AuthorizationRequest{Checks: params})
 			require.NoError(t, err, "check perms")
 			require.Equal(t, c.Check, resp)
 		})

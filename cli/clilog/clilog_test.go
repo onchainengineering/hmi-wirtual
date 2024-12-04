@@ -123,14 +123,14 @@ func TestBuilder(t *testing.T) {
 		t.Run("Override", func(t *testing.T) {
 			tempFile := filepath.Join(t.TempDir(), "test.log")
 			tempJSON := filepath.Join(t.TempDir(), "test.json")
-			dv := &codersdk.DeploymentValues{
-				Logging: codersdk.LoggingConfig{
+			dv := &wirtualsdk.DeploymentValues{
+				Logging: wirtualsdk.LoggingConfig{
 					Filter: []string{"foo", "baz"},
 					Human:  serpent.String(tempFile),
 					JSON:   serpent.String(tempJSON),
 				},
 				Verbose: true,
-				Trace: codersdk.TraceConfig{
+				Trace: wirtualsdk.TraceConfig{
 					Enable: true,
 				},
 			}

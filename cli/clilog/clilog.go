@@ -76,7 +76,7 @@ func WithVerbose() Option {
 	}
 }
 
-func FromDeploymentValues(vals *codersdk.DeploymentValues) Option {
+func FromDeploymentValues(vals *wirtualsdk.DeploymentValues) Option {
 	return func(b *Builder) {
 		b.Filter = vals.Logging.Filter.Value()
 		b.Human = vals.Logging.Human.Value()

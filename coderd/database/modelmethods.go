@@ -45,7 +45,7 @@ func (s WorkspaceStatus) Valid() bool {
 
 type WorkspaceAgentStatus string
 
-// This is also in codersdk/workspaceagents.go and should be kept in sync.
+// This is also in wirtualsdk/workspaceagents.go and should be kept in sync.
 const (
 	WorkspaceAgentStatusConnecting   WorkspaceAgentStatus = "connecting"
 	WorkspaceAgentStatusConnected    WorkspaceAgentStatus = "connected"

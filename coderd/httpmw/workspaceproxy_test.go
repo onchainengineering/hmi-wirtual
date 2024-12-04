@@ -25,7 +25,7 @@ func TestExtractWorkspaceProxy(t *testing.T) {
 
 	successHandler := http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		// Only called if the API key passes through the handler.
-		httpapi.Write(context.Background(), rw, http.StatusOK, codersdk.Response{
+		httpapi.Write(context.Background(), rw, http.StatusOK, wirtualsdk.Response{
 			Message: "It worked!",
 		})
 	})
@@ -193,7 +193,7 @@ func TestExtractWorkspaceProxyParam(t *testing.T) {
 
 	successHandler := http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		// Only called if the API key passes through the handler.
-		httpapi.Write(context.Background(), rw, http.StatusOK, codersdk.Response{
+		httpapi.Write(context.Background(), rw, http.StatusOK, wirtualsdk.Response{
 			Message: "It worked!",
 		})
 	})

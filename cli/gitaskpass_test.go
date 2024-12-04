@@ -48,7 +48,7 @@ func TestGitAskpass(t *testing.T) {
 	t.Run("NoHost", func(t *testing.T) {
 		t.Parallel()
 		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			httpapi.Write(context.Background(), w, http.StatusNotFound, codersdk.Response{
+			httpapi.Write(context.Background(), w, http.StatusNotFound, wirtualsdk.Response{
 				Message: "Nope!",
 			})
 		}))

@@ -57,8 +57,8 @@ func TestAgent(t *testing.T) {
 
 	for _, tc := range []struct {
 		name    string
-		iter    []func(context.Context, *testing.T, *codersdk.WorkspaceAgent, <-chan string, chan []codersdk.WorkspaceAgentLog) error
-		logs    chan []codersdk.WorkspaceAgentLog
+		iter    []func(context.Context, *testing.T, *wirtualsdk.WorkspaceAgent, <-chan string, chan []wirtualsdk.WorkspaceAgentLog) error
+		logs    chan []wirtualsdk.WorkspaceAgentLog
 		opts    cliui.AgentOptions
 		want    []string
 		wantErr bool
@@ -68,16 +68,16 @@ func TestAgent(t *testing.T) {
 			opts: cliui.AgentOptions{
 				FetchInterval: time.Millisecond,
 			},
-			iter: []func(context.Context, *testing.T, *codersdk.WorkspaceAgent, <-chan string, chan []codersdk.WorkspaceAgentLog) error{
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnecting
+			iter: []func(context.Context, *testing.T, *wirtualsdk.WorkspaceAgent, <-chan string, chan []wirtualsdk.WorkspaceAgentLog) error{
+				func(_ context.Context, _ *testing.T, agent *wirtualsdk.WorkspaceAgent, _ <-chan string, _ chan []wirtualsdk.WorkspaceAgentLog) error {
+					agent.Status = wirtualsdk.WorkspaceAgentConnecting
 					return nil
 				},
-				func(_ context.Context, t *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
+				func(_ context.Context, t *testing.T, agent *wirtualsdk.WorkspaceAgent, output <-chan string, _ chan []wirtualsdk.WorkspaceAgentLog) error {
 					return waitLines(t, output, "⧗ Waiting for the workspace agent to connect")
 				},
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnected
+				func(_ context.Context, _ *testing.T, agent *wirtualsdk.WorkspaceAgent, _ <-chan string, _ chan []wirtualsdk.WorkspaceAgentLog) error {
+					agent.Status = wirtualsdk.WorkspaceAgentConnected
 					agent.FirstConnectedAt = ptr.Ref(time.Now())
 					return nil
 				},
@@ -95,19 +95,19 @@ func TestAgent(t *testing.T) {
 			opts: cliui.AgentOptions{
 				FetchInterval: time.Millisecond,
 			},
-			iter: []func(context.Context, *testing.T, *codersdk.WorkspaceAgent, <-chan string, chan []codersdk.WorkspaceAgentLog) error{
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnecting
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleStarting
+			iter: []func(context.Context, *testing.T, *wirtualsdk.WorkspaceAgent, <-chan string, chan []wirtualsdk.WorkspaceAgentLog) error{
+				func(_ context.Context, _ *testing.T, agent *wirtualsdk.WorkspaceAgent, _ <-chan string, _ chan []wirtualsdk.WorkspaceAgentLog) error {
+					agent.Status = wirtualsdk.WorkspaceAgentConnecting
+					agent.LifecycleState = wirtualsdk.WorkspaceAgentLifecycleStarting
 					agent.StartedAt = ptr.Ref(time.Now())
 					return nil
 				},
-				func(_ context.Context, t *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
+				func(_ context.Context, t *testing.T, agent *wirtualsdk.WorkspaceAgent, output <-chan string, _ chan []wirtualsdk.WorkspaceAgentLog) error {
 					return waitLines(t, output, "⧗ Waiting for the workspace agent to connect")
 				},
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnected
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleStartTimeout
+				func(_ context.Context, _ *testing.T, agent *wirtualsdk.WorkspaceAgent, _ <-chan string, _ chan []wirtualsdk.WorkspaceAgentLog) error {
+					agent.Status = wirtualsdk.WorkspaceAgentConnected
+					agent.LifecycleState = wirtualsdk.WorkspaceAgentLifecycleStartTimeout
 					agent.FirstConnectedAt = ptr.Ref(time.Now())
 					agent.ReadyAt = ptr.Ref(time.Now())
 					return nil
@@ -126,27 +126,27 @@ func TestAgent(t *testing.T) {
 			opts: cliui.AgentOptions{
 				FetchInterval: 1 * time.Millisecond,
 			},
-			iter: []func(context.Context, *testing.T, *codersdk.WorkspaceAgent, <-chan string, chan []codersdk.WorkspaceAgentLog) error{
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnecting
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleStarting
+			iter: []func(context.Context, *testing.T, *wirtualsdk.WorkspaceAgent, <-chan string, chan []wirtualsdk.WorkspaceAgentLog) error{
+				func(_ context.Context, _ *testing.T, agent *wirtualsdk.WorkspaceAgent, _ <-chan string, _ chan []wirtualsdk.WorkspaceAgentLog) error {
+					agent.Status = wirtualsdk.WorkspaceAgentConnecting
+					agent.LifecycleState = wirtualsdk.WorkspaceAgentLifecycleStarting
 					agent.StartedAt = ptr.Ref(time.Now())
 					return nil
 				},
-				func(_ context.Context, t *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
+				func(_ context.Context, t *testing.T, agent *wirtualsdk.WorkspaceAgent, output <-chan string, _ chan []wirtualsdk.WorkspaceAgentLog) error {
 					return waitLines(t, output, "⧗ Waiting for the workspace agent to connect")
 				},
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentTimeout
+				func(_ context.Context, _ *testing.T, agent *wirtualsdk.WorkspaceAgent, _ <-chan string, _ chan []wirtualsdk.WorkspaceAgentLog) error {
+					agent.Status = wirtualsdk.WorkspaceAgentTimeout
 					return nil
 				},
-				func(_ context.Context, t *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
+				func(_ context.Context, t *testing.T, agent *wirtualsdk.WorkspaceAgent, output <-chan string, _ chan []wirtualsdk.WorkspaceAgentLog) error {
 					return waitLines(t, output, "The workspace agent is having trouble connecting, wait for it to connect or restart your workspace.")
 				},
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnected
+				func(_ context.Context, _ *testing.T, agent *wirtualsdk.WorkspaceAgent, _ <-chan string, _ chan []wirtualsdk.WorkspaceAgentLog) error {
+					agent.Status = wirtualsdk.WorkspaceAgentConnected
 					agent.FirstConnectedAt = ptr.Ref(time.Now())
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleReady
+					agent.LifecycleState = wirtualsdk.WorkspaceAgentLifecycleReady
 					agent.ReadyAt = ptr.Ref(time.Now())
 					return nil
 				},
@@ -165,22 +165,22 @@ func TestAgent(t *testing.T) {
 			opts: cliui.AgentOptions{
 				FetchInterval: 1 * time.Millisecond,
 			},
-			iter: []func(context.Context, *testing.T, *codersdk.WorkspaceAgent, <-chan string, chan []codersdk.WorkspaceAgentLog) error{
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentDisconnected
+			iter: []func(context.Context, *testing.T, *wirtualsdk.WorkspaceAgent, <-chan string, chan []wirtualsdk.WorkspaceAgentLog) error{
+				func(_ context.Context, _ *testing.T, agent *wirtualsdk.WorkspaceAgent, _ <-chan string, _ chan []wirtualsdk.WorkspaceAgentLog) error {
+					agent.Status = wirtualsdk.WorkspaceAgentDisconnected
 					agent.FirstConnectedAt = ptr.Ref(time.Now().Add(-1 * time.Minute))
 					agent.LastConnectedAt = ptr.Ref(time.Now().Add(-1 * time.Minute))
 					agent.DisconnectedAt = ptr.Ref(time.Now())
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleReady
+					agent.LifecycleState = wirtualsdk.WorkspaceAgentLifecycleReady
 					agent.StartedAt = ptr.Ref(time.Now().Add(-1 * time.Minute))
 					agent.ReadyAt = ptr.Ref(time.Now())
 					return nil
 				},
-				func(_ context.Context, t *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
+				func(_ context.Context, t *testing.T, agent *wirtualsdk.WorkspaceAgent, output <-chan string, _ chan []wirtualsdk.WorkspaceAgentLog) error {
 					return waitLines(t, output, "⧗ The workspace agent lost connection")
 				},
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnected
+				func(_ context.Context, _ *testing.T, agent *wirtualsdk.WorkspaceAgent, _ <-chan string, _ chan []wirtualsdk.WorkspaceAgentLog) error {
+					agent.Status = wirtualsdk.WorkspaceAgentConnected
 					agent.DisconnectedAt = nil
 					agent.LastConnectedAt = ptr.Ref(time.Now())
 					return nil
@@ -199,17 +199,17 @@ func TestAgent(t *testing.T) {
 				FetchInterval: time.Millisecond,
 				Wait:          true,
 			},
-			iter: []func(context.Context, *testing.T, *codersdk.WorkspaceAgent, <-chan string, chan []codersdk.WorkspaceAgentLog) error{
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, logs chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnected
+			iter: []func(context.Context, *testing.T, *wirtualsdk.WorkspaceAgent, <-chan string, chan []wirtualsdk.WorkspaceAgentLog) error{
+				func(_ context.Context, _ *testing.T, agent *wirtualsdk.WorkspaceAgent, _ <-chan string, logs chan []wirtualsdk.WorkspaceAgentLog) error {
+					agent.Status = wirtualsdk.WorkspaceAgentConnected
 					agent.FirstConnectedAt = ptr.Ref(time.Now())
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleStarting
+					agent.LifecycleState = wirtualsdk.WorkspaceAgentLifecycleStarting
 					agent.StartedAt = ptr.Ref(time.Now())
-					agent.LogSources = []codersdk.WorkspaceAgentLogSource{{
+					agent.LogSources = []wirtualsdk.WorkspaceAgentLogSource{{
 						ID:          uuid.Nil,
 						DisplayName: "testing",
 					}}
-					logs <- []codersdk.WorkspaceAgentLog{
+					logs <- []wirtualsdk.WorkspaceAgentLog{
 						{
 							CreatedAt: time.Now(),
 							Output:    "Hello world",
@@ -218,10 +218,10 @@ func TestAgent(t *testing.T) {
 					}
 					return nil
 				},
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, logs chan []codersdk.WorkspaceAgentLog) error {
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleReady
+				func(_ context.Context, _ *testing.T, agent *wirtualsdk.WorkspaceAgent, _ <-chan string, logs chan []wirtualsdk.WorkspaceAgentLog) error {
+					agent.LifecycleState = wirtualsdk.WorkspaceAgentLifecycleReady
 					agent.ReadyAt = ptr.Ref(time.Now())
-					logs <- []codersdk.WorkspaceAgentLog{
+					logs <- []wirtualsdk.WorkspaceAgentLog{
 						{
 							CreatedAt: time.Now(),
 							Output:    "Bye now",
@@ -244,14 +244,14 @@ func TestAgent(t *testing.T) {
 				FetchInterval: time.Millisecond,
 				Wait:          true,
 			},
-			iter: []func(context.Context, *testing.T, *codersdk.WorkspaceAgent, <-chan string, chan []codersdk.WorkspaceAgentLog) error{
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, logs chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnected
+			iter: []func(context.Context, *testing.T, *wirtualsdk.WorkspaceAgent, <-chan string, chan []wirtualsdk.WorkspaceAgentLog) error{
+				func(_ context.Context, _ *testing.T, agent *wirtualsdk.WorkspaceAgent, output <-chan string, logs chan []wirtualsdk.WorkspaceAgentLog) error {
+					agent.Status = wirtualsdk.WorkspaceAgentConnected
 					agent.FirstConnectedAt = ptr.Ref(time.Now())
 					agent.StartedAt = ptr.Ref(time.Now())
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleStartError
+					agent.LifecycleState = wirtualsdk.WorkspaceAgentLifecycleStartError
 					agent.ReadyAt = ptr.Ref(time.Now())
-					logs <- []codersdk.WorkspaceAgentLog{
+					logs <- []wirtualsdk.WorkspaceAgentLog{
 						{
 							CreatedAt: time.Now(),
 							Output:    "Hello world",
@@ -273,10 +273,10 @@ func TestAgent(t *testing.T) {
 			opts: cliui.AgentOptions{
 				FetchInterval: time.Millisecond,
 			},
-			iter: []func(context.Context, *testing.T, *codersdk.WorkspaceAgent, <-chan string, chan []codersdk.WorkspaceAgentLog) error{
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, logs chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentDisconnected
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleOff
+			iter: []func(context.Context, *testing.T, *wirtualsdk.WorkspaceAgent, <-chan string, chan []wirtualsdk.WorkspaceAgentLog) error{
+				func(_ context.Context, _ *testing.T, agent *wirtualsdk.WorkspaceAgent, output <-chan string, logs chan []wirtualsdk.WorkspaceAgentLog) error {
+					agent.Status = wirtualsdk.WorkspaceAgentDisconnected
+					agent.LifecycleState = wirtualsdk.WorkspaceAgentLifecycleOff
 					return nil
 				},
 			},
@@ -288,13 +288,13 @@ func TestAgent(t *testing.T) {
 				FetchInterval: time.Millisecond,
 				Wait:          true,
 			},
-			iter: []func(context.Context, *testing.T, *codersdk.WorkspaceAgent, <-chan string, chan []codersdk.WorkspaceAgentLog) error{
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, logs chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnected
+			iter: []func(context.Context, *testing.T, *wirtualsdk.WorkspaceAgent, <-chan string, chan []wirtualsdk.WorkspaceAgentLog) error{
+				func(_ context.Context, _ *testing.T, agent *wirtualsdk.WorkspaceAgent, output <-chan string, logs chan []wirtualsdk.WorkspaceAgentLog) error {
+					agent.Status = wirtualsdk.WorkspaceAgentConnected
 					agent.FirstConnectedAt = ptr.Ref(time.Now())
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleStarting
+					agent.LifecycleState = wirtualsdk.WorkspaceAgentLifecycleStarting
 					agent.StartedAt = ptr.Ref(time.Now())
-					logs <- []codersdk.WorkspaceAgentLog{
+					logs <- []wirtualsdk.WorkspaceAgentLog{
 						{
 							CreatedAt: time.Now(),
 							Output:    "Hello world",
@@ -302,12 +302,12 @@ func TestAgent(t *testing.T) {
 					}
 					return nil
 				},
-				func(_ context.Context, t *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
+				func(_ context.Context, t *testing.T, agent *wirtualsdk.WorkspaceAgent, output <-chan string, _ chan []wirtualsdk.WorkspaceAgentLog) error {
 					return waitLines(t, output, "Hello world")
 				},
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
+				func(_ context.Context, _ *testing.T, agent *wirtualsdk.WorkspaceAgent, _ <-chan string, _ chan []wirtualsdk.WorkspaceAgentLog) error {
 					agent.ReadyAt = ptr.Ref(time.Now())
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleShuttingDown
+					agent.LifecycleState = wirtualsdk.WorkspaceAgentLifecycleShuttingDown
 					return nil
 				},
 			},
@@ -325,15 +325,15 @@ func TestAgent(t *testing.T) {
 				FetchInterval: time.Millisecond,
 				Wait:          true,
 			},
-			iter: []func(context.Context, *testing.T, *codersdk.WorkspaceAgent, <-chan string, chan []codersdk.WorkspaceAgentLog) error{
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnecting
+			iter: []func(context.Context, *testing.T, *wirtualsdk.WorkspaceAgent, <-chan string, chan []wirtualsdk.WorkspaceAgentLog) error{
+				func(_ context.Context, _ *testing.T, agent *wirtualsdk.WorkspaceAgent, _ <-chan string, _ chan []wirtualsdk.WorkspaceAgentLog) error {
+					agent.Status = wirtualsdk.WorkspaceAgentConnecting
 					return nil
 				},
-				func(_ context.Context, t *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
+				func(_ context.Context, t *testing.T, agent *wirtualsdk.WorkspaceAgent, output <-chan string, _ chan []wirtualsdk.WorkspaceAgentLog) error {
 					return waitLines(t, output, "⧗ Waiting for the workspace agent to connect")
 				},
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
+				func(_ context.Context, _ *testing.T, agent *wirtualsdk.WorkspaceAgent, _ <-chan string, _ chan []wirtualsdk.WorkspaceAgentLog) error {
 					return xerrors.New("bad")
 				},
 			},
@@ -348,16 +348,16 @@ func TestAgent(t *testing.T) {
 				FetchInterval: time.Millisecond,
 				Wait:          true,
 			},
-			iter: []func(context.Context, *testing.T, *codersdk.WorkspaceAgent, <-chan string, chan []codersdk.WorkspaceAgentLog) error{
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentTimeout
+			iter: []func(context.Context, *testing.T, *wirtualsdk.WorkspaceAgent, <-chan string, chan []wirtualsdk.WorkspaceAgentLog) error{
+				func(_ context.Context, _ *testing.T, agent *wirtualsdk.WorkspaceAgent, _ <-chan string, _ chan []wirtualsdk.WorkspaceAgentLog) error {
+					agent.Status = wirtualsdk.WorkspaceAgentTimeout
 					agent.TroubleshootingURL = "https://troubleshoot"
 					return nil
 				},
-				func(_ context.Context, t *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
+				func(_ context.Context, t *testing.T, agent *wirtualsdk.WorkspaceAgent, output <-chan string, _ chan []wirtualsdk.WorkspaceAgentLog) error {
 					return waitLines(t, output, "The workspace agent is having trouble connecting, wait for it to connect or restart your workspace.")
 				},
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
+				func(_ context.Context, _ *testing.T, agent *wirtualsdk.WorkspaceAgent, output <-chan string, _ chan []wirtualsdk.WorkspaceAgentLog) error {
 					return xerrors.New("bad")
 				},
 			},
@@ -381,18 +381,18 @@ func TestAgent(t *testing.T) {
 			defer r.Close()
 			defer w.Close()
 
-			agent := codersdk.WorkspaceAgent{
+			agent := wirtualsdk.WorkspaceAgent{
 				ID:             uuid.New(),
-				Status:         codersdk.WorkspaceAgentConnecting,
+				Status:         wirtualsdk.WorkspaceAgentConnecting,
 				CreatedAt:      time.Now(),
-				LifecycleState: codersdk.WorkspaceAgentLifecycleCreated,
+				LifecycleState: wirtualsdk.WorkspaceAgentLifecycleCreated,
 			}
 			output := make(chan string, 100) // Buffered to avoid blocking, overflow is discarded.
-			logs := make(chan []codersdk.WorkspaceAgentLog, 1)
+			logs := make(chan []wirtualsdk.WorkspaceAgentLog, 1)
 
 			cmd := &serpent.Command{
 				Handler: func(inv *serpent.Invocation) error {
-					tc.opts.Fetch = func(_ context.Context, _ uuid.UUID) (codersdk.WorkspaceAgent, error) {
+					tc.opts.Fetch = func(_ context.Context, _ uuid.UUID) (wirtualsdk.WorkspaceAgent, error) {
 						t.Log("iter", len(tc.iter))
 						var err error
 						if len(tc.iter) > 0 {
@@ -401,12 +401,12 @@ func TestAgent(t *testing.T) {
 						}
 						return agent, err
 					}
-					tc.opts.FetchLogs = func(ctx context.Context, _ uuid.UUID, _ int64, follow bool) (<-chan []codersdk.WorkspaceAgentLog, io.Closer, error) {
+					tc.opts.FetchLogs = func(ctx context.Context, _ uuid.UUID, _ int64, follow bool) (<-chan []wirtualsdk.WorkspaceAgentLog, io.Closer, error) {
 						if follow {
 							return logs, closeFunc(func() error { return nil }), nil
 						}
 
-						fetchLogs := make(chan []codersdk.WorkspaceAgentLog, 1)
+						fetchLogs := make(chan []wirtualsdk.WorkspaceAgentLog, 1)
 						select {
 						case <-ctx.Done():
 							return nil, nil, ctx.Err()
@@ -463,12 +463,12 @@ func TestAgent(t *testing.T) {
 				buf := bytes.Buffer{}
 				err := cliui.Agent(inv.Context(), &buf, uuid.Nil, cliui.AgentOptions{
 					FetchInterval: 10 * time.Millisecond,
-					Fetch: func(ctx context.Context, agentID uuid.UUID) (codersdk.WorkspaceAgent, error) {
+					Fetch: func(ctx context.Context, agentID uuid.UUID) (wirtualsdk.WorkspaceAgent, error) {
 						atomic.AddUint64(&fetchCalled, 1)
 
-						return codersdk.WorkspaceAgent{
-							Status:         codersdk.WorkspaceAgentConnected,
-							LifecycleState: codersdk.WorkspaceAgentLifecycleReady,
+						return wirtualsdk.WorkspaceAgent{
+							Status:         wirtualsdk.WorkspaceAgentConnected,
+							LifecycleState: wirtualsdk.WorkspaceAgentLifecycleReady,
 						}, nil
 					},
 				})

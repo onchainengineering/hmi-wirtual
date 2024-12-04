@@ -21,7 +21,7 @@ import (
 
 // WebhookHandler dispatches notification messages via an HTTP POST webhook.
 type WebhookHandler struct {
-	cfg codersdk.NotificationsWebhookConfig
+	cfg wirtualsdk.NotificationsWebhookConfig
 	log slog.Logger
 
 	cl *http.Client
@@ -38,7 +38,7 @@ type WebhookPayload struct {
 	BodyMarkdown  string               `json:"body_markdown"`
 }
 
-func NewWebhookHandler(cfg codersdk.NotificationsWebhookConfig, log slog.Logger) *WebhookHandler {
+func NewWebhookHandler(cfg wirtualsdk.NotificationsWebhookConfig, log slog.Logger) *WebhookHandler {
 	return &WebhookHandler{cfg: cfg, log: log, cl: &http.Client{}}
 }
 

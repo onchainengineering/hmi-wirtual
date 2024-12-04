@@ -1206,7 +1206,7 @@ func (c *Controller) Run(ctx context.Context) {
 					return
 				}
 				errF := slog.Error(err)
-				var sdkErr *codersdk.Error
+				var sdkErr *wirtualsdk.Error
 				if xerrors.As(err, &sdkErr) {
 					errF = slog.Error(sdkErr)
 				}

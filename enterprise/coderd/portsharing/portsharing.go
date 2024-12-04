@@ -13,15 +13,15 @@ func NewEnterprisePortSharer() *EnterprisePortSharer {
 	return &EnterprisePortSharer{}
 }
 
-func (EnterprisePortSharer) AuthorizedLevel(template database.Template, level codersdk.WorkspaceAgentPortShareLevel) error {
-	max := codersdk.WorkspaceAgentPortShareLevel(template.MaxPortSharingLevel)
+func (EnterprisePortSharer) AuthorizedLevel(template database.Template, level wirtualsdk.WorkspaceAgentPortShareLevel) error {
+	max := wirtualsdk.WorkspaceAgentPortShareLevel(template.MaxPortSharingLevel)
 	switch level {
-	case codersdk.WorkspaceAgentPortShareLevelPublic:
-		if max != codersdk.WorkspaceAgentPortShareLevelPublic {
+	case wirtualsdk.WorkspaceAgentPortShareLevelPublic:
+		if max != wirtualsdk.WorkspaceAgentPortShareLevelPublic {
 			return xerrors.Errorf("port sharing level not allowed. Max level is '%s'", max)
 		}
-	case codersdk.WorkspaceAgentPortShareLevelAuthenticated:
-		if max == codersdk.WorkspaceAgentPortShareLevelOwner {
+	case wirtualsdk.WorkspaceAgentPortShareLevelAuthenticated:
+		if max == wirtualsdk.WorkspaceAgentPortShareLevelOwner {
 			return xerrors.Errorf("port sharing level not allowed. Max level is '%s'", max)
 		}
 	default:
@@ -31,7 +31,7 @@ func (EnterprisePortSharer) AuthorizedLevel(template database.Template, level co
 	return nil
 }
 
-func (EnterprisePortSharer) ValidateTemplateMaxLevel(level codersdk.WorkspaceAgentPortShareLevel) error {
+func (EnterprisePortSharer) ValidateTemplateMaxLevel(level wirtualsdk.WorkspaceAgentPortShareLevel) error {
 	if !level.ValidMaxLevel() {
 		return xerrors.New("invalid max port sharing level, value must be 'authenticated' or 'public'.")
 	}
@@ -39,6 +39,6 @@ func (EnterprisePortSharer) ValidateTemplateMaxLevel(level codersdk.WorkspaceAge
 	return nil
 }
 
-func (EnterprisePortSharer) ConvertMaxLevel(level database.AppSharingLevel) codersdk.WorkspaceAgentPortShareLevel {
-	return codersdk.WorkspaceAgentPortShareLevel(level)
+func (EnterprisePortSharer) ConvertMaxLevel(level database.AppSharingLevel) wirtualsdk.WorkspaceAgentPortShareLevel {
+	return wirtualsdk.WorkspaceAgentPortShareLevel(level)
 }

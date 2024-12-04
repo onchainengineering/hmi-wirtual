@@ -53,7 +53,7 @@ func extractUserContext(ctx context.Context, db database.Store, rw http.Response
 	// userQuery is either a uuid, a username, or 'me'
 	userQuery := chi.URLParam(r, "user")
 	if userQuery == "" {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "\"user\" must be provided.",
 		})
 		return database.User{}, true
@@ -62,7 +62,7 @@ func extractUserContext(ctx context.Context, db database.Store, rw http.Response
 	if userQuery == "me" {
 		apiKey, ok := APIKeyOptional(r)
 		if !ok {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Cannot use \"me\" without a valid session.",
 			})
 			return database.User{}, false
@@ -73,7 +73,7 @@ func extractUserContext(ctx context.Context, db database.Store, rw http.Response
 			return database.User{}, false
 		}
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Internal error fetching user.",
 				Detail:  err.Error(),
 			})
@@ -85,7 +85,7 @@ func extractUserContext(ctx context.Context, db database.Store, rw http.Response
 	if userID, err := uuid.Parse(userQuery); err == nil {
 		user, err = db.GetUserByID(ctx, userID)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: userErrorMessage,
 				Detail:  fmt.Sprintf("queried user=%q", userQuery),
 			})
@@ -99,7 +99,7 @@ func extractUserContext(ctx context.Context, db database.Store, rw http.Response
 		Username: userQuery,
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: userErrorMessage,
 			Detail:  fmt.Sprintf("queried user=%q", userQuery),
 		})

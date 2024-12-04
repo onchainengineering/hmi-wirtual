@@ -41,7 +41,7 @@ func ReportCLITelemetry(log slog.Logger, rep telemetry.Reporter) func(http.Handl
 			// No matter what, we proceed with the request.
 			defer next.ServeHTTP(rw, r)
 
-			payload := r.Header.Get(codersdk.CLITelemetryHeader)
+			payload := r.Header.Get(wirtualsdk.CLITelemetryHeader)
 			if payload == "" {
 				return
 			}

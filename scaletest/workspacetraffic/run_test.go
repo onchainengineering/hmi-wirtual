@@ -71,7 +71,7 @@ func TestRun(t *testing.T) {
 			template = coderdtest.CreateTemplate(t, client, firstUser.OrganizationID, version.ID)
 			_        = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 			// In order to be picked up as a scaletest workspace, the workspace must be named specifically
-			ws = coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
+			ws = coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 				cwr.Name = "scaletest-test"
 			})
 			_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
@@ -190,7 +190,7 @@ func TestRun(t *testing.T) {
 			template = coderdtest.CreateTemplate(t, client, firstUser.OrganizationID, version.ID)
 			_        = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 			// In order to be picked up as a scaletest workspace, the workspace must be named specifically
-			ws = coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
+			ws = coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 				cwr.Name = "scaletest-test"
 			})
 			_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
@@ -314,7 +314,7 @@ func TestRun(t *testing.T) {
 			readMetrics  = &testMetrics{}
 			writeMetrics = &testMetrics{}
 		)
-		client := &codersdk.Client{
+		client := &wirtualsdk.Client{
 			HTTPClient: &http.Client{},
 		}
 		runner := workspacetraffic.NewRunner(client, workspacetraffic.Config{

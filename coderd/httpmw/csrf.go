@@ -21,10 +21,10 @@ func CSRF(secureCookie bool) func(next http.Handler) http.Handler {
 		mw := nosurf.New(next)
 		mw.SetBaseCookie(http.Cookie{Path: "/", HttpOnly: true, SameSite: http.SameSiteLaxMode, Secure: secureCookie})
 		mw.SetFailureHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			sessCookie, err := r.Cookie(codersdk.SessionTokenCookie)
+			sessCookie, err := r.Cookie(wirtualsdk.SessionTokenCookie)
 			if err == nil &&
-				r.Header.Get(codersdk.SessionTokenHeader) != "" &&
-				r.Header.Get(codersdk.SessionTokenHeader) != sessCookie.Value {
+				r.Header.Get(wirtualsdk.SessionTokenHeader) != "" &&
+				r.Header.Get(wirtualsdk.SessionTokenHeader) != sessCookie.Value {
 				// If a user is using header authentication and cookie auth, but the values
 				// do not match, the cookie value takes priority.
 				// At the very least, return a more helpful error to the user.
@@ -32,7 +32,7 @@ func CSRF(secureCookie bool) func(next http.Handler) http.Handler {
 					fmt.Sprintf("CSRF error encountered. Authentication via %q cookie and %q header detected, but the values do not match. "+
 						"To resolve this issue ensure the values used in both match, or only use one of the authentication methods. "+
 						"You can also try clearing your cookies if this error persists.",
-						codersdk.SessionTokenCookie, codersdk.SessionTokenHeader),
+						wirtualsdk.SessionTokenCookie, wirtualsdk.SessionTokenHeader),
 					http.StatusBadRequest)
 				return
 			}
@@ -70,32 +70,32 @@ func CSRF(secureCookie bool) func(next http.Handler) http.Handler {
 			// CSRF only affects requests that automatically attach credentials via a cookie.
 			// If no cookie is present, then there is no risk of CSRF.
 			//nolint:govet
-			sessCookie, err := r.Cookie(codersdk.SessionTokenCookie)
+			sessCookie, err := r.Cookie(wirtualsdk.SessionTokenCookie)
 			if xerrors.Is(err, http.ErrNoCookie) {
 				return true
 			}
 
-			if token := r.Header.Get(codersdk.SessionTokenHeader); token == sessCookie.Value {
+			if token := r.Header.Get(wirtualsdk.SessionTokenHeader); token == sessCookie.Value {
 				// If the cookie and header match, we can assume this is the same as just using the
 				// custom header auth. Custom header auth can bypass CSRF, as CSRF attacks
 				// cannot add custom headers.
 				return true
 			}
 
-			if token := r.URL.Query().Get(codersdk.SessionTokenCookie); token == sessCookie.Value {
+			if token := r.URL.Query().Get(wirtualsdk.SessionTokenCookie); token == sessCookie.Value {
 				// If the auth is set in a url param and matches the cookie, it
 				// is the same as just using the url param.
 				return true
 			}
 
-			if r.Header.Get(codersdk.ProvisionerDaemonPSK) != "" {
+			if r.Header.Get(wirtualsdk.ProvisionerDaemonPSK) != "" {
 				// If present, the provisioner daemon also is providing an api key
 				// that will make them exempt from CSRF. But this is still useful
 				// for enumerating the external auths.
 				return true
 			}
 
-			if r.Header.Get(codersdk.ProvisionerDaemonKey) != "" {
+			if r.Header.Get(wirtualsdk.ProvisionerDaemonKey) != "" {
 				// If present, the provisioner daemon also is providing an api key
 				// that will make them exempt from CSRF. But this is still useful
 				// for enumerating the external auths.

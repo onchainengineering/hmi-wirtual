@@ -58,7 +58,7 @@ func (api *API) templateAvailablePermissions(rw http.ResponseWriter, r *http.Req
 		return
 	}
 
-	sdkGroups := make([]codersdk.Group, 0, len(groups))
+	sdkGroups := make([]wirtualsdk.Group, 0, len(groups))
 	for _, group := range groups {
 		// nolint:gocritic
 		members, err := api.Database.GetGroupMembersByGroupID(dbauthz.AsSystemRestricted(ctx), group.Group.ID)
@@ -77,7 +77,7 @@ func (api *API) templateAvailablePermissions(rw http.ResponseWriter, r *http.Req
 		sdkGroups = append(sdkGroups, db2sdk.Group(group, members, int(memberCount)))
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.ACLAvailable{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.ACLAvailable{
 		// TODO: @emyrk we should return a MinimalUser here instead of a full user.
 		// The FE requires the `email` field, so this cannot be done without
 		// a UI change.
@@ -128,7 +128,7 @@ func (api *API) templateACL(rw http.ResponseWriter, r *http.Request) {
 		organizationIDsByUserID[organizationIDsByMemberIDsRow.UserID] = organizationIDsByMemberIDsRow.OrganizationIDs
 	}
 
-	groups := make([]codersdk.TemplateGroup, 0, len(dbGroups))
+	groups := make([]wirtualsdk.TemplateGroup, 0, len(dbGroups))
 	for _, group := range dbGroups {
 		var members []database.GroupMember
 
@@ -148,7 +148,7 @@ func (api *API) templateACL(rw http.ResponseWriter, r *http.Request) {
 			httpapi.InternalServerError(rw, err)
 			return
 		}
-		groups = append(groups, codersdk.TemplateGroup{
+		groups = append(groups, wirtualsdk.TemplateGroup{
 			Group: db2sdk.Group(database.GetGroupsRow{
 				Group:                   group.Group,
 				OrganizationName:        template.OrganizationName,
@@ -158,7 +158,7 @@ func (api *API) templateACL(rw http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.TemplateACL{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.TemplateACL{
 		Users:  convertTemplateUsers(users, organizationIDsByUserID),
 		Groups: groups,
 	})
@@ -190,7 +190,7 @@ func (api *API) patchTemplateACL(rw http.ResponseWriter, r *http.Request) {
 	defer commitAudit()
 	aReq.Old = template
 
-	var req codersdk.UpdateTemplateACL
+	var req wirtualsdk.UpdateTemplateACL
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
@@ -200,7 +200,7 @@ func (api *API) patchTemplateACL(rw http.ResponseWriter, r *http.Request) {
 		validateTemplateACLPerms(ctx, api.Database, req.GroupPerms, "group_perms", false)...)
 
 	if len(validErrs) > 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message:     "Invalid request to update template metadata!",
 			Validations: validErrs,
 		})
@@ -259,26 +259,26 @@ func (api *API) patchTemplateACL(rw http.ResponseWriter, r *http.Request) {
 
 	aReq.New = template
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.Response{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.Response{
 		Message: "Successfully updated template ACL list.",
 	})
 }
 
 // nolint TODO fix stupid flag.
-func validateTemplateACLPerms(ctx context.Context, db database.Store, perms map[string]codersdk.TemplateRole, field string, isUser bool) []codersdk.ValidationError {
+func validateTemplateACLPerms(ctx context.Context, db database.Store, perms map[string]wirtualsdk.TemplateRole, field string, isUser bool) []wirtualsdk.ValidationError {
 	// Validate requires full read access to users and groups
 	// nolint:gocritic
 	ctx = dbauthz.AsSystemRestricted(ctx)
-	var validErrs []codersdk.ValidationError
+	var validErrs []wirtualsdk.ValidationError
 	for k, v := range perms {
 		if err := validateTemplateRole(v); err != nil {
-			validErrs = append(validErrs, codersdk.ValidationError{Field: field, Detail: err.Error()})
+			validErrs = append(validErrs, wirtualsdk.ValidationError{Field: field, Detail: err.Error()})
 			continue
 		}
 
 		id, err := uuid.Parse(k)
 		if err != nil {
-			validErrs = append(validErrs, codersdk.ValidationError{Field: field, Detail: "ID " + k + "must be a valid UUID."})
+			validErrs = append(validErrs, wirtualsdk.ValidationError{Field: field, Detail: "ID " + k + "must be a valid UUID."})
 			continue
 		}
 
@@ -286,14 +286,14 @@ func validateTemplateACLPerms(ctx context.Context, db database.Store, perms map[
 			// This could get slow if we get a ton of user perm updates.
 			_, err = db.GetUserByID(ctx, id)
 			if err != nil {
-				validErrs = append(validErrs, codersdk.ValidationError{Field: field, Detail: fmt.Sprintf("Failed to find resource with ID %q: %v", k, err.Error())})
+				validErrs = append(validErrs, wirtualsdk.ValidationError{Field: field, Detail: fmt.Sprintf("Failed to find resource with ID %q: %v", k, err.Error())})
 				continue
 			}
 		} else {
 			// This could get slow if we get a ton of group perm updates.
 			_, err = db.GetGroupByID(ctx, id)
 			if err != nil {
-				validErrs = append(validErrs, codersdk.ValidationError{Field: field, Detail: fmt.Sprintf("Failed to find resource with ID %q: %v", k, err.Error())})
+				validErrs = append(validErrs, wirtualsdk.ValidationError{Field: field, Detail: fmt.Sprintf("Failed to find resource with ID %q: %v", k, err.Error())})
 				continue
 			}
 		}
@@ -302,11 +302,11 @@ func validateTemplateACLPerms(ctx context.Context, db database.Store, perms map[
 	return validErrs
 }
 
-func convertTemplateUsers(tus []database.TemplateUser, orgIDsByUserIDs map[uuid.UUID][]uuid.UUID) []codersdk.TemplateUser {
-	users := make([]codersdk.TemplateUser, 0, len(tus))
+func convertTemplateUsers(tus []database.TemplateUser, orgIDsByUserIDs map[uuid.UUID][]uuid.UUID) []wirtualsdk.TemplateUser {
+	users := make([]wirtualsdk.TemplateUser, 0, len(tus))
 
 	for _, tu := range tus {
-		users = append(users, codersdk.TemplateUser{
+		users = append(users, wirtualsdk.TemplateUser{
 			User: db2sdk.User(tu.User, orgIDsByUserIDs[tu.User.ID]),
 			Role: convertToTemplateRole(tu.Actions),
 		})
@@ -315,31 +315,31 @@ func convertTemplateUsers(tus []database.TemplateUser, orgIDsByUserIDs map[uuid.
 	return users
 }
 
-func validateTemplateRole(role codersdk.TemplateRole) error {
+func validateTemplateRole(role wirtualsdk.TemplateRole) error {
 	actions := convertSDKTemplateRole(role)
-	if actions == nil && role != codersdk.TemplateRoleDeleted {
+	if actions == nil && role != wirtualsdk.TemplateRoleDeleted {
 		return xerrors.Errorf("role %q is not a valid Template role", role)
 	}
 
 	return nil
 }
 
-func convertToTemplateRole(actions []policy.Action) codersdk.TemplateRole {
+func convertToTemplateRole(actions []policy.Action) wirtualsdk.TemplateRole {
 	switch {
 	case len(actions) == 1 && actions[0] == policy.ActionRead:
-		return codersdk.TemplateRoleUse
+		return wirtualsdk.TemplateRoleUse
 	case len(actions) == 1 && actions[0] == policy.WildcardSymbol:
-		return codersdk.TemplateRoleAdmin
+		return wirtualsdk.TemplateRoleAdmin
 	}
 
 	return ""
 }
 
-func convertSDKTemplateRole(role codersdk.TemplateRole) []policy.Action {
+func convertSDKTemplateRole(role wirtualsdk.TemplateRole) []policy.Action {
 	switch role {
-	case codersdk.TemplateRoleAdmin:
+	case wirtualsdk.TemplateRoleAdmin:
 		return []policy.Action{policy.WildcardSymbol}
-	case codersdk.TemplateRoleUse:
+	case wirtualsdk.TemplateRoleUse:
 		return []policy.Action{policy.ActionRead}
 	}
 
@@ -348,16 +348,16 @@ func convertSDKTemplateRole(role codersdk.TemplateRole) []policy.Action {
 
 // TODO move to api.RequireFeatureMW when we are OK with changing the behavior.
 func (api *API) templateRBACEnabledMW(next http.Handler) http.Handler {
-	return api.RequireFeatureMW(codersdk.FeatureTemplateRBAC)(next)
+	return api.RequireFeatureMW(wirtualsdk.FeatureTemplateRBAC)(next)
 }
 
-func (api *API) RequireFeatureMW(feat codersdk.FeatureName) func(http.Handler) http.Handler {
+func (api *API) RequireFeatureMW(feat wirtualsdk.FeatureName) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 			// Entitlement must be enabled.
 			if !api.Entitlements.Enabled(feat) {
 				// All feature warnings should be "Premium", not "Enterprise".
-				httpapi.Write(r.Context(), rw, http.StatusForbidden, codersdk.Response{
+				httpapi.Write(r.Context(), rw, http.StatusForbidden, wirtualsdk.Response{
 					Message: fmt.Sprintf("%s is a Premium feature. Contact sales!", feat.Humanize()),
 				})
 				return

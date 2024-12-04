@@ -28,15 +28,15 @@ func (api *API) postProvisionerKey(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	organization := httpmw.OrganizationParam(r)
 
-	var req codersdk.CreateProvisionerKeyRequest
+	var req wirtualsdk.CreateProvisionerKeyRequest
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
 
 	if req.Name == "" {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Name is required",
-			Validations: []codersdk.ValidationError{
+			Validations: []wirtualsdk.ValidationError{
 				{
 					Field:  "name",
 					Detail: "Name is required",
@@ -47,9 +47,9 @@ func (api *API) postProvisionerKey(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(req.Name) > 64 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Name must be at most 64 characters",
-			Validations: []codersdk.ValidationError{
+			Validations: []wirtualsdk.ValidationError{
 				{
 					Field:  "name",
 					Detail: "Name must be at most 64 characters",
@@ -59,12 +59,12 @@ func (api *API) postProvisionerKey(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if slices.ContainsFunc(codersdk.ReservedProvisionerKeyNames(), func(s string) bool {
+	if slices.ContainsFunc(wirtualsdk.ReservedProvisionerKeyNames(), func(s string) bool {
 		return strings.EqualFold(req.Name, s)
 	}) {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: fmt.Sprintf("Name cannot be reserved name '%s'", req.Name),
-			Validations: []codersdk.ValidationError{
+			Validations: []wirtualsdk.ValidationError{
 				{
 					Field:  "name",
 					Detail: fmt.Sprintf("Name cannot be reserved name '%s'", req.Name),
@@ -82,7 +82,7 @@ func (api *API) postProvisionerKey(rw http.ResponseWriter, r *http.Request) {
 
 	_, err = api.Database.InsertProvisionerKey(ctx, params)
 	if database.IsUniqueViolation(err, database.UniqueProvisionerKeysOrganizationIDNameIndex) {
-		httpapi.Write(ctx, rw, http.StatusConflict, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusConflict, wirtualsdk.Response{
 			Message: fmt.Sprintf("Provisioner key with name '%s' already exists in organization", req.Name),
 		})
 		return
@@ -92,7 +92,7 @@ func (api *API) postProvisionerKey(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpapi.Write(ctx, rw, http.StatusCreated, codersdk.CreateProvisionerKeyResponse{
+	httpapi.Write(ctx, rw, http.StatusCreated, wirtualsdk.CreateProvisionerKeyResponse{
 		Key: token,
 	})
 }
@@ -145,23 +145,23 @@ func (api *API) provisionerKeyDaemons(rw http.ResponseWriter, r *http.Request) {
 	// provisionerdserver.DefaultHeartbeatInterval*3 matches the healthcheck report staleInterval.
 	recentDaemons := db2sdk.RecentProvisionerDaemons(time.Now(), provisionerdserver.DefaultHeartbeatInterval*3, daemons)
 
-	pkDaemons := []codersdk.ProvisionerKeyDaemons{}
+	pkDaemons := []wirtualsdk.ProvisionerKeyDaemons{}
 	for _, key := range sdkKeys {
 		// The key.OrganizationID for the `user-auth` key is hardcoded to
 		// the default org in the database and we are overwriting it here
 		// to be the correct org we used to query the list.
 		// This will be changed when we update the `user-auth` keys to be
 		// directly tied to a user ID.
-		if key.ID.String() == codersdk.ProvisionerKeyIDUserAuth {
+		if key.ID.String() == wirtualsdk.ProvisionerKeyIDUserAuth {
 			key.OrganizationID = organization.ID
 		}
-		daemons := []codersdk.ProvisionerDaemon{}
+		daemons := []wirtualsdk.ProvisionerDaemon{}
 		for _, daemon := range recentDaemons {
 			if daemon.KeyID == key.ID {
 				daemons = append(daemons, daemon)
 			}
 		}
-		pkDaemons = append(pkDaemons, codersdk.ProvisionerKeyDaemons{
+		pkDaemons = append(pkDaemons, wirtualsdk.ProvisionerKeyDaemons{
 			Key:     key,
 			Daemons: daemons,
 		})
@@ -182,10 +182,10 @@ func (api *API) deleteProvisionerKey(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	provisionerKey := httpmw.ProvisionerKeyParam(r)
 
-	if provisionerKey.ID.String() == codersdk.ProvisionerKeyIDBuiltIn ||
-		provisionerKey.ID.String() == codersdk.ProvisionerKeyIDUserAuth ||
-		provisionerKey.ID.String() == codersdk.ProvisionerKeyIDPSK {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+	if provisionerKey.ID.String() == wirtualsdk.ProvisionerKeyIDBuiltIn ||
+		provisionerKey.ID.String() == wirtualsdk.ProvisionerKeyIDUserAuth ||
+		provisionerKey.ID.String() == wirtualsdk.ProvisionerKeyIDPSK {
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: fmt.Sprintf("Cannot delete reserved '%s' provisioner key", provisionerKey.Name),
 		})
 		return
@@ -214,8 +214,8 @@ func (*API) fetchProvisionerKey(rw http.ResponseWriter, r *http.Request) {
 	pk, ok := httpmw.ProvisionerKeyAuthOptional(r)
 	// extra check but this one should never happen as it is covered by the auth middleware
 	if !ok {
-		httpapi.Write(ctx, rw, http.StatusForbidden, codersdk.Response{
-			Message: fmt.Sprintf("unable to auth: please provide the %s header", codersdk.ProvisionerDaemonKey),
+		httpapi.Write(ctx, rw, http.StatusForbidden, wirtualsdk.Response{
+			Message: fmt.Sprintf("unable to auth: please provide the %s header", wirtualsdk.ProvisionerDaemonKey),
 		})
 		return
 	}
@@ -223,24 +223,24 @@ func (*API) fetchProvisionerKey(rw http.ResponseWriter, r *http.Request) {
 	httpapi.Write(ctx, rw, http.StatusOK, convertProvisionerKey(pk))
 }
 
-func convertProvisionerKey(dbKey database.ProvisionerKey) codersdk.ProvisionerKey {
-	return codersdk.ProvisionerKey{
+func convertProvisionerKey(dbKey database.ProvisionerKey) wirtualsdk.ProvisionerKey {
+	return wirtualsdk.ProvisionerKey{
 		ID:             dbKey.ID,
 		CreatedAt:      dbKey.CreatedAt,
 		OrganizationID: dbKey.OrganizationID,
 		Name:           dbKey.Name,
-		Tags:           codersdk.ProvisionerKeyTags(dbKey.Tags),
+		Tags:           wirtualsdk.ProvisionerKeyTags(dbKey.Tags),
 		// HashedSecret - never include the access token in the API response
 	}
 }
 
-func convertProvisionerKeys(dbKeys []database.ProvisionerKey) []codersdk.ProvisionerKey {
-	keys := make([]codersdk.ProvisionerKey, 0, len(dbKeys))
+func convertProvisionerKeys(dbKeys []database.ProvisionerKey) []wirtualsdk.ProvisionerKey {
+	keys := make([]wirtualsdk.ProvisionerKey, 0, len(dbKeys))
 	for _, dbKey := range dbKeys {
 		keys = append(keys, convertProvisionerKey(dbKey))
 	}
 
-	slices.SortFunc(keys, func(key1, key2 codersdk.ProvisionerKey) int {
+	slices.SortFunc(keys, func(key1, key2 wirtualsdk.ProvisionerKey) int {
 		return key1.CreatedAt.Compare(key2.CreatedAt)
 	})
 

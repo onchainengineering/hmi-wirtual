@@ -112,7 +112,7 @@ func WriteWorkspaceOffline(log slog.Logger, accessURL *url.URL, rw http.Response
 	site.RenderStaticErrorPage(rw, r, site.ErrorPageData{
 		Status:       http.StatusBadRequest,
 		Title:        "Workspace Offline",
-		Description:  fmt.Sprintf("Last workspace transition was to the %q state. Start the workspace to access its applications.", codersdk.WorkspaceTransitionStop),
+		Description:  fmt.Sprintf("Last workspace transition was to the %q state. Start the workspace to access its applications.", wirtualsdk.WorkspaceTransitionStop),
 		RetryEnabled: false,
 		DashboardURL: accessURL.String(),
 	})

@@ -16,7 +16,7 @@ type ProxyFetcher struct {
 	Client *wsproxysdk.Client
 }
 
-func (p *ProxyFetcher) Fetch(ctx context.Context, feature codersdk.CryptoKeyFeature) ([]codersdk.CryptoKey, error) {
+func (p *ProxyFetcher) Fetch(ctx context.Context, feature wirtualsdk.CryptoKeyFeature) ([]wirtualsdk.CryptoKey, error) {
 	keys, err := p.Client.CryptoKeys(ctx, feature)
 	if err != nil {
 		return nil, xerrors.Errorf("crypto keys: %w", err)

@@ -15,10 +15,10 @@ import (
 
 func (r *RootCmd) userList() *serpent.Command {
 	formatter := cliui.NewOutputFormatter(
-		cliui.TableFormat([]codersdk.User{}, []string{"username", "email", "created at", "status"}),
+		cliui.TableFormat([]wirtualsdk.User{}, []string{"username", "email", "created at", "status"}),
 		cliui.JSONFormat(),
 	)
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 
 	cmd := &serpent.Command{
 		Use:     "list",
@@ -28,7 +28,7 @@ func (r *RootCmd) userList() *serpent.Command {
 			r.InitClient(client),
 		),
 		Handler: func(inv *serpent.Invocation) error {
-			res, err := client.Users(inv.Context(), codersdk.UsersRequest{})
+			res, err := client.Users(inv.Context(), wirtualsdk.UsersRequest{})
 			if err != nil {
 				return err
 			}
@@ -52,7 +52,7 @@ func (r *RootCmd) userSingle() *serpent.Command {
 		&userShowFormat{},
 		cliui.JSONFormat(),
 	)
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 
 	cmd := &serpent.Command{
 		Use:   "show <username|user_id|'me'>",
@@ -100,7 +100,7 @@ func (r *RootCmd) userSingle() *serpent.Command {
 }
 
 type userWithOrgNames struct {
-	codersdk.User
+	wirtualsdk.User
 	OrganizationNames []string `json:"organization_names"`
 }
 

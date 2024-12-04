@@ -46,7 +46,7 @@ func (api *API) postOrgRoles(rw http.ResponseWriter, r *http.Request) {
 	)
 	defer commitAudit()
 
-	var req codersdk.CustomRoleRequest
+	var req wirtualsdk.CustomRoleRequest
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
@@ -71,7 +71,7 @@ func (api *API) postOrgRoles(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Failed to update role permissions",
 			Detail:  err.Error(),
 		})
@@ -110,7 +110,7 @@ func (api *API) putOrgRoles(rw http.ResponseWriter, r *http.Request) {
 	)
 	defer commitAudit()
 
-	var req codersdk.CustomRoleRequest
+	var req wirtualsdk.CustomRoleRequest
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
@@ -156,7 +156,7 @@ func (api *API) putOrgRoles(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Failed to update role permissions",
 			Detail:  err.Error(),
 		})
@@ -210,7 +210,7 @@ func (api *API) deleteOrgRole(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if len(roles) == 0 {
-		httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 			Message:     fmt.Sprintf("No custom role with the name %s found", rolename),
 			Detail:      "no role found",
 			Validations: nil,
@@ -218,7 +218,7 @@ func (api *API) deleteOrgRole(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if len(roles) > 1 {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message:     fmt.Sprintf("Multiple roles with the name %s found", rolename),
 			Detail:      "multiple roles found, this should never happen",
 			Validations: nil,
@@ -247,7 +247,7 @@ func (api *API) deleteOrgRole(rw http.ResponseWriter, r *http.Request) {
 	httpapi.Write(ctx, rw, http.StatusNoContent, nil)
 }
 
-func sdkPermissionToDB(p codersdk.Permission) database.CustomRolePermission {
+func sdkPermissionToDB(p wirtualsdk.Permission) database.CustomRolePermission {
 	return database.CustomRolePermission{
 		Negate:       p.Negate,
 		ResourceType: string(p.ResourceType),
@@ -255,19 +255,19 @@ func sdkPermissionToDB(p codersdk.Permission) database.CustomRolePermission {
 	}
 }
 
-func validOrganizationRoleRequest(ctx context.Context, req codersdk.CustomRoleRequest, rw http.ResponseWriter) bool {
+func validOrganizationRoleRequest(ctx context.Context, req wirtualsdk.CustomRoleRequest, rw http.ResponseWriter) bool {
 	// This check is not ideal, but we cannot enforce a unique role name in the db against
 	// the built-in role names.
 	if rbac.ReservedRoleName(req.Name) {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Reserved role name",
 			Detail:  fmt.Sprintf("%q is a reserved role name, and not allowed to be used", req.Name),
 		})
 		return false
 	}
 
-	if err := codersdk.NameValid(req.Name); err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+	if err := wirtualsdk.NameValid(req.Name); err != nil {
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Invalid role name",
 			Detail:  err.Error(),
 		})
@@ -276,7 +276,7 @@ func validOrganizationRoleRequest(ctx context.Context, req codersdk.CustomRoleRe
 
 	// Only organization permissions are allowed to be granted
 	if len(req.SitePermissions) > 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Invalid request, not allowed to assign site wide permissions for an organization role.",
 			Detail:  "organization scoped roles may not contain site wide permissions",
 		})
@@ -284,7 +284,7 @@ func validOrganizationRoleRequest(ctx context.Context, req codersdk.CustomRoleRe
 	}
 
 	if len(req.UserPermissions) > 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Invalid request, not allowed to assign user permissions for an organization role.",
 			Detail:  "organization scoped roles may not contain user permissions",
 		})

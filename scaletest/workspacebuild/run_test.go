@@ -110,10 +110,10 @@ func Test_Runner(t *testing.T) {
 		// listing workspaces until we find it, then wait for the build to
 		// finish, then start the agents.
 		go func() {
-			var workspace codersdk.Workspace
+			var workspace wirtualsdk.Workspace
 			for {
-				res, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
-					Owner: codersdk.Me,
+				res, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
+					Owner: wirtualsdk.Me,
 				})
 				if !assert.NoError(t, err) {
 					return
@@ -152,8 +152,8 @@ func Test_Runner(t *testing.T) {
 
 		runner := workspacebuild.NewRunner(client, workspacebuild.Config{
 			OrganizationID: user.OrganizationID,
-			UserID:         codersdk.Me,
-			Request: codersdk.CreateWorkspaceRequest{
+			UserID:         wirtualsdk.Me,
+			Request: wirtualsdk.CreateWorkspaceRequest{
 				TemplateID: template.ID,
 			},
 		})
@@ -171,8 +171,8 @@ func Test_Runner(t *testing.T) {
 		require.Contains(t, logsStr, `"agent3" is connected`)
 
 		// Find the workspace.
-		res, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
-			Owner: codersdk.Me,
+		res, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
+			Owner: wirtualsdk.Me,
 		})
 		require.NoError(t, err)
 		workspaces := res.Workspaces
@@ -218,8 +218,8 @@ func Test_Runner(t *testing.T) {
 
 		runner := workspacebuild.NewRunner(client, workspacebuild.Config{
 			OrganizationID: user.OrganizationID,
-			UserID:         codersdk.Me,
-			Request: codersdk.CreateWorkspaceRequest{
+			UserID:         wirtualsdk.Me,
+			Request: wirtualsdk.CreateWorkspaceRequest{
 				TemplateID: template.ID,
 			},
 		})
@@ -264,8 +264,8 @@ func Test_Runner(t *testing.T) {
 
 		runner := workspacebuild.NewRunner(client, workspacebuild.Config{
 			OrganizationID: user.OrganizationID,
-			UserID:         codersdk.Me,
-			Request: codersdk.CreateWorkspaceRequest{
+			UserID:         wirtualsdk.Me,
+			Request: wirtualsdk.CreateWorkspaceRequest{
 				TemplateID: template.ID,
 			},
 			Retry: 1,

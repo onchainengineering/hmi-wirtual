@@ -14,7 +14,7 @@ import (
 
 func (r *RootCmd) groupDelete() *serpent.Command {
 	orgContext := agpl.NewOrganizationContext()
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "delete <name>",
 		Short: "Delete a user group",

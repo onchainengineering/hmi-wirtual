@@ -196,7 +196,7 @@ func TestWorkspaceApplicationAuth(t *testing.T) {
 				DB: db,
 			}
 
-			kc, err := cryptokeys.NewEncryptionCache(ctx, logger, fetcher, codersdk.CryptoKeyFeatureWorkspaceAppsAPIKey)
+			kc, err := cryptokeys.NewEncryptionCache(ctx, logger, fetcher, wirtualsdk.CryptoKeyFeatureWorkspaceAppsAPIKey)
 			require.NoError(t, err)
 
 			clock := quartz.NewMock(t)
@@ -232,7 +232,7 @@ func TestWorkspaceApplicationAuth(t *testing.T) {
 			require.NoError(t, err)
 			defer resp.Body.Close()
 			if resp.StatusCode != http.StatusSeeOther {
-				err = codersdk.ReadBodyAsError(resp)
+				err = wirtualsdk.ReadBodyAsError(resp)
 				if c.expectRedirect == "" {
 					require.Error(t, err)
 					return

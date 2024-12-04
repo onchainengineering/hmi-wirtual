@@ -292,7 +292,7 @@ func Test_FromRequest(t *testing.T) {
 
 		// Add an invalid token
 		r.AddCookie(&http.Cookie{
-			Name:  codersdk.SignedAppTokenCookie,
+			Name:  wirtualsdk.SignedAppTokenCookie,
 			Value: "invalid",
 		})
 
@@ -324,7 +324,7 @@ func Test_FromRequest(t *testing.T) {
 		expiredStr, err := jwtutils.Sign(ctx, signer, expired)
 		require.NoError(t, err)
 		r.AddCookie(&http.Cookie{
-			Name:  codersdk.SignedAppTokenCookie,
+			Name:  wirtualsdk.SignedAppTokenCookie,
 			Value: expiredStr,
 		})
 
@@ -332,7 +332,7 @@ func Test_FromRequest(t *testing.T) {
 		require.NoError(t, err)
 
 		r.AddCookie(&http.Cookie{
-			Name:  codersdk.SignedAppTokenCookie,
+			Name:  wirtualsdk.SignedAppTokenCookie,
 			Value: validStr,
 		})
 

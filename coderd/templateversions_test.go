@@ -37,7 +37,7 @@ func TestTemplateVersion(t *testing.T) {
 		user := coderdtest.CreateFirstUser(t, client)
 		authz := coderdtest.AssertRBAC(t, api, client).Reset()
 
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil, func(req *codersdk.CreateTemplateVersionRequest) {
+		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil, func(req *wirtualsdk.CreateTemplateVersionRequest) {
 			req.Name = "bananas"
 			req.Message = "first try"
 		})
@@ -63,14 +63,14 @@ func TestTemplateVersion(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		file, err := client.Upload(ctx, codersdk.ContentTypeTar, bytes.NewReader([]byte{}))
+		file, err := client.Upload(ctx, wirtualsdk.ContentTypeTar, bytes.NewReader([]byte{}))
 		require.NoError(t, err)
-		_, err = client.CreateTemplateVersion(ctx, user.OrganizationID, codersdk.CreateTemplateVersionRequest{
+		_, err = client.CreateTemplateVersion(ctx, user.OrganizationID, wirtualsdk.CreateTemplateVersionRequest{
 			Name:          "bananas",
 			Message:       strings.Repeat("a", 1048577),
-			StorageMethod: codersdk.ProvisionerStorageMethodFile,
+			StorageMethod: wirtualsdk.ProvisionerStorageMethodFile,
 			FileID:        file.ID,
-			Provisioner:   codersdk.ProvisionerTypeEcho,
+			Provisioner:   wirtualsdk.ProvisionerTypeEcho,
 		})
 		require.Error(t, err, "message too long, create should fail")
 	})
@@ -103,13 +103,13 @@ func TestPostTemplateVersionsByOrganization(t *testing.T) {
 		defer cancel()
 
 		templateID := uuid.New()
-		_, err := client.CreateTemplateVersion(ctx, user.OrganizationID, codersdk.CreateTemplateVersionRequest{
+		_, err := client.CreateTemplateVersion(ctx, user.OrganizationID, wirtualsdk.CreateTemplateVersionRequest{
 			TemplateID:    templateID,
-			StorageMethod: codersdk.ProvisionerStorageMethodFile,
+			StorageMethod: wirtualsdk.ProvisionerStorageMethodFile,
 			FileID:        uuid.New(),
-			Provisioner:   codersdk.ProvisionerTypeEcho,
+			Provisioner:   wirtualsdk.ProvisionerTypeEcho,
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusNotFound, apiErr.StatusCode())
 	})
@@ -122,12 +122,12 @@ func TestPostTemplateVersionsByOrganization(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_, err := client.CreateTemplateVersion(ctx, user.OrganizationID, codersdk.CreateTemplateVersionRequest{
-			StorageMethod: codersdk.ProvisionerStorageMethodFile,
+		_, err := client.CreateTemplateVersion(ctx, user.OrganizationID, wirtualsdk.CreateTemplateVersionRequest{
+			StorageMethod: wirtualsdk.ProvisionerStorageMethodFile,
 			FileID:        uuid.New(),
-			Provisioner:   codersdk.ProvisionerTypeEcho,
+			Provisioner:   wirtualsdk.ProvisionerTypeEcho,
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusNotFound, apiErr.StatusCode())
 	})
@@ -147,13 +147,13 @@ func TestPostTemplateVersionsByOrganization(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		file, err := client.Upload(ctx, codersdk.ContentTypeTar, bytes.NewReader(data))
+		file, err := client.Upload(ctx, wirtualsdk.ContentTypeTar, bytes.NewReader(data))
 		require.NoError(t, err)
-		version, err := client.CreateTemplateVersion(ctx, user.OrganizationID, codersdk.CreateTemplateVersionRequest{
+		version, err := client.CreateTemplateVersion(ctx, user.OrganizationID, wirtualsdk.CreateTemplateVersionRequest{
 			Name:          "bananas",
-			StorageMethod: codersdk.ProvisionerStorageMethodFile,
+			StorageMethod: wirtualsdk.ProvisionerStorageMethodFile,
 			FileID:        file.ID,
-			Provisioner:   codersdk.ProvisionerTypeEcho,
+			Provisioner:   wirtualsdk.ProvisionerTypeEcho,
 		})
 		require.NoError(t, err)
 		require.Equal(t, "bananas", version.Name)
@@ -181,33 +181,33 @@ func TestPostTemplateVersionsByOrganization(t *testing.T) {
 		require.NoError(t, err)
 
 		// try a bad example ID
-		_, err = client.CreateTemplateVersion(ctx, user.OrganizationID, codersdk.CreateTemplateVersionRequest{
+		_, err = client.CreateTemplateVersion(ctx, user.OrganizationID, wirtualsdk.CreateTemplateVersionRequest{
 			Name:          "my-example",
-			StorageMethod: codersdk.ProvisionerStorageMethodFile,
+			StorageMethod: wirtualsdk.ProvisionerStorageMethodFile,
 			ExampleID:     "not a real ID",
-			Provisioner:   codersdk.ProvisionerTypeEcho,
+			Provisioner:   wirtualsdk.ProvisionerTypeEcho,
 		})
 		require.Error(t, err)
 		require.ErrorContains(t, err, "not found")
 
 		// try file and example IDs
-		_, err = client.CreateTemplateVersion(ctx, user.OrganizationID, codersdk.CreateTemplateVersionRequest{
+		_, err = client.CreateTemplateVersion(ctx, user.OrganizationID, wirtualsdk.CreateTemplateVersionRequest{
 			Name:          "my-example",
-			StorageMethod: codersdk.ProvisionerStorageMethodFile,
+			StorageMethod: wirtualsdk.ProvisionerStorageMethodFile,
 			ExampleID:     ls[0].ID,
 			FileID:        uuid.New(),
-			Provisioner:   codersdk.ProvisionerTypeEcho,
+			Provisioner:   wirtualsdk.ProvisionerTypeEcho,
 		})
 		require.Error(t, err)
 		require.ErrorContains(t, err, "example_id")
 		require.ErrorContains(t, err, "file_id")
 
 		// try a good example ID
-		tv, err := client.CreateTemplateVersion(ctx, user.OrganizationID, codersdk.CreateTemplateVersionRequest{
+		tv, err := client.CreateTemplateVersion(ctx, user.OrganizationID, wirtualsdk.CreateTemplateVersionRequest{
 			Name:          "my-example",
-			StorageMethod: codersdk.ProvisionerStorageMethodFile,
+			StorageMethod: wirtualsdk.ProvisionerStorageMethodFile,
 			ExampleID:     ls[0].ID,
-			Provisioner:   codersdk.ProvisionerTypeEcho,
+			Provisioner:   wirtualsdk.ProvisionerTypeEcho,
 		})
 		require.NoError(t, err)
 		require.Equal(t, "my-example", tv.Name)
@@ -227,11 +227,11 @@ func TestPostTemplateVersionsByOrganization(t *testing.T) {
 		require.EqualValues(t, tar, fl)
 
 		// ensure we don't get file conflicts on multiple uses of the same example
-		tv, err = client.CreateTemplateVersion(ctx, user.OrganizationID, codersdk.CreateTemplateVersionRequest{
+		tv, err = client.CreateTemplateVersion(ctx, user.OrganizationID, wirtualsdk.CreateTemplateVersionRequest{
 			Name:          "my-example",
-			StorageMethod: codersdk.ProvisionerStorageMethodFile,
+			StorageMethod: wirtualsdk.ProvisionerStorageMethodFile,
 			ExampleID:     ls[0].ID,
-			Provisioner:   codersdk.ProvisionerTypeEcho,
+			Provisioner:   wirtualsdk.ProvisionerTypeEcho,
 		})
 		require.NoError(t, err)
 	})
@@ -457,10 +457,10 @@ func TestPostTemplateVersionsByOrganization(t *testing.T) {
 
 				// Create a template version from the archive
 				tvName := strings.ReplaceAll(testutil.GetRandomName(t), "_", "-")
-				tv, err := templateAdmin.CreateTemplateVersion(ctx, owner.OrganizationID, codersdk.CreateTemplateVersionRequest{
+				tv, err := templateAdmin.CreateTemplateVersion(ctx, owner.OrganizationID, wirtualsdk.CreateTemplateVersionRequest{
 					Name:            tvName,
-					StorageMethod:   codersdk.ProvisionerStorageMethodFile,
-					Provisioner:     codersdk.ProvisionerTypeTerraform,
+					StorageMethod:   wirtualsdk.ProvisionerStorageMethodFile,
+					Provisioner:     wirtualsdk.ProvisionerTypeTerraform,
 					FileID:          fi.ID,
 					ProvisionerTags: tt.reqTags,
 				})
@@ -496,7 +496,7 @@ func TestPatchCancelTemplateVersion(t *testing.T) {
 		defer cancel()
 
 		err := client.CancelTemplateVersion(ctx, version.ID)
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 	})
@@ -522,13 +522,13 @@ func TestPatchCancelTemplateVersion(t *testing.T) {
 		err := client.CancelTemplateVersion(ctx, version.ID)
 		require.NoError(t, err)
 		err = client.CancelTemplateVersion(ctx, version.ID)
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 		require.Eventually(t, func() bool {
 			var err error
 			version, err = client.TemplateVersion(ctx, version.ID)
-			return assert.NoError(t, err) && version.Job.Status == codersdk.ProvisionerJobFailed
+			return assert.NoError(t, err) && version.Job.Status == wirtualsdk.ProvisionerJobFailed
 		}, testutil.WaitShort, testutil.IntervalFast)
 	})
 	// TODO(Cian): until we are able to test cancellation properly, validating
@@ -558,7 +558,7 @@ func TestPatchCancelTemplateVersion(t *testing.T) {
 				return false
 			}
 			t.Logf("Status: %s", version.Job.Status)
-			return version.Job.Status == codersdk.ProvisionerJobRunning
+			return version.Job.Status == wirtualsdk.ProvisionerJobRunning
 		}, testutil.WaitShort, testutil.IntervalFast)
 		err := client.CancelTemplateVersion(ctx, version.ID)
 		require.NoError(t, err)
@@ -571,7 +571,7 @@ func TestPatchCancelTemplateVersion(t *testing.T) {
 			t.Logf("got version %s | %s", version.Job.Error, version.Job.Status)
 			return assert.NoError(t, err) &&
 				strings.HasSuffix(version.Job.Error, "canceled") &&
-				version.Job.Status == codersdk.ProvisionerJobFailed
+				version.Job.Status == wirtualsdk.ProvisionerJobFailed
 		}, testutil.WaitShort, testutil.IntervalFast)
 	})
 }
@@ -599,7 +599,7 @@ func TestTemplateVersionsExternalAuth(t *testing.T) {
 				InstrumentedOAuth2Config: &testutil.OAuth2Config{},
 				ID:                       "github",
 				Regex:                    regexp.MustCompile(`github\.com`),
-				Type:                     codersdk.EnhancedExternalAuthProviderGitHub.String(),
+				Type:                     wirtualsdk.EnhancedExternalAuthProviderGitHub.String(),
 			}},
 		})
 		user := coderdtest.CreateFirstUser(t, client)
@@ -650,7 +650,7 @@ func TestTemplateVersionResources(t *testing.T) {
 		defer cancel()
 
 		_, err := client.TemplateVersionResources(ctx, version.ID)
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 	})
@@ -754,7 +754,7 @@ func TestTemplateVersionsByTemplate(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		versions, err := client.TemplateVersionsByTemplate(ctx, codersdk.TemplateVersionsByTemplateRequest{
+		versions, err := client.TemplateVersionsByTemplate(ctx, wirtualsdk.TemplateVersionsByTemplateRequest{
 			TemplateID: template.ID,
 		})
 		require.NoError(t, err)
@@ -775,7 +775,7 @@ func TestTemplateVersionByName(t *testing.T) {
 		defer cancel()
 
 		_, err := client.TemplateVersionByName(ctx, template.ID, "nothing")
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusNotFound, apiErr.StatusCode())
 	})
@@ -807,10 +807,10 @@ func TestPatchActiveTemplateVersion(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		err := client.UpdateActiveTemplateVersion(ctx, template.ID, codersdk.UpdateActiveTemplateVersion{
+		err := client.UpdateActiveTemplateVersion(ctx, template.ID, wirtualsdk.UpdateActiveTemplateVersion{
 			ID: uuid.New(),
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusNotFound, apiErr.StatusCode())
 	})
@@ -829,10 +829,10 @@ func TestPatchActiveTemplateVersion(t *testing.T) {
 		err := client.CancelTemplateVersion(ctx, version.ID)
 		require.NoError(t, err)
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		err = client.UpdateActiveTemplateVersion(ctx, template.ID, codersdk.UpdateActiveTemplateVersion{
+		err = client.UpdateActiveTemplateVersion(ctx, template.ID, wirtualsdk.UpdateActiveTemplateVersion{
 			ID: version.ID,
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusForbidden, apiErr.StatusCode())
 		require.Contains(t, apiErr.Detail, "canceled")
@@ -849,10 +849,10 @@ func TestPatchActiveTemplateVersion(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		err := client.UpdateActiveTemplateVersion(ctx, template.ID, codersdk.UpdateActiveTemplateVersion{
+		err := client.UpdateActiveTemplateVersion(ctx, template.ID, wirtualsdk.UpdateActiveTemplateVersion{
 			ID: version.ID,
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusForbidden, apiErr.StatusCode())
 		require.Contains(t, apiErr.Detail, "pending")
@@ -873,10 +873,10 @@ func TestPatchActiveTemplateVersion(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		err := client.UpdateActiveTemplateVersion(ctx, template.ID, codersdk.UpdateActiveTemplateVersion{
+		err := client.UpdateActiveTemplateVersion(ctx, template.ID, wirtualsdk.UpdateActiveTemplateVersion{
 			ID: version.ID,
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 	})
@@ -902,7 +902,7 @@ func TestPatchActiveTemplateVersion(t *testing.T) {
 		err := client.SetArchiveTemplateVersion(ctx, version.ID, true)
 		require.NoError(t, err)
 
-		err = client.UpdateActiveTemplateVersion(ctx, template.ID, codersdk.UpdateActiveTemplateVersion{
+		err = client.UpdateActiveTemplateVersion(ctx, template.ID, wirtualsdk.UpdateActiveTemplateVersion{
 			ID: version.ID,
 		})
 		require.Error(t, err)
@@ -925,7 +925,7 @@ func TestPatchActiveTemplateVersion(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		err := client.UpdateActiveTemplateVersion(ctx, template.ID, codersdk.UpdateActiveTemplateVersion{
+		err := client.UpdateActiveTemplateVersion(ctx, template.ID, wirtualsdk.UpdateActiveTemplateVersion{
 			ID: version.ID,
 		})
 		require.NoError(t, err)
@@ -971,7 +971,7 @@ func TestTemplateVersionDryRun(t *testing.T) {
 		defer cancel()
 
 		// Create template version dry-run
-		job, err := client.CreateTemplateVersionDryRun(ctx, version.ID, codersdk.CreateTemplateVersionDryRunRequest{})
+		job, err := client.CreateTemplateVersionDryRun(ctx, version.ID, wirtualsdk.CreateTemplateVersionDryRunRequest{})
 		require.NoError(t, err)
 
 		// Fetch template version dry-run
@@ -998,7 +998,7 @@ func TestTemplateVersionDryRun(t *testing.T) {
 		// Wait for the job to complete
 		require.Eventually(t, func() bool {
 			job, err := client.TemplateVersionDryRun(ctx, version.ID, job.ID)
-			return assert.NoError(t, err) && job.Status == codersdk.ProvisionerJobSucceeded
+			return assert.NoError(t, err) && job.Status == wirtualsdk.ProvisionerJobSucceeded
 		}, testutil.WaitShort, testutil.IntervalFast)
 
 		<-logsDone
@@ -1027,8 +1027,8 @@ func TestTemplateVersionDryRun(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_, err := client.CreateTemplateVersionDryRun(ctx, version.ID, codersdk.CreateTemplateVersionDryRunRequest{})
-		var apiErr *codersdk.Error
+		_, err := client.CreateTemplateVersionDryRun(ctx, version.ID, wirtualsdk.CreateTemplateVersionDryRunRequest{})
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 	})
@@ -1060,7 +1060,7 @@ func TestTemplateVersionDryRun(t *testing.T) {
 			})
 
 			version = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-			require.Equal(t, codersdk.ProvisionerJobSucceeded, version.Job.Status)
+			require.Equal(t, wirtualsdk.ProvisionerJobSucceeded, version.Job.Status)
 
 			closer.Close()
 
@@ -1068,14 +1068,14 @@ func TestTemplateVersionDryRun(t *testing.T) {
 			defer cancel()
 
 			// Create the dry-run
-			job, err := client.CreateTemplateVersionDryRun(ctx, version.ID, codersdk.CreateTemplateVersionDryRunRequest{})
+			job, err := client.CreateTemplateVersionDryRun(ctx, version.ID, wirtualsdk.CreateTemplateVersionDryRunRequest{})
 			require.NoError(t, err)
-			require.Equal(t, codersdk.ProvisionerJobPending, job.Status)
+			require.Equal(t, wirtualsdk.ProvisionerJobPending, job.Status)
 			err = client.CancelTemplateVersionDryRun(ctx, version.ID, job.ID)
 			require.NoError(t, err)
 			job, err = client.TemplateVersionDryRun(ctx, version.ID, job.ID)
 			require.NoError(t, err)
-			require.Equal(t, codersdk.ProvisionerJobCanceled, job.Status)
+			require.Equal(t, wirtualsdk.ProvisionerJobCanceled, job.Status)
 		})
 
 		t.Run("AlreadyCompleted", func(t *testing.T) {
@@ -1089,7 +1089,7 @@ func TestTemplateVersionDryRun(t *testing.T) {
 			defer cancel()
 
 			// Create the dry-run
-			job, err := client.CreateTemplateVersionDryRun(ctx, version.ID, codersdk.CreateTemplateVersionDryRunRequest{})
+			job, err := client.CreateTemplateVersionDryRun(ctx, version.ID, wirtualsdk.CreateTemplateVersionDryRunRequest{})
 			require.NoError(t, err)
 
 			require.Eventually(t, func() bool {
@@ -1099,11 +1099,11 @@ func TestTemplateVersionDryRun(t *testing.T) {
 				}
 
 				t.Logf("Status: %s", job.Status)
-				return job.Status == codersdk.ProvisionerJobSucceeded
+				return job.Status == wirtualsdk.ProvisionerJobSucceeded
 			}, testutil.WaitShort, testutil.IntervalFast)
 
 			err = client.CancelTemplateVersionDryRun(ctx, version.ID, job.ID)
-			var apiErr *codersdk.Error
+			var apiErr *wirtualsdk.Error
 			require.ErrorAs(t, err, &apiErr)
 			require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 		})
@@ -1131,7 +1131,7 @@ func TestTemplateVersionDryRun(t *testing.T) {
 			})
 
 			version = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-			require.Equal(t, codersdk.ProvisionerJobSucceeded, version.Job.Status)
+			require.Equal(t, wirtualsdk.ProvisionerJobSucceeded, version.Job.Status)
 
 			closer.Close()
 
@@ -1139,14 +1139,14 @@ func TestTemplateVersionDryRun(t *testing.T) {
 			defer cancel()
 
 			// Create the dry-run
-			job, err := client.CreateTemplateVersionDryRun(ctx, version.ID, codersdk.CreateTemplateVersionDryRunRequest{})
+			job, err := client.CreateTemplateVersionDryRun(ctx, version.ID, wirtualsdk.CreateTemplateVersionDryRunRequest{})
 			require.NoError(t, err)
 
 			err = client.CancelTemplateVersionDryRun(ctx, version.ID, job.ID)
 			require.NoError(t, err)
 
 			err = client.CancelTemplateVersionDryRun(ctx, version.ID, job.ID)
-			var apiErr *codersdk.Error
+			var apiErr *wirtualsdk.Error
 			require.ErrorAs(t, err, &apiErr)
 			require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 		})
@@ -1170,17 +1170,17 @@ func TestPaginatedTemplateVersions(t *testing.T) {
 	templateVersionIDs := make([]uuid.UUID, total)
 	data, err := echo.Tar(nil)
 	require.NoError(t, err)
-	file, err := client.Upload(egCtx, codersdk.ContentTypeTar, bytes.NewReader(data))
+	file, err := client.Upload(egCtx, wirtualsdk.ContentTypeTar, bytes.NewReader(data))
 	require.NoError(t, err)
 	for i := 0; i < total; i++ {
 		i := i
 		eg.Go(func() error {
-			templateVersion, err := client.CreateTemplateVersion(egCtx, user.OrganizationID, codersdk.CreateTemplateVersionRequest{
+			templateVersion, err := client.CreateTemplateVersion(egCtx, user.OrganizationID, wirtualsdk.CreateTemplateVersionRequest{
 				Name:          uuid.NewString(),
 				TemplateID:    template.ID,
 				FileID:        file.ID,
-				StorageMethod: codersdk.ProvisionerStorageMethodFile,
-				Provisioner:   codersdk.ProvisionerTypeEcho,
+				StorageMethod: wirtualsdk.ProvisionerStorageMethodFile,
+				Provisioner:   wirtualsdk.ProvisionerTypeEcho,
 			})
 			if err != nil {
 				return err
@@ -1193,7 +1193,7 @@ func TestPaginatedTemplateVersions(t *testing.T) {
 	require.NoError(t, err, "create templates failed")
 
 	templateVersions, err := client.TemplateVersionsByTemplate(ctx,
-		codersdk.TemplateVersionsByTemplateRequest{
+		wirtualsdk.TemplateVersionsByTemplateRequest{
 			TemplateID: template.ID,
 		},
 	)
@@ -1201,47 +1201,47 @@ func TestPaginatedTemplateVersions(t *testing.T) {
 	require.Len(t, templateVersions, 10, "wrong number of template versions created")
 
 	type args struct {
-		pagination codersdk.Pagination
+		pagination wirtualsdk.Pagination
 	}
 	tests := []struct {
 		name          string
 		args          args
-		want          []codersdk.TemplateVersion
+		want          []wirtualsdk.TemplateVersion
 		expectedError string
 	}{
 		{
 			name: "Single result",
-			args: args{pagination: codersdk.Pagination{Limit: 1}},
+			args: args{pagination: wirtualsdk.Pagination{Limit: 1}},
 			want: templateVersions[:1],
 		},
 		{
 			name: "Single result, second page",
-			args: args{pagination: codersdk.Pagination{Limit: 1, Offset: 1}},
+			args: args{pagination: wirtualsdk.Pagination{Limit: 1, Offset: 1}},
 			want: templateVersions[1:2],
 		},
 		{
 			name: "Last two results",
-			args: args{pagination: codersdk.Pagination{Limit: 2, Offset: 8}},
+			args: args{pagination: wirtualsdk.Pagination{Limit: 2, Offset: 8}},
 			want: templateVersions[8:10],
 		},
 		{
 			name: "AfterID returns next two results",
-			args: args{pagination: codersdk.Pagination{Limit: 2, AfterID: templateVersions[1].ID}},
+			args: args{pagination: wirtualsdk.Pagination{Limit: 2, AfterID: templateVersions[1].ID}},
 			want: templateVersions[2:4],
 		},
 		{
 			name: "No result after last AfterID",
-			args: args{pagination: codersdk.Pagination{Limit: 2, AfterID: templateVersions[9].ID}},
-			want: []codersdk.TemplateVersion{},
+			args: args{pagination: wirtualsdk.Pagination{Limit: 2, AfterID: templateVersions[9].ID}},
+			want: []wirtualsdk.TemplateVersion{},
 		},
 		{
 			name: "No result after last Offset",
-			args: args{pagination: codersdk.Pagination{Limit: 2, Offset: 10}},
-			want: []codersdk.TemplateVersion{},
+			args: args{pagination: wirtualsdk.Pagination{Limit: 2, Offset: 10}},
+			want: []wirtualsdk.TemplateVersion{},
 		},
 		{
 			name:          "After_id does not exist",
-			args:          args{pagination: codersdk.Pagination{AfterID: uuid.New()}},
+			args:          args{pagination: wirtualsdk.Pagination{AfterID: uuid.New()}},
 			expectedError: "does not exist",
 		},
 	}
@@ -1253,7 +1253,7 @@ func TestPaginatedTemplateVersions(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 			defer cancel()
 
-			got, err := client.TemplateVersionsByTemplate(ctx, codersdk.TemplateVersionsByTemplateRequest{
+			got, err := client.TemplateVersionsByTemplate(ctx, wirtualsdk.TemplateVersionsByTemplateRequest{
 				TemplateID: template.ID,
 				Pagination: tt.args.pagination,
 			})
@@ -1281,7 +1281,7 @@ func TestTemplateVersionByOrganizationTemplateAndName(t *testing.T) {
 		defer cancel()
 
 		_, err := client.TemplateVersionByOrganizationAndName(ctx, user.OrganizationID, template.Name, "nothing")
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusNotFound, apiErr.StatusCode())
 	})
@@ -1325,7 +1325,7 @@ func TestPreviousTemplateVersion(t *testing.T) {
 		defer cancel()
 
 		_, err := client.PreviousTemplateVersion(ctx, user.OrganizationID, templateB.Name, templateBVersion1.Name)
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusNotFound, apiErr.StatusCode())
 	})
@@ -1411,8 +1411,8 @@ func TestTemplateVersionVariables(t *testing.T) {
 		user := coderdtest.CreateFirstUser(t, client)
 		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID,
 			createEchoResponses(templateVariables),
-			func(ctvr *codersdk.CreateTemplateVersionRequest) {
-				ctvr.UserVariableValues = []codersdk.VariableValue{
+			func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
+				ctvr.UserVariableValues = []wirtualsdk.VariableValue{
 					{
 						Name:  templateVariables[0].Name,
 						Value: firstVariableValue,
@@ -1506,8 +1506,8 @@ func TestTemplateVersionVariables(t *testing.T) {
 		user := coderdtest.CreateFirstUser(t, client)
 		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID,
 			createEchoResponses(templateVariables),
-			func(ctvr *codersdk.CreateTemplateVersionRequest) {
-				ctvr.UserVariableValues = []codersdk.VariableValue{
+			func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
+				ctvr.UserVariableValues = []wirtualsdk.VariableValue{
 					{
 						Name:  templateVariables[0].Name,
 						Value: firstVariableValue,
@@ -1550,7 +1550,7 @@ func TestTemplateVersionPatch(t *testing.T) {
 		defer cancel()
 
 		const newName = "new-name"
-		updatedVersion, err := client.UpdateTemplateVersion(ctx, version.ID, codersdk.PatchTemplateVersionRequest{
+		updatedVersion, err := client.UpdateTemplateVersion(ctx, version.ID, wirtualsdk.PatchTemplateVersionRequest{
 			Name: newName,
 		})
 
@@ -1563,7 +1563,7 @@ func TestTemplateVersionPatch(t *testing.T) {
 		t.Parallel()
 		client := coderdtest.New(t, nil)
 		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil, func(req *codersdk.CreateTemplateVersionRequest) {
+		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil, func(req *wirtualsdk.CreateTemplateVersionRequest) {
 			req.Message = "Example message"
 		})
 		coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
@@ -1572,7 +1572,7 @@ func TestTemplateVersionPatch(t *testing.T) {
 		defer cancel()
 
 		wantMessage := "Updated message"
-		updatedVersion, err := client.UpdateTemplateVersion(ctx, version.ID, codersdk.PatchTemplateVersionRequest{
+		updatedVersion, err := client.UpdateTemplateVersion(ctx, version.ID, wirtualsdk.PatchTemplateVersionRequest{
 			Message: &wantMessage,
 		})
 
@@ -1584,7 +1584,7 @@ func TestTemplateVersionPatch(t *testing.T) {
 		t.Parallel()
 		client := coderdtest.New(t, nil)
 		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil, func(req *codersdk.CreateTemplateVersionRequest) {
+		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil, func(req *wirtualsdk.CreateTemplateVersionRequest) {
 			req.Message = "Example message"
 		})
 		coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
@@ -1593,7 +1593,7 @@ func TestTemplateVersionPatch(t *testing.T) {
 		defer cancel()
 
 		wantMessage := ""
-		updatedVersion, err := client.UpdateTemplateVersion(ctx, version.ID, codersdk.PatchTemplateVersionRequest{
+		updatedVersion, err := client.UpdateTemplateVersion(ctx, version.ID, wirtualsdk.PatchTemplateVersionRequest{
 			Message: &wantMessage,
 		})
 
@@ -1606,7 +1606,7 @@ func TestTemplateVersionPatch(t *testing.T) {
 		client := coderdtest.New(t, nil)
 		user := coderdtest.CreateFirstUser(t, client)
 		wantMessage := "Example message"
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil, func(req *codersdk.CreateTemplateVersionRequest) {
+		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil, func(req *wirtualsdk.CreateTemplateVersionRequest) {
 			req.Message = wantMessage
 		})
 		coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
@@ -1616,7 +1616,7 @@ func TestTemplateVersionPatch(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		updatedVersion, err := client.UpdateTemplateVersion(ctx, version.ID, codersdk.PatchTemplateVersionRequest{
+		updatedVersion, err := client.UpdateTemplateVersion(ctx, version.ID, wirtualsdk.PatchTemplateVersionRequest{
 			Message: nil,
 		})
 
@@ -1634,7 +1634,7 @@ func TestTemplateVersionPatch(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		updatedVersion, err := client.UpdateTemplateVersion(ctx, version.ID, codersdk.PatchTemplateVersionRequest{})
+		updatedVersion, err := client.UpdateTemplateVersion(ctx, version.ID, wirtualsdk.PatchTemplateVersionRequest{})
 		require.NoError(t, err)
 		assert.Equal(t, version.Name, updatedVersion.Name)
 	})
@@ -1653,12 +1653,12 @@ func TestTemplateVersionPatch(t *testing.T) {
 		defer cancel()
 
 		const commonTemplateVersionName = "common-template-version-name"
-		updatedVersion1, err := client.UpdateTemplateVersion(ctx, version1.ID, codersdk.PatchTemplateVersionRequest{
+		updatedVersion1, err := client.UpdateTemplateVersion(ctx, version1.ID, wirtualsdk.PatchTemplateVersionRequest{
 			Name: commonTemplateVersionName,
 		})
 		require.NoError(t, err)
 
-		updatedVersion2, err := client.UpdateTemplateVersion(ctx, version2.ID, codersdk.PatchTemplateVersionRequest{
+		updatedVersion2, err := client.UpdateTemplateVersion(ctx, version2.ID, wirtualsdk.PatchTemplateVersionRequest{
 			Name: commonTemplateVersionName,
 		})
 		require.NoError(t, err)
@@ -1674,13 +1674,13 @@ func TestTemplateVersionPatch(t *testing.T) {
 		version1 := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version1.ID)
 
-		version2 := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil, func(ctvr *codersdk.CreateTemplateVersionRequest) {
+		version2 := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil, func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
 			ctvr.TemplateID = template.ID
 		})
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
-		_, err := client.UpdateTemplateVersion(ctx, version2.ID, codersdk.PatchTemplateVersionRequest{
+		_, err := client.UpdateTemplateVersion(ctx, version2.ID, wirtualsdk.PatchTemplateVersionRequest{
 			Name: version1.Name,
 		})
 		require.Error(t, err)
@@ -1696,7 +1696,7 @@ func TestTemplateVersionPatch(t *testing.T) {
 		defer cancel()
 
 		const commonTemplateVersionName = "common-template-version-name"
-		updatedVersion1, err := client.UpdateTemplateVersion(ctx, version1.ID, codersdk.PatchTemplateVersionRequest{
+		updatedVersion1, err := client.UpdateTemplateVersion(ctx, version1.ID, wirtualsdk.PatchTemplateVersionRequest{
 			Name: commonTemplateVersionName,
 		})
 		require.NoError(t, err)
@@ -1713,7 +1713,7 @@ func TestTemplateVersionPatch(t *testing.T) {
 		defer cancel()
 
 		const incorrectTemplateVersionName = "incorrect/name"
-		_, err := client.UpdateTemplateVersion(ctx, version1.ID, codersdk.PatchTemplateVersionRequest{
+		_, err := client.UpdateTemplateVersion(ctx, version1.ID, wirtualsdk.PatchTemplateVersionRequest{
 			Name: incorrectTemplateVersionName,
 		})
 		require.Error(t, err)
@@ -1827,7 +1827,7 @@ func TestTemplateArchiveVersions(t *testing.T) {
 			Parse:          echo.ParseComplete,
 			ProvisionPlan:  echo.PlanFailed,
 			ProvisionApply: echo.ApplyFailed,
-		}, func(req *codersdk.CreateTemplateVersionRequest) {
+		}, func(req *wirtualsdk.CreateTemplateVersionRequest) {
 			req.TemplateID = template.ID
 		})
 		allFailed = append(allFailed, failed.ID)
@@ -1840,7 +1840,7 @@ func TestTemplateArchiveVersions(t *testing.T) {
 			Parse:          echo.ParseComplete,
 			ProvisionPlan:  echo.PlanComplete,
 			ProvisionApply: echo.ApplyComplete,
-		}, func(req *codersdk.CreateTemplateVersionRequest) {
+		}, func(req *wirtualsdk.CreateTemplateVersionRequest) {
 			req.TemplateID = template.ID
 		})
 		expArchived = append(expArchived, unused.ID)
@@ -1853,11 +1853,11 @@ func TestTemplateArchiveVersions(t *testing.T) {
 			Parse:          echo.ParseComplete,
 			ProvisionPlan:  echo.PlanComplete,
 			ProvisionApply: echo.ApplyComplete,
-		}, func(req *codersdk.CreateTemplateVersionRequest) {
+		}, func(req *wirtualsdk.CreateTemplateVersionRequest) {
 			req.TemplateID = template.ID
 		})
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, used.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, uuid.Nil, func(request *codersdk.CreateWorkspaceRequest) {
+		workspace := coderdtest.CreateWorkspace(t, client, uuid.Nil, func(request *wirtualsdk.CreateWorkspaceRequest) {
 			request.TemplateVersionID = used.ID
 		})
 		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
@@ -1865,9 +1865,9 @@ func TestTemplateArchiveVersions(t *testing.T) {
 	}
 
 	ctx := testutil.Context(t, testutil.WaitMedium)
-	versions, err := client.TemplateVersionsByTemplate(ctx, codersdk.TemplateVersionsByTemplateRequest{
+	versions, err := client.TemplateVersionsByTemplate(ctx, wirtualsdk.TemplateVersionsByTemplateRequest{
 		TemplateID: template.ID,
-		Pagination: codersdk.Pagination{
+		Pagination: wirtualsdk.Pagination{
 			Limit: 100,
 		},
 	})
@@ -1879,9 +1879,9 @@ func TestTemplateArchiveVersions(t *testing.T) {
 	require.NoError(t, err, "archive failed versions")
 	require.ElementsMatch(t, archiveFailed.ArchivedIDs, allFailed, "all failed versions archived")
 
-	remaining, err := client.TemplateVersionsByTemplate(ctx, codersdk.TemplateVersionsByTemplateRequest{
+	remaining, err := client.TemplateVersionsByTemplate(ctx, wirtualsdk.TemplateVersionsByTemplateRequest{
 		TemplateID: template.ID,
-		Pagination: codersdk.Pagination{
+		Pagination: wirtualsdk.Pagination{
 			Limit: 100,
 		},
 	})
@@ -1893,9 +1893,9 @@ func TestTemplateArchiveVersions(t *testing.T) {
 	require.NoError(t, err, "archive versions")
 	require.ElementsMatch(t, archived.ArchivedIDs, expArchived, "all expected versions archived")
 
-	remaining, err = client.TemplateVersionsByTemplate(ctx, codersdk.TemplateVersionsByTemplateRequest{
+	remaining, err = client.TemplateVersionsByTemplate(ctx, wirtualsdk.TemplateVersionsByTemplateRequest{
 		TemplateID: template.ID,
-		Pagination: codersdk.Pagination{
+		Pagination: wirtualsdk.Pagination{
 			Limit: 100,
 		},
 	})
@@ -1911,9 +1911,9 @@ func TestTemplateArchiveVersions(t *testing.T) {
 	require.False(t, tv.Archived, "expect unarchived")
 
 	// Check the remaining again
-	remaining, err = client.TemplateVersionsByTemplate(ctx, codersdk.TemplateVersionsByTemplateRequest{
+	remaining, err = client.TemplateVersionsByTemplate(ctx, wirtualsdk.TemplateVersionsByTemplateRequest{
 		TemplateID: template.ID,
-		Pagination: codersdk.Pagination{
+		Pagination: wirtualsdk.Pagination{
 			Limit: 100,
 		},
 	})

@@ -53,7 +53,7 @@ func TestUserList(t *testing.T) {
 
 		<-doneChan
 
-		var users []codersdk.User
+		var users []wirtualsdk.User
 		err := json.Unmarshal(buf.Bytes(), &users)
 		require.NoError(t, err, "unmarshal JSON output")
 		require.Len(t, users, 2)
@@ -82,7 +82,7 @@ func TestUserList(t *testing.T) {
 
 		err := inv.Run()
 
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Contains(t, err.Error(), "Try logging in using 'coder login'.")
 	})
@@ -118,7 +118,7 @@ func TestUserShow(t *testing.T) {
 		owner := coderdtest.CreateFirstUser(t, client)
 		userAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleUserAdmin())
 		other, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		otherUser, err := other.User(ctx, codersdk.Me)
+		otherUser, err := other.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err, "fetch other user")
 		inv, root := clitest.New(t, "users", "show", otherUser.Username, "-o", "json")
 		clitest.SetupConfig(t, userAdmin, root)
@@ -134,7 +134,7 @@ func TestUserShow(t *testing.T) {
 
 		<-doneChan
 
-		var newUser codersdk.User
+		var newUser wirtualsdk.User
 		err = json.Unmarshal(buf.Bytes(), &newUser)
 		require.NoError(t, err, "unmarshal JSON output")
 		require.Equal(t, otherUser.ID, newUser.ID)

@@ -13,8 +13,8 @@ import (
 )
 
 func (r *RootCmd) rename() *serpent.Command {
-	var appearanceConfig codersdk.AppearanceConfig
-	client := new(codersdk.Client)
+	var appearanceConfig wirtualsdk.AppearanceConfig
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Annotations: workspaceCommand,
 		Use:         "rename <workspace> <new name>",
@@ -47,7 +47,7 @@ func (r *RootCmd) rename() *serpent.Command {
 				return err
 			}
 
-			err = client.UpdateWorkspace(inv.Context(), workspace.ID, codersdk.UpdateWorkspaceRequest{
+			err = client.UpdateWorkspace(inv.Context(), workspace.ID, wirtualsdk.UpdateWorkspaceRequest{
 				Name: inv.Args[1],
 			})
 			if err != nil {

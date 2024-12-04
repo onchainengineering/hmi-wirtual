@@ -58,7 +58,7 @@ var supportBundleBlurb = cliui.Bold("This will collect the following information
 func (r *RootCmd) supportBundle() *serpent.Command {
 	var outputPath string
 	var coderURLOverride string
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "bundle <workspace> [<agent>]",
 		Short: "Generate a support bundle to troubleshoot issues connecting to a workspace.",
@@ -251,7 +251,7 @@ func summarizeBundle(inv *serpent.Invocation, bun *support.Bundle) {
 	}
 }
 
-func findAgent(agentName string, haystack []codersdk.WorkspaceResource) (*codersdk.WorkspaceAgent, bool) {
+func findAgent(agentName string, haystack []wirtualsdk.WorkspaceResource) (*wirtualsdk.WorkspaceAgent, bool) {
 	for _, res := range haystack {
 		for _, agt := range res.Agents {
 			if agentName == "" {
@@ -330,7 +330,7 @@ func writeBundle(src *support.Bundle, dest *zip.Writer) error {
 	return nil
 }
 
-func humanizeAgentLogs(ls []codersdk.WorkspaceAgentLog) string {
+func humanizeAgentLogs(ls []wirtualsdk.WorkspaceAgentLog) string {
 	var buf bytes.Buffer
 	tw := tabwriter.NewWriter(&buf, 0, 2, 1, ' ', 0)
 	for _, l := range ls {
@@ -344,7 +344,7 @@ func humanizeAgentLogs(ls []codersdk.WorkspaceAgentLog) string {
 	return buf.String()
 }
 
-func humanizeBuildLogs(ls []codersdk.ProvisionerJobLog) string {
+func humanizeBuildLogs(ls []wirtualsdk.ProvisionerJobLog) string {
 	var buf bytes.Buffer
 	tw := tabwriter.NewWriter(&buf, 0, 2, 1, ' ', 0)
 	for _, l := range ls {

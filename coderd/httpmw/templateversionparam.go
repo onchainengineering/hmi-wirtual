@@ -39,7 +39,7 @@ func ExtractTemplateVersionParam(db database.Store) func(http.Handler) http.Hand
 				return
 			}
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error fetching template version.",
 					Detail:  err.Error(),
 				})
@@ -48,7 +48,7 @@ func ExtractTemplateVersionParam(db database.Store) func(http.Handler) http.Hand
 
 			template, err := db.GetTemplateByID(r.Context(), templateVersion.TemplateID.UUID)
 			if err != nil && !xerrors.Is(err, sql.ErrNoRows) {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error fetching template.",
 					Detail:  err.Error(),
 				})

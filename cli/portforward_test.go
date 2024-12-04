@@ -383,8 +383,8 @@ func TestPortForward(t *testing.T) {
 // runAgent creates a fake workspace and starts an agent locally for that
 // workspace. The agent will be cleaned up on test completion.
 // nolint:unused
-func runAgent(t *testing.T, client *codersdk.Client, owner uuid.UUID, db database.Store) database.WorkspaceTable {
-	user, err := client.User(context.Background(), codersdk.Me)
+func runAgent(t *testing.T, client *wirtualsdk.Client, owner uuid.UUID, db database.Store) database.WorkspaceTable {
+	user, err := client.User(context.Background(), wirtualsdk.Me)
 	require.NoError(t, err, "specified user does not exist")
 	require.Greater(t, len(user.OrganizationIDs), 0, "user has no organizations")
 	orgID := user.OrganizationIDs[0]

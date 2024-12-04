@@ -82,7 +82,7 @@ func (api *API) workspaceAgent(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching workspace agent.",
 			Detail:  err.Error(),
 		})
@@ -91,7 +91,7 @@ func (api *API) workspaceAgent(rw http.ResponseWriter, r *http.Request) {
 
 	resource, err := api.Database.GetWorkspaceResourceByID(ctx, workspaceAgent.ResourceID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching workspace resource.",
 			Detail:  err.Error(),
 		})
@@ -99,7 +99,7 @@ func (api *API) workspaceAgent(rw http.ResponseWriter, r *http.Request) {
 	}
 	build, err := api.Database.GetWorkspaceBuildByJobID(ctx, resource.JobID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching workspace build.",
 			Detail:  err.Error(),
 		})
@@ -107,7 +107,7 @@ func (api *API) workspaceAgent(rw http.ResponseWriter, r *http.Request) {
 	}
 	workspace, err := api.Database.GetWorkspaceByID(ctx, build.WorkspaceID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching workspace.",
 			Detail:  err.Error(),
 		})
@@ -115,7 +115,7 @@ func (api *API) workspaceAgent(rw http.ResponseWriter, r *http.Request) {
 	}
 	owner, err := api.Database.GetUserByID(ctx, workspace.OwnerID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching workspace owner.",
 			Detail:  err.Error(),
 		})
@@ -127,7 +127,7 @@ func (api *API) workspaceAgent(rw http.ResponseWriter, r *http.Request) {
 		api.DeploymentValues.AgentFallbackTroubleshootingURL.String(),
 	)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error reading workspace agent.",
 			Detail:  err.Error(),
 		})
@@ -157,7 +157,7 @@ func (api *API) patchWorkspaceAgentLogs(rw http.ResponseWriter, r *http.Request)
 		return
 	}
 	if len(req.Logs) == 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "No logs provided.",
 		})
 		return
@@ -179,7 +179,7 @@ func (api *API) patchWorkspaceAgentLogs(rw http.ResponseWriter, r *http.Request)
 			req.LogSourceID = agentsdk.ExternalLogSourceID
 		}
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Failed to create external log source.",
 				Detail:  err.Error(),
 			})
@@ -197,11 +197,11 @@ func (api *API) patchWorkspaceAgentLogs(rw http.ResponseWriter, r *http.Request)
 		outputLength += len(logEntry.Output)
 		if logEntry.Level == "" {
 			// Default to "info" to support older agents that didn't have the level field.
-			logEntry.Level = codersdk.LogLevelInfo
+			logEntry.Level = wirtualsdk.LogLevelInfo
 		}
 		parsedLevel := database.LogLevel(logEntry.Level)
 		if !parsedLevel.Valid() {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Invalid log level provided.",
 				Detail:  fmt.Sprintf("invalid log level: %q", logEntry.Level),
 			})
@@ -220,14 +220,14 @@ func (api *API) patchWorkspaceAgentLogs(rw http.ResponseWriter, r *http.Request)
 	})
 	if err != nil {
 		if !database.IsWorkspaceAgentLogsLimitError(err) {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Failed to upload logs",
 				Detail:  err.Error(),
 			})
 			return
 		}
 		if workspaceAgent.LogsOverflowed {
-			httpapi.Write(ctx, rw, http.StatusRequestEntityTooLarge, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusRequestEntityTooLarge, wirtualsdk.Response{
 				Message: "Logs limit exceeded",
 				Detail:  err.Error(),
 			})
@@ -246,7 +246,7 @@ func (api *API) patchWorkspaceAgentLogs(rw http.ResponseWriter, r *http.Request)
 
 		workspace, err := api.Database.GetWorkspaceByAgentID(ctx, workspaceAgent.ID)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Failed to get workspace.",
 				Detail:  err.Error(),
 			})
@@ -259,7 +259,7 @@ func (api *API) patchWorkspaceAgentLogs(rw http.ResponseWriter, r *http.Request)
 			AgentID:     &workspaceAgent.ID,
 		})
 
-		httpapi.Write(ctx, rw, http.StatusRequestEntityTooLarge, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusRequestEntityTooLarge, wirtualsdk.Response{
 			Message: "Logs limit exceeded",
 		})
 		return
@@ -278,7 +278,7 @@ func (api *API) patchWorkspaceAgentLogs(rw http.ResponseWriter, r *http.Request)
 		// to notify the UI that logs are now available.
 		workspace, err := api.Database.GetWorkspaceByAgentID(ctx, workspaceAgent.ID)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Failed to get workspace.",
 				Detail:  err.Error(),
 			})
@@ -326,9 +326,9 @@ func (api *API) workspaceAgentLogs(rw http.ResponseWriter, r *http.Request) {
 		var err error
 		after, err = strconv.ParseInt(afterRaw, 10, 64)
 		if err != nil || after < 0 {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Query param \"after\" must be an integer greater than or equal to zero.",
-				Validations: []codersdk.ValidationError{
+				Validations: []wirtualsdk.ValidationError{
 					{Field: "after", Detail: "Must be an integer greater than or equal to zero"},
 				},
 			})
@@ -344,7 +344,7 @@ func (api *API) workspaceAgentLogs(rw http.ResponseWriter, r *http.Request) {
 		err = nil
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching provisioner logs.",
 			Detail:  err.Error(),
 		})
@@ -361,7 +361,7 @@ func (api *API) workspaceAgentLogs(rw http.ResponseWriter, r *http.Request) {
 
 	workspace, err := api.Database.GetWorkspaceByAgentID(ctx, workspaceAgent.ID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching workspace by agent id.",
 			Detail:  err.Error(),
 		})
@@ -388,7 +388,7 @@ func (api *API) workspaceAgentLogs(rw http.ResponseWriter, r *http.Request) {
 
 	conn, err := websocket.Accept(rw, r, opts)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Failed to accept websocket.",
 			Detail:  err.Error(),
 		})
@@ -396,7 +396,7 @@ func (api *API) workspaceAgentLogs(rw http.ResponseWriter, r *http.Request) {
 	}
 	go httpapi.Heartbeat(ctx, conn)
 
-	ctx, wsNetConn := codersdk.WebsocketNetConn(ctx, conn, websocket.MessageText)
+	ctx, wsNetConn := wirtualsdk.WebsocketNetConn(ctx, conn, websocket.MessageText)
 	defer wsNetConn.Close() // Also closes conn.
 
 	// The Go stdlib JSON encoder appends a newline character after message write.
@@ -432,7 +432,7 @@ func (api *API) workspaceAgentLogs(rw http.ResponseWriter, r *http.Request) {
 				}
 			}))
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to subscribe to workspace for log streaming.",
 			Detail:  err.Error(),
 		})
@@ -448,7 +448,7 @@ func (api *API) workspaceAgentLogs(rw http.ResponseWriter, r *http.Request) {
 		}
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to subscribe to agent for log streaming.",
 			Detail:  err.Error(),
 		})
@@ -591,22 +591,22 @@ func (api *API) workspaceAgentListeningPorts(rw http.ResponseWriter, r *http.Req
 		api.DeploymentValues.AgentFallbackTroubleshootingURL.String(),
 	)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error reading workspace agent.",
 			Detail:  err.Error(),
 		})
 		return
 	}
-	if apiAgent.Status != codersdk.WorkspaceAgentConnected {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
-			Message: fmt.Sprintf("Agent state is %q, it must be in the %q state.", apiAgent.Status, codersdk.WorkspaceAgentConnected),
+	if apiAgent.Status != wirtualsdk.WorkspaceAgentConnected {
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
+			Message: fmt.Sprintf("Agent state is %q, it must be in the %q state.", apiAgent.Status, wirtualsdk.WorkspaceAgentConnected),
 		})
 		return
 	}
 
 	agentConn, release, err := api.agentProvider.AgentConn(ctx, workspaceAgent.ID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error dialing workspace agent.",
 			Detail:  err.Error(),
 		})
@@ -616,7 +616,7 @@ func (api *API) workspaceAgentListeningPorts(rw http.ResponseWriter, r *http.Req
 
 	portsResponse, err := agentConn.ListeningPorts(ctx)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching listening ports.",
 			Detail:  err.Error(),
 		})
@@ -630,7 +630,7 @@ func (api *API) workspaceAgentListeningPorts(rw http.ResponseWriter, r *http.Req
 		err = nil
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching workspace apps.",
 			Detail:  err.Error(),
 		})
@@ -661,7 +661,7 @@ func (api *API) workspaceAgentListeningPorts(rw http.ResponseWriter, r *http.Req
 
 	// Filter out ports that are globally blocked, in-use by applications, or
 	// common non-HTTP ports such as databases, FTP, SSH, etc.
-	filteredPorts := make([]codersdk.WorkspaceAgentListeningPort, 0, len(portsResponse.Ports))
+	filteredPorts := make([]wirtualsdk.WorkspaceAgentListeningPort, 0, len(portsResponse.Ports))
 	for _, port := range portsResponse.Ports {
 		if port.Port < workspacesdk.AgentMinimumListeningPort {
 			continue
@@ -734,13 +734,13 @@ func (api *API) derpMapUpdates(rw http.ResponseWriter, r *http.Request) {
 
 	ws, err := websocket.Accept(rw, r, nil)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Failed to accept websocket.",
 			Detail:  err.Error(),
 		})
 		return
 	}
-	ctx, nconn := codersdk.WebsocketNetConn(ctx, ws, websocket.MessageBinary)
+	ctx, nconn := wirtualsdk.WebsocketNetConn(ctx, ws, websocket.MessageBinary)
 	defer nconn.Close()
 
 	// Slurp all packets from the connection into io.Discard so pongs get sent
@@ -836,9 +836,9 @@ func (api *API) workspaceAgentClientCoordinate(rw http.ResponseWriter, r *http.R
 		version = qv
 	}
 	if err := proto.CurrentVersion.Validate(version); err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Unknown or unsupported API version",
-			Validations: []codersdk.ValidationError{
+			Validations: []wirtualsdk.ValidationError{
 				{Field: "version", Detail: err.Error()},
 			},
 		})
@@ -859,13 +859,13 @@ func (api *API) workspaceAgentClientCoordinate(rw http.ResponseWriter, r *http.R
 
 	conn, err := websocket.Accept(rw, r, nil)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Failed to accept websocket.",
 			Detail:  err.Error(),
 		})
 		return
 	}
-	ctx, wsNetConn := codersdk.WebsocketNetConn(ctx, conn, websocket.MessageBinary)
+	ctx, wsNetConn := wirtualsdk.WebsocketNetConn(ctx, conn, websocket.MessageBinary)
 	defer wsNetConn.Close()
 
 	go httpapi.Heartbeat(ctx, conn)
@@ -896,10 +896,10 @@ func (api *API) handleResumeToken(ctx context.Context, rw http.ResponseWriter, r
 			peerID = uuid.New()
 			err = nil
 		} else if err != nil {
-			httpapi.Write(ctx, rw, http.StatusUnauthorized, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusUnauthorized, wirtualsdk.Response{
 				Message: workspacesdk.CoordinateAPIInvalidResumeToken,
 				Detail:  err.Error(),
-				Validations: []codersdk.ValidationError{
+				Validations: []wirtualsdk.ValidationError{
 					{Field: "resume_token", Detail: workspacesdk.CoordinateAPIInvalidResumeToken},
 				},
 			})
@@ -939,7 +939,7 @@ func (api *API) workspaceAgentPostLogSource(rw http.ResponseWriter, r *http.Requ
 	})
 	if err != nil {
 		if database.IsUniqueViolation(err, "workspace_agent_log_sources_pkey") {
-			httpapi.Write(ctx, rw, http.StatusCreated, codersdk.WorkspaceAgentLogSource{
+			httpapi.Write(ctx, rw, http.StatusCreated, wirtualsdk.WorkspaceAgentLogSource{
 				WorkspaceAgentID: workspaceAgent.ID,
 				CreatedAt:        dbtime.Now(),
 				ID:               req.ID,
@@ -964,14 +964,14 @@ func (api *API) workspaceAgentPostLogSource(rw http.ResponseWriter, r *http.Requ
 
 // convertProvisionedApps converts applications that are in the middle of provisioning process.
 // It means that they may not have an agent or workspace assigned (dry-run job).
-func convertProvisionedApps(dbApps []database.WorkspaceApp) []codersdk.WorkspaceApp {
+func convertProvisionedApps(dbApps []database.WorkspaceApp) []wirtualsdk.WorkspaceApp {
 	return db2sdk.Apps(dbApps, database.WorkspaceAgent{}, "", database.Workspace{})
 }
 
-func convertLogSources(dbLogSources []database.WorkspaceAgentLogSource) []codersdk.WorkspaceAgentLogSource {
-	logSources := make([]codersdk.WorkspaceAgentLogSource, 0)
+func convertLogSources(dbLogSources []database.WorkspaceAgentLogSource) []wirtualsdk.WorkspaceAgentLogSource {
+	logSources := make([]wirtualsdk.WorkspaceAgentLogSource, 0)
 	for _, dbLogSource := range dbLogSources {
-		logSources = append(logSources, codersdk.WorkspaceAgentLogSource{
+		logSources = append(logSources, wirtualsdk.WorkspaceAgentLogSource{
 			ID:               dbLogSource.ID,
 			DisplayName:      dbLogSource.DisplayName,
 			WorkspaceAgentID: dbLogSource.WorkspaceAgentID,
@@ -982,10 +982,10 @@ func convertLogSources(dbLogSources []database.WorkspaceAgentLogSource) []coders
 	return logSources
 }
 
-func convertScripts(dbScripts []database.WorkspaceAgentScript) []codersdk.WorkspaceAgentScript {
-	scripts := make([]codersdk.WorkspaceAgentScript, 0)
+func convertScripts(dbScripts []database.WorkspaceAgentScript) []wirtualsdk.WorkspaceAgentScript {
+	scripts := make([]wirtualsdk.WorkspaceAgentScript, 0)
 	for _, dbScript := range dbScripts {
-		scripts = append(scripts, codersdk.WorkspaceAgentScript{
+		scripts = append(scripts, wirtualsdk.WorkspaceAgentScript{
 			ID:               dbScript.ID,
 			LogPath:          dbScript.LogPath,
 			LogSourceID:      dbScript.LogSourceID,
@@ -1076,7 +1076,7 @@ func (api *API) watchWorkspaceAgentMetadata(rw http.ResponseWriter, r *http.Requ
 
 	sseSendEvent, sseSenderClosed, err := httpapi.ServerSentEventSender(rw, r)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error setting up server-sent events.",
 			Detail:  err.Error(),
 		})
@@ -1104,8 +1104,8 @@ func (api *API) watchWorkspaceAgentMetadata(rw http.ResponseWriter, r *http.Requ
 
 		log.Debug(ctx, "sending metadata", "num", len(values))
 
-		_ = sseSendEvent(ctx, codersdk.ServerSentEvent{
-			Type: codersdk.ServerSentEventTypeData,
+		_ = sseSendEvent(ctx, wirtualsdk.ServerSentEvent{
+			Type: wirtualsdk.ServerSentEventTypeData,
 			Data: convertWorkspaceAgentMetadata(values),
 		})
 	}
@@ -1136,9 +1136,9 @@ func (api *API) watchWorkspaceAgentMetadata(rw http.ResponseWriter, r *http.Requ
 				if err != nil {
 					if !database.IsQueryCanceledError(err) {
 						log.Error(ctx, "failed to get metadata", slog.Error(err))
-						_ = sseSendEvent(ctx, codersdk.ServerSentEvent{
-							Type: codersdk.ServerSentEventTypeError,
-							Data: codersdk.Response{
+						_ = sseSendEvent(ctx, wirtualsdk.ServerSentEvent{
+							Type: wirtualsdk.ServerSentEventTypeError,
+							Data: wirtualsdk.Response{
 								Message: "Failed to get metadata.",
 								Detail:  err.Error(),
 							},
@@ -1203,7 +1203,7 @@ func appendUnique[T comparable](dst, src []T) []T {
 	return dst
 }
 
-func convertWorkspaceAgentMetadata(db []database.WorkspaceAgentMetadatum) []codersdk.WorkspaceAgentMetadata {
+func convertWorkspaceAgentMetadata(db []database.WorkspaceAgentMetadatum) []wirtualsdk.WorkspaceAgentMetadata {
 	// Sort the input database slice by DisplayOrder and then by Key before processing
 	sort.Slice(db, func(i, j int) bool {
 		if db[i].DisplayOrder == db[j].DisplayOrder {
@@ -1213,16 +1213,16 @@ func convertWorkspaceAgentMetadata(db []database.WorkspaceAgentMetadatum) []code
 	})
 
 	// An empty array is easier for clients to handle than a null.
-	result := make([]codersdk.WorkspaceAgentMetadata, len(db))
+	result := make([]wirtualsdk.WorkspaceAgentMetadata, len(db))
 	for i, datum := range db {
-		result[i] = codersdk.WorkspaceAgentMetadata{
-			Result: codersdk.WorkspaceAgentMetadataResult{
+		result[i] = wirtualsdk.WorkspaceAgentMetadata{
+			Result: wirtualsdk.WorkspaceAgentMetadataResult{
 				Value:       datum.Value,
 				Error:       datum.Error,
 				CollectedAt: datum.CollectedAt.UTC(),
 				Age:         int64(time.Since(datum.CollectedAt).Seconds()),
 			},
-			Description: codersdk.WorkspaceAgentMetadataDescription{
+			Description: wirtualsdk.WorkspaceAgentMetadataDescription{
 				DisplayName: datum.DisplayName,
 				Key:         datum.Key,
 				Script:      datum.Script,
@@ -1258,13 +1258,13 @@ func (api *API) workspaceAgentsExternalAuth(rw http.ResponseWriter, r *http.Requ
 	}
 	id := query.Get("id")
 	if match == "" && id == "" {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "'url' or 'id' must be provided!",
 		})
 		return
 	}
 	if match != "" && id != "" {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "'url' and 'id' cannot be provided together!",
 		})
 		return
@@ -1301,7 +1301,7 @@ func (api *API) workspaceAgentsExternalAuth(rw http.ResponseWriter, r *http.Requ
 			}
 			detail = fmt.Sprintf("The configured external auth provider have regex filters that do not match the url. Provider url regex: %s", strings.Join(regexURLs, ","))
 		}
-		httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 			Message: fmt.Sprintf("No matching external auth provider found in Coder for the url %q.", match),
 			Detail:  detail,
 		})
@@ -1311,7 +1311,7 @@ func (api *API) workspaceAgentsExternalAuth(rw http.ResponseWriter, r *http.Requ
 	// We must get the workspace to get the owner ID!
 	resource, err := api.Database.GetWorkspaceResourceByID(ctx, workspaceAgent.ResourceID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to get workspace resource.",
 			Detail:  err.Error(),
 		})
@@ -1319,7 +1319,7 @@ func (api *API) workspaceAgentsExternalAuth(rw http.ResponseWriter, r *http.Requ
 	}
 	build, err := api.Database.GetWorkspaceBuildByJobID(ctx, resource.JobID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to get build.",
 			Detail:  err.Error(),
 		})
@@ -1327,7 +1327,7 @@ func (api *API) workspaceAgentsExternalAuth(rw http.ResponseWriter, r *http.Requ
 	}
 	workspace, err := api.Database.GetWorkspaceByID(ctx, build.WorkspaceID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to get workspace.",
 			Detail:  err.Error(),
 		})
@@ -1353,7 +1353,7 @@ func (api *API) workspaceAgentsExternalAuth(rw http.ResponseWriter, r *http.Requ
 	// This is the URL that will redirect the user with a state token.
 	redirectURL, err := api.AccessURL.Parse(fmt.Sprintf("/external-auth/%s", externalAuthConfig.ID))
 	if err != nil {
-		handleRetrying(http.StatusInternalServerError, codersdk.Response{
+		handleRetrying(http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to parse access URL.",
 			Detail:  err.Error(),
 		})
@@ -1366,7 +1366,7 @@ func (api *API) workspaceAgentsExternalAuth(rw http.ResponseWriter, r *http.Requ
 	})
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
-			handleRetrying(http.StatusInternalServerError, codersdk.Response{
+			handleRetrying(http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Failed to get external auth link.",
 				Detail:  err.Error(),
 			})
@@ -1381,7 +1381,7 @@ func (api *API) workspaceAgentsExternalAuth(rw http.ResponseWriter, r *http.Requ
 
 	refreshedLink, err := externalAuthConfig.RefreshToken(ctx, api.Database, externalAuthLink)
 	if err != nil && !externalauth.IsInvalidTokenError(err) {
-		handleRetrying(http.StatusInternalServerError, codersdk.Response{
+		handleRetrying(http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to refresh external auth token.",
 			Detail:  err.Error(),
 		})
@@ -1399,7 +1399,7 @@ func (api *API) workspaceAgentsExternalAuth(rw http.ResponseWriter, r *http.Requ
 	}
 	resp, err := createExternalAuthResponse(externalAuthConfig.Type, refreshedLink.OAuthAccessToken, refreshedLink.OAuthExtra)
 	if err != nil {
-		handleRetrying(http.StatusInternalServerError, codersdk.Response{
+		handleRetrying(http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to create external auth response.",
 			Detail:  err.Error(),
 		})
@@ -1435,7 +1435,7 @@ func (api *API) workspaceAgentsExternalAuthListen(ctx context.Context, rw http.R
 			if errors.Is(err, sql.ErrNoRows) {
 				continue
 			}
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Failed to get external auth link.",
 				Detail:  err.Error(),
 			})
@@ -1472,7 +1472,7 @@ func (api *API) workspaceAgentsExternalAuthListen(ctx context.Context, rw http.R
 		}
 		resp, err := createExternalAuthResponse(externalAuthConfig.Type, externalAuthLink.OAuthAccessToken, externalAuthLink.OAuthExtra)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Failed to create external auth response.",
 				Detail:  err.Error(),
 			})
@@ -1498,9 +1498,9 @@ func (api *API) tailnetRPCConn(rw http.ResponseWriter, r *http.Request) {
 		version = qv
 	}
 	if err := proto.CurrentVersion.Validate(version); err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Unknown or unsupported API version",
-			Validations: []codersdk.ValidationError{
+			Validations: []wirtualsdk.ValidationError{
 				{Field: "version", Detail: err.Error()},
 			},
 		})
@@ -1516,7 +1516,7 @@ func (api *API) tailnetRPCConn(rw http.ResponseWriter, r *http.Request) {
 	// Used to authorize tunnel request
 	sshPrep, err := api.HTTPAuth.AuthorizeSQLFilter(r, policy.ActionSSH, rbac.ResourceWorkspace.Type)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error preparing sql filter.",
 			Detail:  err.Error(),
 		})
@@ -1530,13 +1530,13 @@ func (api *API) tailnetRPCConn(rw http.ResponseWriter, r *http.Request) {
 
 	conn, err := websocket.Accept(rw, r, nil)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Failed to accept websocket.",
 			Detail:  err.Error(),
 		})
 		return
 	}
-	ctx, wsNetConn := codersdk.WebsocketNetConn(ctx, conn, websocket.MessageBinary)
+	ctx, wsNetConn := wirtualsdk.WebsocketNetConn(ctx, conn, websocket.MessageBinary)
 	defer wsNetConn.Close()
 	defer conn.Close(websocket.StatusNormalClosure, "")
 
@@ -1563,13 +1563,13 @@ func (api *API) tailnetRPCConn(rw http.ResponseWriter, r *http.Request) {
 func createExternalAuthResponse(typ, token string, extra pqtype.NullRawMessage) (agentsdk.ExternalAuthResponse, error) {
 	var resp agentsdk.ExternalAuthResponse
 	switch typ {
-	case string(codersdk.EnhancedExternalAuthProviderGitLab):
+	case string(wirtualsdk.EnhancedExternalAuthProviderGitLab):
 		// https://stackoverflow.com/questions/25409700/using-gitlab-token-to-clone-without-authentication
 		resp = agentsdk.ExternalAuthResponse{
 			Username: "oauth2",
 			Password: token,
 		}
-	case string(codersdk.EnhancedExternalAuthProviderBitBucketCloud), string(codersdk.EnhancedExternalAuthProviderBitBucketServer):
+	case string(wirtualsdk.EnhancedExternalAuthProviderBitBucketCloud), string(wirtualsdk.EnhancedExternalAuthProviderBitBucketServer):
 		// The string "bitbucket" was a legacy parameter that needs to still be supported.
 		// https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/#Cloning-a-repository-with-an-access-token
 		resp = agentsdk.ExternalAuthResponse{
@@ -1591,20 +1591,20 @@ func createExternalAuthResponse(typ, token string, extra pqtype.NullRawMessage) 
 	return resp, err
 }
 
-func convertWorkspaceAgentLogs(logs []database.WorkspaceAgentLog) []codersdk.WorkspaceAgentLog {
-	sdk := make([]codersdk.WorkspaceAgentLog, 0, len(logs))
+func convertWorkspaceAgentLogs(logs []database.WorkspaceAgentLog) []wirtualsdk.WorkspaceAgentLog {
+	sdk := make([]wirtualsdk.WorkspaceAgentLog, 0, len(logs))
 	for _, logEntry := range logs {
 		sdk = append(sdk, convertWorkspaceAgentLog(logEntry))
 	}
 	return sdk
 }
 
-func convertWorkspaceAgentLog(logEntry database.WorkspaceAgentLog) codersdk.WorkspaceAgentLog {
-	return codersdk.WorkspaceAgentLog{
+func convertWorkspaceAgentLog(logEntry database.WorkspaceAgentLog) wirtualsdk.WorkspaceAgentLog {
+	return wirtualsdk.WorkspaceAgentLog{
 		ID:        logEntry.ID,
 		CreatedAt: logEntry.CreatedAt,
 		Output:    logEntry.Output,
-		Level:     codersdk.LogLevel(logEntry.Level),
+		Level:     wirtualsdk.LogLevel(logEntry.Level),
 		SourceID:  logEntry.LogSourceID,
 	}
 }

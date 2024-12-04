@@ -278,9 +278,9 @@ func (r *RootCmd) workspaceAgent() *serpent.Command {
 
 			prometheusRegistry := prometheus.NewRegistry()
 			subsystemsRaw := inv.Environ.Get(agent.EnvAgentSubsystem)
-			subsystems := []codersdk.AgentSubsystem{}
+			subsystems := []wirtualsdk.AgentSubsystem{}
 			for _, s := range strings.Split(subsystemsRaw, ",") {
-				subsystem := codersdk.AgentSubsystem(strings.TrimSpace(s))
+				subsystem := wirtualsdk.AgentSubsystem(strings.TrimSpace(s))
 				if subsystem == "" {
 					continue
 				}

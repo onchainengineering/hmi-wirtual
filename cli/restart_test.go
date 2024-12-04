@@ -104,11 +104,11 @@ func TestRestart(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 		defer cancel()
 
-		workspace, err := client.WorkspaceByOwnerAndName(ctx, memberUser.ID.String(), workspace.Name, codersdk.WorkspaceOptions{})
+		workspace, err := client.WorkspaceByOwnerAndName(ctx, memberUser.ID.String(), workspace.Name, wirtualsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		actualParameters, err := client.WorkspaceBuildParameters(ctx, workspace.LatestBuild.ID)
 		require.NoError(t, err)
-		require.Contains(t, actualParameters, codersdk.WorkspaceBuildParameter{
+		require.Contains(t, actualParameters, wirtualsdk.WorkspaceBuildParameter{
 			Name:  ephemeralParameterName,
 			Value: ephemeralParameterValue,
 		})
@@ -158,11 +158,11 @@ func TestRestart(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 		defer cancel()
 
-		workspace, err := client.WorkspaceByOwnerAndName(ctx, memberUser.ID.String(), workspace.Name, codersdk.WorkspaceOptions{})
+		workspace, err := client.WorkspaceByOwnerAndName(ctx, memberUser.ID.String(), workspace.Name, wirtualsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		actualParameters, err := client.WorkspaceBuildParameters(ctx, workspace.LatestBuild.ID)
 		require.NoError(t, err)
-		require.Contains(t, actualParameters, codersdk.WorkspaceBuildParameter{
+		require.Contains(t, actualParameters, wirtualsdk.WorkspaceBuildParameter{
 			Name:  ephemeralParameterName,
 			Value: ephemeralParameterValue,
 		})
@@ -212,11 +212,11 @@ func TestRestart(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 		defer cancel()
 
-		workspace, err := client.WorkspaceByOwnerAndName(ctx, memberUser.ID.String(), workspace.Name, codersdk.WorkspaceOptions{})
+		workspace, err := client.WorkspaceByOwnerAndName(ctx, memberUser.ID.String(), workspace.Name, wirtualsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		actualParameters, err := client.WorkspaceBuildParameters(ctx, workspace.LatestBuild.ID)
 		require.NoError(t, err)
-		require.Contains(t, actualParameters, codersdk.WorkspaceBuildParameter{
+		require.Contains(t, actualParameters, wirtualsdk.WorkspaceBuildParameter{
 			Name:  ephemeralParameterName,
 			Value: ephemeralParameterValue,
 		})
@@ -266,11 +266,11 @@ func TestRestart(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 		defer cancel()
 
-		workspace, err := client.WorkspaceByOwnerAndName(ctx, memberUser.ID.String(), workspace.Name, codersdk.WorkspaceOptions{})
+		workspace, err := client.WorkspaceByOwnerAndName(ctx, memberUser.ID.String(), workspace.Name, wirtualsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		actualParameters, err := client.WorkspaceBuildParameters(ctx, workspace.LatestBuild.ID)
 		require.NoError(t, err)
-		require.Contains(t, actualParameters, codersdk.WorkspaceBuildParameter{
+		require.Contains(t, actualParameters, wirtualsdk.WorkspaceBuildParameter{
 			Name:  ephemeralParameterName,
 			Value: ephemeralParameterValue,
 		})
@@ -310,8 +310,8 @@ func TestRestartWithParameters(t *testing.T) {
 		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, echoResponses)
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, member, template.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
-			cwr.RichParameterValues = []codersdk.WorkspaceBuildParameter{
+		workspace := coderdtest.CreateWorkspace(t, member, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+			cwr.RichParameterValues = []wirtualsdk.WorkspaceBuildParameter{
 				{
 					Name:  immutableParameterName,
 					Value: immutableParameterValue,
@@ -338,11 +338,11 @@ func TestRestartWithParameters(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 		defer cancel()
 
-		workspace, err := client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, codersdk.WorkspaceOptions{})
+		workspace, err := client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, wirtualsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		actualParameters, err := client.WorkspaceBuildParameters(ctx, workspace.LatestBuild.ID)
 		require.NoError(t, err)
-		require.Contains(t, actualParameters, codersdk.WorkspaceBuildParameter{
+		require.Contains(t, actualParameters, wirtualsdk.WorkspaceBuildParameter{
 			Name:  immutableParameterName,
 			Value: immutableParameterValue,
 		})
@@ -358,8 +358,8 @@ func TestRestartWithParameters(t *testing.T) {
 		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, mutableParamsResponse)
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, member, template.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
-			cwr.RichParameterValues = []codersdk.WorkspaceBuildParameter{
+		workspace := coderdtest.CreateWorkspace(t, member, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+			cwr.RichParameterValues = []wirtualsdk.WorkspaceBuildParameter{
 				{
 					Name:  mutableParameterName,
 					Value: mutableParameterValue,
@@ -389,11 +389,11 @@ func TestRestartWithParameters(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 		defer cancel()
 
-		workspace, err := client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, codersdk.WorkspaceOptions{})
+		workspace, err := client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, wirtualsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		actualParameters, err := client.WorkspaceBuildParameters(ctx, workspace.LatestBuild.ID)
 		require.NoError(t, err)
-		require.Contains(t, actualParameters, codersdk.WorkspaceBuildParameter{
+		require.Contains(t, actualParameters, wirtualsdk.WorkspaceBuildParameter{
 			Name:  mutableParameterName,
 			Value: newValue,
 		})

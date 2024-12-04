@@ -93,7 +93,7 @@ func Test_Config(t *testing.T) {
 	workspaceConfig := workspacebuild.Config{
 		OrganizationID: id,
 		UserID:         id.String(),
-		Request: codersdk.CreateWorkspaceRequest{
+		Request: wirtualsdk.CreateWorkspaceRequest{
 			TemplateID: id,
 		},
 	}
@@ -145,7 +145,7 @@ func Test_Config(t *testing.T) {
 			config: createworkspaces.Config{
 				User: userConfig,
 				Workspace: workspacebuild.Config{
-					Request: codersdk.CreateWorkspaceRequest{
+					Request: wirtualsdk.CreateWorkspaceRequest{
 						TemplateID: uuid.Nil,
 					},
 				},

@@ -45,9 +45,9 @@ func (api *API) provisionerJobLogs(rw http.ResponseWriter, r *http.Request, job 
 		var err error
 		after, err = strconv.ParseInt(afterRaw, 10, 64)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Query param \"after\" must be an integer.",
-				Validations: []codersdk.ValidationError{
+				Validations: []wirtualsdk.ValidationError{
 					{Field: "after", Detail: "Must be an integer"},
 				},
 			})
@@ -71,7 +71,7 @@ func (api *API) provisionerJobLogs(rw http.ResponseWriter, r *http.Request, job 
 func (api *API) provisionerJobResources(rw http.ResponseWriter, r *http.Request, job database.ProvisionerJob) {
 	ctx := r.Context()
 	if !job.CompletedAt.Valid {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Job hasn't completed!",
 		})
 		return
@@ -83,7 +83,7 @@ func (api *API) provisionerJobResources(rw http.ResponseWriter, r *http.Request,
 		err = nil
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching job resources.",
 			Detail:  err.Error(),
 		})
@@ -100,7 +100,7 @@ func (api *API) provisionerJobResources(rw http.ResponseWriter, r *http.Request,
 		err = nil
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching workspace agent.",
 			Detail:  err.Error(),
 		})
@@ -117,7 +117,7 @@ func (api *API) provisionerJobResources(rw http.ResponseWriter, r *http.Request,
 		err = nil
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching workspace applications.",
 			Detail:  err.Error(),
 		})
@@ -130,7 +130,7 @@ func (api *API) provisionerJobResources(rw http.ResponseWriter, r *http.Request,
 		err = nil
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching workspace agent scripts.",
 			Detail:  err.Error(),
 		})
@@ -143,7 +143,7 @@ func (api *API) provisionerJobResources(rw http.ResponseWriter, r *http.Request,
 		err = nil
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching workspace agent log sources.",
 			Detail:  err.Error(),
 		})
@@ -153,16 +153,16 @@ func (api *API) provisionerJobResources(rw http.ResponseWriter, r *http.Request,
 	// nolint:gocritic // GetWorkspaceResourceMetadataByResourceIDs is a system function.
 	resourceMetadata, err := api.Database.GetWorkspaceResourceMetadataByResourceIDs(dbauthz.AsSystemRestricted(ctx), resourceIDs)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching workspace metadata.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 
-	apiResources := make([]codersdk.WorkspaceResource, 0)
+	apiResources := make([]wirtualsdk.WorkspaceResource, 0)
 	for _, resource := range resources {
-		agents := make([]codersdk.WorkspaceAgent, 0)
+		agents := make([]wirtualsdk.WorkspaceAgent, 0)
 		for _, agent := range resourceAgents {
 			if agent.ResourceID != resource.ID {
 				continue
@@ -191,7 +191,7 @@ func (api *API) provisionerJobResources(rw http.ResponseWriter, r *http.Request,
 				api.DeploymentValues.AgentFallbackTroubleshootingURL.String(),
 			)
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error reading job agent.",
 					Detail:  err.Error(),
 				})
@@ -214,32 +214,32 @@ func (api *API) provisionerJobResources(rw http.ResponseWriter, r *http.Request,
 	httpapi.Write(ctx, rw, http.StatusOK, apiResources)
 }
 
-func convertProvisionerJobLogs(provisionerJobLogs []database.ProvisionerJobLog) []codersdk.ProvisionerJobLog {
-	sdk := make([]codersdk.ProvisionerJobLog, 0, len(provisionerJobLogs))
+func convertProvisionerJobLogs(provisionerJobLogs []database.ProvisionerJobLog) []wirtualsdk.ProvisionerJobLog {
+	sdk := make([]wirtualsdk.ProvisionerJobLog, 0, len(provisionerJobLogs))
 	for _, log := range provisionerJobLogs {
 		sdk = append(sdk, convertProvisionerJobLog(log))
 	}
 	return sdk
 }
 
-func convertProvisionerJobLog(provisionerJobLog database.ProvisionerJobLog) codersdk.ProvisionerJobLog {
-	return codersdk.ProvisionerJobLog{
+func convertProvisionerJobLog(provisionerJobLog database.ProvisionerJobLog) wirtualsdk.ProvisionerJobLog {
+	return wirtualsdk.ProvisionerJobLog{
 		ID:        provisionerJobLog.ID,
 		CreatedAt: provisionerJobLog.CreatedAt,
-		Source:    codersdk.LogSource(provisionerJobLog.Source),
-		Level:     codersdk.LogLevel(provisionerJobLog.Level),
+		Source:    wirtualsdk.LogSource(provisionerJobLog.Source),
+		Level:     wirtualsdk.LogLevel(provisionerJobLog.Level),
 		Stage:     provisionerJobLog.Stage,
 		Output:    provisionerJobLog.Output,
 	}
 }
 
-func convertProvisionerJob(pj database.GetProvisionerJobsByIDsWithQueuePositionRow) codersdk.ProvisionerJob {
+func convertProvisionerJob(pj database.GetProvisionerJobsByIDsWithQueuePositionRow) wirtualsdk.ProvisionerJob {
 	provisionerJob := pj.ProvisionerJob
-	job := codersdk.ProvisionerJob{
+	job := wirtualsdk.ProvisionerJob{
 		ID:            provisionerJob.ID,
 		CreatedAt:     provisionerJob.CreatedAt,
 		Error:         provisionerJob.Error.String,
-		ErrorCode:     codersdk.JobErrorCode(provisionerJob.ErrorCode.String),
+		ErrorCode:     wirtualsdk.JobErrorCode(provisionerJob.ErrorCode.String),
 		FileID:        provisionerJob.FileID,
 		Tags:          provisionerJob.Tags,
 		QueuePosition: int(pj.QueuePosition),
@@ -258,7 +258,7 @@ func convertProvisionerJob(pj database.GetProvisionerJobsByIDsWithQueuePositionR
 	if provisionerJob.WorkerID.Valid {
 		job.WorkerID = &provisionerJob.WorkerID.UUID
 	}
-	job.Status = codersdk.ProvisionerJobStatus(pj.ProvisionerJob.JobStatus)
+	job.Status = wirtualsdk.ProvisionerJobStatus(pj.ProvisionerJob.JobStatus)
 
 	return job
 }
@@ -269,7 +269,7 @@ func fetchAndWriteLogs(ctx context.Context, db database.Store, jobID uuid.UUID, 
 		CreatedAfter: after,
 	})
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching provisioner logs.",
 			Detail:  err.Error(),
 		})
@@ -282,19 +282,19 @@ func fetchAndWriteLogs(ctx context.Context, db database.Store, jobID uuid.UUID, 
 }
 
 func jobIsComplete(logger slog.Logger, job database.ProvisionerJob) bool {
-	status := codersdk.ProvisionerJobStatus(job.JobStatus)
+	status := wirtualsdk.ProvisionerJobStatus(job.JobStatus)
 	switch status {
-	case codersdk.ProvisionerJobCanceled:
+	case wirtualsdk.ProvisionerJobCanceled:
 		return true
-	case codersdk.ProvisionerJobFailed:
+	case wirtualsdk.ProvisionerJobFailed:
 		return true
-	case codersdk.ProvisionerJobSucceeded:
+	case wirtualsdk.ProvisionerJobSucceeded:
 		return true
-	case codersdk.ProvisionerJobPending:
+	case wirtualsdk.ProvisionerJobPending:
 		return false
-	case codersdk.ProvisionerJobCanceling:
+	case wirtualsdk.ProvisionerJobCanceling:
 		return false
-	case codersdk.ProvisionerJobRunning:
+	case wirtualsdk.ProvisionerJobRunning:
 		return false
 	default:
 		logger.Error(context.Background(),
@@ -351,7 +351,7 @@ func (f *logFollower) follow() {
 			f.listener,
 		)
 		if err != nil {
-			httpapi.Write(f.ctx, f.rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(f.ctx, f.rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "failed to subscribe to job updates",
 				Detail:  err.Error(),
 			})
@@ -370,7 +370,7 @@ func (f *logFollower) follow() {
 		// a notification on the subscription.
 		job, err := f.db.GetProvisionerJobByID(f.ctx, f.jobID)
 		if err != nil {
-			httpapi.Write(f.ctx, f.rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(f.ctx, f.rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "failed to query job",
 				Detail:  err.Error(),
 			})
@@ -383,7 +383,7 @@ func (f *logFollower) follow() {
 	var err error
 	f.conn, err = websocket.Accept(f.rw, f.r, nil)
 	if err != nil {
-		httpapi.Write(f.ctx, f.rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(f.ctx, f.rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Failed to accept websocket.",
 			Detail:  err.Error(),
 		})

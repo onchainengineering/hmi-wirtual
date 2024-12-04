@@ -29,9 +29,9 @@ func (api *API) workspaceProxyCoordinate(rw http.ResponseWriter, r *http.Request
 		version = qv
 	}
 	if err := proto.CurrentVersion.Validate(version); err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Unknown or unsupported API version",
-			Validations: []codersdk.ValidationError{
+			Validations: []wirtualsdk.ValidationError{
 				{Field: "version", Detail: err.Error()},
 			},
 		})
@@ -50,14 +50,14 @@ func (api *API) workspaceProxyCoordinate(rw http.ResponseWriter, r *http.Request
 
 	conn, err := websocket.Accept(rw, r, nil)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Failed to accept websocket.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 
-	ctx, nc := codersdk.WebsocketNetConn(ctx, conn, msgType)
+	ctx, nc := wirtualsdk.WebsocketNetConn(ctx, conn, msgType)
 	defer nc.Close()
 
 	id := uuid.New()

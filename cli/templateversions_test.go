@@ -56,7 +56,7 @@ func TestTemplateVersionsPromote(t *testing.T) {
 
 		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
 
-		version2 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithAgent(), func(ctvr *codersdk.CreateTemplateVersionRequest) {
+		version2 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithAgent(), func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
 			ctvr.TemplateID = template.ID
 			ctvr.Name = "2.0.0"
 		})

@@ -255,7 +255,7 @@ func TestRedirectHTTPToHTTPSDeprecation(t *testing.T) {
 			err := flags.Parse(tc.flags)
 			require.NoError(t, err)
 			inv := (&serpent.Invocation{Environ: tc.environ}).WithTestParsedFlags(t, flags)
-			cfg := &codersdk.DeploymentValues{}
+			cfg := &wirtualsdk.DeploymentValues{}
 			opts := cfg.Options()
 			err = opts.SetDefaults()
 			require.NoError(t, err)

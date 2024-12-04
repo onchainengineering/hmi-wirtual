@@ -32,7 +32,7 @@ func TestWorkspaceBuildParam(t *testing.T) {
 		)
 
 		r := httptest.NewRequest("GET", "/", nil)
-		r.Header.Set(codersdk.SessionTokenHeader, token)
+		r.Header.Set(wirtualsdk.SessionTokenHeader, token)
 
 		ctx := chi.NewRouteContext()
 		ctx.URLParams.Add("user", user.ID.String())

@@ -28,7 +28,7 @@ func TestUserParam(t *testing.T) {
 		_, token := dbgen.APIKey(t, db, database.APIKey{
 			UserID: user.ID,
 		})
-		r.Header.Set(codersdk.SessionTokenHeader, token)
+		r.Header.Set(wirtualsdk.SessionTokenHeader, token)
 
 		return db, rw, r
 	}

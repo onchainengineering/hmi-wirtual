@@ -112,7 +112,7 @@ type Options struct {
 	Auditor                        audit.Auditor
 	TLSCertificates                []tls.Certificate
 	ExternalAuthConfigs            []*externalauth.Config
-	TrialGenerator                 func(ctx context.Context, body codersdk.LicensorTrialRequest) error
+	TrialGenerator                 func(ctx context.Context, body wirtualsdk.LicensorTrialRequest) error
 	RefreshEntitlements            func(ctx context.Context) error
 	TemplateScheduleStore          schedule.TemplateScheduleStore
 	Coordinator                    tailnet.Coordinator
@@ -135,7 +135,7 @@ type Options struct {
 	ProvisionerDaemonTags       map[string]string
 	MetricsCacheRefreshInterval time.Duration
 	AgentStatsRefreshInterval   time.Duration
-	DeploymentValues            *codersdk.DeploymentValues
+	DeploymentValues            *wirtualsdk.DeploymentValues
 
 	// Set update check options to enable update check.
 	UpdateCheckOptions *updatecheck.Options
@@ -146,7 +146,7 @@ type Options struct {
 	Database database.Store
 	Pubsub   pubsub.Pubsub
 
-	ConfigSSH codersdk.SSHConfigResponse
+	ConfigSSH wirtualsdk.SSHConfigResponse
 
 	SwaggerEndpoint bool
 	// Logger should only be overridden if you expect errors
@@ -166,15 +166,15 @@ type Options struct {
 	Clock                              quartz.Clock
 }
 
-// New constructs a codersdk client connected to an in-memory API instance.
-func New(t testing.TB, options *Options) *codersdk.Client {
+// New constructs a wirtualsdk client connected to an in-memory API instance.
+func New(t testing.TB, options *Options) *wirtualsdk.Client {
 	client, _ := newWithCloser(t, options)
 	return client
 }
 
-// NewWithDatabase constructs a codersdk client connected to an in-memory API instance.
+// NewWithDatabase constructs a wirtualsdk client connected to an in-memory API instance.
 // The database is returned to provide direct data manipulation for tests.
-func NewWithDatabase(t testing.TB, options *Options) (*codersdk.Client, database.Store) {
+func NewWithDatabase(t testing.TB, options *Options) (*wirtualsdk.Client, database.Store) {
 	client, _, api := NewWithAPI(t, options)
 	return client, api.Database
 }
@@ -183,7 +183,7 @@ func NewWithDatabase(t testing.TB, options *Options) (*codersdk.Client, database
 // the provisioner. This is a temporary function while work is done to
 // standardize how provisioners are registered with coderd. The option
 // to include a provisioner is set to true for convenience.
-func NewWithProvisionerCloser(t testing.TB, options *Options) (*codersdk.Client, io.Closer) {
+func NewWithProvisionerCloser(t testing.TB, options *Options) (*wirtualsdk.Client, io.Closer) {
 	if options == nil {
 		options = &Options{}
 	}
@@ -192,14 +192,14 @@ func NewWithProvisionerCloser(t testing.TB, options *Options) (*codersdk.Client,
 	return client, closer
 }
 
-// newWithCloser constructs a codersdk client connected to an in-memory API instance.
+// newWithCloser constructs a wirtualsdk client connected to an in-memory API instance.
 // The returned closer closes a provisioner if it was provided
 // The API is intentionally not returned here because coderd tests should not
 // require a handle to the API. Do not expose the API or wrath shall descend
 // upon thee. Even the io.Closer that is exposed here shouldn't be exposed
 // and is a temporary measure while the API to register provisioners is ironed
 // out.
-func newWithCloser(t testing.TB, options *Options) (*codersdk.Client, io.Closer) {
+func newWithCloser(t testing.TB, options *Options) (*wirtualsdk.Client, io.Closer) {
 	client, closer, _ := NewWithAPI(t, options)
 	return client, closer
 }
@@ -524,7 +524,7 @@ func NewOptions(t testing.TB, options *Options) (func(http.Handler), context.Can
 			MetricsCacheRefreshInterval:        options.MetricsCacheRefreshInterval,
 			AgentStatsRefreshInterval:          options.AgentStatsRefreshInterval,
 			DeploymentValues:                   options.DeploymentValues,
-			DeploymentOptions:                  codersdk.DeploymentOptionsWithoutSecrets(options.DeploymentValues.Options()),
+			DeploymentOptions:                  wirtualsdk.DeploymentOptionsWithoutSecrets(options.DeploymentValues.Options()),
 			UpdateCheckOptions:                 options.UpdateCheckOptions,
 			SwaggerEndpoint:                    options.SwaggerEndpoint,
 			SSHConfig:                          options.ConfigSSH,
@@ -548,7 +548,7 @@ func NewOptions(t testing.TB, options *Options) (func(http.Handler), context.Can
 // NewWithAPI constructs an in-memory API instance and returns a client to talk to it.
 // Most tests never need a reference to the API, but AuthorizationTest in this module uses it.
 // Do not expose the API or wrath shall descend upon thee.
-func NewWithAPI(t testing.TB, options *Options) (*codersdk.Client, io.Closer, *coderd.API) {
+func NewWithAPI(t testing.TB, options *Options) (*wirtualsdk.Client, io.Closer, *coderd.API) {
 	if options == nil {
 		options = &Options{}
 	}
@@ -560,7 +560,7 @@ func NewWithAPI(t testing.TB, options *Options) (*codersdk.Client, io.Closer, *c
 	if options.IncludeProvisionerDaemon {
 		provisionerCloser = NewTaggedProvisionerDaemon(t, coderAPI, "test", options.ProvisionerDaemonTags)
 	}
-	client := codersdk.New(serverURL)
+	client := wirtualsdk.New(serverURL)
 	t.Cleanup(func() {
 		cancelFunc()
 		_ = provisionerCloser.Close()
@@ -632,7 +632,7 @@ func NewTaggedProvisionerDaemon(t testing.TB, coderAPI *coderd.API, name string,
 	}()
 
 	daemon := provisionerd.New(func(dialCtx context.Context) (provisionerdproto.DRPCProvisionerDaemonClient, error) {
-		return coderAPI.CreateInMemoryTaggedProvisionerDaemon(dialCtx, name, []codersdk.ProvisionerType{codersdk.ProvisionerTypeEcho}, provisionerTags)
+		return coderAPI.CreateInMemoryTaggedProvisionerDaemon(dialCtx, name, []wirtualsdk.ProvisionerType{wirtualsdk.ProvisionerTypeEcho}, provisionerTags)
 	}, &provisionerd.Options{
 		Logger:              coderAPI.Logger.Named("provisionerd").Leveled(slog.LevelDebug),
 		UpdateInterval:      250 * time.Millisecond,
@@ -648,14 +648,14 @@ func NewTaggedProvisionerDaemon(t testing.TB, coderAPI *coderd.API, name string,
 	return closer
 }
 
-var FirstUserParams = codersdk.CreateFirstUserRequest{
+var FirstUserParams = wirtualsdk.CreateFirstUserRequest{
 	Email:    "testuser@coder.com",
 	Username: "testuser",
 	Password: "SomeSecurePassword!",
 	Name:     "Test User",
 }
 
-var TrialUserParams = codersdk.CreateFirstUserTrialInfo{
+var TrialUserParams = wirtualsdk.CreateFirstUserTrialInfo{
 	FirstName:   "John",
 	LastName:    "Doe",
 	PhoneNumber: "9999999999",
@@ -666,12 +666,12 @@ var TrialUserParams = codersdk.CreateFirstUserTrialInfo{
 }
 
 // CreateFirstUser creates a user with preset credentials and authenticates
-// with the passed in codersdk client.
-func CreateFirstUser(t testing.TB, client *codersdk.Client) codersdk.CreateFirstUserResponse {
+// with the passed in wirtualsdk client.
+func CreateFirstUser(t testing.TB, client *wirtualsdk.Client) wirtualsdk.CreateFirstUserResponse {
 	resp, err := client.CreateFirstUser(context.Background(), FirstUserParams)
 	require.NoError(t, err)
 
-	login, err := client.LoginWithPassword(context.Background(), codersdk.LoginWithPasswordRequest{
+	login, err := client.LoginWithPassword(context.Background(), wirtualsdk.LoginWithPasswordRequest{
 		Email:    FirstUserParams.Email,
 		Password: FirstUserParams.Password,
 	})
@@ -682,16 +682,16 @@ func CreateFirstUser(t testing.TB, client *codersdk.Client) codersdk.CreateFirst
 
 // CreateAnotherUser creates and authenticates a new user.
 // Roles can include org scoped roles with 'roleName:<organization_id>'
-func CreateAnotherUser(t testing.TB, client *codersdk.Client, organizationID uuid.UUID, roles ...rbac.RoleIdentifier) (*codersdk.Client, codersdk.User) {
+func CreateAnotherUser(t testing.TB, client *wirtualsdk.Client, organizationID uuid.UUID, roles ...rbac.RoleIdentifier) (*wirtualsdk.Client, wirtualsdk.User) {
 	return createAnotherUserRetry(t, client, []uuid.UUID{organizationID}, 5, roles)
 }
 
-func CreateAnotherUserMutators(t testing.TB, client *codersdk.Client, organizationID uuid.UUID, roles []rbac.RoleIdentifier, mutators ...func(r *codersdk.CreateUserRequestWithOrgs)) (*codersdk.Client, codersdk.User) {
+func CreateAnotherUserMutators(t testing.TB, client *wirtualsdk.Client, organizationID uuid.UUID, roles []rbac.RoleIdentifier, mutators ...func(r *wirtualsdk.CreateUserRequestWithOrgs)) (*wirtualsdk.Client, wirtualsdk.User) {
 	return createAnotherUserRetry(t, client, []uuid.UUID{organizationID}, 5, roles, mutators...)
 }
 
 // AuthzUserSubject does not include the user's groups.
-func AuthzUserSubject(user codersdk.User, orgID uuid.UUID) rbac.Subject {
+func AuthzUserSubject(user wirtualsdk.User, orgID uuid.UUID) rbac.Subject {
 	roles := make(rbac.RoleIdentifiers, 0, len(user.Roles))
 	// Member role is always implied
 	roles = append(roles, rbac.RoleMember())
@@ -713,8 +713,8 @@ func AuthzUserSubject(user codersdk.User, orgID uuid.UUID) rbac.Subject {
 	}
 }
 
-func createAnotherUserRetry(t testing.TB, client *codersdk.Client, organizationIDs []uuid.UUID, retries int, roles []rbac.RoleIdentifier, mutators ...func(r *codersdk.CreateUserRequestWithOrgs)) (*codersdk.Client, codersdk.User) {
-	req := codersdk.CreateUserRequestWithOrgs{
+func createAnotherUserRetry(t testing.TB, client *wirtualsdk.Client, organizationIDs []uuid.UUID, retries int, roles []rbac.RoleIdentifier, mutators ...func(r *wirtualsdk.CreateUserRequestWithOrgs)) (*wirtualsdk.Client, wirtualsdk.User) {
+	req := wirtualsdk.CreateUserRequestWithOrgs{
 		Email:           namesgenerator.GetRandomName(10) + "@coder.com",
 		Username:        RandomUsername(t),
 		Name:            RandomName(t),
@@ -722,14 +722,14 @@ func createAnotherUserRetry(t testing.TB, client *codersdk.Client, organizationI
 		OrganizationIDs: organizationIDs,
 		// Always create users as active in tests to ignore an extra audit log
 		// when logging in.
-		UserStatus: ptr.Ref(codersdk.UserStatusActive),
+		UserStatus: ptr.Ref(wirtualsdk.UserStatusActive),
 	}
 	for _, m := range mutators {
 		m(&req)
 	}
 
 	user, err := client.CreateUserWithOrgs(context.Background(), req)
-	var apiError *codersdk.Error
+	var apiError *wirtualsdk.Error
 	// If the user already exists by username or email conflict, try again up to "retries" times.
 	if err != nil && retries >= 0 && xerrors.As(err, &apiError) {
 		if apiError.StatusCode() == http.StatusConflict {
@@ -740,18 +740,18 @@ func createAnotherUserRetry(t testing.TB, client *codersdk.Client, organizationI
 	require.NoError(t, err)
 
 	var sessionToken string
-	if req.UserLoginType == codersdk.LoginTypeNone {
+	if req.UserLoginType == wirtualsdk.LoginTypeNone {
 		// Cannot log in with a disabled login user. So make it an api key from
 		// the client making this user.
-		token, err := client.CreateToken(context.Background(), user.ID.String(), codersdk.CreateTokenRequest{
+		token, err := client.CreateToken(context.Background(), user.ID.String(), wirtualsdk.CreateTokenRequest{
 			Lifetime:  time.Hour * 24,
-			Scope:     codersdk.APIKeyScopeAll,
+			Scope:     wirtualsdk.APIKeyScopeAll,
 			TokenName: "no-password-user-token",
 		})
 		require.NoError(t, err)
 		sessionToken = token.Key
 	} else {
-		login, err := client.LoginWithPassword(context.Background(), codersdk.LoginWithPasswordRequest{
+		login, err := client.LoginWithPassword(context.Background(), wirtualsdk.LoginWithPasswordRequest{
 			Email:    req.Email,
 			Password: req.Password,
 		})
@@ -759,7 +759,7 @@ func createAnotherUserRetry(t testing.TB, client *codersdk.Client, organizationI
 		sessionToken = login.SessionToken
 	}
 
-	if user.Status == codersdk.UserStatusDormant {
+	if user.Status == wirtualsdk.UserStatusDormant {
 		// Use admin client so that user's LastSeenAt is not updated.
 		// In general we need to refresh the user status, which should
 		// transition from "dormant" to "active".
@@ -767,7 +767,7 @@ func createAnotherUserRetry(t testing.TB, client *codersdk.Client, organizationI
 		require.NoError(t, err)
 	}
 
-	other := codersdk.New(client.URL)
+	other := wirtualsdk.New(client.URL)
 	other.SetSessionToken(sessionToken)
 	t.Cleanup(func() {
 		other.HTTPClient.CloseIdleConnections()
@@ -799,7 +799,7 @@ func createAnotherUserRetry(t testing.TB, client *codersdk.Client, organizationI
 			return role.Name
 		}
 
-		user, err = client.UpdateUserRoles(context.Background(), user.ID.String(), codersdk.UpdateRoles{Roles: db2sdk.List(siteRoles, onlyName)})
+		user, err = client.UpdateUserRoles(context.Background(), user.ID.String(), wirtualsdk.UpdateRoles{Roles: db2sdk.List(siteRoles, onlyName)})
 		require.NoError(t, err, "update site roles")
 
 		// isMember keeps track of which orgs the user was added to as a member
@@ -818,7 +818,7 @@ func createAnotherUserRetry(t testing.TB, client *codersdk.Client, organizationI
 			}
 
 			_, err = client.UpdateOrganizationMemberRoles(context.Background(), orgID, user.ID.String(),
-				codersdk.UpdateRoles{Roles: db2sdk.List(roles, onlyName)})
+				wirtualsdk.UpdateRoles{Roles: db2sdk.List(roles, onlyName)})
 			require.NoError(t, err, "update org membership roles")
 			isMember[orgID] = true
 		}
@@ -833,17 +833,17 @@ func createAnotherUserRetry(t testing.TB, client *codersdk.Client, organizationI
 // CreateTemplateVersion creates a template import provisioner job
 // with the responses provided. It uses the "echo" provisioner for compatibility
 // with testing.
-func CreateTemplateVersion(t testing.TB, client *codersdk.Client, organizationID uuid.UUID, res *echo.Responses, mutators ...func(*codersdk.CreateTemplateVersionRequest)) codersdk.TemplateVersion {
+func CreateTemplateVersion(t testing.TB, client *wirtualsdk.Client, organizationID uuid.UUID, res *echo.Responses, mutators ...func(*wirtualsdk.CreateTemplateVersionRequest)) wirtualsdk.TemplateVersion {
 	t.Helper()
 	data, err := echo.TarWithOptions(context.Background(), client.Logger(), res)
 	require.NoError(t, err)
-	file, err := client.Upload(context.Background(), codersdk.ContentTypeTar, bytes.NewReader(data))
+	file, err := client.Upload(context.Background(), wirtualsdk.ContentTypeTar, bytes.NewReader(data))
 	require.NoError(t, err)
 
-	req := codersdk.CreateTemplateVersionRequest{
+	req := wirtualsdk.CreateTemplateVersionRequest{
 		FileID:        file.ID,
-		StorageMethod: codersdk.ProvisionerStorageMethodFile,
-		Provisioner:   codersdk.ProvisionerTypeEcho,
+		StorageMethod: wirtualsdk.ProvisionerStorageMethodFile,
+		Provisioner:   wirtualsdk.ProvisionerTypeEcho,
 	}
 	for _, mut := range mutators {
 		mut(&req)
@@ -857,15 +857,15 @@ func CreateTemplateVersion(t testing.TB, client *codersdk.Client, organizationID
 // CreateWorkspaceBuild creates a workspace build for the given workspace and transition.
 func CreateWorkspaceBuild(
 	t *testing.T,
-	client *codersdk.Client,
-	workspace codersdk.Workspace,
+	client *wirtualsdk.Client,
+	workspace wirtualsdk.Workspace,
 	transition database.WorkspaceTransition,
-	mutators ...func(*codersdk.CreateWorkspaceBuildRequest),
-) codersdk.WorkspaceBuild {
+	mutators ...func(*wirtualsdk.CreateWorkspaceBuildRequest),
+) wirtualsdk.WorkspaceBuild {
 	t.Helper()
 
-	req := codersdk.CreateWorkspaceBuildRequest{
-		Transition: codersdk.WorkspaceTransition(transition),
+	req := wirtualsdk.CreateWorkspaceBuildRequest{
+		Transition: wirtualsdk.WorkspaceTransition(transition),
 	}
 	for _, mut := range mutators {
 		mut(&req)
@@ -877,8 +877,8 @@ func CreateWorkspaceBuild(
 
 // CreateTemplate creates a template with the "echo" provisioner for
 // compatibility with testing. The name assigned is randomly generated.
-func CreateTemplate(t testing.TB, client *codersdk.Client, organization uuid.UUID, version uuid.UUID, mutators ...func(*codersdk.CreateTemplateRequest)) codersdk.Template {
-	req := codersdk.CreateTemplateRequest{
+func CreateTemplate(t testing.TB, client *wirtualsdk.Client, organization uuid.UUID, version uuid.UUID, mutators ...func(*wirtualsdk.CreateTemplateRequest)) wirtualsdk.Template {
+	req := wirtualsdk.CreateTemplateRequest{
 		Name:      RandomUsername(t),
 		VersionID: version,
 	}
@@ -891,9 +891,9 @@ func CreateTemplate(t testing.TB, client *codersdk.Client, organization uuid.UUI
 }
 
 // CreateGroup creates a group with the given name and members.
-func CreateGroup(t testing.TB, client *codersdk.Client, organizationID uuid.UUID, name string, members ...codersdk.User) codersdk.Group {
+func CreateGroup(t testing.TB, client *wirtualsdk.Client, organizationID uuid.UUID, name string, members ...wirtualsdk.User) wirtualsdk.Group {
 	t.Helper()
-	group, err := client.CreateGroup(context.Background(), organizationID, codersdk.CreateGroupRequest{
+	group, err := client.CreateGroup(context.Background(), organizationID, wirtualsdk.CreateGroupRequest{
 		Name: name,
 	})
 	require.NoError(t, err, "failed to create group")
@@ -901,7 +901,7 @@ func CreateGroup(t testing.TB, client *codersdk.Client, organizationID uuid.UUID
 	for _, member := range members {
 		memberIDs = append(memberIDs, member.ID.String())
 	}
-	group, err = client.PatchGroup(context.Background(), group.ID, codersdk.PatchGroupRequest{
+	group, err = client.PatchGroup(context.Background(), group.ID, wirtualsdk.PatchGroupRequest{
 		AddUsers: memberIDs,
 	})
 
@@ -911,31 +911,31 @@ func CreateGroup(t testing.TB, client *codersdk.Client, organizationID uuid.UUID
 
 // UpdateTemplateVersion creates a new template version with the "echo" provisioner
 // and associates it with the given templateID.
-func UpdateTemplateVersion(t testing.TB, client *codersdk.Client, organizationID uuid.UUID, res *echo.Responses, templateID uuid.UUID) codersdk.TemplateVersion {
+func UpdateTemplateVersion(t testing.TB, client *wirtualsdk.Client, organizationID uuid.UUID, res *echo.Responses, templateID uuid.UUID) wirtualsdk.TemplateVersion {
 	ctx := context.Background()
 	data, err := echo.Tar(res)
 	require.NoError(t, err)
-	file, err := client.Upload(ctx, codersdk.ContentTypeTar, bytes.NewReader(data))
+	file, err := client.Upload(ctx, wirtualsdk.ContentTypeTar, bytes.NewReader(data))
 	require.NoError(t, err)
-	templateVersion, err := client.CreateTemplateVersion(ctx, organizationID, codersdk.CreateTemplateVersionRequest{
+	templateVersion, err := client.CreateTemplateVersion(ctx, organizationID, wirtualsdk.CreateTemplateVersionRequest{
 		TemplateID:    templateID,
 		FileID:        file.ID,
-		StorageMethod: codersdk.ProvisionerStorageMethodFile,
-		Provisioner:   codersdk.ProvisionerTypeEcho,
+		StorageMethod: wirtualsdk.ProvisionerStorageMethodFile,
+		Provisioner:   wirtualsdk.ProvisionerTypeEcho,
 	})
 	require.NoError(t, err)
 	return templateVersion
 }
 
-func UpdateActiveTemplateVersion(t testing.TB, client *codersdk.Client, templateID, versionID uuid.UUID) {
-	err := client.UpdateActiveTemplateVersion(context.Background(), templateID, codersdk.UpdateActiveTemplateVersion{
+func UpdateActiveTemplateVersion(t testing.TB, client *wirtualsdk.Client, templateID, versionID uuid.UUID) {
+	err := client.UpdateActiveTemplateVersion(context.Background(), templateID, wirtualsdk.UpdateActiveTemplateVersion{
 		ID: versionID,
 	})
 	require.NoError(t, err)
 }
 
 // UpdateTemplateMeta updates the template meta for the given template.
-func UpdateTemplateMeta(t testing.TB, client *codersdk.Client, templateID uuid.UUID, meta codersdk.UpdateTemplateMeta) codersdk.Template {
+func UpdateTemplateMeta(t testing.TB, client *wirtualsdk.Client, templateID uuid.UUID, meta wirtualsdk.UpdateTemplateMeta) wirtualsdk.Template {
 	t.Helper()
 	updated, err := client.UpdateTemplateMeta(context.Background(), templateID, meta)
 	require.NoError(t, err)
@@ -943,14 +943,14 @@ func UpdateTemplateMeta(t testing.TB, client *codersdk.Client, templateID uuid.U
 }
 
 // AwaitTemplateVersionJobRunning waits for the build to be picked up by a provisioner.
-func AwaitTemplateVersionJobRunning(t testing.TB, client *codersdk.Client, version uuid.UUID) codersdk.TemplateVersion {
+func AwaitTemplateVersionJobRunning(t testing.TB, client *wirtualsdk.Client, version uuid.UUID) wirtualsdk.TemplateVersion {
 	t.Helper()
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 	defer cancel()
 
 	t.Logf("waiting for template version %s build job to start", version)
-	var templateVersion codersdk.TemplateVersion
+	var templateVersion wirtualsdk.TemplateVersion
 	require.Eventually(t, func() bool {
 		var err error
 		templateVersion, err = client.TemplateVersion(ctx, version)
@@ -959,9 +959,9 @@ func AwaitTemplateVersionJobRunning(t testing.TB, client *codersdk.Client, versi
 		}
 		t.Logf("template version job status: %s", templateVersion.Job.Status)
 		switch templateVersion.Job.Status {
-		case codersdk.ProvisionerJobPending:
+		case wirtualsdk.ProvisionerJobPending:
 			return false
-		case codersdk.ProvisionerJobRunning:
+		case wirtualsdk.ProvisionerJobRunning:
 			return true
 		default:
 			t.FailNow()
@@ -974,14 +974,14 @@ func AwaitTemplateVersionJobRunning(t testing.TB, client *codersdk.Client, versi
 
 // AwaitTemplateVersionJobCompleted waits for the build to be completed. This may result
 // from cancelation, an error, or from completing successfully.
-func AwaitTemplateVersionJobCompleted(t testing.TB, client *codersdk.Client, version uuid.UUID) codersdk.TemplateVersion {
+func AwaitTemplateVersionJobCompleted(t testing.TB, client *wirtualsdk.Client, version uuid.UUID) wirtualsdk.TemplateVersion {
 	t.Helper()
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
 
 	t.Logf("waiting for template version %s build job to complete", version)
-	var templateVersion codersdk.TemplateVersion
+	var templateVersion wirtualsdk.TemplateVersion
 	require.Eventually(t, func() bool {
 		var err error
 		templateVersion, err = client.TemplateVersion(ctx, version)
@@ -993,14 +993,14 @@ func AwaitTemplateVersionJobCompleted(t testing.TB, client *codersdk.Client, ver
 }
 
 // AwaitWorkspaceBuildJobCompleted waits for a workspace provision job to reach completed status.
-func AwaitWorkspaceBuildJobCompleted(t testing.TB, client *codersdk.Client, build uuid.UUID) codersdk.WorkspaceBuild {
+func AwaitWorkspaceBuildJobCompleted(t testing.TB, client *wirtualsdk.Client, build uuid.UUID) wirtualsdk.WorkspaceBuild {
 	t.Helper()
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 	defer cancel()
 
 	t.Logf("waiting for workspace build job %s", build)
-	var workspaceBuild codersdk.WorkspaceBuild
+	var workspaceBuild wirtualsdk.WorkspaceBuild
 	require.Eventually(t, func() bool {
 		var err error
 		workspaceBuild, err = client.WorkspaceBuild(ctx, build)
@@ -1015,7 +1015,7 @@ func AwaitWorkspaceBuildJobCompleted(t testing.TB, client *codersdk.Client, buil
 // but will not fail if other agents are not connected.
 //
 // Deprecated: Use NewWorkspaceAgentWaiter
-func AwaitWorkspaceAgents(t testing.TB, client *codersdk.Client, workspaceID uuid.UUID, agentNames ...string) []codersdk.WorkspaceResource {
+func AwaitWorkspaceAgents(t testing.TB, client *wirtualsdk.Client, workspaceID uuid.UUID, agentNames ...string) []wirtualsdk.WorkspaceResource {
 	return NewWorkspaceAgentWaiter(t, client, workspaceID).AgentNames(agentNames).Wait()
 }
 
@@ -1024,15 +1024,15 @@ func AwaitWorkspaceAgents(t testing.TB, client *codersdk.Client, workspaceID uui
 // to be connected but will not fail if other agents are not connected.
 type WorkspaceAgentWaiter struct {
 	t                testing.TB
-	client           *codersdk.Client
+	client           *wirtualsdk.Client
 	workspaceID      uuid.UUID
 	agentNames       []string
-	resourcesMatcher func([]codersdk.WorkspaceResource) bool
+	resourcesMatcher func([]wirtualsdk.WorkspaceResource) bool
 }
 
 // NewWorkspaceAgentWaiter returns an object that waits for agents to connect when
 // you call Wait() on it.
-func NewWorkspaceAgentWaiter(t testing.TB, client *codersdk.Client, workspaceID uuid.UUID) WorkspaceAgentWaiter {
+func NewWorkspaceAgentWaiter(t testing.TB, client *wirtualsdk.Client, workspaceID uuid.UUID) WorkspaceAgentWaiter {
 	return WorkspaceAgentWaiter{
 		t:           t,
 		client:      client,
@@ -1050,14 +1050,14 @@ func (w WorkspaceAgentWaiter) AgentNames(names []string) WorkspaceAgentWaiter {
 
 // MatchResources instructs the waiter to wait until the workspace has resources that cause the
 // provided matcher function to return true.
-func (w WorkspaceAgentWaiter) MatchResources(m func([]codersdk.WorkspaceResource) bool) WorkspaceAgentWaiter {
+func (w WorkspaceAgentWaiter) MatchResources(m func([]wirtualsdk.WorkspaceResource) bool) WorkspaceAgentWaiter {
 	//nolint: revive // returns modified struct
 	w.resourcesMatcher = m
 	return w
 }
 
 // Wait waits for the agent(s) to connect and fails the test if they do not within testutil.WaitLong
-func (w WorkspaceAgentWaiter) Wait() []codersdk.WorkspaceResource {
+func (w WorkspaceAgentWaiter) Wait() []wirtualsdk.WorkspaceResource {
 	w.t.Helper()
 
 	agentNamesMap := make(map[string]struct{}, len(w.agentNames))
@@ -1069,7 +1069,7 @@ func (w WorkspaceAgentWaiter) Wait() []codersdk.WorkspaceResource {
 	defer cancel()
 
 	w.t.Logf("waiting for workspace agents (workspace %s)", w.workspaceID)
-	var resources []codersdk.WorkspaceResource
+	var resources []wirtualsdk.WorkspaceResource
 	require.Eventually(w.t, func() bool {
 		var err error
 		workspace, err := w.client.Workspace(ctx, w.workspaceID)
@@ -1091,7 +1091,7 @@ func (w WorkspaceAgentWaiter) Wait() []codersdk.WorkspaceResource {
 					}
 				}
 
-				if agent.Status != codersdk.WorkspaceAgentConnected {
+				if agent.Status != wirtualsdk.WorkspaceAgentConnected {
 					w.t.Logf("agent %s not connected yet", agent.Name)
 					return false
 				}
@@ -1110,34 +1110,34 @@ func (w WorkspaceAgentWaiter) Wait() []codersdk.WorkspaceResource {
 // CreateWorkspace creates a workspace for the user and template provided.
 // A random name is generated for it.
 // To customize the defaults, pass a mutator func.
-func CreateWorkspace(t testing.TB, client *codersdk.Client, templateID uuid.UUID, mutators ...func(*codersdk.CreateWorkspaceRequest)) codersdk.Workspace {
+func CreateWorkspace(t testing.TB, client *wirtualsdk.Client, templateID uuid.UUID, mutators ...func(*wirtualsdk.CreateWorkspaceRequest)) wirtualsdk.Workspace {
 	t.Helper()
-	req := codersdk.CreateWorkspaceRequest{
+	req := wirtualsdk.CreateWorkspaceRequest{
 		TemplateID:        templateID,
 		Name:              RandomUsername(t),
 		AutostartSchedule: ptr.Ref("CRON_TZ=US/Central 30 9 * * 1-5"),
 		TTLMillis:         ptr.Ref((8 * time.Hour).Milliseconds()),
-		AutomaticUpdates:  codersdk.AutomaticUpdatesNever,
+		AutomaticUpdates:  wirtualsdk.AutomaticUpdatesNever,
 	}
 	for _, mutator := range mutators {
 		mutator(&req)
 	}
-	workspace, err := client.CreateUserWorkspace(context.Background(), codersdk.Me, req)
+	workspace, err := client.CreateUserWorkspace(context.Background(), wirtualsdk.Me, req)
 	require.NoError(t, err)
 	return workspace
 }
 
 // TransitionWorkspace is a convenience method for transitioning a workspace from one state to another.
-func MustTransitionWorkspace(t testing.TB, client *codersdk.Client, workspaceID uuid.UUID, from, to database.WorkspaceTransition, muts ...func(req *codersdk.CreateWorkspaceBuildRequest)) codersdk.Workspace {
+func MustTransitionWorkspace(t testing.TB, client *wirtualsdk.Client, workspaceID uuid.UUID, from, to database.WorkspaceTransition, muts ...func(req *wirtualsdk.CreateWorkspaceBuildRequest)) wirtualsdk.Workspace {
 	t.Helper()
 	ctx := context.Background()
 	workspace, err := client.Workspace(ctx, workspaceID)
 	require.NoError(t, err, "unexpected error fetching workspace")
-	require.Equal(t, workspace.LatestBuild.Transition, codersdk.WorkspaceTransition(from), "expected workspace state: %s got: %s", from, workspace.LatestBuild.Transition)
+	require.Equal(t, workspace.LatestBuild.Transition, wirtualsdk.WorkspaceTransition(from), "expected workspace state: %s got: %s", from, workspace.LatestBuild.Transition)
 
-	req := codersdk.CreateWorkspaceBuildRequest{
+	req := wirtualsdk.CreateWorkspaceBuildRequest{
 		TemplateVersionID: workspace.LatestBuild.TemplateVersionID,
-		Transition:        codersdk.WorkspaceTransition(to),
+		Transition:        wirtualsdk.WorkspaceTransition(to),
 	}
 
 	for _, mut := range muts {
@@ -1150,12 +1150,12 @@ func MustTransitionWorkspace(t testing.TB, client *codersdk.Client, workspaceID 
 	_ = AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
 
 	updated := MustWorkspace(t, client, workspace.ID)
-	require.Equal(t, codersdk.WorkspaceTransition(to), updated.LatestBuild.Transition, "expected workspace to be in state %s but got %s", to, updated.LatestBuild.Transition)
+	require.Equal(t, wirtualsdk.WorkspaceTransition(to), updated.LatestBuild.Transition, "expected workspace to be in state %s but got %s", to, updated.LatestBuild.Transition)
 	return updated
 }
 
 // MustWorkspace is a convenience method for fetching a workspace that should exist.
-func MustWorkspace(t testing.TB, client *codersdk.Client, workspaceID uuid.UUID) codersdk.Workspace {
+func MustWorkspace(t testing.TB, client *wirtualsdk.Client, workspaceID uuid.UUID) wirtualsdk.Workspace {
 	t.Helper()
 	ctx := context.Background()
 	ws, err := client.Workspace(ctx, workspaceID)
@@ -1168,7 +1168,7 @@ func MustWorkspace(t testing.TB, client *codersdk.Client, workspaceID uuid.UUID)
 
 // RequestExternalAuthCallback makes a request with the proper OAuth2 state cookie
 // to the external auth callback endpoint.
-func RequestExternalAuthCallback(t testing.TB, providerID string, client *codersdk.Client, opts ...func(*http.Request)) *http.Response {
+func RequestExternalAuthCallback(t testing.TB, providerID string, client *wirtualsdk.Client, opts ...func(*http.Request)) *http.Response {
 	client.HTTPClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 		return http.ErrUseLastResponse
 	}
@@ -1178,11 +1178,11 @@ func RequestExternalAuthCallback(t testing.TB, providerID string, client *coders
 	req, err := http.NewRequestWithContext(context.Background(), "GET", oauthURL.String(), nil)
 	require.NoError(t, err)
 	req.AddCookie(&http.Cookie{
-		Name:  codersdk.OAuth2StateCookie,
+		Name:  wirtualsdk.OAuth2StateCookie,
 		Value: state,
 	})
 	req.AddCookie(&http.Cookie{
-		Name:  codersdk.SessionTokenCookie,
+		Name:  wirtualsdk.SessionTokenCookie,
 		Value: client.SessionToken(),
 	})
 	for _, opt := range opts {
@@ -1423,14 +1423,14 @@ type nopcloser struct{}
 func (nopcloser) Close() error { return nil }
 
 // SDKError coerces err into an SDK error.
-func SDKError(t testing.TB, err error) *codersdk.Error {
-	var cerr *codersdk.Error
+func SDKError(t testing.TB, err error) *wirtualsdk.Error {
+	var cerr *wirtualsdk.Error
 	require.True(t, errors.As(err, &cerr))
 	return cerr
 }
 
-func DeploymentValues(t testing.TB, mut ...func(*codersdk.DeploymentValues)) *codersdk.DeploymentValues {
-	cfg := &codersdk.DeploymentValues{}
+func DeploymentValues(t testing.TB, mut ...func(*wirtualsdk.DeploymentValues)) *wirtualsdk.DeploymentValues {
+	cfg := &wirtualsdk.DeploymentValues{}
 	opts := cfg.Options()
 	err := opts.SetDefaults()
 	require.NoError(t, err)

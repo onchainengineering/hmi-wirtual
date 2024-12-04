@@ -75,7 +75,7 @@ func TestProxyHealth_Unhealthy(t *testing.T) {
 	db := dbmem.New()
 
 	srvBadReport := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		httpapi.Write(context.Background(), w, http.StatusOK, codersdk.ProxyHealthReport{
+		httpapi.Write(context.Background(), w, http.StatusOK, wirtualsdk.ProxyHealthReport{
 			Errors: []string{"We have a problem!"},
 		})
 	}))
@@ -115,7 +115,7 @@ func TestProxyHealth_Reachable(t *testing.T) {
 	db := dbmem.New()
 
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		httpapi.Write(context.Background(), w, http.StatusOK, codersdk.ProxyHealthReport{
+		httpapi.Write(context.Background(), w, http.StatusOK, wirtualsdk.ProxyHealthReport{
 			Warnings: []string{"No problems, just a warning"},
 		})
 	}))

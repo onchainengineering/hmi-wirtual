@@ -39,8 +39,8 @@ import (
 
 func (api *API) provisionerDaemonsEnabledMW(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-		if !api.Entitlements.Enabled(codersdk.FeatureExternalProvisionerDaemons) {
-			httpapi.Write(r.Context(), rw, http.StatusForbidden, codersdk.Response{
+		if !api.Entitlements.Enabled(wirtualsdk.FeatureExternalProvisionerDaemons) {
+			httpapi.Write(r.Context(), rw, http.StatusForbidden, wirtualsdk.Response{
 				Message: "External provisioner daemons is an Enterprise feature. Contact sales!",
 			})
 			return
@@ -69,7 +69,7 @@ func (api *API) provisionerDaemons(rw http.ResponseWriter, r *http.Request) {
 	)
 
 	if tagParam != "" && err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Invalid tags query parameter",
 			Detail:  err.Error(),
 		})
@@ -84,7 +84,7 @@ func (api *API) provisionerDaemons(rw http.ResponseWriter, r *http.Request) {
 		},
 	)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching provisioner daemons.",
 			Detail:  err.Error(),
 		})
@@ -142,7 +142,7 @@ func (p *provisionerDaemonAuth) authorize(r *http.Request, org database.Organiza
 			return provisiionerDaemonAuthResponse{}, xerrors.Errorf("PSK auth is only allowed for the default organization '%s'", org.Name)
 		}
 
-		pskKey, err := uuid.Parse(codersdk.ProvisionerKeyIDPSK)
+		pskKey, err := uuid.Parse(wirtualsdk.ProvisionerKeyIDPSK)
 		if err != nil {
 			return provisiionerDaemonAuthResponse{}, xerrors.Errorf("parse psk provisioner key id: %w", err)
 		}
@@ -161,7 +161,7 @@ func (p *provisionerDaemonAuth) authorize(r *http.Request, org database.Organiza
 		return provisiionerDaemonAuthResponse{}, xerrors.New("no API key provided")
 	}
 
-	userKey, err := uuid.Parse(codersdk.ProvisionerKeyIDUserAuth)
+	userKey, err := uuid.Parse(wirtualsdk.ProvisionerKeyIDUserAuth)
 	if err != nil {
 		return provisiionerDaemonAuthResponse{}, xerrors.Errorf("parse user provisioner key id: %w", err)
 	}
@@ -206,7 +206,7 @@ func (api *API) provisionerDaemonServe(rw http.ResponseWriter, r *http.Request) 
 		for _, tag := range r.URL.Query()["tag"] {
 			parts := strings.SplitN(tag, "=", 2)
 			if len(parts) < 2 {
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: fmt.Sprintf("Invalid format for tag %q. Key and value must be separated with =.", tag),
 				})
 				return
@@ -215,7 +215,7 @@ func (api *API) provisionerDaemonServe(rw http.ResponseWriter, r *http.Request) 
 		}
 	}
 	if !r.URL.Query().Has("provisioner") {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "The provisioner query parameter must be specified.",
 		})
 		return
@@ -226,15 +226,15 @@ func (api *API) provisionerDaemonServe(rw http.ResponseWriter, r *http.Request) 
 		id = uuid.New()
 	}
 
-	provisionersMap := map[codersdk.ProvisionerType]struct{}{}
+	provisionersMap := map[wirtualsdk.ProvisionerType]struct{}{}
 	for _, provisioner := range r.URL.Query()["provisioner"] {
 		switch provisioner {
-		case string(codersdk.ProvisionerTypeEcho):
-			provisionersMap[codersdk.ProvisionerTypeEcho] = struct{}{}
-		case string(codersdk.ProvisionerTypeTerraform):
-			provisionersMap[codersdk.ProvisionerTypeTerraform] = struct{}{}
+		case string(wirtualsdk.ProvisionerTypeEcho):
+			provisionersMap[wirtualsdk.ProvisionerTypeEcho] = struct{}{}
+		case string(wirtualsdk.ProvisionerTypeTerraform):
+			provisionersMap[wirtualsdk.ProvisionerTypeTerraform] = struct{}{}
 		default:
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: fmt.Sprintf("Unknown provisioner type %q", provisioner),
 			})
 			return
@@ -252,7 +252,7 @@ func (api *API) provisionerDaemonServe(rw http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		api.Logger.Warn(ctx, "unauthorized provisioner daemon serve request", slog.F("tags", tags), slog.Error(err))
 		httpapi.Write(ctx, rw, http.StatusForbidden,
-			codersdk.Response{
+			wirtualsdk.Response{
 				Message: fmt.Sprintf("You aren't allowed to create provisioner daemons with scope %q", tags[provisionersdk.TagScope]),
 				Detail:  err.Error(),
 			},
@@ -263,9 +263,9 @@ func (api *API) provisionerDaemonServe(rw http.ResponseWriter, r *http.Request) 
 
 	api.Logger.Debug(ctx, "provisioner authorized", slog.F("tags", tags))
 	if err := provisionerdserver.Tags(tags).Valid(); err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Given tags are not acceptable to the service",
-			Validations: []codersdk.ValidationError{
+			Validations: []wirtualsdk.ValidationError{
 				{Field: "tags", Detail: err.Error()},
 			},
 		})
@@ -275,9 +275,9 @@ func (api *API) provisionerDaemonServe(rw http.ResponseWriter, r *http.Request) 
 	provisioners := make([]database.ProvisionerType, 0, len(provisionersMap))
 	for p := range provisionersMap {
 		switch p {
-		case codersdk.ProvisionerTypeTerraform:
+		case wirtualsdk.ProvisionerTypeTerraform:
 			provisioners = append(provisioners, database.ProvisionerTypeTerraform)
-		case codersdk.ProvisionerTypeEcho:
+		case wirtualsdk.ProvisionerTypeEcho:
 			provisioners = append(provisioners, database.ProvisionerTypeEcho)
 		}
 	}
@@ -289,13 +289,13 @@ func (api *API) provisionerDaemonServe(rw http.ResponseWriter, r *http.Request) 
 	)
 
 	authCtx := ctx
-	if r.Header.Get(codersdk.ProvisionerDaemonPSK) != "" || r.Header.Get(codersdk.ProvisionerDaemonKey) != "" {
+	if r.Header.Get(wirtualsdk.ProvisionerDaemonPSK) != "" || r.Header.Get(wirtualsdk.ProvisionerDaemonKey) != "" {
 		//nolint:gocritic // PSK auth means no actor in request,
 		// so use system restricted.
 		authCtx = dbauthz.AsSystemRestricted(ctx)
 	}
 
-	versionHdrVal := r.Header.Get(codersdk.BuildVersionHeader)
+	versionHdrVal := r.Header.Get(wirtualsdk.BuildVersionHeader)
 
 	apiVersion := "1.0"
 	if qv := r.URL.Query().Get("version"); qv != "" {
@@ -303,9 +303,9 @@ func (api *API) provisionerDaemonServe(rw http.ResponseWriter, r *http.Request) 
 	}
 
 	if err := proto.CurrentVersion.Validate(apiVersion); err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Incompatible or unparsable version",
-			Validations: []codersdk.ValidationError{
+			Validations: []wirtualsdk.ValidationError{
 				{Field: "version", Detail: err.Error()},
 			},
 		})
@@ -328,7 +328,7 @@ func (api *API) provisionerDaemonServe(rw http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		if !xerrors.Is(err, context.Canceled) {
 			log.Error(ctx, "create provisioner daemon", slog.Error(err))
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Internal error creating provisioner daemon.",
 				Detail:  err.Error(),
 			})
@@ -356,7 +356,7 @@ func (api *API) provisionerDaemonServe(rw http.ResponseWriter, r *http.Request) 
 		if !xerrors.Is(err, context.Canceled) {
 			log.Error(ctx, "accept provisioner websocket conn", slog.Error(err))
 		}
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Internal error accepting websocket connection.",
 			Detail:  err.Error(),
 		})
@@ -370,7 +370,7 @@ func (api *API) provisionerDaemonServe(rw http.ResponseWriter, r *http.Request) 
 	// the same connection.
 	config := yamux.DefaultConfig()
 	config.LogOutput = io.Discard
-	ctx, wsNetConn := codersdk.WebsocketNetConn(ctx, conn, websocket.MessageBinary)
+	ctx, wsNetConn := wirtualsdk.WebsocketNetConn(ctx, conn, websocket.MessageBinary)
 	defer wsNetConn.Close()
 	session, err := yamux.Server(wsNetConn, config)
 	if err != nil {

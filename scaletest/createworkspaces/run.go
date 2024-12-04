@@ -23,7 +23,7 @@ import (
 )
 
 type Runner struct {
-	client *codersdk.Client
+	client *wirtualsdk.Client
 	cfg    Config
 
 	userID               uuid.UUID
@@ -35,7 +35,7 @@ var (
 	_ harness.Cleanable = &Runner{}
 )
 
-func NewRunner(client *codersdk.Client, cfg Config) *Runner {
+func NewRunner(client *wirtualsdk.Client, cfg Config) *Runner {
 	return &Runner{
 		client: client,
 		cfg:    cfg,
@@ -54,7 +54,7 @@ func (r *Runner) Run(ctx context.Context, id string, logs io.Writer) error {
 
 	var (
 		client = r.client
-		user   codersdk.User
+		user   wirtualsdk.User
 		err    error
 	)
 	if r.cfg.User.SessionToken != "" {
@@ -72,7 +72,7 @@ func (r *Runner) Run(ctx context.Context, id string, logs io.Writer) error {
 
 		_, _ = fmt.Fprintln(logs, "Creating user:")
 
-		user, err = r.client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		user, err = r.client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			OrganizationIDs: []uuid.UUID{r.cfg.User.OrganizationID},
 			Username:        r.cfg.User.Username,
 			Email:           r.cfg.User.Email,
@@ -84,8 +84,8 @@ func (r *Runner) Run(ctx context.Context, id string, logs io.Writer) error {
 		r.userID = user.ID
 
 		_, _ = fmt.Fprintln(logs, "\nLogging in as new user...")
-		client = codersdk.New(r.client.URL)
-		loginRes, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+		client = wirtualsdk.New(r.client.URL)
+		loginRes, err := client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 			Email:    r.cfg.User.Email,
 			Password: password,
 		})
@@ -125,7 +125,7 @@ func (r *Runner) Run(ctx context.Context, id string, logs io.Writer) error {
 	}
 
 	// Find the first agent.
-	var agent codersdk.WorkspaceAgent
+	var agent wirtualsdk.WorkspaceAgent
 resourceLoop:
 	for _, res := range workspace.LatestBuild.Resources {
 		for _, a := range res.Agents {

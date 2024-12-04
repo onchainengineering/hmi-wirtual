@@ -26,15 +26,15 @@ func (api *API) postWorkspaceAgentPortShare(rw http.ResponseWriter, r *http.Requ
 	ctx := r.Context()
 	workspace := httpmw.WorkspaceParam(r)
 	portSharer := *api.PortSharer.Load()
-	var req codersdk.UpsertWorkspaceAgentPortShareRequest
+	var req wirtualsdk.UpsertWorkspaceAgentPortShareRequest
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
 
 	if !req.ShareLevel.ValidPortShareLevel() {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Port sharing level not allowed.",
-			Validations: []codersdk.ValidationError{
+			Validations: []wirtualsdk.ValidationError{
 				{
 					Field:  "share_level",
 					Detail: "Port sharing level not allowed.",
@@ -45,9 +45,9 @@ func (api *API) postWorkspaceAgentPortShare(rw http.ResponseWriter, r *http.Requ
 	}
 
 	if req.Port < 9 || req.Port > 65535 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Port must be between 9 and 65535.",
-			Validations: []codersdk.ValidationError{
+			Validations: []wirtualsdk.ValidationError{
 				{
 					Field:  "port",
 					Detail: "Port must be between 9 and 65535.",
@@ -57,7 +57,7 @@ func (api *API) postWorkspaceAgentPortShare(rw http.ResponseWriter, r *http.Requ
 		return
 	}
 	if !req.Protocol.ValidPortProtocol() {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Port protocol not allowed.",
 		})
 		return
@@ -71,7 +71,7 @@ func (api *API) postWorkspaceAgentPortShare(rw http.ResponseWriter, r *http.Requ
 
 	err = portSharer.AuthorizedLevel(template, req.ShareLevel)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: err.Error(),
 		})
 		return
@@ -91,7 +91,7 @@ func (api *API) postWorkspaceAgentPortShare(rw http.ResponseWriter, r *http.Requ
 		}
 	}
 	if !found {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Agent not found.",
 		})
 		return
@@ -130,7 +130,7 @@ func (api *API) workspaceAgentPortShares(rw http.ResponseWriter, r *http.Request
 		return
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.WorkspaceAgentPortShares{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.WorkspaceAgentPortShares{
 		Shares: convertPortShares(shares),
 	})
 }
@@ -147,7 +147,7 @@ func (api *API) workspaceAgentPortShares(rw http.ResponseWriter, r *http.Request
 func (api *API) deleteWorkspaceAgentPortShare(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	workspace := httpmw.WorkspaceParam(r)
-	var req codersdk.DeleteWorkspaceAgentPortShareRequest
+	var req wirtualsdk.DeleteWorkspaceAgentPortShareRequest
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
@@ -159,7 +159,7 @@ func (api *API) deleteWorkspaceAgentPortShare(rw http.ResponseWriter, r *http.Re
 	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 				Message: "Port share not found.",
 			})
 			return
@@ -182,23 +182,23 @@ func (api *API) deleteWorkspaceAgentPortShare(rw http.ResponseWriter, r *http.Re
 	rw.WriteHeader(http.StatusOK)
 }
 
-func convertPortShares(shares []database.WorkspaceAgentPortShare) []codersdk.WorkspaceAgentPortShare {
-	converted := []codersdk.WorkspaceAgentPortShare{}
+func convertPortShares(shares []database.WorkspaceAgentPortShare) []wirtualsdk.WorkspaceAgentPortShare {
+	converted := []wirtualsdk.WorkspaceAgentPortShare{}
 	for _, share := range shares {
 		converted = append(converted, convertPortShare(share))
 	}
-	slices.SortFunc(converted, func(i, j codersdk.WorkspaceAgentPortShare) int {
+	slices.SortFunc(converted, func(i, j wirtualsdk.WorkspaceAgentPortShare) int {
 		return (int)(i.Port - j.Port)
 	})
 	return converted
 }
 
-func convertPortShare(share database.WorkspaceAgentPortShare) codersdk.WorkspaceAgentPortShare {
-	return codersdk.WorkspaceAgentPortShare{
+func convertPortShare(share database.WorkspaceAgentPortShare) wirtualsdk.WorkspaceAgentPortShare {
+	return wirtualsdk.WorkspaceAgentPortShare{
 		WorkspaceID: share.WorkspaceID,
 		AgentName:   share.AgentName,
 		Port:        share.Port,
-		ShareLevel:  codersdk.WorkspaceAgentPortShareLevel(share.ShareLevel),
-		Protocol:    codersdk.WorkspaceAgentPortShareProtocol(share.Protocol),
+		ShareLevel:  wirtualsdk.WorkspaceAgentPortShareLevel(share.ShareLevel),
+		Protocol:    wirtualsdk.WorkspaceAgentPortShareProtocol(share.Protocol),
 	}
 }

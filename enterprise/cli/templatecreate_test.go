@@ -26,7 +26,7 @@ func TestTemplateCreate(t *testing.T) {
 		client, user := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAccessControl: 1,
+					wirtualsdk.FeatureAccessControl: 1,
 				},
 			},
 			Options: &coderdtest.Options{
@@ -65,7 +65,7 @@ func TestTemplateCreate(t *testing.T) {
 		client, user := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAdvancedTemplateScheduling: 1,
+					wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
 			},
 			Options: &coderdtest.Options{
@@ -146,10 +146,10 @@ func TestTemplateCreate(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAccessControl:              1,
-					codersdk.FeatureCustomRoles:                1,
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureMultipleOrganizations:      1,
+					wirtualsdk.FeatureAccessControl:              1,
+					wirtualsdk.FeatureCustomRoles:                1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
@@ -162,11 +162,11 @@ func TestTemplateCreate(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitMedium)
 
 		//nolint:gocritic // owner required to make custom roles
-		orgTemplateAdminRole, err := ownerClient.CreateOrganizationRole(ctx, codersdk.Role{
+		orgTemplateAdminRole, err := ownerClient.CreateOrganizationRole(ctx, wirtualsdk.Role{
 			Name:           "org-template-admin",
 			OrganizationID: secondOrg.ID.String(),
-			OrganizationPermissions: codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceTemplate: codersdk.RBACResourceActions[codersdk.ResourceTemplate],
+			OrganizationPermissions: wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				wirtualsdk.ResourceTemplate: wirtualsdk.RBACResourceActions[wirtualsdk.ResourceTemplate],
 			}),
 		})
 		require.NoError(t, err, "create admin role")

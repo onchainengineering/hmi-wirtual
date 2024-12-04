@@ -53,7 +53,7 @@ func (r *RootCmd) provisionerDaemonStart() *serpent.Command {
 		prometheusAddress string
 	)
 	orgContext := agpl.NewOrganizationContext()
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "start",
 		Short: "Run a provisioner daemon",
@@ -77,7 +77,7 @@ func (r *RootCmd) provisionerDaemonStart() *serpent.Command {
 				// We can only select an organization if using user auth
 				org, err := orgContext.Selected(inv, client)
 				if err != nil {
-					var cErr *codersdk.Error
+					var cErr *wirtualsdk.Error
 					if !errors.As(err, &cErr) || cErr.StatusCode() != http.StatusUnauthorized {
 						return xerrors.Errorf("current organization: %w", err)
 					}
@@ -224,11 +224,11 @@ func (r *RootCmd) provisionerDaemonStart() *serpent.Command {
 				string(database.ProvisionerTypeTerraform): proto.NewDRPCProvisionerClient(terraformClient),
 			}
 			srv := provisionerd.New(func(ctx context.Context) (provisionerdproto.DRPCProvisionerDaemonClient, error) {
-				return client.ServeProvisionerDaemon(ctx, codersdk.ServeProvisionerDaemonRequest{
+				return client.ServeProvisionerDaemon(ctx, wirtualsdk.ServeProvisionerDaemonRequest{
 					ID:   uuid.New(),
 					Name: name,
-					Provisioners: []codersdk.ProvisionerType{
-						codersdk.ProvisionerTypeTerraform,
+					Provisioners: []wirtualsdk.ProvisionerType{
+						wirtualsdk.ProvisionerTypeTerraform,
 					},
 					Tags:           tags,
 					PreSharedKey:   preSharedKey,
@@ -293,7 +293,7 @@ func (r *RootCmd) provisionerDaemonStart() *serpent.Command {
 			FlagShorthand: "c",
 			Env:           "WIRTUAL_CACHE_DIRECTORY",
 			Description:   "Directory to store cached data.",
-			Default:       codersdk.DefaultCacheDir(),
+			Default:       wirtualsdk.DefaultCacheDir(),
 			Value:         serpent.StringOf(&cacheDir),
 		},
 		{

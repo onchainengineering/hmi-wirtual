@@ -125,10 +125,10 @@ func init() {
 }
 
 type Client struct {
-	client *codersdk.Client
+	client *wirtualsdk.Client
 }
 
-func New(c *codersdk.Client) *Client {
+func New(c *wirtualsdk.Client) *Client {
 	return &Client{client: c}
 }
 
@@ -148,7 +148,7 @@ func (c *Client) AgentConnectionInfoGeneric(ctx context.Context) (AgentConnectio
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		return AgentConnectionInfo{}, codersdk.ReadBodyAsError(res)
+		return AgentConnectionInfo{}, wirtualsdk.ReadBodyAsError(res)
 	}
 
 	var connInfo AgentConnectionInfo
@@ -162,7 +162,7 @@ func (c *Client) AgentConnectionInfo(ctx context.Context, agentID uuid.UUID) (Ag
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		return AgentConnectionInfo{}, codersdk.ReadBodyAsError(res)
+		return AgentConnectionInfo{}, wirtualsdk.ReadBodyAsError(res)
 	}
 
 	var connInfo AgentConnectionInfo
@@ -197,7 +197,7 @@ func (c *Client) DialAgent(dialCtx context.Context, agentID uuid.UUID, options *
 	}
 
 	headers := make(http.Header)
-	tokenHeader := codersdk.SessionTokenHeader
+	tokenHeader := wirtualsdk.SessionTokenHeader
 	if c.client.SessionTokenHeader != "" {
 		tokenHeader = c.client.SessionTokenHeader
 	}
@@ -229,7 +229,7 @@ func (c *Client) DialAgent(dialCtx context.Context, agentID uuid.UUID, options *
 
 	ip := tailnet.TailscaleServicePrefix.RandomAddr()
 	var header http.Header
-	if headerTransport, ok := c.client.HTTPClient.Transport.(*codersdk.HeaderTransport); ok {
+	if headerTransport, ok := c.client.HTTPClient.Transport.(*wirtualsdk.HeaderTransport); ok {
 		header = headerTransport.Header
 	}
 	var telemetrySink tailnet.TelemetrySink
@@ -322,7 +322,7 @@ func (c *Client) AgentReconnectingPTY(ctx context.Context, opts WorkspaceAgentRe
 	q.Set("command", opts.Command)
 	// If we're using a signed token, set the query parameter.
 	if opts.SignedToken != "" {
-		q.Set(codersdk.SignedAppTokenQueryParameter, opts.SignedToken)
+		q.Set(wirtualsdk.SignedAppTokenQueryParameter, opts.SignedToken)
 	}
 	serverURL.RawQuery = q.Encode()
 
@@ -335,7 +335,7 @@ func (c *Client) AgentReconnectingPTY(ctx context.Context, opts WorkspaceAgentRe
 			return nil, xerrors.Errorf("create cookie jar: %w", err)
 		}
 		jar.SetCookies(serverURL, []*http.Cookie{{
-			Name:  codersdk.SessionTokenCookie,
+			Name:  wirtualsdk.SessionTokenCookie,
 			Value: c.client.SessionToken(),
 		}})
 		httpClient = &http.Client{
@@ -351,7 +351,7 @@ func (c *Client) AgentReconnectingPTY(ctx context.Context, opts WorkspaceAgentRe
 		if res == nil {
 			return nil, err
 		}
-		return nil, codersdk.ReadBodyAsError(res)
+		return nil, wirtualsdk.ReadBodyAsError(res)
 	}
 	return websocket.NetConn(context.Background(), conn, websocket.MessageBinary), nil
 }

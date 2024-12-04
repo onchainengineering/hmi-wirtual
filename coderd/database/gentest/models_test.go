@@ -11,15 +11,15 @@ import (
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
-// TestAuditDBEnumsCovered ensures that all enums in the database are covered by the codersdk enums
+// TestAuditDBEnumsCovered ensures that all enums in the database are covered by the wirtualsdk enums
 // for audit log strings.
 func TestAuditDBEnumsCovered(t *testing.T) {
 	t.Parallel()
 
 	dbTypes := database.AllResourceTypeValues()
 	for _, ty := range dbTypes {
-		str := codersdk.ResourceType(ty).FriendlyString()
-		require.NotEqualf(t, "unknown", str, "ResourceType %q not covered by codersdk.ResourceType", ty)
+		str := wirtualsdk.ResourceType(ty).FriendlyString()
+		require.NotEqualf(t, "unknown", str, "ResourceType %q not covered by wirtualsdk.ResourceType", ty)
 	}
 }
 

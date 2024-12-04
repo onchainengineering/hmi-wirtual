@@ -57,7 +57,7 @@ func TestServerCreateAdminUser(t *testing.T) {
 		require.NoError(t, err)
 		require.True(t, ok, "password does not match")
 
-		require.EqualValues(t, []string{codersdk.RoleOwner}, user.RBACRoles, "user does not have owner role")
+		require.EqualValues(t, []string{wirtualsdk.RoleOwner}, user.RBACRoles, "user does not have owner role")
 
 		// Check that user is admin in every org.
 		orgs, err := db.GetOrganizations(ctx, database.GetOrganizationsParams{})

@@ -25,10 +25,10 @@ func TestCheckPermissions(t *testing.T) {
 	// Create adminClient, member, and org adminClient
 	adminUser := coderdtest.CreateFirstUser(t, adminClient)
 	memberClient, _ := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
-	memberUser, err := memberClient.User(ctx, codersdk.Me)
+	memberUser, err := memberClient.User(ctx, wirtualsdk.Me)
 	require.NoError(t, err)
 	orgAdminClient, _ := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID, rbac.ScopedRoleOrgAdmin(adminUser.OrganizationID))
-	orgAdminUser, err := orgAdminClient.User(ctx, codersdk.Me)
+	orgAdminUser, err := orgAdminClient.User(ctx, wirtualsdk.Me)
 	require.NoError(t, err)
 
 	version := coderdtest.CreateTemplateVersion(t, adminClient, adminUser.OrganizationID, nil)
@@ -43,37 +43,37 @@ func TestCheckPermissions(t *testing.T) {
 		readOwnWorkspaces      = "read-own-workspaces"
 		updateSpecificTemplate = "update-specific-template"
 	)
-	params := map[string]codersdk.AuthorizationCheck{
+	params := map[string]wirtualsdk.AuthorizationCheck{
 		readAllUsers: {
-			Object: codersdk.AuthorizationObject{
-				ResourceType: codersdk.ResourceUser,
+			Object: wirtualsdk.AuthorizationObject{
+				ResourceType: wirtualsdk.ResourceUser,
 			},
 			Action: "read",
 		},
 		readMyself: {
-			Object: codersdk.AuthorizationObject{
-				ResourceType: codersdk.ResourceUser,
+			Object: wirtualsdk.AuthorizationObject{
+				ResourceType: wirtualsdk.ResourceUser,
 				OwnerID:      "me",
 			},
 			Action: "read",
 		},
 		readOwnWorkspaces: {
-			Object: codersdk.AuthorizationObject{
-				ResourceType: codersdk.ResourceWorkspace,
+			Object: wirtualsdk.AuthorizationObject{
+				ResourceType: wirtualsdk.ResourceWorkspace,
 				OwnerID:      "me",
 			},
 			Action: "read",
 		},
 		readOrgWorkspaces: {
-			Object: codersdk.AuthorizationObject{
-				ResourceType:   codersdk.ResourceWorkspace,
+			Object: wirtualsdk.AuthorizationObject{
+				ResourceType:   wirtualsdk.ResourceWorkspace,
 				OrganizationID: adminUser.OrganizationID.String(),
 			},
 			Action: "read",
 		},
 		updateSpecificTemplate: {
-			Object: codersdk.AuthorizationObject{
-				ResourceType: codersdk.ResourceTemplate,
+			Object: wirtualsdk.AuthorizationObject{
+				ResourceType: wirtualsdk.ResourceTemplate,
 				ResourceID:   template.ID.String(),
 			},
 			Action: "update",
@@ -82,9 +82,9 @@ func TestCheckPermissions(t *testing.T) {
 
 	testCases := []struct {
 		Name   string
-		Client *codersdk.Client
+		Client *wirtualsdk.Client
 		UserID uuid.UUID
-		Check  codersdk.AuthorizationResponse
+		Check  wirtualsdk.AuthorizationResponse
 	}{
 		{
 			Name:   "Admin",
@@ -133,7 +133,7 @@ func TestCheckPermissions(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			t.Cleanup(cancel)
 
-			resp, err := c.Client.AuthCheck(ctx, codersdk.AuthorizationRequest{Checks: params})
+			resp, err := c.Client.AuthCheck(ctx, wirtualsdk.AuthorizationRequest{Checks: params})
 			require.NoError(t, err, "check perms")
 			require.Equal(t, c.Check, resp)
 		})

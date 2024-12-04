@@ -86,10 +86,10 @@ func (r *RootCmd) ping() *serpent.Command {
 		pingNum          int64
 		pingTimeout      time.Duration
 		pingWait         time.Duration
-		appearanceConfig codersdk.AppearanceConfig
+		appearanceConfig wirtualsdk.AppearanceConfig
 	)
 
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Annotations: workspaceCommand,
 		Use:         "ping <workspace>",
@@ -185,7 +185,7 @@ func (r *RootCmd) ping() *serpent.Command {
 				connDiags.AgentNetcheck = &agentNetcheck
 				connDiags.AgentIPIsAWS = isAWSIP(awsRanges, agentNetcheck.NetInfo)
 			} else {
-				var sdkErr *codersdk.Error
+				var sdkErr *wirtualsdk.Error
 				if errors.As(err, &sdkErr) && sdkErr.StatusCode() == http.StatusNotFound {
 					_, _ = fmt.Fprint(inv.Stdout, "Could not generate full connection report as the workspace agent is outdated\n")
 				} else {

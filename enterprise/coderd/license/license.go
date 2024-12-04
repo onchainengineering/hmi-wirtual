@@ -22,20 +22,20 @@ func Entitlements(
 	replicaCount int,
 	externalAuthCount int,
 	keys map[string]ed25519.PublicKey,
-	enablements map[codersdk.FeatureName]bool,
-) (codersdk.Entitlements, error) {
+	enablements map[wirtualsdk.FeatureName]bool,
+) (wirtualsdk.Entitlements, error) {
 	now := time.Now()
 
 	// nolint:gocritic // Getting unexpired licenses is a system function.
 	licenses, err := db.GetUnexpiredLicenses(dbauthz.AsSystemRestricted(ctx))
 	if err != nil {
-		return codersdk.Entitlements{}, err
+		return wirtualsdk.Entitlements{}, err
 	}
 
 	// nolint:gocritic // Getting active user count is a system function.
 	activeUserCount, err := db.GetActiveUserCount(dbauthz.AsSystemRestricted(ctx))
 	if err != nil {
-		return codersdk.Entitlements{}, xerrors.Errorf("query active user count: %w", err)
+		return wirtualsdk.Entitlements{}, xerrors.Errorf("query active user count: %w", err)
 	}
 
 	// always shows active user count regardless of license
@@ -70,17 +70,17 @@ type FeatureArguments struct {
 func LicensesEntitlements(
 	now time.Time,
 	licenses []database.License,
-	enablements map[codersdk.FeatureName]bool,
+	enablements map[wirtualsdk.FeatureName]bool,
 	keys map[string]ed25519.PublicKey,
 	featureArguments FeatureArguments,
-) (codersdk.Entitlements, error) {
+) (wirtualsdk.Entitlements, error) {
 	// Default all entitlements to be disabled.
-	entitlements := codersdk.Entitlements{
-		Features: map[codersdk.FeatureName]codersdk.Feature{
+	entitlements := wirtualsdk.Entitlements{
+		Features: map[wirtualsdk.FeatureName]wirtualsdk.Feature{
 			// always shows active user count regardless of license.
-			codersdk.FeatureUserLimit: {
-				Entitlement: codersdk.EntitlementNotEntitled,
-				Enabled:     enablements[codersdk.FeatureUserLimit],
+			wirtualsdk.FeatureUserLimit: {
+				Entitlement: wirtualsdk.EntitlementNotEntitled,
+				Enabled:     enablements[wirtualsdk.FeatureUserLimit],
 				Actual:      &featureArguments.ActiveUserCount,
 			},
 		},
@@ -89,9 +89,9 @@ func LicensesEntitlements(
 	}
 
 	// By default, enumerate all features and set them to not entitled.
-	for _, featureName := range codersdk.FeatureNames {
-		entitlements.AddFeature(featureName, codersdk.Feature{
-			Entitlement: codersdk.EntitlementNotEntitled,
+	for _, featureName := range wirtualsdk.FeatureNames {
+		entitlements.AddFeature(featureName, wirtualsdk.Feature{
+			Entitlement: wirtualsdk.EntitlementNotEntitled,
 			Enabled:     enablements[featureName],
 		})
 	}
@@ -120,34 +120,34 @@ func LicensesEntitlements(
 		entitlements.RequireTelemetry = entitlements.RequireTelemetry || claims.RequireTelemetry
 
 		// entitlement is the highest entitlement for any features in this license.
-		entitlement := codersdk.EntitlementEntitled
+		entitlement := wirtualsdk.EntitlementEntitled
 		// If any license is a trial license, this should be set to true.
 		// The user should delete the trial license to remove this.
 		entitlements.Trial = claims.Trial
 		if now.After(claims.LicenseExpires.Time) {
 			// if the grace period were over, the validation fails, so if we are after
 			// LicenseExpires we must be in grace period.
-			entitlement = codersdk.EntitlementGracePeriod
+			entitlement = wirtualsdk.EntitlementGracePeriod
 		}
 
 		// Will add a warning if the license is expiring soon.
 		// This warning can be raised multiple times if there is more than 1 license.
 		licenseExpirationWarning(&entitlements, now, claims)
 
-		// 'claims.AllFeature' is the legacy way to set 'claims.FeatureSet = codersdk.FeatureSetEnterprise'
+		// 'claims.AllFeature' is the legacy way to set 'claims.FeatureSet = wirtualsdk.FeatureSetEnterprise'
 		// If both are set, ignore the legacy 'claims.AllFeature'
 		if claims.AllFeatures && claims.FeatureSet == "" {
-			claims.FeatureSet = codersdk.FeatureSetEnterprise
+			claims.FeatureSet = wirtualsdk.FeatureSetEnterprise
 		}
 
 		// Add all features from the feature set defined.
 		for _, featureName := range claims.FeatureSet.Features() {
-			if featureName == codersdk.FeatureUserLimit {
+			if featureName == wirtualsdk.FeatureUserLimit {
 				// FeatureUserLimit is unique in that it must be specifically defined
 				// in the license. There is no default meaning if no "limit" is set.
 				continue
 			}
-			entitlements.AddFeature(featureName, codersdk.Feature{
+			entitlements.AddFeature(featureName, wirtualsdk.Feature{
 				Entitlement: entitlement,
 				Enabled:     enablements[featureName] || featureName.AlwaysEnable(),
 				Limit:       nil,
@@ -163,17 +163,17 @@ func LicensesEntitlements(
 			}
 
 			switch featureName {
-			case codersdk.FeatureUserLimit:
+			case wirtualsdk.FeatureUserLimit:
 				// User limit has special treatment as our only non-boolean feature.
 				limit := featureValue
-				entitlements.AddFeature(codersdk.FeatureUserLimit, codersdk.Feature{
+				entitlements.AddFeature(wirtualsdk.FeatureUserLimit, wirtualsdk.Feature{
 					Enabled:     true,
 					Entitlement: entitlement,
 					Limit:       &limit,
 					Actual:      &featureArguments.ActiveUserCount,
 				})
 			default:
-				entitlements.Features[featureName] = codersdk.Feature{
+				entitlements.Features[featureName] = wirtualsdk.Feature{
 					Entitlement: entitlement,
 					Enabled:     enablements[featureName] || featureName.AlwaysEnable(),
 				}
@@ -185,10 +185,10 @@ func LicensesEntitlements(
 
 	// If HA is enabled, ensure the feature is entitled.
 	if featureArguments.ReplicaCount > 1 {
-		feature := entitlements.Features[codersdk.FeatureHighAvailability]
+		feature := entitlements.Features[wirtualsdk.FeatureHighAvailability]
 
 		switch feature.Entitlement {
-		case codersdk.EntitlementNotEntitled:
+		case wirtualsdk.EntitlementNotEntitled:
 			if entitlements.HasLicense {
 				entitlements.Errors = append(entitlements.Errors,
 					"You have multiple replicas but your license is not entitled to high availability. You will be unable to connect to workspaces.")
@@ -196,17 +196,17 @@ func LicensesEntitlements(
 				entitlements.Errors = append(entitlements.Errors,
 					"You have multiple replicas but high availability is an Enterprise feature. You will be unable to connect to workspaces.")
 			}
-		case codersdk.EntitlementGracePeriod:
+		case wirtualsdk.EntitlementGracePeriod:
 			entitlements.Warnings = append(entitlements.Warnings,
 				"You have multiple replicas but your license for high availability is expired. Reduce to one replica or workspace connections will stop working.")
 		}
 	}
 
 	if featureArguments.ExternalAuthCount > 1 {
-		feature := entitlements.Features[codersdk.FeatureMultipleExternalAuth]
+		feature := entitlements.Features[wirtualsdk.FeatureMultipleExternalAuth]
 
 		switch feature.Entitlement {
-		case codersdk.EntitlementNotEntitled:
+		case wirtualsdk.EntitlementNotEntitled:
 			if entitlements.HasLicense {
 				entitlements.Errors = append(entitlements.Errors,
 					"You have multiple External Auth Providers configured but your license is limited at one.",
@@ -216,7 +216,7 @@ func LicensesEntitlements(
 					"You have multiple External Auth Providers configured but this is an Enterprise feature. Reduce to one.",
 				)
 			}
-		case codersdk.EntitlementGracePeriod:
+		case wirtualsdk.EntitlementGracePeriod:
 			entitlements.Warnings = append(entitlements.Warnings,
 				"You have multiple External Auth Providers configured but your license is expired. Reduce to one.",
 			)
@@ -224,12 +224,12 @@ func LicensesEntitlements(
 	}
 
 	if entitlements.HasLicense {
-		userLimit := entitlements.Features[codersdk.FeatureUserLimit]
+		userLimit := entitlements.Features[wirtualsdk.FeatureUserLimit]
 		if userLimit.Limit != nil && featureArguments.ActiveUserCount > *userLimit.Limit {
 			entitlements.Warnings = append(entitlements.Warnings, fmt.Sprintf(
 				"Your deployment has %d active users but is only licensed for %d.",
 				featureArguments.ActiveUserCount, *userLimit.Limit))
-		} else if userLimit.Limit != nil && userLimit.Entitlement == codersdk.EntitlementGracePeriod {
+		} else if userLimit.Limit != nil && userLimit.Entitlement == wirtualsdk.EntitlementGracePeriod {
 			entitlements.Warnings = append(entitlements.Warnings, fmt.Sprintf(
 				"Your deployment has %d active users but the license with the limit %d is expired.",
 				featureArguments.ActiveUserCount, *userLimit.Limit))
@@ -237,17 +237,17 @@ func LicensesEntitlements(
 
 		// Add a warning for every feature that is enabled but not entitled or
 		// is in a grace period.
-		for _, featureName := range codersdk.FeatureNames {
+		for _, featureName := range wirtualsdk.FeatureNames {
 			// The user limit has it's own warnings!
-			if featureName == codersdk.FeatureUserLimit {
+			if featureName == wirtualsdk.FeatureUserLimit {
 				continue
 			}
 			// High availability has it's own warnings based on replica count!
-			if featureName == codersdk.FeatureHighAvailability {
+			if featureName == wirtualsdk.FeatureHighAvailability {
 				continue
 			}
 			// External Auth Providers auth has it's own warnings based on the number configured!
-			if featureName == codersdk.FeatureMultipleExternalAuth {
+			if featureName == wirtualsdk.FeatureMultipleExternalAuth {
 				continue
 			}
 
@@ -257,10 +257,10 @@ func LicensesEntitlements(
 			}
 			niceName := featureName.Humanize()
 			switch feature.Entitlement {
-			case codersdk.EntitlementNotEntitled:
+			case wirtualsdk.EntitlementNotEntitled:
 				entitlements.Warnings = append(entitlements.Warnings,
 					fmt.Sprintf("%s is enabled but your license is not entitled to this feature.", niceName))
-			case codersdk.EntitlementGracePeriod:
+			case wirtualsdk.EntitlementGracePeriod:
 				entitlements.Warnings = append(entitlements.Warnings,
 					fmt.Sprintf("%s is enabled but your license for this feature is expired.", niceName))
 			default:
@@ -269,9 +269,9 @@ func LicensesEntitlements(
 	}
 
 	// Wrap up by disabling all features that are not entitled.
-	for _, featureName := range codersdk.FeatureNames {
+	for _, featureName := range wirtualsdk.FeatureNames {
 		feature := entitlements.Features[featureName]
-		if feature.Entitlement == codersdk.EntitlementNotEntitled {
+		if feature.Entitlement == wirtualsdk.EntitlementNotEntitled {
 			feature.Enabled = false
 			entitlements.Features[featureName] = feature
 		}
@@ -298,7 +298,7 @@ var (
 	ErrMultipleIssues        = xerrors.New("license has multiple issues; contact support")
 )
 
-type Features map[codersdk.FeatureName]int64
+type Features map[wirtualsdk.FeatureName]int64
 
 type Claims struct {
 	jwt.RegisteredClaims
@@ -311,9 +311,9 @@ type Claims struct {
 	AccountType    string           `json:"account_type,omitempty"`
 	AccountID      string           `json:"account_id,omitempty"`
 	// DeploymentIDs enforces the license can only be used on a set of deployments.
-	DeploymentIDs []string            `json:"deployment_ids,omitempty"`
-	Trial         bool                `json:"trial"`
-	FeatureSet    codersdk.FeatureSet `json:"feature_set"`
+	DeploymentIDs []string              `json:"deployment_ids,omitempty"`
+	Trial         bool                  `json:"trial"`
+	FeatureSet    wirtualsdk.FeatureSet `json:"feature_set"`
 	// AllFeatures represents 'FeatureSet = FeatureSetEnterprise'
 	// Deprecated: AllFeatures is deprecated in favor of FeatureSet.
 	AllFeatures      bool     `json:"all_features,omitempty"`
@@ -419,7 +419,7 @@ func keyFunc(keys map[string]ed25519.PublicKey) func(*jwt.Token) (interface{}, e
 }
 
 // licenseExpirationWarning adds a warning message if the license is expiring soon.
-func licenseExpirationWarning(entitlements *codersdk.Entitlements, now time.Time, claims *Claims) {
+func licenseExpirationWarning(entitlements *wirtualsdk.Entitlements, now time.Time, claims *Claims) {
 	// Add warning if license is expiring soon
 	daysToExpire := int(math.Ceil(claims.LicenseExpires.Sub(now).Hours() / 24))
 	showWarningDays := 30

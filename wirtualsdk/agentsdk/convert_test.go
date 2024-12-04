@@ -26,7 +26,7 @@ func TestManifest(t *testing.T) {
 		WorkspaceName:      "test-workspace",
 		GitAuthConfigs:     3,
 		VSCodePortProxyURI: "http://proxy.example.com/stuff",
-		Apps: []codersdk.WorkspaceApp{
+		Apps: []wirtualsdk.WorkspaceApp{
 			{
 				ID:            uuid.New(),
 				URL:           "http://app1.example.com",
@@ -37,13 +37,13 @@ func TestManifest(t *testing.T) {
 				Icon:          "app1.png",
 				Subdomain:     true,
 				SubdomainName: "app1.example.com",
-				SharingLevel:  codersdk.WorkspaceAppSharingLevelAuthenticated,
-				Healthcheck: codersdk.Healthcheck{
+				SharingLevel:  wirtualsdk.WorkspaceAppSharingLevelAuthenticated,
+				Healthcheck: wirtualsdk.Healthcheck{
 					URL:       "http://localhost:3030/healthz",
 					Interval:  55555666,
 					Threshold: 55555666,
 				},
-				Health: codersdk.WorkspaceAppHealthHealthy,
+				Health: wirtualsdk.WorkspaceAppHealthHealthy,
 				Hidden: false,
 			},
 			{
@@ -56,13 +56,13 @@ func TestManifest(t *testing.T) {
 				Icon:          "app2.png",
 				Subdomain:     false,
 				SubdomainName: "app2.example.com",
-				SharingLevel:  codersdk.WorkspaceAppSharingLevelPublic,
-				Healthcheck: codersdk.Healthcheck{
+				SharingLevel:  wirtualsdk.WorkspaceAppSharingLevelPublic,
+				Healthcheck: wirtualsdk.Healthcheck{
 					URL:       "http://localhost:3032/healthz",
 					Interval:  22555666,
 					Threshold: 22555666,
 				},
-				Health: codersdk.WorkspaceAppHealthInitializing,
+				Health: wirtualsdk.WorkspaceAppHealthInitializing,
 				Hidden: true,
 			},
 		},
@@ -88,7 +88,7 @@ func TestManifest(t *testing.T) {
 		Directory:                "/home/coder",
 		MOTDFile:                 "/etc/motd",
 		DisableDirectConnections: true,
-		Metadata: []codersdk.WorkspaceAgentMetadataDescription{
+		Metadata: []wirtualsdk.WorkspaceAgentMetadataDescription{
 			{
 				DisplayName: "CPU",
 				Key:         "cpu",
@@ -104,7 +104,7 @@ func TestManifest(t *testing.T) {
 				Timeout:     54444411,
 			},
 		},
-		Scripts: []codersdk.WorkspaceAgentScript{
+		Scripts: []wirtualsdk.WorkspaceAgentScript{
 			{
 				ID:               uuid.New(),
 				LogSourceID:      uuid.New(),
@@ -156,10 +156,10 @@ func TestManifest(t *testing.T) {
 
 func TestSubsystems(t *testing.T) {
 	t.Parallel()
-	ss := []codersdk.AgentSubsystem{
-		codersdk.AgentSubsystemEnvbox,
-		codersdk.AgentSubsystemEnvbuilder,
-		codersdk.AgentSubsystemExectrace,
+	ss := []wirtualsdk.AgentSubsystem{
+		wirtualsdk.AgentSubsystemEnvbox,
+		wirtualsdk.AgentSubsystemEnvbuilder,
+		wirtualsdk.AgentSubsystemExectrace,
 	}
 	ps, err := agentsdk.ProtoFromSubsystems(ss)
 	require.NoError(t, err)
@@ -173,7 +173,7 @@ func TestSubsystems(t *testing.T) {
 func TestProtoFromLifecycle(t *testing.T) {
 	t.Parallel()
 	now := dbtime.Now()
-	for _, s := range codersdk.WorkspaceAgentLifecycleOrder {
+	for _, s := range wirtualsdk.WorkspaceAgentLifecycleOrder {
 		sr := agentsdk.PostLifecycleRequest{State: s, ChangedAt: now}
 		pr, err := agentsdk.ProtoFromLifecycle(sr)
 		require.NoError(t, err)
@@ -187,7 +187,7 @@ func TestProtoFromLifecycle(t *testing.T) {
 func TestProtoFromMetadataResult(t *testing.T) {
 	t.Parallel()
 	now := dbtime.Now()
-	result := codersdk.WorkspaceAgentMetadataResult{
+	result := wirtualsdk.WorkspaceAgentMetadataResult{
 		CollectedAt: now,
 		Age:         4,
 		Value:       "lemons",

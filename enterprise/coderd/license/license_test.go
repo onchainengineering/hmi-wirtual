@@ -21,12 +21,12 @@ import (
 
 func TestEntitlements(t *testing.T) {
 	t.Parallel()
-	all := make(map[codersdk.FeatureName]bool)
-	for _, n := range codersdk.FeatureNames {
+	all := make(map[wirtualsdk.FeatureName]bool)
+	for _, n := range wirtualsdk.FeatureNames {
 		all[n] = true
 	}
 
-	empty := map[codersdk.FeatureName]bool{}
+	empty := map[wirtualsdk.FeatureName]bool{}
 
 	t.Run("Defaults", func(t *testing.T) {
 		t.Parallel()
@@ -35,9 +35,9 @@ func TestEntitlements(t *testing.T) {
 		require.NoError(t, err)
 		require.False(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
-		for _, featureName := range codersdk.FeatureNames {
+		for _, featureName := range wirtualsdk.FeatureNames {
 			require.False(t, entitlements.Features[featureName].Enabled)
-			require.Equal(t, codersdk.EntitlementNotEntitled, entitlements.Features[featureName].Entitlement)
+			require.Equal(t, wirtualsdk.EntitlementNotEntitled, entitlements.Features[featureName].Entitlement)
 		}
 	})
 	t.Run("Always return the current user count", func(t *testing.T) {
@@ -47,7 +47,7 @@ func TestEntitlements(t *testing.T) {
 		require.NoError(t, err)
 		require.False(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
-		require.Equal(t, *entitlements.Features[codersdk.FeatureUserLimit].Actual, int64(0))
+		require.Equal(t, *entitlements.Features[wirtualsdk.FeatureUserLimit].Actual, int64(0))
 	})
 	t.Run("SingleLicenseNothing", func(t *testing.T) {
 		t.Parallel()
@@ -60,9 +60,9 @@ func TestEntitlements(t *testing.T) {
 		require.NoError(t, err)
 		require.True(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
-		for _, featureName := range codersdk.FeatureNames {
+		for _, featureName := range wirtualsdk.FeatureNames {
 			require.False(t, entitlements.Features[featureName].Enabled)
-			require.Equal(t, codersdk.EntitlementNotEntitled, entitlements.Features[featureName].Entitlement)
+			require.Equal(t, wirtualsdk.EntitlementNotEntitled, entitlements.Features[featureName].Entitlement)
 		}
 	})
 	t.Run("SingleLicenseAll", func(t *testing.T) {
@@ -72,7 +72,7 @@ func TestEntitlements(t *testing.T) {
 			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
 				Features: func() license.Features {
 					f := make(license.Features)
-					for _, name := range codersdk.FeatureNames {
+					for _, name := range wirtualsdk.FeatureNames {
 						f[name] = 1
 					}
 					return f
@@ -84,8 +84,8 @@ func TestEntitlements(t *testing.T) {
 		require.NoError(t, err)
 		require.True(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
-		for _, featureName := range codersdk.FeatureNames {
-			require.Equal(t, codersdk.EntitlementEntitled, entitlements.Features[featureName].Entitlement, featureName)
+		for _, featureName := range wirtualsdk.FeatureNames {
+			require.Equal(t, wirtualsdk.EntitlementEntitled, entitlements.Features[featureName].Entitlement, featureName)
 		}
 	})
 	t.Run("SingleLicenseGrace", func(t *testing.T) {
@@ -94,8 +94,8 @@ func TestEntitlements(t *testing.T) {
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
 			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureUserLimit: 100,
-					codersdk.FeatureAuditLog:  1,
+					wirtualsdk.FeatureUserLimit: 100,
+					wirtualsdk.FeatureAuditLog:  1,
 				},
 
 				GraceAt:   dbtime.Now().Add(-time.Hour),
@@ -108,10 +108,10 @@ func TestEntitlements(t *testing.T) {
 		require.True(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
 
-		require.Equal(t, codersdk.EntitlementGracePeriod, entitlements.Features[codersdk.FeatureAuditLog].Entitlement)
+		require.Equal(t, wirtualsdk.EntitlementGracePeriod, entitlements.Features[wirtualsdk.FeatureAuditLog].Entitlement)
 		require.Contains(
 			t, entitlements.Warnings,
-			fmt.Sprintf("%s is enabled but your license for this feature is expired.", codersdk.FeatureAuditLog.Humanize()),
+			fmt.Sprintf("%s is enabled but your license for this feature is expired.", wirtualsdk.FeatureAuditLog.Humanize()),
 		)
 	})
 	t.Run("Expiration warning", func(t *testing.T) {
@@ -120,8 +120,8 @@ func TestEntitlements(t *testing.T) {
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
 			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureUserLimit: 100,
-					codersdk.FeatureAuditLog:  1,
+					wirtualsdk.FeatureUserLimit: 100,
+					wirtualsdk.FeatureAuditLog:  1,
 				},
 
 				GraceAt:   dbtime.Now().AddDate(0, 0, 2),
@@ -136,7 +136,7 @@ func TestEntitlements(t *testing.T) {
 		require.True(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
 
-		require.Equal(t, codersdk.EntitlementEntitled, entitlements.Features[codersdk.FeatureAuditLog].Entitlement)
+		require.Equal(t, wirtualsdk.EntitlementEntitled, entitlements.Features[wirtualsdk.FeatureAuditLog].Entitlement)
 		require.Contains(
 			t, entitlements.Warnings,
 			"Your license expires in 2 days.",
@@ -149,8 +149,8 @@ func TestEntitlements(t *testing.T) {
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
 			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureUserLimit: 100,
-					codersdk.FeatureAuditLog:  1,
+					wirtualsdk.FeatureUserLimit: 100,
+					wirtualsdk.FeatureAuditLog:  1,
 				},
 
 				GraceAt:   dbtime.Now().AddDate(0, 0, 1),
@@ -165,7 +165,7 @@ func TestEntitlements(t *testing.T) {
 		require.True(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
 
-		require.Equal(t, codersdk.EntitlementEntitled, entitlements.Features[codersdk.FeatureAuditLog].Entitlement)
+		require.Equal(t, wirtualsdk.EntitlementEntitled, entitlements.Features[wirtualsdk.FeatureAuditLog].Entitlement)
 		require.Contains(
 			t, entitlements.Warnings,
 			"Your license expires in 1 day.",
@@ -178,8 +178,8 @@ func TestEntitlements(t *testing.T) {
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
 			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureUserLimit: 100,
-					codersdk.FeatureAuditLog:  1,
+					wirtualsdk.FeatureUserLimit: 100,
+					wirtualsdk.FeatureAuditLog:  1,
 				},
 
 				Trial:     true,
@@ -195,7 +195,7 @@ func TestEntitlements(t *testing.T) {
 		require.True(t, entitlements.HasLicense)
 		require.True(t, entitlements.Trial)
 
-		require.Equal(t, codersdk.EntitlementEntitled, entitlements.Features[codersdk.FeatureAuditLog].Entitlement)
+		require.Equal(t, wirtualsdk.EntitlementEntitled, entitlements.Features[wirtualsdk.FeatureAuditLog].Entitlement)
 		require.NotContains( // it should not contain a warning since it is a trial license
 			t, entitlements.Warnings,
 			"Your license expires in 8 days.",
@@ -208,8 +208,8 @@ func TestEntitlements(t *testing.T) {
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
 			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureUserLimit: 100,
-					codersdk.FeatureAuditLog:  1,
+					wirtualsdk.FeatureUserLimit: 100,
+					wirtualsdk.FeatureAuditLog:  1,
 				},
 
 				GraceAt:   dbtime.Now().AddDate(0, 0, 30),
@@ -224,7 +224,7 @@ func TestEntitlements(t *testing.T) {
 		require.True(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
 
-		require.Equal(t, codersdk.EntitlementEntitled, entitlements.Features[codersdk.FeatureAuditLog].Entitlement)
+		require.Equal(t, wirtualsdk.EntitlementEntitled, entitlements.Features[wirtualsdk.FeatureAuditLog].Entitlement)
 		require.NotContains( // it should not contain a warning since it is a trial license
 			t, entitlements.Warnings,
 			"Your license expires in 30 days.",
@@ -242,20 +242,20 @@ func TestEntitlements(t *testing.T) {
 		require.NoError(t, err)
 		require.True(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
-		for _, featureName := range codersdk.FeatureNames {
-			if featureName == codersdk.FeatureUserLimit {
+		for _, featureName := range wirtualsdk.FeatureNames {
+			if featureName == wirtualsdk.FeatureUserLimit {
 				continue
 			}
-			if featureName == codersdk.FeatureHighAvailability {
+			if featureName == wirtualsdk.FeatureHighAvailability {
 				continue
 			}
-			if featureName == codersdk.FeatureMultipleExternalAuth {
+			if featureName == wirtualsdk.FeatureMultipleExternalAuth {
 				continue
 			}
 			niceName := featureName.Humanize()
 			// Ensures features that are not entitled are properly disabled.
 			require.False(t, entitlements.Features[featureName].Enabled)
-			require.Equal(t, codersdk.EntitlementNotEntitled, entitlements.Features[featureName].Entitlement)
+			require.Equal(t, wirtualsdk.EntitlementNotEntitled, entitlements.Features[featureName].Entitlement)
 			require.Contains(t, entitlements.Warnings, fmt.Sprintf("%s is enabled but your license is not entitled to this feature.", niceName))
 		}
 	})
@@ -295,7 +295,7 @@ func TestEntitlements(t *testing.T) {
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
 			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureUserLimit: 1,
+					wirtualsdk.FeatureUserLimit: 1,
 				},
 			}),
 			Exp: time.Now().Add(time.Hour),
@@ -313,7 +313,7 @@ func TestEntitlements(t *testing.T) {
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
 			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureUserLimit: 10,
+					wirtualsdk.FeatureUserLimit: 10,
 				},
 				GraceAt: time.Now().Add(59 * 24 * time.Hour),
 			}),
@@ -322,7 +322,7 @@ func TestEntitlements(t *testing.T) {
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
 			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureUserLimit: 1,
+					wirtualsdk.FeatureUserLimit: 1,
 				},
 				GraceAt: time.Now().Add(59 * 24 * time.Hour),
 			}),
@@ -363,7 +363,7 @@ func TestEntitlements(t *testing.T) {
 		_, err := db.InsertLicense(context.Background(), database.InsertLicenseParams{
 			Exp: time.Now().Add(time.Hour),
 			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
-				FeatureSet: codersdk.FeatureSetEnterprise,
+				FeatureSet: wirtualsdk.FeatureSetEnterprise,
 			}),
 		})
 		require.NoError(t, err)
@@ -373,17 +373,17 @@ func TestEntitlements(t *testing.T) {
 		require.False(t, entitlements.Trial)
 
 		// All enterprise features should be entitled
-		enterpriseFeatures := codersdk.FeatureSetEnterprise.Features()
-		for _, featureName := range codersdk.FeatureNames {
-			if featureName == codersdk.FeatureUserLimit {
+		enterpriseFeatures := wirtualsdk.FeatureSetEnterprise.Features()
+		for _, featureName := range wirtualsdk.FeatureNames {
+			if featureName == wirtualsdk.FeatureUserLimit {
 				continue
 			}
 			if slices.Contains(enterpriseFeatures, featureName) {
 				require.True(t, entitlements.Features[featureName].Enabled, featureName)
-				require.Equal(t, codersdk.EntitlementEntitled, entitlements.Features[featureName].Entitlement)
+				require.Equal(t, wirtualsdk.EntitlementEntitled, entitlements.Features[featureName].Entitlement)
 			} else {
 				require.False(t, entitlements.Features[featureName].Enabled, featureName)
-				require.Equal(t, codersdk.EntitlementNotEntitled, entitlements.Features[featureName].Entitlement)
+				require.Equal(t, wirtualsdk.EntitlementNotEntitled, entitlements.Features[featureName].Entitlement)
 			}
 		}
 	})
@@ -394,7 +394,7 @@ func TestEntitlements(t *testing.T) {
 		_, err := db.InsertLicense(context.Background(), database.InsertLicenseParams{
 			Exp: time.Now().Add(time.Hour),
 			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
-				FeatureSet: codersdk.FeatureSetPremium,
+				FeatureSet: wirtualsdk.FeatureSetPremium,
 			}),
 		})
 		require.NoError(t, err)
@@ -404,17 +404,17 @@ func TestEntitlements(t *testing.T) {
 		require.False(t, entitlements.Trial)
 
 		// All premium features should be entitled
-		enterpriseFeatures := codersdk.FeatureSetPremium.Features()
-		for _, featureName := range codersdk.FeatureNames {
-			if featureName == codersdk.FeatureUserLimit {
+		enterpriseFeatures := wirtualsdk.FeatureSetPremium.Features()
+		for _, featureName := range wirtualsdk.FeatureNames {
+			if featureName == wirtualsdk.FeatureUserLimit {
 				continue
 			}
 			if slices.Contains(enterpriseFeatures, featureName) {
 				require.True(t, entitlements.Features[featureName].Enabled, featureName)
-				require.Equal(t, codersdk.EntitlementEntitled, entitlements.Features[featureName].Entitlement)
+				require.Equal(t, wirtualsdk.EntitlementEntitled, entitlements.Features[featureName].Entitlement)
 			} else {
 				require.False(t, entitlements.Features[featureName].Enabled, featureName)
-				require.Equal(t, codersdk.EntitlementNotEntitled, entitlements.Features[featureName].Entitlement)
+				require.Equal(t, wirtualsdk.EntitlementNotEntitled, entitlements.Features[featureName].Entitlement)
 			}
 		}
 	})
@@ -434,9 +434,9 @@ func TestEntitlements(t *testing.T) {
 		require.True(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
 
-		for _, featureName := range codersdk.FeatureNames {
+		for _, featureName := range wirtualsdk.FeatureNames {
 			require.False(t, entitlements.Features[featureName].Enabled, featureName)
-			require.Equal(t, codersdk.EntitlementNotEntitled, entitlements.Features[featureName].Entitlement)
+			require.Equal(t, wirtualsdk.EntitlementNotEntitled, entitlements.Features[featureName].Entitlement)
 		}
 	})
 
@@ -456,17 +456,17 @@ func TestEntitlements(t *testing.T) {
 		require.False(t, entitlements.Trial)
 
 		// All enterprise features should be entitled
-		enterpriseFeatures := codersdk.FeatureSetEnterprise.Features()
-		for _, featureName := range codersdk.FeatureNames {
-			if featureName == codersdk.FeatureUserLimit {
+		enterpriseFeatures := wirtualsdk.FeatureSetEnterprise.Features()
+		for _, featureName := range wirtualsdk.FeatureNames {
+			if featureName == wirtualsdk.FeatureUserLimit {
 				continue
 			}
 			if slices.Contains(enterpriseFeatures, featureName) {
 				require.True(t, entitlements.Features[featureName].Enabled, featureName)
-				require.Equal(t, codersdk.EntitlementEntitled, entitlements.Features[featureName].Entitlement)
+				require.Equal(t, wirtualsdk.EntitlementEntitled, entitlements.Features[featureName].Entitlement)
 			} else {
 				require.False(t, entitlements.Features[featureName].Enabled, featureName)
-				require.Equal(t, codersdk.EntitlementNotEntitled, entitlements.Features[featureName].Entitlement)
+				require.Equal(t, wirtualsdk.EntitlementNotEntitled, entitlements.Features[featureName].Entitlement)
 			}
 		}
 	})
@@ -485,19 +485,19 @@ func TestEntitlements(t *testing.T) {
 		require.True(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
 		// All enterprise features should be entitled
-		enterpriseFeatures := codersdk.FeatureSetEnterprise.Features()
-		for _, featureName := range codersdk.FeatureNames {
-			if featureName == codersdk.FeatureUserLimit {
+		enterpriseFeatures := wirtualsdk.FeatureSetEnterprise.Features()
+		for _, featureName := range wirtualsdk.FeatureNames {
+			if featureName == wirtualsdk.FeatureUserLimit {
 				continue
 			}
 
 			feature := entitlements.Features[featureName]
 			if slices.Contains(enterpriseFeatures, featureName) {
 				require.Equal(t, featureName.AlwaysEnable(), feature.Enabled)
-				require.Equal(t, codersdk.EntitlementEntitled, feature.Entitlement)
+				require.Equal(t, wirtualsdk.EntitlementEntitled, feature.Entitlement)
 			} else {
 				require.False(t, entitlements.Features[featureName].Enabled, featureName)
-				require.Equal(t, codersdk.EntitlementNotEntitled, entitlements.Features[featureName].Entitlement)
+				require.Equal(t, wirtualsdk.EntitlementNotEntitled, entitlements.Features[featureName].Entitlement)
 			}
 		}
 	})
@@ -518,17 +518,17 @@ func TestEntitlements(t *testing.T) {
 		require.True(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
 		// All enterprise features should be entitled
-		enterpriseFeatures := codersdk.FeatureSetEnterprise.Features()
-		for _, featureName := range codersdk.FeatureNames {
-			if featureName == codersdk.FeatureUserLimit {
+		enterpriseFeatures := wirtualsdk.FeatureSetEnterprise.Features()
+		for _, featureName := range wirtualsdk.FeatureNames {
+			if featureName == wirtualsdk.FeatureUserLimit {
 				continue
 			}
 			if slices.Contains(enterpriseFeatures, featureName) {
 				require.True(t, entitlements.Features[featureName].Enabled, featureName)
-				require.Equal(t, codersdk.EntitlementGracePeriod, entitlements.Features[featureName].Entitlement)
+				require.Equal(t, wirtualsdk.EntitlementGracePeriod, entitlements.Features[featureName].Entitlement)
 			} else {
 				require.False(t, entitlements.Features[featureName].Enabled, featureName)
-				require.Equal(t, codersdk.EntitlementNotEntitled, entitlements.Features[featureName].Entitlement)
+				require.Equal(t, wirtualsdk.EntitlementNotEntitled, entitlements.Features[featureName].Entitlement)
 			}
 		}
 	})
@@ -550,12 +550,12 @@ func TestEntitlements(t *testing.T) {
 			Exp: time.Now().Add(time.Hour),
 			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAuditLog: 1,
+					wirtualsdk.FeatureAuditLog: 1,
 				},
 			}),
 		})
-		entitlements, err := license.Entitlements(context.Background(), db, 2, 1, coderdenttest.Keys, map[codersdk.FeatureName]bool{
-			codersdk.FeatureHighAvailability: true,
+		entitlements, err := license.Entitlements(context.Background(), db, 2, 1, coderdenttest.Keys, map[wirtualsdk.FeatureName]bool{
+			wirtualsdk.FeatureHighAvailability: true,
 		})
 		require.NoError(t, err)
 		require.True(t, entitlements.HasLicense)
@@ -569,15 +569,15 @@ func TestEntitlements(t *testing.T) {
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
 			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureHighAvailability: 1,
+					wirtualsdk.FeatureHighAvailability: 1,
 				},
 				GraceAt:   time.Now().Add(-time.Hour),
 				ExpiresAt: time.Now().Add(time.Hour),
 			}),
 			Exp: time.Now().Add(time.Hour),
 		})
-		entitlements, err := license.Entitlements(context.Background(), db, 2, 1, coderdenttest.Keys, map[codersdk.FeatureName]bool{
-			codersdk.FeatureHighAvailability: true,
+		entitlements, err := license.Entitlements(context.Background(), db, 2, 1, coderdenttest.Keys, map[wirtualsdk.FeatureName]bool{
+			wirtualsdk.FeatureHighAvailability: true,
 		})
 		require.NoError(t, err)
 		require.True(t, entitlements.HasLicense)
@@ -602,12 +602,12 @@ func TestEntitlements(t *testing.T) {
 			Exp: time.Now().Add(time.Hour),
 			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAuditLog: 1,
+					wirtualsdk.FeatureAuditLog: 1,
 				},
 			}),
 		})
-		entitlements, err := license.Entitlements(context.Background(), db, 1, 2, coderdenttest.Keys, map[codersdk.FeatureName]bool{
-			codersdk.FeatureMultipleExternalAuth: true,
+		entitlements, err := license.Entitlements(context.Background(), db, 1, 2, coderdenttest.Keys, map[wirtualsdk.FeatureName]bool{
+			wirtualsdk.FeatureMultipleExternalAuth: true,
 		})
 		require.NoError(t, err)
 		require.True(t, entitlements.HasLicense)
@@ -623,13 +623,13 @@ func TestEntitlements(t *testing.T) {
 				GraceAt:   time.Now().Add(-time.Hour),
 				ExpiresAt: time.Now().Add(time.Hour),
 				Features: license.Features{
-					codersdk.FeatureMultipleExternalAuth: 1,
+					wirtualsdk.FeatureMultipleExternalAuth: 1,
 				},
 			}),
 			Exp: time.Now().Add(time.Hour),
 		})
-		entitlements, err := license.Entitlements(context.Background(), db, 1, 2, coderdenttest.Keys, map[codersdk.FeatureName]bool{
-			codersdk.FeatureMultipleExternalAuth: true,
+		entitlements, err := license.Entitlements(context.Background(), db, 1, 2, coderdenttest.Keys, map[wirtualsdk.FeatureName]bool{
+			wirtualsdk.FeatureMultipleExternalAuth: true,
 		})
 		require.NoError(t, err)
 		require.True(t, entitlements.HasLicense)
@@ -647,19 +647,19 @@ func TestLicenseEntitlements(t *testing.T) {
 
 	// This list comes from coderd.go on launch. This list is a bit arbitrary,
 	// maybe some should be moved to "AlwaysEnabled" instead.
-	defaultEnablements := map[codersdk.FeatureName]bool{
-		codersdk.FeatureAuditLog:                   true,
-		codersdk.FeatureBrowserOnly:                true,
-		codersdk.FeatureSCIM:                       true,
-		codersdk.FeatureMultipleExternalAuth:       true,
-		codersdk.FeatureTemplateRBAC:               true,
-		codersdk.FeatureExternalTokenEncryption:    true,
-		codersdk.FeatureExternalProvisionerDaemons: true,
-		codersdk.FeatureAdvancedTemplateScheduling: true,
-		codersdk.FeatureWorkspaceProxy:             true,
-		codersdk.FeatureUserRoleManagement:         true,
-		codersdk.FeatureAccessControl:              true,
-		codersdk.FeatureControlSharedPorts:         true,
+	defaultEnablements := map[wirtualsdk.FeatureName]bool{
+		wirtualsdk.FeatureAuditLog:                   true,
+		wirtualsdk.FeatureBrowserOnly:                true,
+		wirtualsdk.FeatureSCIM:                       true,
+		wirtualsdk.FeatureMultipleExternalAuth:       true,
+		wirtualsdk.FeatureTemplateRBAC:               true,
+		wirtualsdk.FeatureExternalTokenEncryption:    true,
+		wirtualsdk.FeatureExternalProvisionerDaemons: true,
+		wirtualsdk.FeatureAdvancedTemplateScheduling: true,
+		wirtualsdk.FeatureWorkspaceProxy:             true,
+		wirtualsdk.FeatureUserRoleManagement:         true,
+		wirtualsdk.FeatureAccessControl:              true,
+		wirtualsdk.FeatureControlSharedPorts:         true,
 	}
 
 	legacyLicense := func() *coderdenttest.LicenseOptions {
@@ -678,7 +678,7 @@ func TestLicenseEntitlements(t *testing.T) {
 			AccountID:     "Bob",
 			DeploymentIDs: nil,
 			Trial:         false,
-			FeatureSet:    codersdk.FeatureSetEnterprise,
+			FeatureSet:    wirtualsdk.FeatureSetEnterprise,
 			AllFeatures:   true,
 		}).Valid(time.Now())
 	}
@@ -689,7 +689,7 @@ func TestLicenseEntitlements(t *testing.T) {
 			AccountID:     "Charlie",
 			DeploymentIDs: nil,
 			Trial:         false,
-			FeatureSet:    codersdk.FeatureSetPremium,
+			FeatureSet:    wirtualsdk.FeatureSetPremium,
 			AllFeatures:   true,
 		}).Valid(time.Now())
 	}
@@ -697,15 +697,15 @@ func TestLicenseEntitlements(t *testing.T) {
 	testCases := []struct {
 		Name        string
 		Licenses    []*coderdenttest.LicenseOptions
-		Enablements map[codersdk.FeatureName]bool
+		Enablements map[wirtualsdk.FeatureName]bool
 		Arguments   license.FeatureArguments
 
 		ExpectedErrorContains string
-		AssertEntitlements    func(t *testing.T, entitlements codersdk.Entitlements)
+		AssertEntitlements    func(t *testing.T, entitlements wirtualsdk.Entitlements)
 	}{
 		{
 			Name: "NoLicenses",
-			AssertEntitlements: func(t *testing.T, entitlements codersdk.Entitlements) {
+			AssertEntitlements: func(t *testing.T, entitlements wirtualsdk.Entitlements) {
 				assertNoErrors(t, entitlements)
 				assertNoWarnings(t, entitlements)
 				assert.False(t, entitlements.HasLicense)
@@ -724,11 +724,11 @@ func TestLicenseEntitlements(t *testing.T) {
 				ReplicaCount:      0,
 				ExternalAuthCount: 0,
 			},
-			AssertEntitlements: func(t *testing.T, entitlements codersdk.Entitlements) {
+			AssertEntitlements: func(t *testing.T, entitlements wirtualsdk.Entitlements) {
 				assertEnterpriseFeatures(t, entitlements)
 				assertNoErrors(t, entitlements)
 				assertNoWarnings(t, entitlements)
-				userFeature := entitlements.Features[codersdk.FeatureUserLimit]
+				userFeature := entitlements.Features[wirtualsdk.FeatureUserLimit]
 				assert.Equalf(t, int64(500), *userFeature.Limit, "user limit")
 				assert.Equalf(t, int64(50), *userFeature.Actual, "user count")
 			},
@@ -746,9 +746,9 @@ func TestLicenseEntitlements(t *testing.T) {
 				ReplicaCount:      0,
 				ExternalAuthCount: 0,
 			},
-			AssertEntitlements: func(t *testing.T, entitlements codersdk.Entitlements) {
+			AssertEntitlements: func(t *testing.T, entitlements wirtualsdk.Entitlements) {
 				assertEnterpriseFeatures(t, entitlements)
-				userFeature := entitlements.Features[codersdk.FeatureUserLimit]
+				userFeature := entitlements.Features[wirtualsdk.FeatureUserLimit]
 				assert.Equalf(t, int64(100), *userFeature.Limit, "user limit")
 				assert.Equalf(t, int64(200), *userFeature.Actual, "user count")
 
@@ -772,11 +772,11 @@ func TestLicenseEntitlements(t *testing.T) {
 				ReplicaCount:      0,
 				ExternalAuthCount: 0,
 			},
-			AssertEntitlements: func(t *testing.T, entitlements codersdk.Entitlements) {
-				userFeature := entitlements.Features[codersdk.FeatureUserLimit]
+			AssertEntitlements: func(t *testing.T, entitlements wirtualsdk.Entitlements) {
+				userFeature := entitlements.Features[wirtualsdk.FeatureUserLimit]
 				assert.Equalf(t, int64(500), *userFeature.Limit, "user limit")
 				assert.Equalf(t, int64(200), *userFeature.Actual, "user count")
-				assert.Equal(t, userFeature.Entitlement, codersdk.EntitlementGracePeriod)
+				assert.Equal(t, userFeature.Entitlement, wirtualsdk.EntitlementGracePeriod)
 			},
 		},
 		{
@@ -791,11 +791,11 @@ func TestLicenseEntitlements(t *testing.T) {
 				ReplicaCount:      0,
 				ExternalAuthCount: 0,
 			},
-			AssertEntitlements: func(t *testing.T, entitlements codersdk.Entitlements) {
+			AssertEntitlements: func(t *testing.T, entitlements wirtualsdk.Entitlements) {
 				assertEnterpriseFeatures(t, entitlements)
 				assertNoErrors(t, entitlements)
 				assertNoWarnings(t, entitlements)
-				userFeature := entitlements.Features[codersdk.FeatureUserLimit]
+				userFeature := entitlements.Features[wirtualsdk.FeatureUserLimit]
 				assert.Equalf(t, int64(100), *userFeature.Limit, "user limit")
 				assert.Equalf(t, int64(50), *userFeature.Actual, "user count")
 			},
@@ -808,9 +808,9 @@ func TestLicenseEntitlements(t *testing.T) {
 			Enablements:           defaultEnablements,
 			Arguments:             license.FeatureArguments{},
 			ExpectedErrorContains: "",
-			AssertEntitlements: func(t *testing.T, entitlements codersdk.Entitlements) {
-				assert.False(t, entitlements.Features[codersdk.FeatureMultipleOrganizations].Enabled, "multi-org only enabled for premium")
-				assert.False(t, entitlements.Features[codersdk.FeatureCustomRoles].Enabled, "custom-roles only enabled for premium")
+			AssertEntitlements: func(t *testing.T, entitlements wirtualsdk.Entitlements) {
+				assert.False(t, entitlements.Features[wirtualsdk.FeatureMultipleOrganizations].Enabled, "multi-org only enabled for premium")
+				assert.False(t, entitlements.Features[wirtualsdk.FeatureCustomRoles].Enabled, "custom-roles only enabled for premium")
 			},
 		},
 		{
@@ -821,9 +821,9 @@ func TestLicenseEntitlements(t *testing.T) {
 			Enablements:           defaultEnablements,
 			Arguments:             license.FeatureArguments{},
 			ExpectedErrorContains: "",
-			AssertEntitlements: func(t *testing.T, entitlements codersdk.Entitlements) {
-				assert.True(t, entitlements.Features[codersdk.FeatureMultipleOrganizations].Enabled, "multi-org enabled for premium")
-				assert.True(t, entitlements.Features[codersdk.FeatureCustomRoles].Enabled, "custom-roles enabled for premium")
+			AssertEntitlements: func(t *testing.T, entitlements wirtualsdk.Entitlements) {
+				assert.True(t, entitlements.Features[wirtualsdk.FeatureMultipleOrganizations].Enabled, "multi-org enabled for premium")
+				assert.True(t, entitlements.Features[wirtualsdk.FeatureCustomRoles].Enabled, "custom-roles enabled for premium")
 			},
 		},
 		{
@@ -833,16 +833,16 @@ func TestLicenseEntitlements(t *testing.T) {
 				premiumLicense().UserLimit(200).FutureTerm(time.Now()),
 			},
 			Enablements: defaultEnablements,
-			AssertEntitlements: func(t *testing.T, entitlements codersdk.Entitlements) {
+			AssertEntitlements: func(t *testing.T, entitlements wirtualsdk.Entitlements) {
 				assertEnterpriseFeatures(t, entitlements)
 				assertNoErrors(t, entitlements)
 				assertNoWarnings(t, entitlements)
-				userFeature := entitlements.Features[codersdk.FeatureUserLimit]
+				userFeature := entitlements.Features[wirtualsdk.FeatureUserLimit]
 				assert.Equalf(t, int64(100), *userFeature.Limit, "user limit")
-				assert.Equal(t, codersdk.EntitlementNotEntitled,
-					entitlements.Features[codersdk.FeatureMultipleOrganizations].Entitlement)
-				assert.Equal(t, codersdk.EntitlementNotEntitled,
-					entitlements.Features[codersdk.FeatureCustomRoles].Entitlement)
+				assert.Equal(t, wirtualsdk.EntitlementNotEntitled,
+					entitlements.Features[wirtualsdk.FeatureMultipleOrganizations].Entitlement)
+				assert.Equal(t, wirtualsdk.EntitlementNotEntitled,
+					entitlements.Features[wirtualsdk.FeatureCustomRoles].Entitlement)
 			},
 		},
 	}
@@ -876,18 +876,18 @@ func TestLicenseEntitlements(t *testing.T) {
 	}
 }
 
-func assertNoErrors(t *testing.T, entitlements codersdk.Entitlements) {
+func assertNoErrors(t *testing.T, entitlements wirtualsdk.Entitlements) {
 	assert.Empty(t, entitlements.Errors, "no errors")
 }
 
-func assertNoWarnings(t *testing.T, entitlements codersdk.Entitlements) {
+func assertNoWarnings(t *testing.T, entitlements wirtualsdk.Entitlements) {
 	assert.Empty(t, entitlements.Warnings, "no warnings")
 }
 
-func assertEnterpriseFeatures(t *testing.T, entitlements codersdk.Entitlements) {
-	for _, expected := range codersdk.FeatureSetEnterprise.Features() {
+func assertEnterpriseFeatures(t *testing.T, entitlements wirtualsdk.Entitlements) {
+	for _, expected := range wirtualsdk.FeatureSetEnterprise.Features() {
 		f := entitlements.Features[expected]
-		assert.Equalf(t, codersdk.EntitlementEntitled, f.Entitlement, "%s entitled", expected)
+		assert.Equalf(t, wirtualsdk.EntitlementEntitled, f.Entitlement, "%s entitled", expected)
 		assert.Equalf(t, true, f.Enabled, "%s enabled", expected)
 	}
 }

@@ -38,9 +38,9 @@ func (r *RootCmd) portForward() *serpent.Command {
 		tcpForwards      []string // <port>:<port>
 		udpForwards      []string // <port>:<port>
 		disableAutostart bool
-		appearanceConfig codersdk.AppearanceConfig
+		appearanceConfig wirtualsdk.AppearanceConfig
 	)
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:     "port-forward <workspace>",
 		Short:   `Forward ports from a workspace to the local machine. For reverse port forwarding, use "coder ssh -R".`,
@@ -88,7 +88,7 @@ func (r *RootCmd) portForward() *serpent.Command {
 			if err != nil {
 				return err
 			}
-			if workspace.LatestBuild.Transition != codersdk.WorkspaceTransitionStart {
+			if workspace.LatestBuild.Transition != wirtualsdk.WorkspaceTransitionStart {
 				return xerrors.New("workspace must be in start transition to port-forward")
 			}
 			if workspace.LatestBuild.Job.CompletedAt == nil {

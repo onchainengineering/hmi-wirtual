@@ -16,7 +16,7 @@ func TestWorkspaceProxies(t *testing.T) {
 
 	for _, tt := range []struct {
 		name                  string
-		fetchWorkspaceProxies func(context.Context) (codersdk.RegionsResponse[codersdk.WorkspaceProxy], error)
+		fetchWorkspaceProxies func(context.Context) (wirtualsdk.RegionsResponse[wirtualsdk.WorkspaceProxy], error)
 		updateProxyHealth     func(context.Context) error
 		expectedHealthy       bool
 		expectedError         string
@@ -52,17 +52,17 @@ func TestWorkspaceProxies(t *testing.T) {
 		},
 		{
 			name: "Enabled/OneUnreachable",
-			fetchWorkspaceProxies: func(ctx context.Context) (codersdk.RegionsResponse[codersdk.WorkspaceProxy], error) {
-				return codersdk.RegionsResponse[codersdk.WorkspaceProxy]{
-					Regions: []codersdk.WorkspaceProxy{
+			fetchWorkspaceProxies: func(ctx context.Context) (wirtualsdk.RegionsResponse[wirtualsdk.WorkspaceProxy], error) {
+				return wirtualsdk.RegionsResponse[wirtualsdk.WorkspaceProxy]{
+					Regions: []wirtualsdk.WorkspaceProxy{
 						{
-							Region: codersdk.Region{
+							Region: wirtualsdk.Region{
 								Name:    "gone",
 								Healthy: false,
 							},
-							Status: codersdk.WorkspaceProxyStatus{
-								Status: codersdk.ProxyUnreachable,
-								Report: codersdk.ProxyHealthReport{
+							Status: wirtualsdk.WorkspaceProxyStatus{
+								Status: wirtualsdk.ProxyUnreachable,
+								Report: wirtualsdk.ProxyHealthReport{
 									Errors: []string{
 										"request to proxy failed: Get \"http://127.0.0.1:3001/healthz-report\": dial tcp 127.0.0.1:3001: connect: connection refused",
 									},
@@ -138,7 +138,7 @@ func TestWorkspaceProxies(t *testing.T) {
 		},
 		{
 			name: "Enabled/OneUnhealthyAndDeleted",
-			fetchWorkspaceProxies: fakeFetchWorkspaceProxies(fakeWorkspaceProxy("alpha", false, func(wp *codersdk.WorkspaceProxy) {
+			fetchWorkspaceProxies: fakeFetchWorkspaceProxies(fakeWorkspaceProxy("alpha", false, func(wp *wirtualsdk.WorkspaceProxy) {
 				wp.Deleted = true
 			})),
 			updateProxyHealth: fakeUpdateProxyHealth(nil),
@@ -148,7 +148,7 @@ func TestWorkspaceProxies(t *testing.T) {
 		{
 			name: "Enabled/ProxyWarnings",
 			fetchWorkspaceProxies: fakeFetchWorkspaceProxies(
-				fakeWorkspaceProxy("alpha", true, func(wp *codersdk.WorkspaceProxy) {
+				fakeWorkspaceProxy("alpha", true, func(wp *wirtualsdk.WorkspaceProxy) {
 					wp.Status.Report.Warnings = []string{"warning"}
 				}),
 				fakeWorkspaceProxy("beta", false),
@@ -162,7 +162,7 @@ func TestWorkspaceProxies(t *testing.T) {
 			name: "Enabled/ProxyWarningsButAllErrored",
 			fetchWorkspaceProxies: fakeFetchWorkspaceProxies(
 				fakeWorkspaceProxy("alpha", false),
-				fakeWorkspaceProxy("beta", false, func(wp *codersdk.WorkspaceProxy) {
+				fakeWorkspaceProxy("beta", false, func(wp *wirtualsdk.WorkspaceProxy) {
 					wp.Status.Report.Warnings = []string{"warning"}
 				}),
 			),
@@ -234,11 +234,11 @@ func TestWorkspaceProxy_ErrorDismissed(t *testing.T) {
 
 // yet another implementation of the thing
 type fakeWorkspaceProxyFetchUpdater struct {
-	fetchFunc  func(context.Context) (codersdk.RegionsResponse[codersdk.WorkspaceProxy], error)
+	fetchFunc  func(context.Context) (wirtualsdk.RegionsResponse[wirtualsdk.WorkspaceProxy], error)
 	updateFunc func(context.Context) error
 }
 
-func (u *fakeWorkspaceProxyFetchUpdater) Fetch(ctx context.Context) (codersdk.RegionsResponse[codersdk.WorkspaceProxy], error) {
+func (u *fakeWorkspaceProxyFetchUpdater) Fetch(ctx context.Context) (wirtualsdk.RegionsResponse[wirtualsdk.WorkspaceProxy], error) {
 	return u.fetchFunc(ctx)
 }
 
@@ -247,18 +247,18 @@ func (u *fakeWorkspaceProxyFetchUpdater) Update(ctx context.Context) error {
 }
 
 //nolint:revive // yes, this is a control flag, and that is OK in a unit test.
-func fakeWorkspaceProxy(name string, healthy bool, mutators ...func(*codersdk.WorkspaceProxy)) codersdk.WorkspaceProxy {
-	var status codersdk.WorkspaceProxyStatus
+func fakeWorkspaceProxy(name string, healthy bool, mutators ...func(*wirtualsdk.WorkspaceProxy)) wirtualsdk.WorkspaceProxy {
+	var status wirtualsdk.WorkspaceProxyStatus
 	if !healthy {
-		status = codersdk.WorkspaceProxyStatus{
-			Status: codersdk.ProxyUnreachable,
-			Report: codersdk.ProxyHealthReport{
+		status = wirtualsdk.WorkspaceProxyStatus{
+			Status: wirtualsdk.ProxyUnreachable,
+			Report: wirtualsdk.ProxyHealthReport{
 				Errors: []string{assert.AnError.Error()},
 			},
 		}
 	}
-	wsp := codersdk.WorkspaceProxy{
-		Region: codersdk.Region{
+	wsp := wirtualsdk.WorkspaceProxy{
+		Region: wirtualsdk.Region{
 			Name:    name,
 			Healthy: healthy,
 		},
@@ -270,18 +270,18 @@ func fakeWorkspaceProxy(name string, healthy bool, mutators ...func(*codersdk.Wo
 	return wsp
 }
 
-func fakeFetchWorkspaceProxies(ps ...codersdk.WorkspaceProxy) func(context.Context) (codersdk.RegionsResponse[codersdk.WorkspaceProxy], error) {
-	return func(context.Context) (codersdk.RegionsResponse[codersdk.WorkspaceProxy], error) {
-		return codersdk.RegionsResponse[codersdk.WorkspaceProxy]{
+func fakeFetchWorkspaceProxies(ps ...wirtualsdk.WorkspaceProxy) func(context.Context) (wirtualsdk.RegionsResponse[wirtualsdk.WorkspaceProxy], error) {
+	return func(context.Context) (wirtualsdk.RegionsResponse[wirtualsdk.WorkspaceProxy], error) {
+		return wirtualsdk.RegionsResponse[wirtualsdk.WorkspaceProxy]{
 			Regions: ps,
 		}, nil
 	}
 }
 
-func fakeFetchWorkspaceProxiesErr(err error) func(context.Context) (codersdk.RegionsResponse[codersdk.WorkspaceProxy], error) {
-	return func(context.Context) (codersdk.RegionsResponse[codersdk.WorkspaceProxy], error) {
-		return codersdk.RegionsResponse[codersdk.WorkspaceProxy]{
-			Regions: []codersdk.WorkspaceProxy{},
+func fakeFetchWorkspaceProxiesErr(err error) func(context.Context) (wirtualsdk.RegionsResponse[wirtualsdk.WorkspaceProxy], error) {
+	return func(context.Context) (wirtualsdk.RegionsResponse[wirtualsdk.WorkspaceProxy], error) {
+		return wirtualsdk.RegionsResponse[wirtualsdk.WorkspaceProxy]{
+			Regions: []wirtualsdk.WorkspaceProxy{},
 		}, err
 	}
 }

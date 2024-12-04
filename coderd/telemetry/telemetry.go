@@ -47,7 +47,7 @@ type Options struct {
 	URL *url.URL
 
 	DeploymentID     string
-	DeploymentConfig *codersdk.DeploymentValues
+	DeploymentConfig *wirtualsdk.DeploymentValues
 	BuiltinPostgres  bool
 	Tunnel           bool
 
@@ -486,7 +486,7 @@ func (r *remoteReporter) createSnapshot() (*Snapshot, error) {
 		return nil
 	})
 	eg.Go(func() error {
-		if r.options.DeploymentConfig != nil && slices.Contains(r.options.DeploymentConfig.Experiments, string(codersdk.ExperimentWorkspaceUsage)) {
+		if r.options.DeploymentConfig != nil && slices.Contains(r.options.DeploymentConfig.Experiments, string(wirtualsdk.ExperimentWorkspaceUsage)) {
 			agentStats, err := r.options.Database.GetWorkspaceAgentUsageStats(ctx, createdAfter)
 			if err != nil {
 				return xerrors.Errorf("get workspace agent stats: %w", err)
@@ -849,9 +849,9 @@ func ConvertTemplate(dbTemplate database.Template) Template {
 		FailureTTLMillis:               time.Duration(dbTemplate.FailureTTL).Milliseconds(),
 		TimeTilDormantMillis:           time.Duration(dbTemplate.TimeTilDormant).Milliseconds(),
 		TimeTilDormantAutoDeleteMillis: time.Duration(dbTemplate.TimeTilDormantAutoDelete).Milliseconds(),
-		AutostopRequirementDaysOfWeek:  codersdk.BitmapToWeekdays(uint8(dbTemplate.AutostopRequirementDaysOfWeek)),
+		AutostopRequirementDaysOfWeek:  wirtualsdk.BitmapToWeekdays(uint8(dbTemplate.AutostopRequirementDaysOfWeek)),
 		AutostopRequirementWeeks:       dbTemplate.AutostopRequirementWeeks,
-		AutostartAllowedDays:           codersdk.BitmapToWeekdays(dbTemplate.AutostartAllowedDays()),
+		AutostartAllowedDays:           wirtualsdk.BitmapToWeekdays(dbTemplate.AutostartAllowedDays()),
 		RequireActiveVersion:           dbTemplate.RequireActiveVersion,
 		Deprecated:                     dbTemplate.Deprecated != "",
 	}
@@ -946,24 +946,24 @@ type Snapshot struct {
 
 // Deployment contains information about the host running Coder.
 type Deployment struct {
-	ID              string                     `json:"id"`
-	Architecture    string                     `json:"architecture"`
-	BuiltinPostgres bool                       `json:"builtin_postgres"`
-	Containerized   bool                       `json:"containerized"`
-	Kubernetes      bool                       `json:"kubernetes"`
-	Config          *codersdk.DeploymentValues `json:"config"`
-	Tunnel          bool                       `json:"tunnel"`
-	InstallSource   string                     `json:"install_source"`
-	OSType          string                     `json:"os_type"`
-	OSFamily        string                     `json:"os_family"`
-	OSPlatform      string                     `json:"os_platform"`
-	OSName          string                     `json:"os_name"`
-	OSVersion       string                     `json:"os_version"`
-	CPUCores        int                        `json:"cpu_cores"`
-	MemoryTotal     uint64                     `json:"memory_total"`
-	MachineID       string                     `json:"machine_id"`
-	StartedAt       time.Time                  `json:"started_at"`
-	ShutdownAt      *time.Time                 `json:"shutdown_at"`
+	ID              string                       `json:"id"`
+	Architecture    string                       `json:"architecture"`
+	BuiltinPostgres bool                         `json:"builtin_postgres"`
+	Containerized   bool                         `json:"containerized"`
+	Kubernetes      bool                         `json:"kubernetes"`
+	Config          *wirtualsdk.DeploymentValues `json:"config"`
+	Tunnel          bool                         `json:"tunnel"`
+	InstallSource   string                       `json:"install_source"`
+	OSType          string                       `json:"os_type"`
+	OSFamily        string                       `json:"os_family"`
+	OSPlatform      string                       `json:"os_platform"`
+	OSName          string                       `json:"os_name"`
+	OSVersion       string                       `json:"os_version"`
+	CPUCores        int                          `json:"cpu_cores"`
+	MemoryTotal     uint64                       `json:"memory_total"`
+	MachineID       string                       `json:"machine_id"`
+	StartedAt       time.Time                    `json:"started_at"`
+	ShutdownAt      *time.Time                   `json:"shutdown_at"`
 }
 
 type APIKey struct {

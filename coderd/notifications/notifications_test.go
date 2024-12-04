@@ -152,7 +152,7 @@ func TestSMTPDispatch(t *testing.T) {
 	const from = "danny@coder.com"
 	method := database.NotificationMethodSmtp
 	cfg := defaultNotificationsConfig(method)
-	cfg.SMTP = codersdk.NotificationsEmailConfig{
+	cfg.SMTP = wirtualsdk.NotificationsEmailConfig{
 		From:      from,
 		Smarthost: serpent.String(fmt.Sprintf("localhost:%d", mockSMTPSrv.PortNumber())),
 		Hello:     "localhost",
@@ -220,7 +220,7 @@ func TestWebhookDispatch(t *testing.T) {
 
 	// GIVEN: a webhook setup referencing a mock HTTP server to receive the webhook
 	cfg := defaultNotificationsConfig(database.NotificationMethodWebhook)
-	cfg.Webhook = codersdk.NotificationsWebhookConfig{
+	cfg.Webhook = wirtualsdk.NotificationsWebhookConfig{
 		Endpoint: *serpent.URLOf(endpoint),
 	}
 	mgr, err := notifications.NewManager(cfg, store, defaultHelpers(), createMetrics(), logger.Named("manager"))
@@ -442,7 +442,7 @@ func TestRetries(t *testing.T) {
 
 	method := database.NotificationMethodWebhook
 	cfg := defaultNotificationsConfig(method)
-	cfg.Webhook = codersdk.NotificationsWebhookConfig{
+	cfg.Webhook = wirtualsdk.NotificationsWebhookConfig{
 		Endpoint: *serpent.URLOf(endpoint),
 	}
 
@@ -647,7 +647,7 @@ func TestNotifierPaused(t *testing.T) {
 	require.NoError(t, err)
 
 	// Pause the notifier.
-	settingsJSON, err := json.Marshal(&codersdk.NotificationsSettings{NotifierPaused: true})
+	settingsJSON, err := json.Marshal(&wirtualsdk.NotificationsSettings{NotifierPaused: true})
 	require.NoError(t, err)
 	err = store.UpsertNotificationsSettings(ctx, string(settingsJSON))
 	require.NoError(t, err)
@@ -681,7 +681,7 @@ func TestNotifierPaused(t *testing.T) {
 	}, fetchInterval*5, testutil.IntervalFast)
 
 	// Unpause the notifier.
-	settingsJSON, err = json.Marshal(&codersdk.NotificationsSettings{NotifierPaused: false})
+	settingsJSON, err = json.Marshal(&wirtualsdk.NotificationsSettings{NotifierPaused: false})
 	require.NoError(t, err)
 	err = store.UpsertNotificationsSettings(ctx, string(settingsJSON))
 	require.NoError(t, err)
@@ -1060,7 +1060,7 @@ func TestNotificationTemplates_Golden(t *testing.T) {
 				t.Parallel()
 
 				// Spin up the DB
-				db, logger, user := func() (*database.Store, *slog.Logger, *codersdk.User) {
+				db, logger, user := func() (*database.Store, *slog.Logger, *wirtualsdk.User) {
 					adminClient, _, api := coderdtest.NewWithAPI(t, nil)
 					db := api.Database
 					firstUser := coderdtest.CreateFirstUser(t, adminClient)
@@ -1070,7 +1070,7 @@ func TestNotificationTemplates_Golden(t *testing.T) {
 						adminClient,
 						firstUser.OrganizationID,
 						[]rbac.RoleIdentifier{rbac.RoleUserAdmin()},
-						func(r *codersdk.CreateUserRequestWithOrgs) {
+						func(r *wirtualsdk.CreateUserRequestWithOrgs) {
 							r.Username = tc.payload.UserUsername
 							r.Email = tc.payload.UserEmail
 							r.Name = tc.payload.UserName
@@ -1083,11 +1083,11 @@ func TestNotificationTemplates_Golden(t *testing.T) {
 				ctx := dbauthz.AsNotifier(testutil.Context(t, testutil.WaitSuperLong))
 
 				// smtp config shared between client and server
-				smtpConfig := codersdk.NotificationsEmailConfig{
+				smtpConfig := wirtualsdk.NotificationsEmailConfig{
 					Hello: hello,
 					From:  from,
 
-					Auth: codersdk.NotificationsEmailAuthConfig{
+					Auth: wirtualsdk.NotificationsEmailAuthConfig{
 						Username: username,
 						Password: password,
 					},
@@ -1229,7 +1229,7 @@ func TestNotificationTemplates_Golden(t *testing.T) {
 				t.Parallel()
 
 				// Spin up the DB
-				db, logger, user := func() (*database.Store, *slog.Logger, *codersdk.User) {
+				db, logger, user := func() (*database.Store, *slog.Logger, *wirtualsdk.User) {
 					adminClient, _, api := coderdtest.NewWithAPI(t, nil)
 					db := api.Database
 					firstUser := coderdtest.CreateFirstUser(t, adminClient)
@@ -1239,7 +1239,7 @@ func TestNotificationTemplates_Golden(t *testing.T) {
 						adminClient,
 						firstUser.OrganizationID,
 						[]rbac.RoleIdentifier{rbac.RoleUserAdmin()},
-						func(r *codersdk.CreateUserRequestWithOrgs) {
+						func(r *wirtualsdk.CreateUserRequestWithOrgs) {
 							r.Username = tc.payload.UserUsername
 							r.Email = tc.payload.UserEmail
 							r.Name = tc.payload.UserName
@@ -1268,7 +1268,7 @@ func TestNotificationTemplates_Golden(t *testing.T) {
 
 				webhookCfg := defaultNotificationsConfig(database.NotificationMethodWebhook)
 
-				webhookCfg.Webhook = codersdk.NotificationsWebhookConfig{
+				webhookCfg.Webhook = wirtualsdk.NotificationsWebhookConfig{
 					Endpoint: *serpent.URLOf(endpoint),
 				}
 
@@ -1533,12 +1533,12 @@ func TestCustomNotificationMethod(t *testing.T) {
 
 	// GIVEN: a manager configured with multiple dispatch methods
 	cfg := defaultNotificationsConfig(defaultMethod)
-	cfg.SMTP = codersdk.NotificationsEmailConfig{
+	cfg.SMTP = wirtualsdk.NotificationsEmailConfig{
 		From:      "danny@coder.com",
 		Hello:     "localhost",
 		Smarthost: serpent.String(fmt.Sprintf("localhost:%d", mockSMTPSrv.PortNumber())),
 	}
-	cfg.Webhook = codersdk.NotificationsWebhookConfig{
+	cfg.Webhook = wirtualsdk.NotificationsWebhookConfig{
 		Endpoint: *serpent.URLOf(endpoint),
 	}
 

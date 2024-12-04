@@ -26,7 +26,7 @@ var (
 )
 
 type Fetcher interface {
-	Fetch(ctx context.Context, feature codersdk.CryptoKeyFeature) ([]codersdk.CryptoKey, error)
+	Fetch(ctx context.Context, feature wirtualsdk.CryptoKeyFeature) ([]wirtualsdk.CryptoKey, error)
 }
 
 type EncryptionKeycache interface {
@@ -66,7 +66,7 @@ type DBFetcher struct {
 	DB database.Store
 }
 
-func (d *DBFetcher) Fetch(ctx context.Context, feature codersdk.CryptoKeyFeature) ([]codersdk.CryptoKey, error) {
+func (d *DBFetcher) Fetch(ctx context.Context, feature wirtualsdk.CryptoKeyFeature) ([]wirtualsdk.CryptoKey, error) {
 	keys, err := d.DB.GetCryptoKeysByFeature(ctx, database.CryptoKeyFeature(feature))
 	if err != nil {
 		return nil, xerrors.Errorf("get crypto keys by feature: %w", err)
@@ -82,10 +82,10 @@ type cache struct {
 	clock   quartz.Clock
 	fetcher Fetcher
 	logger  slog.Logger
-	feature codersdk.CryptoKeyFeature
+	feature wirtualsdk.CryptoKeyFeature
 
 	mu        sync.Mutex
-	keys      map[int32]codersdk.CryptoKey
+	keys      map[int32]wirtualsdk.CryptoKey
 	lastFetch time.Time
 	refresher *quartz.Timer
 	fetching  bool
@@ -104,7 +104,7 @@ func WithCacheClock(clock quartz.Clock) CacheOption {
 // NewSigningCache instantiates a cache. Close should be called to release resources
 // associated with its internal timer.
 func NewSigningCache(ctx context.Context, logger slog.Logger, fetcher Fetcher,
-	feature codersdk.CryptoKeyFeature, opts ...func(*cache),
+	feature wirtualsdk.CryptoKeyFeature, opts ...func(*cache),
 ) (SigningKeycache, error) {
 	if !isSigningKeyFeature(feature) {
 		return nil, xerrors.Errorf("invalid feature: %s", feature)
@@ -114,7 +114,7 @@ func NewSigningCache(ctx context.Context, logger slog.Logger, fetcher Fetcher,
 }
 
 func NewEncryptionCache(ctx context.Context, logger slog.Logger, fetcher Fetcher,
-	feature codersdk.CryptoKeyFeature, opts ...func(*cache),
+	feature wirtualsdk.CryptoKeyFeature, opts ...func(*cache),
 ) (EncryptionKeycache, error) {
 	if !isEncryptionKeyFeature(feature) {
 		return nil, xerrors.Errorf("invalid feature: %s", feature)
@@ -123,7 +123,7 @@ func NewEncryptionCache(ctx context.Context, logger slog.Logger, fetcher Fetcher
 	return newCache(ctx, logger, fetcher, feature, opts...), nil
 }
 
-func newCache(ctx context.Context, logger slog.Logger, fetcher Fetcher, feature codersdk.CryptoKeyFeature, opts ...func(*cache)) *cache {
+func newCache(ctx context.Context, logger slog.Logger, fetcher Fetcher, feature wirtualsdk.CryptoKeyFeature, opts ...func(*cache)) *cache {
 	cache := &cache{
 		clock:   quartz.NewReal(),
 		logger:  logger,
@@ -206,20 +206,20 @@ func (c *cache) VerifyingKey(ctx context.Context, id string) (interface{}, error
 	return secret, nil
 }
 
-func isEncryptionKeyFeature(feature codersdk.CryptoKeyFeature) bool {
-	return feature == codersdk.CryptoKeyFeatureWorkspaceAppsAPIKey
+func isEncryptionKeyFeature(feature wirtualsdk.CryptoKeyFeature) bool {
+	return feature == wirtualsdk.CryptoKeyFeatureWorkspaceAppsAPIKey
 }
 
-func isSigningKeyFeature(feature codersdk.CryptoKeyFeature) bool {
+func isSigningKeyFeature(feature wirtualsdk.CryptoKeyFeature) bool {
 	switch feature {
-	case codersdk.CryptoKeyFeatureTailnetResume, codersdk.CryptoKeyFeatureOIDCConvert, codersdk.CryptoKeyFeatureWorkspaceAppsToken:
+	case wirtualsdk.CryptoKeyFeatureTailnetResume, wirtualsdk.CryptoKeyFeatureOIDCConvert, wirtualsdk.CryptoKeyFeatureWorkspaceAppsToken:
 		return true
 	default:
 		return false
 	}
 }
 
-func idSecret(k codersdk.CryptoKey) (string, []byte, error) {
+func idSecret(k wirtualsdk.CryptoKey) (string, []byte, error) {
 	key, err := hex.DecodeString(k.Secret)
 	if err != nil {
 		return "", nil, xerrors.Errorf("decode key: %w", err)
@@ -236,7 +236,7 @@ func (c *cache) cryptoKey(ctx context.Context, sequence int32) (string, []byte, 
 		return "", nil, ErrClosed
 	}
 
-	var key codersdk.CryptoKey
+	var key wirtualsdk.CryptoKey
 	var ok bool
 	for key, ok = c.key(sequence); !ok && c.fetching && !c.closed; {
 		c.cond.Wait()
@@ -273,7 +273,7 @@ func (c *cache) cryptoKey(ctx context.Context, sequence int32) (string, []byte, 
 	return checkKey(key, sequence, c.clock.Now())
 }
 
-func (c *cache) key(sequence int32) (codersdk.CryptoKey, bool) {
+func (c *cache) key(sequence int32) (wirtualsdk.CryptoKey, bool) {
 	if sequence == latestSequence {
 		return c.keys[latestSequence], c.keys[latestSequence].CanSign(c.clock.Now())
 	}
@@ -282,7 +282,7 @@ func (c *cache) key(sequence int32) (codersdk.CryptoKey, bool) {
 	return key, ok
 }
 
-func checkKey(key codersdk.CryptoKey, sequence int32, now time.Time) (string, []byte, error) {
+func checkKey(key wirtualsdk.CryptoKey, sequence int32, now time.Time) (string, []byte, error) {
 	if sequence == latestSequence {
 		if !key.CanSign(now) {
 			return "", nil, ErrKeyInvalid
@@ -342,7 +342,7 @@ func (c *cache) refresh() {
 
 // cryptoKeys queries the control plane for the crypto keys.
 // Outside of initialization, this should only be called by fetch.
-func (c *cache) cryptoKeys(ctx context.Context) (map[int32]codersdk.CryptoKey, error) {
+func (c *cache) cryptoKeys(ctx context.Context) (map[int32]wirtualsdk.CryptoKey, error) {
 	keys, err := c.fetcher.Fetch(ctx, c.feature)
 	if err != nil {
 		return nil, xerrors.Errorf("fetch: %w", err)
@@ -351,9 +351,9 @@ func (c *cache) cryptoKeys(ctx context.Context) (map[int32]codersdk.CryptoKey, e
 	return cache, nil
 }
 
-func toKeyMap(keys []codersdk.CryptoKey, now time.Time) map[int32]codersdk.CryptoKey {
-	m := make(map[int32]codersdk.CryptoKey)
-	var latest codersdk.CryptoKey
+func toKeyMap(keys []wirtualsdk.CryptoKey, now time.Time) map[int32]wirtualsdk.CryptoKey {
+	m := make(map[int32]wirtualsdk.CryptoKey)
+	var latest wirtualsdk.CryptoKey
 	for _, key := range keys {
 		m[key.Sequence] = key
 		if key.Sequence > latest.Sequence && key.CanSign(now) {
@@ -380,17 +380,17 @@ func (c *cache) Close() error {
 }
 
 // We have to do this to avoid a circular dependency on db2sdk (cryptokeys -> db2sdk -> tailnet -> cryptokeys)
-func toSDKKeys(keys []database.CryptoKey) []codersdk.CryptoKey {
-	into := make([]codersdk.CryptoKey, 0, len(keys))
+func toSDKKeys(keys []database.CryptoKey) []wirtualsdk.CryptoKey {
+	into := make([]wirtualsdk.CryptoKey, 0, len(keys))
 	for _, key := range keys {
 		into = append(into, toSDK(key))
 	}
 	return into
 }
 
-func toSDK(key database.CryptoKey) codersdk.CryptoKey {
-	return codersdk.CryptoKey{
-		Feature:   codersdk.CryptoKeyFeature(key.Feature),
+func toSDK(key database.CryptoKey) wirtualsdk.CryptoKey {
+	return wirtualsdk.CryptoKey{
+		Feature:   wirtualsdk.CryptoKeyFeature(key.Feature),
 		Sequence:  key.Sequence,
 		StartsAt:  key.StartsAt,
 		DeletesAt: key.DeletesAt.Time,

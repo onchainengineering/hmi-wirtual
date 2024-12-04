@@ -8,7 +8,7 @@ are several ways to extend/automate Coder:
 - [coderd Terraform Provider](https://registry.terraform.io/providers/coder/coderd/latest)
 - [CLI](../reference/cli/index.md)
 - [REST API](../reference/api/index.md)
-- [Coder SDK](https://pkg.go.dev/github.com/coder/coder/v2/codersdk)
+- [Coder SDK](https://pkg.go.dev/github.com/coder/coder/v2/wirtualsdk)
 - [Agent API](../reference/agent-api/index.md)
 
 ## Quickstart

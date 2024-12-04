@@ -27,7 +27,7 @@ func TestScaleTestWorkspaceTraffic_UseHostLogin(t *testing.T) {
 	client := coderdtest.New(t, &coderdtest.Options{
 		Logger:                   &log,
 		IncludeProvisionerDaemon: true,
-		DeploymentValues: coderdtest.DeploymentValues(t, func(dv *codersdk.DeploymentValues) {
+		DeploymentValues: coderdtest.DeploymentValues(t, func(dv *wirtualsdk.DeploymentValues) {
 			dv.DisableOwnerWorkspaceExec = true
 		}),
 	})
@@ -37,7 +37,7 @@ func TestScaleTestWorkspaceTraffic_UseHostLogin(t *testing.T) {
 	tpl := coderdtest.CreateTemplate(t, client, owner.OrganizationID, tv.ID)
 	// Create a workspace owned by a different user
 	memberClient, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-	_ = coderdtest.CreateWorkspace(t, memberClient, tpl.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
+	_ = coderdtest.CreateWorkspace(t, memberClient, tpl.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 		cwr.Name = "scaletest-workspace"
 	})
 

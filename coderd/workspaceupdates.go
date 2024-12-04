@@ -289,7 +289,7 @@ func convertRows(rows []database.GetWorkspacesAndAgentsByOwnerIDRow) workspacesB
 		}
 		out[row.ID] = ownedWorkspace{
 			WorkspaceName: row.Name,
-			Status:        tailnet.WorkspaceStatusToProto(codersdk.ConvertWorkspaceStatus(codersdk.ProvisionerJobStatus(row.JobStatus), codersdk.WorkspaceTransition(row.Transition))),
+			Status:        tailnet.WorkspaceStatusToProto(wirtualsdk.ConvertWorkspaceStatus(wirtualsdk.ProvisionerJobStatus(row.JobStatus), wirtualsdk.WorkspaceTransition(row.Transition))),
 			Agents:        agents,
 		}
 	}

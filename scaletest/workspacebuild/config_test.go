@@ -25,7 +25,7 @@ func Test_Config(t *testing.T) {
 			config: workspacebuild.Config{
 				OrganizationID: uuid.Nil,
 				UserID:         id.String(),
-				Request: codersdk.CreateWorkspaceRequest{
+				Request: wirtualsdk.CreateWorkspaceRequest{
 					TemplateID: id,
 				},
 				NoWaitForAgents: true,
@@ -37,7 +37,7 @@ func Test_Config(t *testing.T) {
 			config: workspacebuild.Config{
 				OrganizationID: id,
 				UserID:         "",
-				Request: codersdk.CreateWorkspaceRequest{
+				Request: wirtualsdk.CreateWorkspaceRequest{
 					TemplateID: id,
 				},
 			},
@@ -48,7 +48,7 @@ func Test_Config(t *testing.T) {
 			config: workspacebuild.Config{
 				OrganizationID: id,
 				UserID:         "blah",
-				Request: codersdk.CreateWorkspaceRequest{
+				Request: wirtualsdk.CreateWorkspaceRequest{
 					TemplateID: id,
 				},
 			},
@@ -59,7 +59,7 @@ func Test_Config(t *testing.T) {
 			config: workspacebuild.Config{
 				OrganizationID: id,
 				UserID:         id.String(),
-				Request: codersdk.CreateWorkspaceRequest{
+				Request: wirtualsdk.CreateWorkspaceRequest{
 					TemplateID: uuid.Nil,
 				},
 			},
@@ -70,7 +70,7 @@ func Test_Config(t *testing.T) {
 			config: workspacebuild.Config{
 				OrganizationID: id,
 				UserID:         "me",
-				Request: codersdk.CreateWorkspaceRequest{
+				Request: wirtualsdk.CreateWorkspaceRequest{
 					TemplateID: id,
 				},
 			},

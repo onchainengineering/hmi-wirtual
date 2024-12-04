@@ -21,13 +21,13 @@ import (
 )
 
 type Runner struct {
-	client *codersdk.Client
+	client *wirtualsdk.Client
 	cfg    Config
 }
 
 var _ harness.Runnable = &Runner{}
 
-func NewRunner(client *codersdk.Client, cfg Config) *Runner {
+func NewRunner(client *wirtualsdk.Client, cfg Config) *Runner {
 	return &Runner{
 		client: client,
 		cfg:    cfg,

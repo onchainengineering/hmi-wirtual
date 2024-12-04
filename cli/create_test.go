@@ -66,7 +66,7 @@ func TestCreate(t *testing.T) {
 		}
 		<-doneChan
 
-		ws, err := member.WorkspaceByOwnerAndName(context.Background(), codersdk.Me, "my-workspace", codersdk.WorkspaceOptions{})
+		ws, err := member.WorkspaceByOwnerAndName(context.Background(), wirtualsdk.Me, "my-workspace", wirtualsdk.WorkspaceOptions{})
 		if assert.NoError(t, err, "expected workspace to be created") {
 			assert.Equal(t, ws.TemplateName, template.Name)
 			if assert.NotNil(t, ws.AutostartSchedule) {
@@ -75,7 +75,7 @@ func TestCreate(t *testing.T) {
 			if assert.NotNil(t, ws.TTLMillis) {
 				assert.Equal(t, *ws.TTLMillis, 8*time.Hour.Milliseconds())
 			}
-			assert.Equal(t, codersdk.AutomaticUpdatesAlways, ws.AutomaticUpdates)
+			assert.Equal(t, wirtualsdk.AutomaticUpdatesAlways, ws.AutomaticUpdates)
 		}
 	})
 
@@ -121,7 +121,7 @@ func TestCreate(t *testing.T) {
 		}
 		<-doneChan
 
-		ws, err := client.WorkspaceByOwnerAndName(context.Background(), user.Username, "their-workspace", codersdk.WorkspaceOptions{})
+		ws, err := client.WorkspaceByOwnerAndName(context.Background(), user.Username, "their-workspace", wirtualsdk.WorkspaceOptions{})
 		if assert.NoError(t, err, "expected workspace to be created") {
 			assert.Equal(t, ws.TemplateName, template.Name)
 			if assert.NotNil(t, ws.AutostartSchedule) {
@@ -143,7 +143,7 @@ func TestCreate(t *testing.T) {
 		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		// Create a new version
-		version2 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithAgent(), func(ctvr *codersdk.CreateTemplateVersionRequest) {
+		version2 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithAgent(), func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
 			ctvr.TemplateID = template.ID
 		})
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version2.ID)
@@ -182,7 +182,7 @@ func TestCreate(t *testing.T) {
 		}
 		<-doneChan
 
-		ws, err := member.WorkspaceByOwnerAndName(context.Background(), codersdk.Me, "my-workspace", codersdk.WorkspaceOptions{})
+		ws, err := member.WorkspaceByOwnerAndName(context.Background(), wirtualsdk.Me, "my-workspace", wirtualsdk.WorkspaceOptions{})
 		if assert.NoError(t, err, "expected workspace to be created") {
 			assert.Equal(t, ws.TemplateName, template.Name)
 			// Check if the workspace is using the new template version
@@ -193,7 +193,7 @@ func TestCreate(t *testing.T) {
 			if assert.NotNil(t, ws.TTLMillis) {
 				assert.Equal(t, *ws.TTLMillis, 8*time.Hour.Milliseconds())
 			}
-			assert.Equal(t, codersdk.AutomaticUpdatesAlways, ws.AutomaticUpdates)
+			assert.Equal(t, wirtualsdk.AutomaticUpdatesAlways, ws.AutomaticUpdates)
 		}
 	})
 
@@ -204,7 +204,7 @@ func TestCreate(t *testing.T) {
 		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithAgent())
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			var defaultTTLMillis int64 = 2 * 60 * 60 * 1000 // 2 hours
 			ctr.DefaultTTLMillis = &defaultTTLMillis
 		})
@@ -233,7 +233,7 @@ func TestCreate(t *testing.T) {
 		}
 		waiter.RequireSuccess()
 
-		ws, err := member.WorkspaceByOwnerAndName(context.Background(), codersdk.Me, "my-workspace", codersdk.WorkspaceOptions{})
+		ws, err := member.WorkspaceByOwnerAndName(context.Background(), wirtualsdk.Me, "my-workspace", wirtualsdk.WorkspaceOptions{})
 		require.NoError(t, err, "expected workspace to be created")
 		assert.Equal(t, ws.TemplateName, template.Name)
 		assert.Equal(t, *ws.TTLMillis, template.DefaultTTLMillis)
@@ -290,7 +290,7 @@ func TestCreate(t *testing.T) {
 		}
 		<-doneChan
 
-		ws, err := member.WorkspaceByOwnerAndName(inv.Context(), codersdk.Me, "my-workspace", codersdk.WorkspaceOptions{})
+		ws, err := member.WorkspaceByOwnerAndName(inv.Context(), wirtualsdk.Me, "my-workspace", wirtualsdk.WorkspaceOptions{})
 		if assert.NoError(t, err, "expected workspace to be created") {
 			assert.Equal(t, ws.TemplateName, template.Name)
 			assert.Nil(t, ws.AutostartSchedule, "expected workspace autostart schedule to be nil")
@@ -424,7 +424,7 @@ func TestCreateWithRichParameters(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 		defer cancel()
 
-		workspaces, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		workspaces, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			Name: "my-workspace",
 		})
 		require.NoError(t, err, "can't list available workspaces")
@@ -436,9 +436,9 @@ func TestCreateWithRichParameters(t *testing.T) {
 		buildParameters, err := client.WorkspaceBuildParameters(ctx, workspaceLatestBuild.ID)
 		require.NoError(t, err)
 		require.Len(t, buildParameters, 3)
-		require.Contains(t, buildParameters, codersdk.WorkspaceBuildParameter{Name: firstParameterName, Value: firstParameterValue})
-		require.Contains(t, buildParameters, codersdk.WorkspaceBuildParameter{Name: secondParameterName, Value: secondParameterValue})
-		require.Contains(t, buildParameters, codersdk.WorkspaceBuildParameter{Name: immutableParameterName, Value: immutableParameterValue})
+		require.Contains(t, buildParameters, wirtualsdk.WorkspaceBuildParameter{Name: firstParameterName, Value: firstParameterValue})
+		require.Contains(t, buildParameters, wirtualsdk.WorkspaceBuildParameter{Name: secondParameterName, Value: secondParameterValue})
+		require.Contains(t, buildParameters, wirtualsdk.WorkspaceBuildParameter{Name: immutableParameterName, Value: immutableParameterValue})
 	})
 
 	t.Run("RichParametersFile", func(t *testing.T) {
@@ -581,7 +581,7 @@ func TestCreateWithRichParameters(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 		defer cancel()
 
-		workspaces, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		workspaces, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			Name: otherWorkspace,
 		})
 		require.NoError(t, err, "can't list available workspaces")
@@ -592,9 +592,9 @@ func TestCreateWithRichParameters(t *testing.T) {
 		buildParameters, err := client.WorkspaceBuildParameters(ctx, otherWorkspaceLatestBuild.ID)
 		require.NoError(t, err)
 		require.Len(t, buildParameters, 3)
-		require.Contains(t, buildParameters, codersdk.WorkspaceBuildParameter{Name: firstParameterName, Value: firstParameterValue})
-		require.Contains(t, buildParameters, codersdk.WorkspaceBuildParameter{Name: secondParameterName, Value: secondParameterValue})
-		require.Contains(t, buildParameters, codersdk.WorkspaceBuildParameter{Name: immutableParameterName, Value: immutableParameterValue})
+		require.Contains(t, buildParameters, wirtualsdk.WorkspaceBuildParameter{Name: firstParameterName, Value: firstParameterValue})
+		require.Contains(t, buildParameters, wirtualsdk.WorkspaceBuildParameter{Name: secondParameterName, Value: secondParameterValue})
+		require.Contains(t, buildParameters, wirtualsdk.WorkspaceBuildParameter{Name: immutableParameterName, Value: immutableParameterValue})
 	})
 
 	t.Run("CopyParametersFromNotUpdatedWorkspace", func(t *testing.T) {
@@ -623,7 +623,7 @@ func TestCreateWithRichParameters(t *testing.T) {
 		// Secondly, update the template to the newer version.
 		version2 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses([]*proto.RichParameter{
 			{Name: "third_parameter", Type: "string", DefaultValue: "not-relevant"},
-		}), func(ctvr *codersdk.CreateTemplateVersionRequest) {
+		}), func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
 			ctvr.TemplateID = template.ID
 		})
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version2.ID)
@@ -644,7 +644,7 @@ func TestCreateWithRichParameters(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 		defer cancel()
 
-		workspaces, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		workspaces, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
 			Name: otherWorkspace,
 		})
 		require.NoError(t, err, "can't list available workspaces")
@@ -656,9 +656,9 @@ func TestCreateWithRichParameters(t *testing.T) {
 		buildParameters, err := client.WorkspaceBuildParameters(ctx, otherWorkspaceLatestBuild.ID)
 		require.NoError(t, err)
 		require.Len(t, buildParameters, 3)
-		require.Contains(t, buildParameters, codersdk.WorkspaceBuildParameter{Name: firstParameterName, Value: firstParameterValue})
-		require.Contains(t, buildParameters, codersdk.WorkspaceBuildParameter{Name: secondParameterName, Value: secondParameterValue})
-		require.Contains(t, buildParameters, codersdk.WorkspaceBuildParameter{Name: immutableParameterName, Value: immutableParameterValue})
+		require.Contains(t, buildParameters, wirtualsdk.WorkspaceBuildParameter{Name: firstParameterName, Value: firstParameterValue})
+		require.Contains(t, buildParameters, wirtualsdk.WorkspaceBuildParameter{Name: secondParameterName, Value: secondParameterValue})
+		require.Contains(t, buildParameters, wirtualsdk.WorkspaceBuildParameter{Name: immutableParameterName, Value: immutableParameterValue})
 	})
 }
 
@@ -952,7 +952,7 @@ func TestCreateWithGitAuth(t *testing.T) {
 			InstrumentedOAuth2Config: &testutil.OAuth2Config{},
 			ID:                       "github",
 			Regex:                    regexp.MustCompile(`github\.com`),
-			Type:                     codersdk.EnhancedExternalAuthProviderGitHub.String(),
+			Type:                     wirtualsdk.EnhancedExternalAuthProviderGitHub.String(),
 			DisplayName:              "GitHub",
 		}},
 		IncludeProvisionerDaemon: true,

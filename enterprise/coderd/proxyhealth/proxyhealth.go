@@ -195,7 +195,7 @@ type ProxyStatus struct {
 	// escalate errors if the url.Parse errors (should never happen).
 	ProxyHost string
 	Status    Status
-	Report    codersdk.ProxyHealthReport
+	Report    wirtualsdk.ProxyHealthReport
 	CheckedAt time.Time
 }
 
@@ -277,13 +277,13 @@ func (p *ProxyHealth) runOnce(ctx context.Context, now time.Time) (map[uuid.UUID
 				err := json.NewDecoder(resp.Body).Decode(&status.Report)
 				if err != nil {
 					isCoderErr := xerrors.Errorf("proxy url %q is not a coder proxy instance, verify the url is correct", reqURL)
-					if resp.Header.Get(codersdk.BuildVersionHeader) != "" {
+					if resp.Header.Get(wirtualsdk.BuildVersionHeader) != "" {
 						isCoderErr = xerrors.Errorf("proxy url %q is a coder instance, but unable to decode the response payload. Could this be a primary coderd and not a proxy?", reqURL)
 					}
 
 					// If the response is not json, then the user likely input a bad url that returns status code 200.
 					// This is very common, since most webpages do return a 200. So let's improve the error message.
-					if notJSONErr := codersdk.ExpectJSONMime(resp); notJSONErr != nil {
+					if notJSONErr := wirtualsdk.ExpectJSONMime(resp); notJSONErr != nil {
 						err = errors.Join(
 							isCoderErr,
 							xerrors.Errorf("attempted to query health at %q but got back the incorrect content type: %w", reqURL, notJSONErr),
@@ -322,8 +322,8 @@ func (p *ProxyHealth) runOnce(ctx context.Context, now time.Time) (map[uuid.UUID
 				builder.WriteString(fmt.Sprintf("unexpected status code %d. ", resp.StatusCode))
 				builder.WriteString(fmt.Sprintf("\nEncountered error, send a request to %q from the Coderd environment to debug this issue.", reqURL))
 				// err will always be non-nil
-				err := codersdk.ReadBodyAsError(resp)
-				var apiErr *codersdk.Error
+				err := wirtualsdk.ReadBodyAsError(resp)
+				var apiErr *wirtualsdk.Error
 				if xerrors.As(err, &apiErr) {
 					builder.WriteString(fmt.Sprintf("\nError Message: %s\nError Detail: %s", apiErr.Message, apiErr.Detail))
 					for _, v := range apiErr.Validations {

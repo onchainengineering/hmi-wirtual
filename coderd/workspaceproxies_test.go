@@ -60,7 +60,7 @@ func TestRegions(t *testing.T) {
 		client := coderdtest.New(t, nil)
 		_ = coderdtest.CreateFirstUser(t, client)
 
-		unauthedClient := codersdk.New(client.URL)
+		unauthedClient := wirtualsdk.New(client.URL)
 		regions, err := unauthedClient.Regions(ctx)
 		require.Error(t, err)
 		require.Empty(t, regions)

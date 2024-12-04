@@ -76,14 +76,14 @@ func TestProvisionerDaemonReport(t *testing.T) {
 			},
 			expectedItems: []healthsdk.ProvisionerDaemonsReportItem{
 				{
-					ProvisionerDaemon: codersdk.ProvisionerDaemon{
+					ProvisionerDaemon: wirtualsdk.ProvisionerDaemon{
 						ID:           uuid.Nil,
 						Name:         "pd-ok",
 						CreatedAt:    now,
-						LastSeenAt:   codersdk.NewNullTime(now, true),
+						LastSeenAt:   wirtualsdk.NewNullTime(now, true),
 						Version:      "v1.2.3",
 						APIVersion:   "1.0",
-						Provisioners: []codersdk.ProvisionerType{codersdk.ProvisionerTypeEcho, codersdk.ProvisionerTypeTerraform},
+						Provisioners: []wirtualsdk.ProvisionerType{wirtualsdk.ProvisionerTypeEcho, wirtualsdk.ProvisionerTypeTerraform},
 						Tags:         map[string]string{},
 					},
 					Warnings: []health.Message{},
@@ -101,14 +101,14 @@ func TestProvisionerDaemonReport(t *testing.T) {
 			},
 			expectedItems: []healthsdk.ProvisionerDaemonsReportItem{
 				{
-					ProvisionerDaemon: codersdk.ProvisionerDaemon{
+					ProvisionerDaemon: wirtualsdk.ProvisionerDaemon{
 						ID:           uuid.Nil,
 						Name:         "pd-old",
 						CreatedAt:    now,
-						LastSeenAt:   codersdk.NewNullTime(now, true),
+						LastSeenAt:   wirtualsdk.NewNullTime(now, true),
 						Version:      "v1.1.2",
 						APIVersion:   "1.0",
-						Provisioners: []codersdk.ProvisionerType{codersdk.ProvisionerTypeEcho, codersdk.ProvisionerTypeTerraform},
+						Provisioners: []wirtualsdk.ProvisionerType{wirtualsdk.ProvisionerTypeEcho, wirtualsdk.ProvisionerTypeTerraform},
 						Tags:         map[string]string{},
 					},
 					Warnings: []health.Message{
@@ -131,14 +131,14 @@ func TestProvisionerDaemonReport(t *testing.T) {
 			},
 			expectedItems: []healthsdk.ProvisionerDaemonsReportItem{
 				{
-					ProvisionerDaemon: codersdk.ProvisionerDaemon{
+					ProvisionerDaemon: wirtualsdk.ProvisionerDaemon{
 						ID:           uuid.Nil,
 						Name:         "pd-invalid-version",
 						CreatedAt:    now,
-						LastSeenAt:   codersdk.NewNullTime(now, true),
+						LastSeenAt:   wirtualsdk.NewNullTime(now, true),
 						Version:      "invalid",
 						APIVersion:   "1.0",
-						Provisioners: []codersdk.ProvisionerType{codersdk.ProvisionerTypeEcho, codersdk.ProvisionerTypeTerraform},
+						Provisioners: []wirtualsdk.ProvisionerType{wirtualsdk.ProvisionerTypeEcho, wirtualsdk.ProvisionerTypeTerraform},
 						Tags:         map[string]string{},
 					},
 					Warnings: []health.Message{
@@ -161,14 +161,14 @@ func TestProvisionerDaemonReport(t *testing.T) {
 			},
 			expectedItems: []healthsdk.ProvisionerDaemonsReportItem{
 				{
-					ProvisionerDaemon: codersdk.ProvisionerDaemon{
+					ProvisionerDaemon: wirtualsdk.ProvisionerDaemon{
 						ID:           uuid.Nil,
 						Name:         "pd-invalid-api",
 						CreatedAt:    now,
-						LastSeenAt:   codersdk.NewNullTime(now, true),
+						LastSeenAt:   wirtualsdk.NewNullTime(now, true),
 						Version:      "v1.2.3",
 						APIVersion:   "invalid",
-						Provisioners: []codersdk.ProvisionerType{codersdk.ProvisionerTypeEcho, codersdk.ProvisionerTypeTerraform},
+						Provisioners: []wirtualsdk.ProvisionerType{wirtualsdk.ProvisionerTypeEcho, wirtualsdk.ProvisionerTypeTerraform},
 						Tags:         map[string]string{},
 					},
 					Warnings: []health.Message{
@@ -191,14 +191,14 @@ func TestProvisionerDaemonReport(t *testing.T) {
 			},
 			expectedItems: []healthsdk.ProvisionerDaemonsReportItem{
 				{
-					ProvisionerDaemon: codersdk.ProvisionerDaemon{
+					ProvisionerDaemon: wirtualsdk.ProvisionerDaemon{
 						ID:           uuid.Nil,
 						Name:         "pd-old-api",
 						CreatedAt:    now,
-						LastSeenAt:   codersdk.NewNullTime(now, true),
+						LastSeenAt:   wirtualsdk.NewNullTime(now, true),
 						Version:      "v2.3.4",
 						APIVersion:   "1.0",
-						Provisioners: []codersdk.ProvisionerType{codersdk.ProvisionerTypeEcho, codersdk.ProvisionerTypeTerraform},
+						Provisioners: []wirtualsdk.ProvisionerType{wirtualsdk.ProvisionerTypeEcho, wirtualsdk.ProvisionerTypeTerraform},
 						Tags:         map[string]string{},
 					},
 					Warnings: []health.Message{
@@ -222,27 +222,27 @@ func TestProvisionerDaemonReport(t *testing.T) {
 			},
 			expectedItems: []healthsdk.ProvisionerDaemonsReportItem{
 				{
-					ProvisionerDaemon: codersdk.ProvisionerDaemon{
+					ProvisionerDaemon: wirtualsdk.ProvisionerDaemon{
 						ID:           uuid.Nil,
 						Name:         "pd-ok",
 						CreatedAt:    now,
-						LastSeenAt:   codersdk.NewNullTime(now, true),
+						LastSeenAt:   wirtualsdk.NewNullTime(now, true),
 						Version:      "v1.2.3",
 						APIVersion:   "1.0",
-						Provisioners: []codersdk.ProvisionerType{codersdk.ProvisionerTypeEcho, codersdk.ProvisionerTypeTerraform},
+						Provisioners: []wirtualsdk.ProvisionerType{wirtualsdk.ProvisionerTypeEcho, wirtualsdk.ProvisionerTypeTerraform},
 						Tags:         map[string]string{},
 					},
 					Warnings: []health.Message{},
 				},
 				{
-					ProvisionerDaemon: codersdk.ProvisionerDaemon{
+					ProvisionerDaemon: wirtualsdk.ProvisionerDaemon{
 						ID:           uuid.Nil,
 						Name:         "pd-old",
 						CreatedAt:    now,
-						LastSeenAt:   codersdk.NewNullTime(now, true),
+						LastSeenAt:   wirtualsdk.NewNullTime(now, true),
 						Version:      "v1.1.2",
 						APIVersion:   "1.0",
-						Provisioners: []codersdk.ProvisionerType{codersdk.ProvisionerTypeEcho, codersdk.ProvisionerTypeTerraform},
+						Provisioners: []wirtualsdk.ProvisionerType{wirtualsdk.ProvisionerTypeEcho, wirtualsdk.ProvisionerTypeTerraform},
 						Tags:         map[string]string{},
 					},
 					Warnings: []health.Message{
@@ -266,14 +266,14 @@ func TestProvisionerDaemonReport(t *testing.T) {
 			},
 			expectedItems: []healthsdk.ProvisionerDaemonsReportItem{
 				{
-					ProvisionerDaemon: codersdk.ProvisionerDaemon{
+					ProvisionerDaemon: wirtualsdk.ProvisionerDaemon{
 						ID:           uuid.Nil,
 						Name:         "pd-new",
 						CreatedAt:    now,
-						LastSeenAt:   codersdk.NewNullTime(now, true),
+						LastSeenAt:   wirtualsdk.NewNullTime(now, true),
 						Version:      "v2.3.4",
 						APIVersion:   "1.0",
-						Provisioners: []codersdk.ProvisionerType{codersdk.ProvisionerTypeEcho, codersdk.ProvisionerTypeTerraform},
+						Provisioners: []wirtualsdk.ProvisionerType{wirtualsdk.ProvisionerTypeEcho, wirtualsdk.ProvisionerTypeTerraform},
 						Tags:         map[string]string{},
 					},
 					Warnings: []health.Message{
@@ -284,14 +284,14 @@ func TestProvisionerDaemonReport(t *testing.T) {
 					},
 				},
 				{
-					ProvisionerDaemon: codersdk.ProvisionerDaemon{
+					ProvisionerDaemon: wirtualsdk.ProvisionerDaemon{
 						ID:           uuid.Nil,
 						Name:         "pd-ok",
 						CreatedAt:    now,
-						LastSeenAt:   codersdk.NewNullTime(now, true),
+						LastSeenAt:   wirtualsdk.NewNullTime(now, true),
 						Version:      "v1.2.3",
 						APIVersion:   "1.0",
-						Provisioners: []codersdk.ProvisionerType{codersdk.ProvisionerTypeEcho, codersdk.ProvisionerTypeTerraform},
+						Provisioners: []wirtualsdk.ProvisionerType{wirtualsdk.ProvisionerTypeEcho, wirtualsdk.ProvisionerTypeTerraform},
 						Tags:         map[string]string{},
 					},
 					Warnings: []health.Message{},
@@ -309,14 +309,14 @@ func TestProvisionerDaemonReport(t *testing.T) {
 			},
 			expectedItems: []healthsdk.ProvisionerDaemonsReportItem{
 				{
-					ProvisionerDaemon: codersdk.ProvisionerDaemon{
+					ProvisionerDaemon: wirtualsdk.ProvisionerDaemon{
 						ID:           uuid.Nil,
 						Name:         "pd-ok",
 						CreatedAt:    now,
-						LastSeenAt:   codersdk.NewNullTime(now, true),
+						LastSeenAt:   wirtualsdk.NewNullTime(now, true),
 						Version:      "v2.3.4",
 						APIVersion:   "1.0",
-						Provisioners: []codersdk.ProvisionerType{codersdk.ProvisionerTypeEcho, codersdk.ProvisionerTypeTerraform},
+						Provisioners: []wirtualsdk.ProvisionerType{wirtualsdk.ProvisionerTypeEcho, wirtualsdk.ProvisionerTypeTerraform},
 						Tags:         map[string]string{},
 					},
 					Warnings: []health.Message{},

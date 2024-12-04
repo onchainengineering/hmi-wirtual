@@ -49,14 +49,14 @@ var (
 // NOTE: auth and TLS is currently *not* enabled in this initial thin slice.
 // TODO: implement DKIM/SPF/DMARC? https://github.com/emersion/go-msgauth
 type SMTPHandler struct {
-	cfg codersdk.NotificationsEmailConfig
+	cfg wirtualsdk.NotificationsEmailConfig
 	log slog.Logger
 
 	noAuthWarnOnce sync.Once
 	loginWarnOnce  sync.Once
 }
 
-func NewSMTPHandler(cfg codersdk.NotificationsEmailConfig, log slog.Logger) *SMTPHandler {
+func NewSMTPHandler(cfg wirtualsdk.NotificationsEmailConfig, log slog.Logger) *SMTPHandler {
 	return &SMTPHandler{cfg: cfg, log: log}
 }
 

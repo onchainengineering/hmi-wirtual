@@ -47,14 +47,14 @@ echo_latest_main_version() {
 	echo origin/main
 }
 
-sparse_clone_codersdk() {
+sparse_clone_wirtualsdk() {
 	mkdir -p "${1}"
 	cd "${1}"
 	rm -rf "${2}"
 	git clone --quiet --no-checkout "${PROJECT_ROOT}" "${2}"
 	cd "${2}"
-	git sparse-checkout set --no-cone codersdk
-	git checkout "${3}" -- codersdk
+	git sparse-checkout set --no-cone wirtualsdk
+	git checkout "${3}" -- wirtualsdk
 	echo "${1}/${2}"
 }
 
@@ -64,7 +64,7 @@ parse_all_experiments() {
 	# string that looks like {}, {ExpA}, or {ExpA,ExpB,}.
 	#
 	# Example: ExperimentsAll=Experiments{ExperimentNotifications,ExperimentAutoFillParameters,}
-	go doc -all -C "${dir}" ./codersdk ExperimentsAll |
+	go doc -all -C "${dir}" ./wirtualsdk ExperimentsAll |
 		tr -d $'\n\t ' |
 		grep -E -o 'ExperimentsAll=Experiments\{[^}]*\}' |
 		sed -e 's/.*{\(.*\)}.*/\1/' |
@@ -86,7 +86,7 @@ parse_experiments() {
 	# 	||a preceding multi line comment!?
 	# 	ExperimentTest|test|
 	#
-	go doc -all -C "${1}" ./codersdk Experiment |
+	go doc -all -C "${1}" ./wirtualsdk Experiment |
 		sed \
 			-e 's/\t\(Experiment[^ ]*\)\ \ *Experiment = "\([^"]*\)"\(.*\/\/ \(.*\)\)\?/\1|\2|\4/' \
 			-e 's/\t\/\/ \(.*\)/||\1/' |
@@ -104,7 +104,7 @@ for channel in mainline stable; do
 	log "Fetching experiments from ${channel}"
 
 	tag=$(echo_latest_"${channel}"_version)
-	dir="$(sparse_clone_codersdk "${workdir}" "${channel}" "${tag}")"
+	dir="$(sparse_clone_wirtualsdk "${workdir}" "${channel}" "${tag}")"
 
 	declare -A all_experiments=()
 	all_experiments_out="$(parse_all_experiments "${dir}")"

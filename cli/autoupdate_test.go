@@ -26,9 +26,9 @@ func TestAutoUpdate(t *testing.T) {
 		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 		workspace := coderdtest.CreateWorkspace(t, member, template.ID)
 		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
-		require.Equal(t, codersdk.AutomaticUpdatesNever, workspace.AutomaticUpdates)
+		require.Equal(t, wirtualsdk.AutomaticUpdatesNever, workspace.AutomaticUpdates)
 
-		expectedPolicy := codersdk.AutomaticUpdatesAlways
+		expectedPolicy := wirtualsdk.AutomaticUpdatesAlways
 		inv, root := clitest.New(t, "autoupdate", workspace.Name, string(expectedPolicy))
 		clitest.SetupConfig(t, member, root)
 		var buf bytes.Buffer

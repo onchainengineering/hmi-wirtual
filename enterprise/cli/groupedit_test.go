@@ -26,7 +26,7 @@ func TestGroupEdit(t *testing.T) {
 
 		client, admin := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleUserAdmin())
@@ -65,7 +65,7 @@ func TestGroupEdit(t *testing.T) {
 
 		client, admin := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 
@@ -89,7 +89,7 @@ func TestGroupEdit(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())

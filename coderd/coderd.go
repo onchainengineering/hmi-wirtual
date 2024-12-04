@@ -161,7 +161,7 @@ type Options struct {
 	TracerProvider                 trace.TracerProvider
 	ExternalAuthConfigs            []*externalauth.Config
 	RealIPConfig                   *httpmw.RealIPConfig
-	TrialGenerator                 func(ctx context.Context, body codersdk.LicensorTrialRequest) error
+	TrialGenerator                 func(ctx context.Context, body wirtualsdk.LicensorTrialRequest) error
 	// RefreshEntitlements is used to set correct entitlements after creating first user and generating trial license.
 	RefreshEntitlements func(ctx context.Context) error
 	// Entitlements can come from the enterprise caller if enterprise code is
@@ -210,7 +210,7 @@ type Options struct {
 
 	MetricsCacheRefreshInterval time.Duration
 	AgentStatsRefreshInterval   time.Duration
-	DeploymentValues            *codersdk.DeploymentValues
+	DeploymentValues            *wirtualsdk.DeploymentValues
 	// DeploymentOptions do contain the copy of DeploymentValues, and contain
 	// contextual information about how the values were set.
 	// Do not use DeploymentOptions to retrieve values, use DeploymentValues instead.
@@ -219,7 +219,7 @@ type Options struct {
 	UpdateCheckOptions *updatecheck.Options // Set non-nil to enable update checking.
 
 	// SSHConfig is the response clients use to configure config-ssh locally.
-	SSHConfig codersdk.SSHConfigResponse
+	SSHConfig wirtualsdk.SSHConfigResponse
 
 	HTTPClient *http.Client
 
@@ -426,7 +426,7 @@ func New(options *Options) *API {
 			TemplateBuildTimes: options.MetricsCacheRefreshInterval,
 			DeploymentStats:    options.AgentStatsRefreshInterval,
 		},
-		experiments.Enabled(codersdk.ExperimentWorkspaceUsage),
+		experiments.Enabled(wirtualsdk.ExperimentWorkspaceUsage),
 	)
 
 	oauthConfigs := &httpmw.OAuth2Configs{
@@ -465,7 +465,7 @@ func New(options *Options) *API {
 		options.OIDCConvertKeyCache, err = cryptokeys.NewSigningCache(ctx,
 			options.Logger.Named("oidc_convert_keycache"),
 			fetcher,
-			codersdk.CryptoKeyFeatureOIDCConvert,
+			wirtualsdk.CryptoKeyFeatureOIDCConvert,
 		)
 		if err != nil {
 			options.Logger.Fatal(ctx, "failed to properly instantiate oidc convert signing cache", slog.Error(err))
@@ -476,7 +476,7 @@ func New(options *Options) *API {
 		options.AppSigningKeyCache, err = cryptokeys.NewSigningCache(ctx,
 			options.Logger.Named("app_signing_keycache"),
 			fetcher,
-			codersdk.CryptoKeyFeatureWorkspaceAppsToken,
+			wirtualsdk.CryptoKeyFeatureWorkspaceAppsToken,
 		)
 		if err != nil {
 			options.Logger.Fatal(ctx, "failed to properly instantiate app signing key cache", slog.Error(err))
@@ -487,7 +487,7 @@ func New(options *Options) *API {
 		options.AppEncryptionKeyCache, err = cryptokeys.NewEncryptionCache(ctx,
 			options.Logger,
 			fetcher,
-			codersdk.CryptoKeyFeatureWorkspaceAppsAPIKey,
+			wirtualsdk.CryptoKeyFeatureWorkspaceAppsAPIKey,
 		)
 		if err != nil {
 			options.Logger.Fatal(ctx, "failed to properly instantiate app encryption key cache", slog.Error(err))
@@ -502,7 +502,7 @@ func New(options *Options) *API {
 		resumeKeycache, err := cryptokeys.NewSigningCache(ctx,
 			options.Logger,
 			fetcher,
-			codersdk.CryptoKeyFeatureTailnetResume,
+			wirtualsdk.CryptoKeyFeatureTailnetResume,
 		)
 		if err != nil {
 			options.Logger.Fatal(ctx, "failed to properly instantiate tailnet resume signing cache", slog.Error(err))
@@ -564,7 +564,7 @@ func New(options *Options) *API {
 	f := appearance.NewDefaultFetcher(api.DeploymentValues.DocsURL.String())
 	api.AppearanceFetcher.Store(&f)
 	api.PortSharer.Store(&portsharing.DefaultPortSharer)
-	buildInfo := codersdk.BuildInfoResponse{
+	buildInfo := wirtualsdk.BuildInfoResponse{
 		ExternalURL:           buildinfo.ExternalURL(),
 		Version:               buildinfo.Version(),
 		AgentAPIVersion:       AgentAPIVersionREST,
@@ -791,7 +791,7 @@ func New(options *Options) *API {
 		// Build-Version is helpful for debugging.
 		func(next http.Handler) http.Handler {
 			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.Header().Add(codersdk.BuildVersionHeader, buildinfo.Version())
+				w.Header().Add(wirtualsdk.BuildVersionHeader, buildinfo.Version())
 				next.ServeHTTP(w, r)
 			})
 		},
@@ -1372,7 +1372,7 @@ func New(options *Options) *API {
 		r.Get("/swagger/*", globalHTTPSwaggerHandler)
 	} else {
 		swaggerDisabled := http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-			httpapi.Write(context.Background(), rw, http.StatusNotFound, codersdk.Response{
+			httpapi.Write(context.Background(), rw, http.StatusNotFound, wirtualsdk.Response{
 				Message: "Swagger documentation is disabled.",
 			})
 		})
@@ -1486,7 +1486,7 @@ type API struct {
 
 	// Experiments contains the list of experiments currently enabled.
 	// This is used to gate features that are not yet ready for production.
-	Experiments codersdk.Experiments
+	Experiments wirtualsdk.Experiments
 
 	healthCheckGroup *singleflight.Group[string, *healthsdk.HealthcheckReport]
 	healthCheckCache atomic.Pointer[healthsdk.HealthcheckReport]
@@ -1578,11 +1578,11 @@ func compressHandler(h http.Handler) http.Handler {
 
 // CreateInMemoryProvisionerDaemon is an in-memory connection to a provisionerd.
 // Useful when starting coderd and provisionerd in the same process.
-func (api *API) CreateInMemoryProvisionerDaemon(dialCtx context.Context, name string, provisionerTypes []codersdk.ProvisionerType) (client proto.DRPCProvisionerDaemonClient, err error) {
+func (api *API) CreateInMemoryProvisionerDaemon(dialCtx context.Context, name string, provisionerTypes []wirtualsdk.ProvisionerType) (client proto.DRPCProvisionerDaemonClient, err error) {
 	return api.CreateInMemoryTaggedProvisionerDaemon(dialCtx, name, provisionerTypes, nil)
 }
 
-func (api *API) CreateInMemoryTaggedProvisionerDaemon(dialCtx context.Context, name string, provisionerTypes []codersdk.ProvisionerType, provisionerTags map[string]string) (client proto.DRPCProvisionerDaemonClient, err error) {
+func (api *API) CreateInMemoryTaggedProvisionerDaemon(dialCtx context.Context, name string, provisionerTypes []wirtualsdk.ProvisionerType, provisionerTags map[string]string) (client proto.DRPCProvisionerDaemonClient, err error) {
 	tracer := api.TracerProvider.Tracer(tracing.TracerName)
 	clientSession, serverSession := drpc.MemTransportPipe()
 	defer func() {
@@ -1604,7 +1604,7 @@ func (api *API) CreateInMemoryTaggedProvisionerDaemon(dialCtx context.Context, n
 		dbTypes = append(dbTypes, database.ProvisionerType(tp))
 	}
 
-	keyID, err := uuid.Parse(string(codersdk.ProvisionerKeyIDBuiltIn))
+	keyID, err := uuid.Parse(string(wirtualsdk.ProvisionerKeyIDBuiltIn))
 	if err != nil {
 		return nil, xerrors.Errorf("failed to parse built-in provisioner key ID: %w", err)
 	}
@@ -1703,15 +1703,15 @@ func (api *API) DERPMap() *tailcfg.DERPMap {
 }
 
 // nolint:revive
-func ReadExperiments(log slog.Logger, raw []string) codersdk.Experiments {
-	exps := make([]codersdk.Experiment, 0, len(raw))
+func ReadExperiments(log slog.Logger, raw []string) wirtualsdk.Experiments {
+	exps := make([]wirtualsdk.Experiment, 0, len(raw))
 	for _, v := range raw {
 		switch v {
 		case "*":
-			exps = append(exps, codersdk.ExperimentsAll...)
+			exps = append(exps, wirtualsdk.ExperimentsAll...)
 		default:
-			ex := codersdk.Experiment(strings.ToLower(v))
-			if !slice.Contains(codersdk.ExperimentsAll, ex) {
+			ex := wirtualsdk.Experiment(strings.ToLower(v))
+			if !slice.Contains(wirtualsdk.ExperimentsAll, ex) {
 				log.Warn(context.Background(), "🐉 HERE BE DRAGONS: opting into hidden experiment", slog.F("experiment", ex))
 			}
 			exps = append(exps, ex)

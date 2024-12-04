@@ -1,5 +1,5 @@
 //nolint:testpackage
-package codersdk
+package wirtualsdk
 
 import (
 	"net/http"

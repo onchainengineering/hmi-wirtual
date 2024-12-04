@@ -87,7 +87,7 @@ func TestScim(t *testing.T) {
 				LicenseOptions: &coderdenttest.LicenseOptions{
 					AccountID: "coolin",
 					Features: license.Features{
-						codersdk.FeatureSCIM: 0,
+						wirtualsdk.FeatureSCIM: 0,
 					},
 				},
 			})
@@ -109,7 +109,7 @@ func TestScim(t *testing.T) {
 				LicenseOptions: &coderdenttest.LicenseOptions{
 					AccountID: "coolin",
 					Features: license.Features{
-						codersdk.FeatureSCIM: 1,
+						wirtualsdk.FeatureSCIM: 1,
 					},
 				},
 			})
@@ -140,8 +140,8 @@ func TestScim(t *testing.T) {
 				LicenseOptions: &coderdenttest.LicenseOptions{
 					AccountID: "coolin",
 					Features: license.Features{
-						codersdk.FeatureSCIM:     1,
-						codersdk.FeatureAuditLog: 1,
+						wirtualsdk.FeatureSCIM:     1,
+						wirtualsdk.FeatureAuditLog: 1,
 					},
 				},
 			})
@@ -171,7 +171,7 @@ func TestScim(t *testing.T) {
 			assert.Equal(t, database.AuditActionCreate, aLogs[0].Action)
 
 			// Expect users exposed over API
-			userRes, err := client.Users(ctx, codersdk.UsersRequest{Search: sUser.Emails[0].Value})
+			userRes, err := client.Users(ctx, wirtualsdk.UsersRequest{Search: sUser.Emails[0].Value})
 			require.NoError(t, err)
 			require.Len(t, userRes.Users, 1)
 			assert.Equal(t, sUser.Emails[0].Value, userRes.Users[0].Email)
@@ -202,8 +202,8 @@ func TestScim(t *testing.T) {
 				LicenseOptions: &coderdenttest.LicenseOptions{
 					AccountID: "coolin",
 					Features: license.Features{
-						codersdk.FeatureSCIM:     1,
-						codersdk.FeatureAuditLog: 1,
+						wirtualsdk.FeatureSCIM:     1,
+						wirtualsdk.FeatureAuditLog: 1,
 					},
 				},
 			})
@@ -227,7 +227,7 @@ func TestScim(t *testing.T) {
 			assert.Equal(t, database.AuditActionCreate, aLogs[0].Action)
 
 			// Expect users exposed over API
-			userRes, err := client.Users(ctx, codersdk.UsersRequest{Search: sUser.Emails[0].Value})
+			userRes, err := client.Users(ctx, wirtualsdk.UsersRequest{Search: sUser.Emails[0].Value})
 			require.NoError(t, err)
 			require.Len(t, userRes.Users, 1)
 			assert.Equal(t, sUser.Emails[0].Value, userRes.Users[0].Email)
@@ -261,8 +261,8 @@ func TestScim(t *testing.T) {
 				LicenseOptions: &coderdenttest.LicenseOptions{
 					AccountID: "coolin",
 					Features: license.Features{
-						codersdk.FeatureSCIM:     1,
-						codersdk.FeatureAuditLog: 1,
+						wirtualsdk.FeatureSCIM:     1,
+						wirtualsdk.FeatureAuditLog: 1,
 					},
 				},
 			})
@@ -286,7 +286,7 @@ func TestScim(t *testing.T) {
 			assert.Equal(t, database.AuditActionCreate, aLogs[0].Action)
 
 			// Expect users exposed over API
-			userRes, err := client.Users(ctx, codersdk.UsersRequest{Search: sUser.Emails[0].Value})
+			userRes, err := client.Users(ctx, wirtualsdk.UsersRequest{Search: sUser.Emails[0].Value})
 			require.NoError(t, err)
 			require.Len(t, userRes.Users, 1)
 			assert.Equal(t, sUser.Emails[0].Value, userRes.Users[0].Email)
@@ -309,7 +309,7 @@ func TestScim(t *testing.T) {
 				LicenseOptions: &coderdenttest.LicenseOptions{
 					AccountID: "coolin",
 					Features: license.Features{
-						codersdk.FeatureSCIM: 1,
+						wirtualsdk.FeatureSCIM: 1,
 					},
 				},
 			})
@@ -322,7 +322,7 @@ func TestScim(t *testing.T) {
 				assert.Equal(t, http.StatusOK, res.StatusCode)
 			}
 
-			userRes, err := client.Users(ctx, codersdk.UsersRequest{Search: sUser.Emails[0].Value})
+			userRes, err := client.Users(ctx, wirtualsdk.UsersRequest{Search: sUser.Emails[0].Value})
 			require.NoError(t, err)
 			require.Len(t, userRes.Users, 1)
 
@@ -342,7 +342,7 @@ func TestScim(t *testing.T) {
 				LicenseOptions: &coderdenttest.LicenseOptions{
 					AccountID: "coolin",
 					Features: license.Features{
-						codersdk.FeatureSCIM: 1,
+						wirtualsdk.FeatureSCIM: 1,
 					},
 				},
 			})
@@ -369,13 +369,13 @@ func TestScim(t *testing.T) {
 			_ = res.Body.Close()
 			assert.Equal(t, http.StatusOK, res.StatusCode)
 
-			userRes, err := client.Users(ctx, codersdk.UsersRequest{Search: sUser.Emails[0].Value})
+			userRes, err := client.Users(ctx, wirtualsdk.UsersRequest{Search: sUser.Emails[0].Value})
 			require.NoError(t, err)
 			require.Len(t, userRes.Users, 1)
 
 			assert.Equal(t, sUser.Emails[0].Value, userRes.Users[0].Email)
 			assert.Equal(t, sUser.UserName, userRes.Users[0].Username)
-			assert.Equal(t, codersdk.UserStatusDormant, userRes.Users[0].Status)
+			assert.Equal(t, wirtualsdk.UserStatusDormant, userRes.Users[0].Status)
 		})
 
 		t.Run("DomainStrips", func(t *testing.T) {
@@ -390,7 +390,7 @@ func TestScim(t *testing.T) {
 				LicenseOptions: &coderdenttest.LicenseOptions{
 					AccountID: "coolin",
 					Features: license.Features{
-						codersdk.FeatureSCIM: 1,
+						wirtualsdk.FeatureSCIM: 1,
 					},
 				},
 			})
@@ -403,7 +403,7 @@ func TestScim(t *testing.T) {
 			_ = res.Body.Close()
 			assert.Equal(t, http.StatusOK, res.StatusCode)
 
-			userRes, err := client.Users(ctx, codersdk.UsersRequest{Search: sUser.Emails[0].Value})
+			userRes, err := client.Users(ctx, wirtualsdk.UsersRequest{Search: sUser.Emails[0].Value})
 			require.NoError(t, err)
 			require.Len(t, userRes.Users, 1)
 
@@ -428,7 +428,7 @@ func TestScim(t *testing.T) {
 				LicenseOptions: &coderdenttest.LicenseOptions{
 					AccountID: "coolin",
 					Features: license.Features{
-						codersdk.FeatureSCIM: 0,
+						wirtualsdk.FeatureSCIM: 0,
 					},
 				},
 			})
@@ -451,7 +451,7 @@ func TestScim(t *testing.T) {
 				LicenseOptions: &coderdenttest.LicenseOptions{
 					AccountID: "coolin",
 					Features: license.Features{
-						codersdk.FeatureSCIM: 1,
+						wirtualsdk.FeatureSCIM: 1,
 					},
 				},
 			})
@@ -478,8 +478,8 @@ func TestScim(t *testing.T) {
 				LicenseOptions: &coderdenttest.LicenseOptions{
 					AccountID: "coolin",
 					Features: license.Features{
-						codersdk.FeatureSCIM:     1,
-						codersdk.FeatureAuditLog: 1,
+						wirtualsdk.FeatureSCIM:     1,
+						wirtualsdk.FeatureAuditLog: 1,
 					},
 				},
 			})
@@ -507,10 +507,10 @@ func TestScim(t *testing.T) {
 			require.Len(t, aLogs, 1)
 			assert.Equal(t, database.AuditActionWrite, aLogs[0].Action)
 
-			userRes, err := client.Users(ctx, codersdk.UsersRequest{Search: sUser.Emails[0].Value})
+			userRes, err := client.Users(ctx, wirtualsdk.UsersRequest{Search: sUser.Emails[0].Value})
 			require.NoError(t, err)
 			require.Len(t, userRes.Users, 1)
-			assert.Equal(t, codersdk.UserStatusSuspended, userRes.Users[0].Status)
+			assert.Equal(t, wirtualsdk.UserStatusSuspended, userRes.Users[0].Status)
 		})
 
 		// Create a user via SCIM, which starts as dormant.
@@ -536,8 +536,8 @@ func TestScim(t *testing.T) {
 				LicenseOptions: &coderdenttest.LicenseOptions{
 					AccountID: "coolin",
 					Features: license.Features{
-						codersdk.FeatureSCIM:     1,
-						codersdk.FeatureAuditLog: 1,
+						wirtualsdk.FeatureSCIM:     1,
+						wirtualsdk.FeatureAuditLog: 1,
 					},
 				},
 			})
@@ -561,16 +561,16 @@ func TestScim(t *testing.T) {
 			// Verify the user is dormant
 			scimUser, err := client.User(ctx, sUser.UserName)
 			require.NoError(t, err)
-			require.Equal(t, codersdk.UserStatusDormant, scimUser.Status, "user starts as dormant")
+			require.Equal(t, wirtualsdk.UserStatusDormant, scimUser.Status, "user starts as dormant")
 
 			// Log in as the user, making them active
 			//nolint:bodyclose
 			scimUserClient, _ := fake.Login(t, client, jwt.MapClaims{
 				"email": sUser.Emails[0].Value,
 			})
-			scimUser, err = scimUserClient.User(ctx, codersdk.Me)
+			scimUser, err = scimUserClient.User(ctx, wirtualsdk.Me)
 			require.NoError(t, err)
-			require.Equal(t, codersdk.UserStatusActive, scimUser.Status, "user should now be active")
+			require.Equal(t, wirtualsdk.UserStatusActive, scimUser.Status, "user should now be active")
 
 			// Patch the user
 			mockAudit.ResetLogs()
@@ -587,7 +587,7 @@ func TestScim(t *testing.T) {
 			// Verify the user is still active.
 			scimUser, err = client.User(ctx, sUser.UserName)
 			require.NoError(t, err)
-			require.Equal(t, codersdk.UserStatusActive, scimUser.Status, "user is still active")
+			require.Equal(t, wirtualsdk.UserStatusActive, scimUser.Status, "user is still active")
 		})
 	})
 }

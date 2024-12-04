@@ -1,4 +1,4 @@
-package codersdk_test
+package wirtualsdk_test
 
 import (
 	"strings"
@@ -63,7 +63,7 @@ func TestUsernameValid(t *testing.T) {
 		testCase := testCase
 		t.Run(testCase.Username, func(t *testing.T) {
 			t.Parallel()
-			valid := codersdk.NameValid(testCase.Username)
+			valid := wirtualsdk.NameValid(testCase.Username)
 			require.Equal(t, testCase.Valid, valid == nil)
 		})
 	}
@@ -118,7 +118,7 @@ func TestTemplateDisplayNameValid(t *testing.T) {
 		testCase := testCase
 		t.Run(testCase.Name, func(t *testing.T) {
 			t.Parallel()
-			valid := codersdk.DisplayNameValid(testCase.Name)
+			valid := wirtualsdk.DisplayNameValid(testCase.Name)
 			require.Equal(t, testCase.Valid, valid == nil)
 		})
 	}
@@ -159,7 +159,7 @@ func TestTemplateVersionNameValid(t *testing.T) {
 		testCase := testCase
 		t.Run(testCase.Name, func(t *testing.T) {
 			t.Parallel()
-			valid := codersdk.TemplateVersionNameValid(testCase.Name)
+			valid := wirtualsdk.TemplateVersionNameValid(testCase.Name)
 			require.Equal(t, testCase.Valid, valid == nil)
 		})
 	}
@@ -170,7 +170,7 @@ func TestGeneratedTemplateVersionNameValid(t *testing.T) {
 
 	for i := 0; i < 1000; i++ {
 		name := testutil.GetRandomName(t)
-		err := codersdk.TemplateVersionNameValid(name)
+		err := wirtualsdk.TemplateVersionNameValid(name)
 		require.NoError(t, err, "invalid template version name: %s", name)
 	}
 }
@@ -200,9 +200,9 @@ func TestFrom(t *testing.T) {
 		testCase := testCase
 		t.Run(testCase.From, func(t *testing.T) {
 			t.Parallel()
-			converted := codersdk.UsernameFrom(testCase.From)
+			converted := wirtualsdk.UsernameFrom(testCase.From)
 			t.Log(converted)
-			valid := codersdk.NameValid(converted)
+			valid := wirtualsdk.NameValid(converted)
 			require.True(t, valid == nil)
 			if testCase.Match == "" {
 				require.NotEqual(t, testCase.From, converted)
@@ -246,9 +246,9 @@ func TestUserRealNameValid(t *testing.T) {
 		testCase := testCase
 		t.Run(testCase.Name, func(t *testing.T) {
 			t.Parallel()
-			err := codersdk.UserRealNameValid(testCase.Name)
-			norm := codersdk.NormalizeRealUsername(testCase.Name)
-			normErr := codersdk.UserRealNameValid(norm)
+			err := wirtualsdk.UserRealNameValid(testCase.Name)
+			norm := wirtualsdk.NormalizeRealUsername(testCase.Name)
+			normErr := wirtualsdk.UserRealNameValid(norm)
 			assert.NoError(t, normErr)
 			assert.Equal(t, testCase.Valid, err == nil)
 			assert.Equal(t, testCase.Valid, norm == testCase.Name, "invalid name should be different after normalization")
@@ -280,7 +280,7 @@ func TestGroupNameValid(t *testing.T) {
 		testCase := testCase
 		t.Run(testCase.Name, func(t *testing.T) {
 			t.Parallel()
-			err := codersdk.GroupNameValid(testCase.Name)
+			err := wirtualsdk.GroupNameValid(testCase.Name)
 			assert.Equal(
 				t,
 				testCase.Valid,

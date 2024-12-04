@@ -24,7 +24,7 @@ import (
 func (api *API) postJFrogXrayScan(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	var req codersdk.JFrogXrayScan
+	var req wirtualsdk.JFrogXrayScan
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
@@ -46,7 +46,7 @@ func (api *API) postJFrogXrayScan(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpapi.Write(ctx, rw, http.StatusCreated, codersdk.Response{
+	httpapi.Write(ctx, rw, http.StatusCreated, wirtualsdk.Response{
 		Message: "Successfully inserted JFrog XRay scan!",
 	})
 }
@@ -72,7 +72,7 @@ func (api *API) jFrogXrayScan(rw http.ResponseWriter, r *http.Request) {
 	)
 
 	if len(p.Errors) > 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message:     "Invalid query params.",
 			Validations: p.Errors,
 		})
@@ -92,7 +92,7 @@ func (api *API) jFrogXrayScan(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.JFrogXrayScan{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.JFrogXrayScan{
 		WorkspaceID: scan.WorkspaceID,
 		AgentID:     scan.AgentID,
 		Critical:    int(scan.Critical),
@@ -107,7 +107,7 @@ func (api *API) jfrogEnabledMW(next http.Handler) http.Handler {
 		// This doesn't actually use the external auth feature but we want
 		// to lock this behind an enterprise license and it's somewhat
 		// related to external auth (in that it is JFrog integration).
-		if !api.Entitlements.Enabled(codersdk.FeatureMultipleExternalAuth) {
+		if !api.Entitlements.Enabled(wirtualsdk.FeatureMultipleExternalAuth) {
 			httpapi.RouteNotFound(rw)
 			return
 		}

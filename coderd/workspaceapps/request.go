@@ -158,7 +158,7 @@ func (r Request) Check() error {
 	if r.UsernameOrID == "" {
 		return xerrors.New("username or ID is required")
 	}
-	if r.UsernameOrID == codersdk.Me {
+	if r.UsernameOrID == wirtualsdk.Me {
 		// We block "me" for workspace app auth to avoid any security issues
 		// caused by having an identical workspace name on yourself and a
 		// different user and potentially reusing a token.

@@ -27,8 +27,8 @@ func TestCollectLicenseMetrics(t *testing.T) {
 		userLimit   = 7
 	)
 	sut.Entitlements = entitlements.New()
-	sut.Entitlements.Modify(func(entitlements *codersdk.Entitlements) {
-		entitlements.Features[codersdk.FeatureUserLimit] = codersdk.Feature{
+	sut.Entitlements.Modify(func(entitlements *wirtualsdk.Entitlements) {
+		entitlements.Features[wirtualsdk.FeatureUserLimit] = wirtualsdk.Feature{
 			Enabled: true,
 			Actual:  ptr.Int64(actualUsers),
 			Limit:   ptr.Int64(userLimit),

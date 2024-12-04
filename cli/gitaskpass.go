@@ -42,7 +42,7 @@ func (r *RootCmd) gitAskpass() *serpent.Command {
 				Match: host,
 			})
 			if err != nil {
-				var apiError *codersdk.Error
+				var apiError *wirtualsdk.Error
 				if errors.As(err, &apiError) && apiError.StatusCode() == http.StatusNotFound {
 					// This prevents the "Run 'coder --help' for usage"
 					// message from occurring.

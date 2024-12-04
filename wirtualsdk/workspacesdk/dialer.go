@@ -79,9 +79,9 @@ func (w *WebsocketDialer) Dial(ctx context.Context, r tailnet.ResumeTokenControl
 	ws, res, err := websocket.Dial(ctx, u.String(), w.dialOptions)
 	if w.isFirst {
 		if res != nil && slices.Contains(permanentErrorStatuses, res.StatusCode) {
-			err = codersdk.ReadBodyAsError(res)
+			err = wirtualsdk.ReadBodyAsError(res)
 			// A bit more human-readable help in the case the API version was rejected
-			var sdkErr *codersdk.Error
+			var sdkErr *wirtualsdk.Error
 			if xerrors.As(err, &sdkErr) {
 				if sdkErr.Message == AgentAPIMismatchMessage &&
 					sdkErr.StatusCode() == http.StatusBadRequest {
@@ -97,8 +97,8 @@ func (w *WebsocketDialer) Dial(ctx context.Context, r tailnet.ResumeTokenControl
 		close(w.connected)
 	}
 	if err != nil {
-		bodyErr := codersdk.ReadBodyAsError(res)
-		var sdkErr *codersdk.Error
+		bodyErr := wirtualsdk.ReadBodyAsError(res)
+		var sdkErr *wirtualsdk.Error
 		if xerrors.As(bodyErr, &sdkErr) {
 			for _, v := range sdkErr.Validations {
 				if v.Field == "resume_token" {

@@ -367,7 +367,7 @@ func (api *API) createFrobulator(rw http.ResponseWriter, r *http.Request) {
 	member := httpmw.OrganizationMemberParam(r)
 	org := httpmw.OrganizationParam(r)
 
-	var req codersdk.InsertFrobulatorRequest
+	var req wirtualsdk.InsertFrobulatorRequest
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}

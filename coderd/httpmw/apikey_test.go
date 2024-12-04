@@ -75,7 +75,7 @@ func TestAPIKey(t *testing.T) {
 
 	successHandler := http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		// Only called if the API key passes through the handler.
-		httpapi.Write(context.Background(), rw, http.StatusOK, codersdk.Response{
+		httpapi.Write(context.Background(), rw, http.StatusOK, wirtualsdk.Response{
 			Message: "It worked!",
 		})
 	})
@@ -122,7 +122,7 @@ func TestAPIKey(t *testing.T) {
 			r  = httptest.NewRequest("GET", "/", nil)
 			rw = httptest.NewRecorder()
 		)
-		r.Header.Set(codersdk.SessionTokenHeader, "test-wow-hello")
+		r.Header.Set(wirtualsdk.SessionTokenHeader, "test-wow-hello")
 
 		httpmw.ExtractAPIKeyMW(httpmw.ExtractAPIKeyConfig{
 			DB:              db,
@@ -140,7 +140,7 @@ func TestAPIKey(t *testing.T) {
 			r  = httptest.NewRequest("GET", "/", nil)
 			rw = httptest.NewRecorder()
 		)
-		r.Header.Set(codersdk.SessionTokenHeader, "test-wow")
+		r.Header.Set(wirtualsdk.SessionTokenHeader, "test-wow")
 
 		httpmw.ExtractAPIKeyMW(httpmw.ExtractAPIKeyConfig{
 			DB:              db,
@@ -158,7 +158,7 @@ func TestAPIKey(t *testing.T) {
 			r  = httptest.NewRequest("GET", "/", nil)
 			rw = httptest.NewRecorder()
 		)
-		r.Header.Set(codersdk.SessionTokenHeader, "testtestid-wow")
+		r.Header.Set(wirtualsdk.SessionTokenHeader, "testtestid-wow")
 
 		httpmw.ExtractAPIKeyMW(httpmw.ExtractAPIKeyConfig{
 			DB:              db,
@@ -177,7 +177,7 @@ func TestAPIKey(t *testing.T) {
 			r          = httptest.NewRequest("GET", "/", nil)
 			rw         = httptest.NewRecorder()
 		)
-		r.Header.Set(codersdk.SessionTokenHeader, fmt.Sprintf("%s-%s", id, secret))
+		r.Header.Set(wirtualsdk.SessionTokenHeader, fmt.Sprintf("%s-%s", id, secret))
 
 		httpmw.ExtractAPIKeyMW(httpmw.ExtractAPIKeyConfig{
 			DB:              db,
@@ -203,7 +203,7 @@ func TestAPIKey(t *testing.T) {
 				LoginType: user.LoginType,
 			})
 		)
-		r.Header.Set(codersdk.SessionTokenHeader, token)
+		r.Header.Set(wirtualsdk.SessionTokenHeader, token)
 		httpmw.ExtractAPIKeyMW(httpmw.ExtractAPIKeyConfig{
 			DB:              db,
 			RedirectToLogin: false,
@@ -211,7 +211,7 @@ func TestAPIKey(t *testing.T) {
 		res := rw.Result()
 		defer res.Body.Close()
 		require.Equal(t, http.StatusUnauthorized, res.StatusCode)
-		var resp codersdk.Response
+		var resp wirtualsdk.Response
 		require.NoError(t, json.NewDecoder(res.Body).Decode(&resp))
 		require.Equal(t, resp.Message, httpmw.SignedOutErrorMessage)
 	})
@@ -231,7 +231,7 @@ func TestAPIKey(t *testing.T) {
 				HashedSecret: hashed[:],
 			})
 		)
-		r.Header.Set(codersdk.SessionTokenHeader, token)
+		r.Header.Set(wirtualsdk.SessionTokenHeader, token)
 		httpmw.ExtractAPIKeyMW(httpmw.ExtractAPIKeyConfig{
 			DB:              db,
 			RedirectToLogin: false,
@@ -254,7 +254,7 @@ func TestAPIKey(t *testing.T) {
 			r  = httptest.NewRequest("GET", "/", nil)
 			rw = httptest.NewRecorder()
 		)
-		r.Header.Set(codersdk.SessionTokenHeader, token)
+		r.Header.Set(wirtualsdk.SessionTokenHeader, token)
 
 		httpmw.ExtractAPIKeyMW(httpmw.ExtractAPIKeyConfig{
 			DB:              db,
@@ -264,7 +264,7 @@ func TestAPIKey(t *testing.T) {
 		defer res.Body.Close()
 		require.Equal(t, http.StatusUnauthorized, res.StatusCode)
 
-		var apiRes codersdk.Response
+		var apiRes wirtualsdk.Response
 		dec := json.NewDecoder(res.Body)
 		_ = dec.Decode(&apiRes)
 		require.True(t, strings.HasPrefix(apiRes.Detail, "API key expired"))
@@ -283,7 +283,7 @@ func TestAPIKey(t *testing.T) {
 			r  = httptest.NewRequest("GET", "/", nil)
 			rw = httptest.NewRecorder()
 		)
-		r.Header.Set(codersdk.SessionTokenHeader, token)
+		r.Header.Set(wirtualsdk.SessionTokenHeader, token)
 
 		httpmw.ExtractAPIKeyMW(httpmw.ExtractAPIKeyConfig{
 			DB:              db,
@@ -292,7 +292,7 @@ func TestAPIKey(t *testing.T) {
 			// Checks that it exists on the context!
 			_ = httpmw.APIKey(r)
 			assertActorOk(t, r)
-			httpapi.Write(r.Context(), rw, http.StatusOK, codersdk.Response{
+			httpapi.Write(r.Context(), rw, http.StatusOK, wirtualsdk.Response{
 				Message: "It worked!",
 			})
 		})).ServeHTTP(rw, r)
@@ -321,7 +321,7 @@ func TestAPIKey(t *testing.T) {
 			rw = httptest.NewRecorder()
 		)
 		r.AddCookie(&http.Cookie{
-			Name:  codersdk.SessionTokenCookie,
+			Name:  wirtualsdk.SessionTokenCookie,
 			Value: token,
 		})
 
@@ -334,7 +334,7 @@ func TestAPIKey(t *testing.T) {
 			assert.Equal(t, database.APIKeyScopeApplicationConnect, apiKey.Scope)
 			assertActorOk(t, r)
 
-			httpapi.Write(r.Context(), rw, http.StatusOK, codersdk.Response{
+			httpapi.Write(r.Context(), rw, http.StatusOK, wirtualsdk.Response{
 				Message: "it worked!",
 			})
 		})).ServeHTTP(rw, r)
@@ -358,7 +358,7 @@ func TestAPIKey(t *testing.T) {
 			rw = httptest.NewRecorder()
 		)
 		q := r.URL.Query()
-		q.Add(codersdk.SessionTokenCookie, token)
+		q.Add(wirtualsdk.SessionTokenCookie, token)
 		r.URL.RawQuery = q.Encode()
 
 		httpmw.ExtractAPIKeyMW(httpmw.ExtractAPIKeyConfig{
@@ -369,7 +369,7 @@ func TestAPIKey(t *testing.T) {
 			_ = httpmw.APIKey(r)
 			assertActorOk(t, r)
 
-			httpapi.Write(r.Context(), rw, http.StatusOK, codersdk.Response{
+			httpapi.Write(r.Context(), rw, http.StatusOK, wirtualsdk.Response{
 				Message: "It worked!",
 			})
 		})).ServeHTTP(rw, r)
@@ -392,7 +392,7 @@ func TestAPIKey(t *testing.T) {
 			r  = httptest.NewRequest("GET", "/", nil)
 			rw = httptest.NewRecorder()
 		)
-		r.Header.Set(codersdk.SessionTokenHeader, token)
+		r.Header.Set(wirtualsdk.SessionTokenHeader, token)
 
 		httpmw.ExtractAPIKeyMW(httpmw.ExtractAPIKeyConfig{
 			DB:              db,
@@ -423,7 +423,7 @@ func TestAPIKey(t *testing.T) {
 			r  = httptest.NewRequest("GET", "/", nil)
 			rw = httptest.NewRecorder()
 		)
-		r.Header.Set(codersdk.SessionTokenHeader, token)
+		r.Header.Set(wirtualsdk.SessionTokenHeader, token)
 
 		httpmw.ExtractAPIKeyMW(httpmw.ExtractAPIKeyConfig{
 			DB:              db,
@@ -454,7 +454,7 @@ func TestAPIKey(t *testing.T) {
 			r  = httptest.NewRequest("GET", "/", nil)
 			rw = httptest.NewRecorder()
 		)
-		r.Header.Set(codersdk.SessionTokenHeader, token)
+		r.Header.Set(wirtualsdk.SessionTokenHeader, token)
 
 		httpmw.ExtractAPIKeyMW(httpmw.ExtractAPIKeyConfig{
 			DB:                          db,
@@ -491,7 +491,7 @@ func TestAPIKey(t *testing.T) {
 			r  = httptest.NewRequest("GET", "/", nil)
 			rw = httptest.NewRecorder()
 		)
-		r.Header.Set(codersdk.SessionTokenHeader, token)
+		r.Header.Set(wirtualsdk.SessionTokenHeader, token)
 
 		httpmw.ExtractAPIKeyMW(httpmw.ExtractAPIKeyConfig{
 			DB:              db,
@@ -529,7 +529,7 @@ func TestAPIKey(t *testing.T) {
 			r  = httptest.NewRequest("GET", "/", nil)
 			rw = httptest.NewRecorder()
 		)
-		r.Header.Set(codersdk.SessionTokenHeader, token)
+		r.Header.Set(wirtualsdk.SessionTokenHeader, token)
 
 		oauthToken := &oauth2.Token{
 			AccessToken:  "wow",
@@ -571,7 +571,7 @@ func TestAPIKey(t *testing.T) {
 			rw = httptest.NewRecorder()
 		)
 		r.RemoteAddr = "1.1.1.1"
-		r.Header.Set(codersdk.SessionTokenHeader, token)
+		r.Header.Set(wirtualsdk.SessionTokenHeader, token)
 
 		httpmw.ExtractAPIKeyMW(httpmw.ExtractAPIKeyConfig{
 			DB:              db,
@@ -654,7 +654,7 @@ func TestAPIKey(t *testing.T) {
 			r  = httptest.NewRequest("GET", "/", nil)
 			rw = httptest.NewRecorder()
 		)
-		r.Header.Set(codersdk.SessionTokenHeader, token)
+		r.Header.Set(wirtualsdk.SessionTokenHeader, token)
 
 		httpmw.ExtractAPIKeyMW(httpmw.ExtractAPIKeyConfig{
 			DB:              db,
@@ -694,7 +694,7 @@ func TestAPIKey(t *testing.T) {
 			r  = httptest.NewRequest("GET", "/", nil)
 			rw = httptest.NewRecorder()
 		)
-		r.Header.Set(codersdk.SessionTokenHeader, token)
+		r.Header.Set(wirtualsdk.SessionTokenHeader, token)
 
 		httpmw.ExtractAPIKeyMW(httpmw.ExtractAPIKeyConfig{
 			DB:              db,
@@ -741,7 +741,7 @@ func TestAPIKey(t *testing.T) {
 			r  = httptest.NewRequest("GET", "/", nil)
 			rw = httptest.NewRecorder()
 		)
-		r.Header.Set(codersdk.SessionTokenHeader, token)
+		r.Header.Set(wirtualsdk.SessionTokenHeader, token)
 
 		httpmw.ExtractAPIKeyMW(httpmw.ExtractAPIKeyConfig{
 			DB:              db,
@@ -762,7 +762,7 @@ func TestAPIKey(t *testing.T) {
 				return role.Identifier.Name == customRole.Name && role.Identifier.OrganizationID == org.ID
 			}), "custom org role")
 
-			httpapi.Write(r.Context(), rw, http.StatusOK, codersdk.Response{
+			httpapi.Write(r.Context(), rw, http.StatusOK, wirtualsdk.Response{
 				Message: "It worked!",
 			})
 		})).ServeHTTP(rw, r)
@@ -806,7 +806,7 @@ func TestAPIKey(t *testing.T) {
 			r  = httptest.NewRequest("GET", "/", nil)
 			rw = httptest.NewRecorder()
 		)
-		r.Header.Set(codersdk.SessionTokenHeader, token)
+		r.Header.Set(wirtualsdk.SessionTokenHeader, token)
 
 		httpmw.ExtractAPIKeyMW(httpmw.ExtractAPIKeyConfig{
 			DB:              db,
@@ -827,7 +827,7 @@ func TestAPIKey(t *testing.T) {
 				return role.Identifier.Name == roleNotExistsName
 			}), "role should not exist")
 
-			httpapi.Write(r.Context(), rw, http.StatusOK, codersdk.Response{
+			httpapi.Write(r.Context(), rw, http.StatusOK, wirtualsdk.Response{
 				Message: "It worked!",
 			})
 		})).ServeHTTP(rw, r)

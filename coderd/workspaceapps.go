@@ -32,7 +32,7 @@ import (
 // @Router /applications/host [get]
 // @Deprecated use api/v2/regions and see the primary proxy.
 func (api *API) appHost(rw http.ResponseWriter, r *http.Request) {
-	httpapi.Write(r.Context(), rw, http.StatusOK, codersdk.AppHostResponse{
+	httpapi.Write(r.Context(), rw, http.StatusOK, wirtualsdk.AppHostResponse{
 		Host: appurl.SubdomainAppHost(api.AppHostname, api.AccessURL),
 	})
 }
@@ -62,14 +62,14 @@ func (api *API) workspaceApplicationAuth(rw http.ResponseWriter, r *http.Request
 	// Get the redirect URI from the query parameters and parse it.
 	redirectURI := r.URL.Query().Get(workspaceapps.RedirectURIQueryParam)
 	if redirectURI == "" {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Missing redirect_uri query parameter.",
 		})
 		return
 	}
 	u, err := url.Parse(redirectURI)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Invalid redirect_uri query parameter.",
 			Detail:  err.Error(),
 		})
@@ -85,14 +85,14 @@ func (api *API) workspaceApplicationAuth(rw http.ResponseWriter, r *http.Request
 		AllowProxyWildcard:    true,
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to verify redirect_uri query parameter.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 	if u.Scheme == "" {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Invalid redirect_uri.",
 			Detail:  "The redirect_uri query parameter must be the primary wildcard app hostname, a workspace proxy access URL or a workspace proxy wildcard app hostname.",
 		})
@@ -116,7 +116,7 @@ func (api *API) workspaceApplicationAuth(rw http.ResponseWriter, r *http.Request
 		Scope:           database.APIKeyScopeApplicationConnect,
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to create API key.",
 			Detail:  err.Error(),
 		})
@@ -129,7 +129,7 @@ func (api *API) workspaceApplicationAuth(rw http.ResponseWriter, r *http.Request
 	payload.Fill(api.Clock.Now())
 	encryptedAPIKey, err := jwtutils.Encrypt(ctx, api.AppEncryptionKeyCache, payload)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to encrypt API key.",
 			Detail:  err.Error(),
 		})

@@ -11,9 +11,9 @@ import (
 // token for the given access method.
 func AppConnectSessionTokenCookieName(accessMethod AccessMethod) string {
 	if accessMethod == AccessMethodSubdomain {
-		return codersdk.SubdomainAppSessionTokenCookie
+		return wirtualsdk.SubdomainAppSessionTokenCookie
 	}
-	return codersdk.PathAppSessionTokenCookie
+	return wirtualsdk.PathAppSessionTokenCookie
 }
 
 // AppConnectSessionTokenFromRequest returns the session token from the request

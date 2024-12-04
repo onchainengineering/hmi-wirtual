@@ -1,4 +1,4 @@
-package codersdk
+package wirtualsdk
 
 import (
 	"bytes"
@@ -34,7 +34,7 @@ func (t NullTime) MarshalJSON() ([]byte, error) {
 	}
 	b, err := t.Time.MarshalJSON()
 	if err != nil {
-		return nil, xerrors.Errorf("codersdk.NullTime: json encode failed: %w", err)
+		return nil, xerrors.Errorf("wirtualsdk.NullTime: json encode failed: %w", err)
 	}
 	return b, nil
 }
@@ -47,7 +47,7 @@ func (t *NullTime) UnmarshalJSON(data []byte) error {
 	}
 	err := json.Unmarshal(data, &t.Time)
 	if err != nil {
-		return xerrors.Errorf("codersdk.NullTime: json decode failed: %w", err)
+		return xerrors.Errorf("wirtualsdk.NullTime: json decode failed: %w", err)
 	}
 	t.Valid = true
 	return nil

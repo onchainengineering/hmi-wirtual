@@ -56,7 +56,7 @@ func TestTemplateDelete(t *testing.T) {
 		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
 		owner := coderdtest.CreateFirstUser(t, client)
 		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		templates := []codersdk.Template{}
+		templates := []wirtualsdk.Template{}
 		templateNames := []string{}
 		for i := 0; i < 3; i++ {
 			version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
@@ -82,7 +82,7 @@ func TestTemplateDelete(t *testing.T) {
 		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
 		owner := coderdtest.CreateFirstUser(t, client)
 		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		templates := []codersdk.Template{}
+		templates := []wirtualsdk.Template{}
 		templateNames := []string{}
 		for i := 0; i < 3; i++ {
 			version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)

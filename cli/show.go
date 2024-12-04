@@ -9,7 +9,7 @@ import (
 )
 
 func (r *RootCmd) show() *serpent.Command {
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	return &serpent.Command{
 		Use:   "show <workspace>",
 		Short: "Display details of a workspace's resources and agents",

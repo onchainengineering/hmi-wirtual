@@ -18,10 +18,10 @@ import (
 
 // @typescript-ignore HealthClient
 type HealthClient struct {
-	client *codersdk.Client
+	client *wirtualsdk.Client
 }
 
-func New(c *codersdk.Client) *HealthClient {
+func New(c *wirtualsdk.Client) *HealthClient {
 	return &HealthClient{client: c}
 }
 
@@ -61,7 +61,7 @@ func (c *HealthClient) DebugHealth(ctx context.Context) (HealthcheckReport, erro
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		return HealthcheckReport{}, codersdk.ReadBodyAsError(res)
+		return HealthcheckReport{}, wirtualsdk.ReadBodyAsError(res)
 	}
 	var rpt HealthcheckReport
 	return rpt, json.NewDecoder(res.Body).Decode(&rpt)
@@ -74,7 +74,7 @@ func (c *HealthClient) HealthSettings(ctx context.Context) (HealthSettings, erro
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		return HealthSettings{}, codersdk.ReadBodyAsError(res)
+		return HealthSettings{}, wirtualsdk.ReadBodyAsError(res)
 	}
 	var settings HealthSettings
 	return settings, json.NewDecoder(res.Body).Decode(&settings)
@@ -91,7 +91,7 @@ func (c *HealthClient) PutHealthSettings(ctx context.Context, settings HealthSet
 		return xerrors.New("health settings not modified")
 	}
 	if res.StatusCode != http.StatusOK {
-		return codersdk.ReadBodyAsError(res)
+		return wirtualsdk.ReadBodyAsError(res)
 	}
 	return nil
 }
@@ -247,8 +247,8 @@ type ProvisionerDaemonsReport struct {
 }
 
 type ProvisionerDaemonsReportItem struct {
-	codersdk.ProvisionerDaemon `json:"provisioner_daemon"`
-	Warnings                   []health.Message `json:"warnings"`
+	wirtualsdk.ProvisionerDaemon `json:"provisioner_daemon"`
+	Warnings                     []health.Message `json:"warnings"`
 }
 
 // WebsocketReport shows if the configured access URL allows establishing WebSocket connections.
@@ -265,7 +265,7 @@ type WorkspaceProxyReport struct {
 	// Healthy is deprecated and left for backward compatibility purposes, use `Severity` instead.
 	Healthy bool `json:"healthy"`
 	BaseReport
-	WorkspaceProxies codersdk.RegionsResponse[codersdk.WorkspaceProxy] `json:"workspace_proxies"`
+	WorkspaceProxies wirtualsdk.RegionsResponse[wirtualsdk.WorkspaceProxy] `json:"workspace_proxies"`
 }
 
 // @typescript-ignore ClientNetcheckReport

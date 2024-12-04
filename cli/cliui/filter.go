@@ -32,8 +32,8 @@ type WorkspaceFilter struct {
 	all         bool
 }
 
-func (w *WorkspaceFilter) Filter() codersdk.WorkspaceFilter {
-	var f codersdk.WorkspaceFilter
+func (w *WorkspaceFilter) Filter() wirtualsdk.WorkspaceFilter {
+	var f wirtualsdk.WorkspaceFilter
 	if w.all {
 		return f
 	}

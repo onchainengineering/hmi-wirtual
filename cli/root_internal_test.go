@@ -115,7 +115,7 @@ func Test_wrapTransportWithVersionMismatchCheck(t *testing.T) {
 				StatusCode: http.StatusOK,
 				Header: http.Header{
 					// Provider a version that will not match!
-					codersdk.BuildVersionHeader: []string{"v2.0.0"},
+					wirtualsdk.BuildVersionHeader: []string{"v2.0.0"},
 				},
 				Body: io.NopCloser(nil),
 			}, nil
@@ -144,12 +144,12 @@ func Test_wrapTransportWithVersionMismatchCheck(t *testing.T) {
 				StatusCode: http.StatusOK,
 				Header: http.Header{
 					// Provider a version that will not match!
-					codersdk.BuildVersionHeader: []string{"v1.0.0"},
+					wirtualsdk.BuildVersionHeader: []string{"v1.0.0"},
 				},
 				Body: io.NopCloser(nil),
 			}, nil
-		}), inv, "v2.0.0", func(ctx context.Context) (codersdk.BuildInfoResponse, error) {
-			return codersdk.BuildInfoResponse{
+		}), inv, "v2.0.0", func(ctx context.Context) (wirtualsdk.BuildInfoResponse, error) {
+			return wirtualsdk.BuildInfoResponse{
 				UpgradeMessage: expectedUpgradeMessage,
 			}, nil
 		})
@@ -189,7 +189,7 @@ func Test_wrapTransportWithTelemetryHeader(t *testing.T) {
 	res, err := rt.RoundTrip(req)
 	require.NoError(t, err)
 	defer res.Body.Close()
-	resp := req.Header.Get(codersdk.CLITelemetryHeader)
+	resp := req.Header.Get(wirtualsdk.CLITelemetryHeader)
 	require.NotEmpty(t, resp)
 	data, err := base64.StdEncoding.DecodeString(resp)
 	require.NoError(t, err)
@@ -208,7 +208,7 @@ func Test_wrapTransportWithEntitlementsCheck(t *testing.T) {
 		return &http.Response{
 			StatusCode: http.StatusOK,
 			Header: http.Header{
-				codersdk.EntitlementsWarningHeader: lines,
+				wirtualsdk.EntitlementsWarningHeader: lines,
 			},
 			Body: io.NopCloser(nil),
 		}, nil

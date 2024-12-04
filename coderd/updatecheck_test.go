@@ -23,7 +23,7 @@ func TestUpdateCheck_NewVersion(t *testing.T) {
 	tests := []struct {
 		name string
 		resp github.RepositoryRelease
-		want codersdk.UpdateCheckResponse
+		want wirtualsdk.UpdateCheckResponse
 	}{
 		{
 			name: "New version",
@@ -31,7 +31,7 @@ func TestUpdateCheck_NewVersion(t *testing.T) {
 				TagName: github.String("v99.999.999"),
 				HTMLURL: github.String("https://someurl.com"),
 			},
-			want: codersdk.UpdateCheckResponse{
+			want: wirtualsdk.UpdateCheckResponse{
 				Current: false,
 				Version: "v99.999.999",
 				URL:     "https://someurl.com",
@@ -43,7 +43,7 @@ func TestUpdateCheck_NewVersion(t *testing.T) {
 				TagName: github.String(buildinfo.Version()),
 				HTMLURL: github.String("https://someurl.com"),
 			},
-			want: codersdk.UpdateCheckResponse{
+			want: wirtualsdk.UpdateCheckResponse{
 				Current: true,
 				Version: buildinfo.Version(),
 				URL:     "https://someurl.com",

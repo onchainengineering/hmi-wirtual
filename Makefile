@@ -475,7 +475,7 @@ lint/ts:
 
 lint/go:
 	./scripts/check_enterprise_imports.sh
-	./scripts/check_codersdk_imports.sh
+	./scripts/check_wirtualsdk_imports.sh
 	linter_ver=$(shell egrep -o 'GOLANGCI_LINT_VERSION=\S+' dogfood/contents/Dockerfile | cut -d '=' -f 2)
 	go run github.com/golangci/golangci-lint/cmd/golangci-lint@v$$linter_ver run
 .PHONY: lint/go
@@ -523,7 +523,7 @@ gen: \
 	$(DB_GEN_FILES) \
 	site/src/api/typesGenerated.ts \
 	coderd/rbac/object_gen.go \
-	codersdk/rbacresources_gen.go \
+	wirtualsdk/rbacresources_gen.go \
 	site/src/api/rbacresourcesGenerated.ts \
 	site/src/api/countriesGenerated.ts \
 	docs/admin/integrations/prometheus.md \
@@ -553,7 +553,7 @@ gen/mark-fresh:
 		$(DB_GEN_FILES) \
 		site/src/api/typesGenerated.ts \
 		coderd/rbac/object_gen.go \
-		codersdk/rbacresources_gen.go \
+		wirtualsdk/rbacresources_gen.go \
 		site/src/api/rbacresourcesGenerated.ts \
 		site/src/api/countriesGenerated.ts \
 		docs/admin/integrations/prometheus.md \
@@ -639,7 +639,7 @@ vpn/vpn.pb.go: vpn/vpn.proto
 		--go_opt=paths=source_relative \
 		./vpn/vpn.proto
 
-site/src/api/typesGenerated.ts: $(wildcard scripts/apitypings/*) $(shell find ./codersdk $(FIND_EXCLUSIONS) -type f -name '*.go')
+site/src/api/typesGenerated.ts: $(wildcard scripts/apitypings/*) $(shell find ./wirtualsdk $(FIND_EXCLUSIONS) -type f -name '*.go')
 	go run ./scripts/apitypings/ > $@
 	./scripts/pnpm_install.sh
 
@@ -659,16 +659,16 @@ examples/examples.gen.json: scripts/examplegen/main.go examples/examples.go $(sh
 coderd/rbac/object_gen.go: scripts/typegen/rbacobject.gotmpl scripts/typegen/main.go coderd/rbac/object.go coderd/rbac/policy/policy.go
 	go run scripts/typegen/main.go rbac object > coderd/rbac/object_gen.go
 
-codersdk/rbacresources_gen.go: scripts/typegen/codersdk.gotmpl scripts/typegen/main.go coderd/rbac/object.go coderd/rbac/policy/policy.go
-	# Do no overwrite codersdk/rbacresources_gen.go directly, as it would make the file empty, breaking
- 	# the `codersdk` package and any parallel build targets.
-	go run scripts/typegen/main.go rbac codersdk > /tmp/rbacresources_gen.go
-	mv /tmp/rbacresources_gen.go codersdk/rbacresources_gen.go
+wirtualsdk/rbacresources_gen.go: scripts/typegen/wirtualsdk.gotmpl scripts/typegen/main.go coderd/rbac/object.go coderd/rbac/policy/policy.go
+	# Do no overwrite wirtualsdk/rbacresources_gen.go directly, as it would make the file empty, breaking
+ 	# the `wirtualsdk` package and any parallel build targets.
+	go run scripts/typegen/main.go rbac wirtualsdk > /tmp/rbacresources_gen.go
+	mv /tmp/rbacresources_gen.go wirtualsdk/rbacresources_gen.go
 
-site/src/api/rbacresourcesGenerated.ts: scripts/typegen/codersdk.gotmpl scripts/typegen/main.go coderd/rbac/object.go coderd/rbac/policy/policy.go
+site/src/api/rbacresourcesGenerated.ts: scripts/typegen/wirtualsdk.gotmpl scripts/typegen/main.go coderd/rbac/object.go coderd/rbac/policy/policy.go
 	go run scripts/typegen/main.go rbac typescript > "$@"
 
-site/src/api/countriesGenerated.ts: scripts/typegen/countries.tstmpl scripts/typegen/main.go codersdk/countries.go
+site/src/api/countriesGenerated.ts: scripts/typegen/countries.tstmpl scripts/typegen/main.go wirtualsdk/countries.go
 	go run scripts/typegen/main.go countries > "$@"
 
 docs/admin/integrations/prometheus.md: scripts/metricsdocgen/main.go scripts/metricsdocgen/metrics
@@ -686,7 +686,7 @@ docs/admin/security/audit-logs.md: coderd/database/querier.go scripts/auditdocge
 	./scripts/pnpm_install.sh
 	pnpm exec prettier --write ./docs/admin/security/audit-logs.md
 
-coderd/apidoc/swagger.json: $(shell find ./scripts/apidocgen $(FIND_EXCLUSIONS) -type f) $(wildcard coderd/*.go) $(wildcard enterprise/coderd/*.go) $(wildcard codersdk/*.go) $(wildcard enterprise/wsproxy/wsproxysdk/*.go) $(DB_GEN_FILES) .swaggo docs/manifest.json coderd/rbac/object_gen.go
+coderd/apidoc/swagger.json: $(shell find ./scripts/apidocgen $(FIND_EXCLUSIONS) -type f) $(wildcard coderd/*.go) $(wildcard enterprise/coderd/*.go) $(wildcard wirtualsdk/*.go) $(wildcard enterprise/wsproxy/wsproxysdk/*.go) $(DB_GEN_FILES) .swaggo docs/manifest.json coderd/rbac/object_gen.go
 	./scripts/apidocgen/generate.sh
 	./scripts/pnpm_install.sh
 	pnpm exec prettier --write ./docs/reference/api ./docs/manifest.json ./coderd/apidoc/swagger.json

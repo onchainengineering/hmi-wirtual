@@ -25,11 +25,11 @@ func TestTemplateInsightsWithTemplateAdminACL(t *testing.T) {
 	today := time.Date(y, m, d, 0, 0, 0, 0, time.UTC)
 
 	type test struct {
-		interval codersdk.InsightsReportInterval
+		interval wirtualsdk.InsightsReportInterval
 	}
 
 	tests := []test{
-		{codersdk.InsightsReportIntervalDay},
+		{wirtualsdk.InsightsReportIntervalDay},
 		{""},
 	}
 
@@ -40,7 +40,7 @@ func TestTemplateInsightsWithTemplateAdminACL(t *testing.T) {
 
 			client, admin := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureTemplateRBAC: 1,
+					wirtualsdk.FeatureTemplateRBAC: 1,
 				},
 			}})
 			templateAdminClient, _ := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleTemplateAdmin())
@@ -53,14 +53,14 @@ func TestTemplateInsightsWithTemplateAdminACL(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 			defer cancel()
 
-			err := templateAdminClient.UpdateTemplateACL(ctx, template.ID, codersdk.UpdateTemplateACL{
-				UserPerms: map[string]codersdk.TemplateRole{
-					regularUser.ID.String(): codersdk.TemplateRoleAdmin,
+			err := templateAdminClient.UpdateTemplateACL(ctx, template.ID, wirtualsdk.UpdateTemplateACL{
+				UserPerms: map[string]wirtualsdk.TemplateRole{
+					regularUser.ID.String(): wirtualsdk.TemplateRoleAdmin,
 				},
 			})
 			require.NoError(t, err)
 
-			_, err = regular.TemplateInsights(ctx, codersdk.TemplateInsightsRequest{
+			_, err = regular.TemplateInsights(ctx, wirtualsdk.TemplateInsightsRequest{
 				StartTime:   today.AddDate(0, 0, -1),
 				EndTime:     today,
 				TemplateIDs: []uuid.UUID{template.ID},
@@ -77,19 +77,19 @@ func TestTemplateInsightsWithRole(t *testing.T) {
 	today := time.Date(y, m, d, 0, 0, 0, 0, time.UTC)
 
 	type test struct {
-		interval codersdk.InsightsReportInterval
+		interval wirtualsdk.InsightsReportInterval
 		role     rbac.RoleIdentifier
 		allowed  bool
 	}
 
 	tests := []test{
-		{codersdk.InsightsReportIntervalDay, rbac.RoleTemplateAdmin(), true},
+		{wirtualsdk.InsightsReportIntervalDay, rbac.RoleTemplateAdmin(), true},
 		{"", rbac.RoleTemplateAdmin(), true},
-		{codersdk.InsightsReportIntervalDay, rbac.RoleAuditor(), true},
+		{wirtualsdk.InsightsReportIntervalDay, rbac.RoleAuditor(), true},
 		{"", rbac.RoleAuditor(), true},
-		{codersdk.InsightsReportIntervalDay, rbac.RoleUserAdmin(), false},
+		{wirtualsdk.InsightsReportIntervalDay, rbac.RoleUserAdmin(), false},
 		{"", rbac.RoleUserAdmin(), false},
-		{codersdk.InsightsReportIntervalDay, rbac.RoleMember(), false},
+		{wirtualsdk.InsightsReportIntervalDay, rbac.RoleMember(), false},
 		{"", rbac.RoleMember(), false},
 	}
 
@@ -100,7 +100,7 @@ func TestTemplateInsightsWithRole(t *testing.T) {
 
 			client, admin := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureTemplateRBAC: 1,
+					wirtualsdk.FeatureTemplateRBAC: 1,
 				},
 			}})
 			version := coderdtest.CreateTemplateVersion(t, client, admin.OrganizationID, nil)
@@ -111,7 +111,7 @@ func TestTemplateInsightsWithRole(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 			defer cancel()
 
-			_, err := aud.TemplateInsights(ctx, codersdk.TemplateInsightsRequest{
+			_, err := aud.TemplateInsights(ctx, wirtualsdk.TemplateInsightsRequest{
 				StartTime:   today.AddDate(0, 0, -1),
 				EndTime:     today,
 				TemplateIDs: []uuid.UUID{template.ID},
@@ -119,7 +119,7 @@ func TestTemplateInsightsWithRole(t *testing.T) {
 			if tt.allowed {
 				require.NoError(t, err)
 			} else {
-				var sdkErr *codersdk.Error
+				var sdkErr *wirtualsdk.Error
 				require.ErrorAs(t, err, &sdkErr)
 				require.Equal(t, sdkErr.StatusCode(), http.StatusNotFound)
 			}

@@ -14,7 +14,7 @@ import (
 // @Success 200 {object} wirtualsdk.Response
 // @Router / [get]
 func apiRoot(w http.ResponseWriter, r *http.Request) {
-	httpapi.Write(r.Context(), w, http.StatusOK, codersdk.Response{
+	httpapi.Write(r.Context(), w, http.StatusOK, wirtualsdk.Response{
 		//nolint:gocritic
 		Message: "👋",
 	})

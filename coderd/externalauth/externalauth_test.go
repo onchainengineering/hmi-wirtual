@@ -257,7 +257,7 @@ func TestRefreshToken(t *testing.T) {
 				}),
 			},
 			ExternalAuthOpt: func(cfg *externalauth.Config) {
-				cfg.Type = codersdk.EnhancedExternalAuthProviderGitHub.String()
+				cfg.Type = wirtualsdk.EnhancedExternalAuthProviderGitHub.String()
 			},
 		})
 
@@ -286,7 +286,7 @@ func TestRefreshToken(t *testing.T) {
 				}),
 			},
 			ExternalAuthOpt: func(cfg *externalauth.Config) {
-				cfg.Type = codersdk.EnhancedExternalAuthProviderGitHub.String()
+				cfg.Type = wirtualsdk.EnhancedExternalAuthProviderGitHub.String()
 			},
 		})
 
@@ -316,7 +316,7 @@ func TestRefreshToken(t *testing.T) {
 				}),
 			},
 			ExternalAuthOpt: func(cfg *externalauth.Config) {
-				cfg.Type = codersdk.EnhancedExternalAuthProviderGitHub.String()
+				cfg.Type = wirtualsdk.EnhancedExternalAuthProviderGitHub.String()
 			},
 			DB: db,
 		})
@@ -352,7 +352,7 @@ func TestRefreshToken(t *testing.T) {
 				}),
 			},
 			ExternalAuthOpt: func(cfg *externalauth.Config) {
-				cfg.Type = codersdk.EnhancedExternalAuthProviderSlack.String()
+				cfg.Type = wirtualsdk.EnhancedExternalAuthProviderSlack.String()
 				cfg.ExtraTokenKeys = []string{"authed_user"}
 				cfg.ValidateURL = ""
 			},
@@ -380,10 +380,10 @@ func TestExchangeWithClientSecret(t *testing.T) {
 	instrument := promoauth.NewFactory(prometheus.NewRegistry())
 	// This ensures a provider that requires the custom
 	// client secret exchange works.
-	configs, err := externalauth.ConvertConfig(instrument, []codersdk.ExternalAuthConfig{{
+	configs, err := externalauth.ConvertConfig(instrument, []wirtualsdk.ExternalAuthConfig{{
 		// JFrog just happens to require this custom type.
 
-		Type:         codersdk.EnhancedExternalAuthProviderJFrog.String(),
+		Type:         wirtualsdk.EnhancedExternalAuthProviderJFrog.String(),
 		ClientID:     "id",
 		ClientSecret: "secret",
 	}}, &url.URL{})
@@ -416,38 +416,38 @@ func TestConvertYAML(t *testing.T) {
 	instrument := promoauth.NewFactory(prometheus.NewRegistry())
 	for _, tc := range []struct {
 		Name   string
-		Input  []codersdk.ExternalAuthConfig
+		Input  []wirtualsdk.ExternalAuthConfig
 		Output []*externalauth.Config
 		Error  string
 	}{{
 		Name: "InvalidID",
-		Input: []codersdk.ExternalAuthConfig{{
-			Type: string(codersdk.EnhancedExternalAuthProviderGitHub),
+		Input: []wirtualsdk.ExternalAuthConfig{{
+			Type: string(wirtualsdk.EnhancedExternalAuthProviderGitHub),
 			ID:   "$hi$",
 		}},
 		Error: "doesn't have a valid id",
 	}, {
 		Name: "NoClientID",
-		Input: []codersdk.ExternalAuthConfig{{
-			Type: string(codersdk.EnhancedExternalAuthProviderGitHub),
+		Input: []wirtualsdk.ExternalAuthConfig{{
+			Type: string(wirtualsdk.EnhancedExternalAuthProviderGitHub),
 		}},
 		Error: "client_id must be provided",
 	}, {
 		Name: "DuplicateType",
-		Input: []codersdk.ExternalAuthConfig{{
-			Type:         string(codersdk.EnhancedExternalAuthProviderGitHub),
+		Input: []wirtualsdk.ExternalAuthConfig{{
+			Type:         string(wirtualsdk.EnhancedExternalAuthProviderGitHub),
 			ClientID:     "example",
 			ClientSecret: "example",
 		}, {
-			Type:         string(codersdk.EnhancedExternalAuthProviderGitHub),
+			Type:         string(wirtualsdk.EnhancedExternalAuthProviderGitHub),
 			ClientID:     "example-2",
 			ClientSecret: "example-2",
 		}},
 		Error: "multiple github external auth providers provided",
 	}, {
 		Name: "InvalidRegex",
-		Input: []codersdk.ExternalAuthConfig{{
-			Type:         string(codersdk.EnhancedExternalAuthProviderGitHub),
+		Input: []wirtualsdk.ExternalAuthConfig{{
+			Type:         string(wirtualsdk.EnhancedExternalAuthProviderGitHub),
 			ClientID:     "example",
 			ClientSecret: "example",
 			Regex:        `\K`,
@@ -455,8 +455,8 @@ func TestConvertYAML(t *testing.T) {
 		Error: "compile regex for external auth provider",
 	}, {
 		Name: "NoDeviceURL",
-		Input: []codersdk.ExternalAuthConfig{{
-			Type:         string(codersdk.EnhancedExternalAuthProviderGitLab),
+		Input: []wirtualsdk.ExternalAuthConfig{{
+			Type:         string(wirtualsdk.EnhancedExternalAuthProviderGitLab),
 			ClientID:     "example",
 			ClientSecret: "example",
 			DeviceFlow:   true,
@@ -478,8 +478,8 @@ func TestConvertYAML(t *testing.T) {
 
 	t.Run("CustomScopesAndEndpoint", func(t *testing.T) {
 		t.Parallel()
-		config, err := externalauth.ConvertConfig(instrument, []codersdk.ExternalAuthConfig{{
-			Type:         string(codersdk.EnhancedExternalAuthProviderGitLab),
+		config, err := externalauth.ConvertConfig(instrument, []wirtualsdk.ExternalAuthConfig{{
+			Type:         string(wirtualsdk.EnhancedExternalAuthProviderGitLab),
 			ClientID:     "id",
 			ClientSecret: "secret",
 			AuthURL:      "https://auth.com",

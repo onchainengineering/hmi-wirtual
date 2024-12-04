@@ -18,7 +18,7 @@ import (
 )
 
 func (e EnterpriseIDPSync) RoleSyncEntitled() bool {
-	return e.entitlements.Enabled(codersdk.FeatureUserRoleManagement)
+	return e.entitlements.Enabled(wirtualsdk.FeatureUserRoleManagement)
 }
 
 func (e EnterpriseIDPSync) OrganizationRoleSyncEnabled(ctx context.Context, db database.Store, orgID uuid.UUID) (bool, error) {

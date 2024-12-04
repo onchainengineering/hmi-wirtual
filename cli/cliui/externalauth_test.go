@@ -26,12 +26,12 @@ func TestExternalAuth(t *testing.T) {
 		Handler: func(inv *serpent.Invocation) error {
 			var fetched atomic.Bool
 			return cliui.ExternalAuth(inv.Context(), inv.Stdout, cliui.ExternalAuthOptions{
-				Fetch: func(ctx context.Context) ([]codersdk.TemplateVersionExternalAuth, error) {
+				Fetch: func(ctx context.Context) ([]wirtualsdk.TemplateVersionExternalAuth, error) {
 					defer fetched.Store(true)
-					return []codersdk.TemplateVersionExternalAuth{{
+					return []wirtualsdk.TemplateVersionExternalAuth{{
 						ID:              "github",
 						DisplayName:     "GitHub",
-						Type:            codersdk.EnhancedExternalAuthProviderGitHub.String(),
+						Type:            wirtualsdk.EnhancedExternalAuthProviderGitHub.String(),
 						Authenticated:   fetched.Load(),
 						AuthenticateURL: "https://example.com/gitauth/github",
 					}}, nil

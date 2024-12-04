@@ -125,13 +125,13 @@ func TestWorkspaceAgent(t *testing.T) {
 		defer cancel()
 
 		var err error
-		var workspace codersdk.Workspace
+		var workspace wirtualsdk.Workspace
 		testutil.Eventually(ctx, t, func(ctx context.Context) (done bool) {
 			workspace, err = client.Workspace(ctx, r.Workspace.ID)
 			if !assert.NoError(t, err) {
 				return false
 			}
-			return workspace.LatestBuild.Resources[0].Agents[0].Status == codersdk.WorkspaceAgentTimeout
+			return workspace.LatestBuild.Resources[0].Agents[0].Status == wirtualsdk.WorkspaceAgentTimeout
 		}, testutil.IntervalMedium, "agent status timeout")
 
 		require.Equal(t, wantTroubleshootingURL, workspace.LatestBuild.Resources[0].Agents[0].TroubleshootingURL)
@@ -168,12 +168,12 @@ func TestWorkspaceAgent(t *testing.T) {
 		require.NoError(t, err)
 		agent, err := client.WorkspaceAgent(ctx, workspace.LatestBuild.Resources[0].Agents[0].ID)
 		require.NoError(t, err)
-		expectedApps := []codersdk.DisplayApp{
-			codersdk.DisplayAppPortForward,
-			codersdk.DisplayAppSSH,
-			codersdk.DisplayAppVSCodeDesktop,
-			codersdk.DisplayAppVSCodeInsiders,
-			codersdk.DisplayAppWebTerminal,
+		expectedApps := []wirtualsdk.DisplayApp{
+			wirtualsdk.DisplayAppPortForward,
+			wirtualsdk.DisplayAppSSH,
+			wirtualsdk.DisplayAppVSCodeDesktop,
+			wirtualsdk.DisplayAppVSCodeInsiders,
+			wirtualsdk.DisplayAppWebTerminal,
 		}
 		require.ElementsMatch(t, expectedApps, agent.DisplayApps)
 
@@ -236,7 +236,7 @@ func TestWorkspaceAgentLogs(t *testing.T) {
 		defer func() {
 			_ = closer.Close()
 		}()
-		var logChunk []codersdk.WorkspaceAgentLog
+		var logChunk []wirtualsdk.WorkspaceAgentLog
 		select {
 		case <-ctx.Done():
 		case logChunk = <-logs:
@@ -308,14 +308,14 @@ func TestWorkspaceAgentLogs(t *testing.T) {
 				Output:    strings.Repeat("a", (1<<20)+1),
 			}},
 		})
-		var apiError *codersdk.Error
+		var apiError *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiError)
 		require.Equal(t, http.StatusRequestEntityTooLarge, apiError.StatusCode())
 
 		// It's possible we have multiple updates queued, but that's alright, we just
 		// wait for the one where it overflows.
 		for {
-			var update codersdk.Workspace
+			var update wirtualsdk.Workspace
 			select {
 			case <-ctx.Done():
 				t.FailNow()
@@ -400,9 +400,9 @@ func TestWorkspaceAgentConnectRPC(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		stopBuild, err := client.CreateWorkspaceBuild(ctx, workspace.ID, codersdk.CreateWorkspaceBuildRequest{
+		stopBuild, err := client.CreateWorkspaceBuild(ctx, workspace.ID, wirtualsdk.CreateWorkspaceBuildRequest{
 			TemplateVersionID: version.ID,
-			Transition:        codersdk.WorkspaceTransitionStop,
+			Transition:        wirtualsdk.WorkspaceTransitionStop,
 		})
 		require.NoError(t, err)
 		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, stopBuild.ID)
@@ -412,7 +412,7 @@ func TestWorkspaceAgentConnectRPC(t *testing.T) {
 
 		_, err = agentClient.ConnectRPC(ctx)
 		require.Error(t, err)
-		var sdkErr *codersdk.Error
+		var sdkErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &sdkErr)
 		require.Equal(t, http.StatusUnauthorized, sdkErr.StatusCode())
 	})
@@ -438,7 +438,7 @@ func TestWorkspaceAgentConnectRPC(t *testing.T) {
 		agentClient.SetSessionToken(wsb.AgentToken)
 		_, err = agentClient.ConnectRPC(ctx)
 		require.Error(t, err)
-		var sdkErr *codersdk.Error
+		var sdkErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &sdkErr)
 		// Then: we should get a 401 Unauthorized response
 		require.Equal(t, http.StatusUnauthorized, sdkErr.StatusCode())
@@ -506,11 +506,11 @@ func TestWorkspaceAgentClientCoordinate_BadVersion(t *testing.T) {
 	resp, err := client.Request(ctx, http.MethodGet,
 		fmt.Sprintf("api/v2/workspaceagents/%s/coordinate", ao.WorkspaceAgent.ID),
 		nil,
-		codersdk.WithQueryParam("version", "99.99"))
+		wirtualsdk.WithQueryParam("version", "99.99"))
 	require.NoError(t, err)
 	require.Equal(t, http.StatusBadRequest, resp.StatusCode)
-	err = codersdk.ReadBodyAsError(resp)
-	var sdkErr *codersdk.Error
+	err = wirtualsdk.ReadBodyAsError(resp)
+	var sdkErr *wirtualsdk.Error
 	require.ErrorAs(t, err, &sdkErr)
 	require.Equal(t, "Unknown or unsupported API version", sdkErr.Message)
 	require.Len(t, sdkErr.Validations, 1)
@@ -615,7 +615,7 @@ func TestWorkspaceAgentClientCoordinate_ResumeToken(t *testing.T) {
 		clock.Advance(time.Second)
 		_, err = connectToCoordinatorAndFetchResumeToken(ctx, logger, client, agentAndBuild.WorkspaceAgent.ID, "invalid")
 		require.Error(t, err)
-		var sdkErr *codersdk.Error
+		var sdkErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &sdkErr)
 		require.Equal(t, http.StatusUnauthorized, sdkErr.StatusCode())
 		require.Len(t, sdkErr.Validations, 1)
@@ -694,7 +694,7 @@ func TestWorkspaceAgentClientCoordinate_ResumeToken(t *testing.T) {
 // with a given resume token. It returns an error if the connection is rejected.
 // If the connection is accepted, it is immediately closed and no error is
 // returned.
-func connectToCoordinatorAndFetchResumeToken(ctx context.Context, logger slog.Logger, sdkClient *codersdk.Client, agentID uuid.UUID, resumeToken string) (string, error) {
+func connectToCoordinatorAndFetchResumeToken(ctx context.Context, logger slog.Logger, sdkClient *wirtualsdk.Client, agentID uuid.UUID, resumeToken string) (string, error) {
 	u, err := sdkClient.URL.Parse(fmt.Sprintf("/api/v2/workspaceagents/%s/coordinate", agentID))
 	if err != nil {
 		return "", xerrors.Errorf("parse URL: %w", err)
@@ -714,7 +714,7 @@ func connectToCoordinatorAndFetchResumeToken(ctx context.Context, logger slog.Lo
 	})
 	if err != nil {
 		if resp.StatusCode != http.StatusSwitchingProtocols {
-			err = codersdk.ReadBodyAsError(resp)
+			err = wirtualsdk.ReadBodyAsError(resp)
 		}
 		return "", xerrors.Errorf("websocket dial: %w", err)
 	}
@@ -811,7 +811,7 @@ func TestWorkspaceAgentTailnetDirectDisabled(t *testing.T) {
 func TestWorkspaceAgentListeningPorts(t *testing.T) {
 	t.Parallel()
 
-	setup := func(t *testing.T, apps []*proto.App, dv *codersdk.DeploymentValues) (*codersdk.Client, uint16, uuid.UUID) {
+	setup := func(t *testing.T, apps []*proto.App, dv *wirtualsdk.DeploymentValues) (*wirtualsdk.Client, uint16, uuid.UUID) {
 		t.Helper()
 
 		client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
@@ -912,15 +912,15 @@ func TestWorkspaceAgentListeningPorts(t *testing.T) {
 
 		for _, tc := range []struct {
 			name  string
-			setDV func(t *testing.T, dv *codersdk.DeploymentValues)
+			setDV func(t *testing.T, dv *wirtualsdk.DeploymentValues)
 		}{
 			{
 				name:  "Mainline",
-				setDV: func(*testing.T, *codersdk.DeploymentValues) {},
+				setDV: func(*testing.T, *wirtualsdk.DeploymentValues) {},
 			},
 			{
 				name: "BlockDirect",
-				setDV: func(t *testing.T, dv *codersdk.DeploymentValues) {
+				setDV: func(t *testing.T, dv *wirtualsdk.DeploymentValues) {
 					err := dv.DERP.Config.BlockDirect.Set("true")
 					require.NoError(t, err)
 					require.True(t, dv.DERP.Config.BlockDirect.Value())
@@ -1099,8 +1099,8 @@ func TestWorkspaceAgentAppHealth(t *testing.T) {
 	aAPI := agentproto.NewDRPCAgentClient(conn)
 
 	manifest := requireGetManifest(ctx, t, aAPI)
-	require.EqualValues(t, codersdk.WorkspaceAppHealthDisabled, manifest.Apps[0].Health)
-	require.EqualValues(t, codersdk.WorkspaceAppHealthInitializing, manifest.Apps[1].Health)
+	require.EqualValues(t, wirtualsdk.WorkspaceAppHealthDisabled, manifest.Apps[0].Health)
+	require.EqualValues(t, wirtualsdk.WorkspaceAppHealthInitializing, manifest.Apps[1].Health)
 	// empty
 	_, err = aAPI.BatchUpdateAppHealths(ctx, &agentproto.BatchUpdateAppHealthRequest{})
 	require.NoError(t, err)
@@ -1135,7 +1135,7 @@ func TestWorkspaceAgentAppHealth(t *testing.T) {
 	})
 	require.NoError(t, err)
 	manifest = requireGetManifest(ctx, t, aAPI)
-	require.EqualValues(t, codersdk.WorkspaceAppHealthHealthy, manifest.Apps[1].Health)
+	require.EqualValues(t, wirtualsdk.WorkspaceAppHealthHealthy, manifest.Apps[1].Health)
 	// update to unhealthy
 	_, err = aAPI.BatchUpdateAppHealths(ctx, &agentproto.BatchUpdateAppHealthRequest{
 		Updates: []*agentproto.BatchUpdateAppHealthRequest_HealthUpdate{
@@ -1147,7 +1147,7 @@ func TestWorkspaceAgentAppHealth(t *testing.T) {
 	})
 	require.NoError(t, err)
 	manifest = requireGetManifest(ctx, t, aAPI)
-	require.EqualValues(t, codersdk.WorkspaceAppHealthUnhealthy, manifest.Apps[1].Health)
+	require.EqualValues(t, wirtualsdk.WorkspaceAppHealthUnhealthy, manifest.Apps[1].Health)
 }
 
 func TestWorkspaceAgentPostLogSource(t *testing.T) {
@@ -1209,7 +1209,7 @@ func TestWorkspaceAgent_LifecycleState(t *testing.T) {
 		require.NoError(t, err)
 		for _, res := range workspace.LatestBuild.Resources {
 			for _, a := range res.Agents {
-				require.Equal(t, codersdk.WorkspaceAgentLifecycleCreated, a.LifecycleState)
+				require.Equal(t, wirtualsdk.WorkspaceAgentLifecycleCreated, a.LifecycleState)
 			}
 		}
 
@@ -1224,20 +1224,20 @@ func TestWorkspaceAgent_LifecycleState(t *testing.T) {
 		agentAPI := agentproto.NewDRPCAgentClient(conn)
 
 		tests := []struct {
-			state   codersdk.WorkspaceAgentLifecycle
+			state   wirtualsdk.WorkspaceAgentLifecycle
 			wantErr bool
 		}{
-			{codersdk.WorkspaceAgentLifecycleCreated, false},
-			{codersdk.WorkspaceAgentLifecycleStarting, false},
-			{codersdk.WorkspaceAgentLifecycleStartTimeout, false},
-			{codersdk.WorkspaceAgentLifecycleStartError, false},
-			{codersdk.WorkspaceAgentLifecycleReady, false},
-			{codersdk.WorkspaceAgentLifecycleShuttingDown, false},
-			{codersdk.WorkspaceAgentLifecycleShutdownTimeout, false},
-			{codersdk.WorkspaceAgentLifecycleShutdownError, false},
-			{codersdk.WorkspaceAgentLifecycleOff, false},
-			{codersdk.WorkspaceAgentLifecycle("nonexistent_state"), true},
-			{codersdk.WorkspaceAgentLifecycle(""), true},
+			{wirtualsdk.WorkspaceAgentLifecycleCreated, false},
+			{wirtualsdk.WorkspaceAgentLifecycleStarting, false},
+			{wirtualsdk.WorkspaceAgentLifecycleStartTimeout, false},
+			{wirtualsdk.WorkspaceAgentLifecycleStartError, false},
+			{wirtualsdk.WorkspaceAgentLifecycleReady, false},
+			{wirtualsdk.WorkspaceAgentLifecycleShuttingDown, false},
+			{wirtualsdk.WorkspaceAgentLifecycleShutdownTimeout, false},
+			{wirtualsdk.WorkspaceAgentLifecycleShutdownError, false},
+			{wirtualsdk.WorkspaceAgentLifecycleOff, false},
+			{wirtualsdk.WorkspaceAgentLifecycle("nonexistent_state"), true},
+			{wirtualsdk.WorkspaceAgentLifecycle(""), true},
 		}
 		//nolint:paralleltest // No race between setting the state and getting the workspace.
 		for _, tt := range tests {
@@ -1308,7 +1308,7 @@ func TestWorkspaceAgent_Metadata(t *testing.T) {
 	require.NoError(t, err)
 	for _, res := range workspace.LatestBuild.Resources {
 		for _, a := range res.Agents {
-			require.Equal(t, codersdk.WorkspaceAgentLifecycleCreated, a.LifecycleState)
+			require.Equal(t, wirtualsdk.WorkspaceAgentLifecycleCreated, a.LifecycleState)
 		}
 	}
 
@@ -1335,7 +1335,7 @@ func TestWorkspaceAgent_Metadata(t *testing.T) {
 	require.EqualValues(t, 10, manifest.Metadata[0].Interval)
 	require.EqualValues(t, 3, manifest.Metadata[0].Timeout)
 
-	post := func(ctx context.Context, key string, mr codersdk.WorkspaceAgentMetadataResult) {
+	post := func(ctx context.Context, key string, mr wirtualsdk.WorkspaceAgentMetadataResult) {
 		_, err := aAPI.BatchUpdateMetadata(ctx, &agentproto.BatchUpdateMetadataRequest{
 			Metadata: []*agentproto.Metadata{
 				{
@@ -1352,9 +1352,9 @@ func TestWorkspaceAgent_Metadata(t *testing.T) {
 
 	agentID := workspace.LatestBuild.Resources[0].Agents[0].ID
 
-	var update []codersdk.WorkspaceAgentMetadata
+	var update []wirtualsdk.WorkspaceAgentMetadata
 
-	wantMetadata1 := codersdk.WorkspaceAgentMetadataResult{
+	wantMetadata1 := wirtualsdk.WorkspaceAgentMetadataResult{
 		CollectedAt: time.Now(),
 		Value:       "bar",
 	}
@@ -1367,7 +1367,7 @@ func TestWorkspaceAgent_Metadata(t *testing.T) {
 
 	updates, errors := client.WatchWorkspaceAgentMetadata(ctx, agentID)
 
-	recvUpdate := func() []codersdk.WorkspaceAgentMetadata {
+	recvUpdate := func() []wirtualsdk.WorkspaceAgentMetadata {
 		select {
 		case <-ctx.Done():
 			t.Fatalf("context done: %v", ctx.Err())
@@ -1379,7 +1379,7 @@ func TestWorkspaceAgent_Metadata(t *testing.T) {
 		return nil
 	}
 
-	check := func(want codersdk.WorkspaceAgentMetadataResult, got codersdk.WorkspaceAgentMetadata, retry bool) {
+	check := func(want wirtualsdk.WorkspaceAgentMetadataResult, got wirtualsdk.WorkspaceAgentMetadata, retry bool) {
 		// We can't trust the order of the updates due to timers and debounces,
 		// so let's check a few times more.
 		for i := 0; retry && i < 2 && (want.Value != got.Result.Value || want.Error != got.Result.Error); i++ {
@@ -1484,7 +1484,7 @@ func TestWorkspaceAgent_Metadata_DisplayOrder(t *testing.T) {
 	require.NoError(t, err)
 	for _, res := range workspace.LatestBuild.Resources {
 		for _, a := range res.Agents {
-			require.Equal(t, codersdk.WorkspaceAgentLifecycleCreated, a.LifecycleState)
+			require.Equal(t, wirtualsdk.WorkspaceAgentLifecycleCreated, a.LifecycleState)
 		}
 	}
 
@@ -1494,13 +1494,13 @@ func TestWorkspaceAgent_Metadata_DisplayOrder(t *testing.T) {
 
 	agentID := workspace.LatestBuild.Resources[0].Agents[0].ID
 
-	var update []codersdk.WorkspaceAgentMetadata
+	var update []wirtualsdk.WorkspaceAgentMetadata
 
 	// Setup is complete, reset the context.
 	ctx = testutil.Context(t, testutil.WaitMedium)
 	updates, errors := client.WatchWorkspaceAgentMetadata(ctx, agentID)
 
-	recvUpdate := func() []codersdk.WorkspaceAgentMetadata {
+	recvUpdate := func() []wirtualsdk.WorkspaceAgentMetadata {
 		select {
 		case <-ctx.Done():
 			t.Fatalf("context done: %v", ctx.Err())
@@ -1572,7 +1572,7 @@ func TestWorkspaceAgent_Metadata_CatchMemoryLeak(t *testing.T) {
 	require.NoError(t, err)
 	for _, res := range workspace.LatestBuild.Resources {
 		for _, a := range res.Agents {
-			require.Equal(t, codersdk.WorkspaceAgentLifecycleCreated, a.LifecycleState)
+			require.Equal(t, wirtualsdk.WorkspaceAgentLifecycleCreated, a.LifecycleState)
 		}
 	}
 
@@ -1595,7 +1595,7 @@ func TestWorkspaceAgent_Metadata_CatchMemoryLeak(t *testing.T) {
 			Metadata: []*agentproto.Metadata{
 				{
 					Key: key,
-					Result: agentsdk.ProtoFromMetadataResult(codersdk.WorkspaceAgentMetadataResult{
+					Result: agentsdk.ProtoFromMetadataResult(wirtualsdk.WorkspaceAgentMetadataResult{
 						CollectedAt: time.Now(),
 						Value:       value,
 					}),
@@ -1690,9 +1690,9 @@ func TestWorkspaceAgent_Startup(t *testing.T) {
 		var (
 			expectedVersion    = "v1.2.3"
 			expectedDir        = "/home/coder"
-			expectedSubsystems = []codersdk.AgentSubsystem{
-				codersdk.AgentSubsystemEnvbox,
-				codersdk.AgentSubsystemExectrace,
+			expectedSubsystems = []wirtualsdk.AgentSubsystem{
+				wirtualsdk.AgentSubsystemEnvbox,
+				wirtualsdk.AgentSubsystemExectrace,
 			}
 		)
 
@@ -1878,7 +1878,7 @@ func TestWorkspaceAgentExternalAuthListen(t *testing.T) {
 			},
 			ExternalAuthConfigs: []*externalauth.Config{
 				fake.ExternalAuthConfig(t, providerID, nil, func(cfg *externalauth.Config) {
-					cfg.Type = codersdk.EnhancedExternalAuthProviderGitLab.String()
+					cfg.Type = wirtualsdk.EnhancedExternalAuthProviderGitLab.String()
 				}),
 			},
 		})
@@ -1960,7 +1960,7 @@ func TestOwnedWorkspacesCoordinate(t *testing.T) {
 	})
 	if err != nil {
 		if resp.StatusCode != http.StatusSwitchingProtocols {
-			err = codersdk.ReadBodyAsError(resp)
+			err = wirtualsdk.ReadBodyAsError(resp)
 		}
 		require.NoError(t, err)
 	}
@@ -2017,7 +2017,7 @@ func TestOwnedWorkspacesCoordinate(t *testing.T) {
 
 func buildWorkspaceWithAgent(
 	t *testing.T,
-	client *codersdk.Client,
+	client *wirtualsdk.Client,
 	orgID uuid.UUID,
 	ownerID uuid.UUID,
 	db database.Store,

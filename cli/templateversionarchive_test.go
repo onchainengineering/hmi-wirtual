@@ -25,7 +25,7 @@ func TestTemplateVersionsArchive(t *testing.T) {
 		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
 		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		other := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(request *codersdk.CreateTemplateVersionRequest) {
+		other := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(request *wirtualsdk.CreateTemplateVersionRequest) {
 			request.TemplateID = template.ID
 		})
 		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, other.ID)
@@ -71,13 +71,13 @@ func TestTemplateVersionsArchive(t *testing.T) {
 			Parse:          echo.ParseComplete,
 			ProvisionApply: echo.ApplyFailed,
 			ProvisionPlan:  echo.PlanFailed,
-		}, func(request *codersdk.CreateTemplateVersionRequest) {
+		}, func(request *wirtualsdk.CreateTemplateVersionRequest) {
 			request.TemplateID = template.ID
 		})
 		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, failed.ID)
 		expArchived[failed.ID] = true
 		// Add unused
-		unused := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(request *codersdk.CreateTemplateVersionRequest) {
+		unused := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(request *wirtualsdk.CreateTemplateVersionRequest) {
 			request.TemplateID = template.ID
 		})
 		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, unused.ID)
@@ -90,7 +90,7 @@ func TestTemplateVersionsArchive(t *testing.T) {
 		w.RequireSuccess()
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		all, err := client.TemplateVersionsByTemplate(ctx, codersdk.TemplateVersionsByTemplateRequest{
+		all, err := client.TemplateVersionsByTemplate(ctx, wirtualsdk.TemplateVersionsByTemplateRequest{
 			TemplateID:      template.ID,
 			IncludeArchived: true,
 		})

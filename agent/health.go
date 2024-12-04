@@ -14,7 +14,7 @@ func (a *agent) HandleNetcheck(rw http.ResponseWriter, r *http.Request) {
 
 	ifReport, err := healthsdk.RunInterfacesReport()
 	if err != nil {
-		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to run interfaces report",
 			Detail:  err.Error(),
 		})

@@ -1,4 +1,4 @@
-package codersdk
+package wirtualsdk
 
 // Maps workspace transition to display status for Running job status
 var runningStatusFromTransition = map[WorkspaceTransition]string{

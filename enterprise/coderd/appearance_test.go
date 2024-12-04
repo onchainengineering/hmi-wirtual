@@ -32,14 +32,14 @@ func TestCustomLogoAndCompanyName(t *testing.T) {
 	adminClient, adminUser := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
 	coderdenttest.AddLicense(t, adminClient, coderdenttest.LicenseOptions{
 		Features: license.Features{
-			codersdk.FeatureAppearance: 1,
+			wirtualsdk.FeatureAppearance: 1,
 		},
 	})
 
 	anotherClient, _ := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
 
 	// Update logo and application name
-	uac := codersdk.UpdateAppearanceConfig{
+	uac := wirtualsdk.UpdateAppearanceConfig{
 		ApplicationName: "ACME Ltd",
 		LogoURL:         "http://logo-url/file.png",
 	}
@@ -74,7 +74,7 @@ func TestAnnouncementBanners(t *testing.T) {
 
 		coderdenttest.AddLicense(t, adminClient, coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureAppearance: 1,
+				wirtualsdk.FeatureAppearance: 1,
 			},
 		})
 
@@ -84,19 +84,19 @@ func TestAnnouncementBanners(t *testing.T) {
 		require.Empty(t, sb.AnnouncementBanners)
 
 		// Regular user should be unable to set the banner
-		uac := codersdk.UpdateAppearanceConfig{
-			AnnouncementBanners: []codersdk.BannerConfig{{Enabled: true}},
+		uac := wirtualsdk.UpdateAppearanceConfig{
+			AnnouncementBanners: []wirtualsdk.BannerConfig{{Enabled: true}},
 		}
 		err = basicUserClient.UpdateAppearance(ctx, uac)
 		require.Error(t, err)
-		var sdkError *codersdk.Error
+		var sdkError *wirtualsdk.Error
 		require.True(t, errors.As(err, &sdkError))
 		require.ErrorAs(t, err, &sdkError)
 		require.Equal(t, http.StatusForbidden, sdkError.StatusCode())
 
 		// But an admin can
-		wantBanner := codersdk.UpdateAppearanceConfig{
-			AnnouncementBanners: []codersdk.BannerConfig{{
+		wantBanner := wirtualsdk.UpdateAppearanceConfig{
+			AnnouncementBanners: []wirtualsdk.BannerConfig{{
 				Enabled:         true,
 				Message:         "The beep-bop will be boop-beeped on Saturday at 12AM PST.",
 				BackgroundColor: "#00FF00",
@@ -112,7 +112,7 @@ func TestAnnouncementBanners(t *testing.T) {
 		wantBanner.AnnouncementBanners[0].BackgroundColor = "#bad color"
 		err = adminClient.UpdateAppearance(ctx, wantBanner)
 		require.Error(t, err)
-		var sdkErr *codersdk.Error
+		var sdkErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &sdkErr)
 		require.Equal(t, http.StatusBadRequest, sdkErr.StatusCode())
 		require.Contains(t, sdkErr.Message, "Invalid color format")
@@ -135,11 +135,11 @@ func TestAnnouncementBanners(t *testing.T) {
 		})
 		lic := coderdenttest.AddLicense(t, client, coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureAppearance: 1,
+				wirtualsdk.FeatureAppearance: 1,
 			},
 		})
-		cfg := codersdk.UpdateAppearanceConfig{
-			AnnouncementBanners: []codersdk.BannerConfig{{
+		cfg := wirtualsdk.UpdateAppearanceConfig{
+			AnnouncementBanners: []wirtualsdk.BannerConfig{{
 				Enabled:         true,
 				Message:         "The beep-bop will be boop-beeped on Saturday at 12AM PST.",
 				BackgroundColor: "#00FF00",
@@ -163,17 +163,17 @@ func TestAnnouncementBanners(t *testing.T) {
 		agplAgentClient := agentsdk.New(agplClient.URL)
 		agplAgentClient.SetSessionToken(r.AgentToken)
 		banners = requireGetAnnouncementBanners(ctx, t, agplAgentClient)
-		require.Equal(t, []codersdk.BannerConfig{}, banners)
+		require.Equal(t, []wirtualsdk.BannerConfig{}, banners)
 
 		// No license means no banner.
 		err = client.DeleteLicense(ctx, lic.ID)
 		require.NoError(t, err)
 		banners = requireGetAnnouncementBanners(ctx, t, agentClient)
-		require.Equal(t, []codersdk.BannerConfig{}, banners)
+		require.Equal(t, []wirtualsdk.BannerConfig{}, banners)
 	})
 }
 
-func requireGetAnnouncementBanners(ctx context.Context, t *testing.T, client *agentsdk.Client) []codersdk.BannerConfig {
+func requireGetAnnouncementBanners(ctx context.Context, t *testing.T, client *agentsdk.Client) []wirtualsdk.BannerConfig {
 	cc, err := client.ConnectRPC(ctx)
 	require.NoError(t, err)
 	defer func() {
@@ -182,7 +182,7 @@ func requireGetAnnouncementBanners(ctx context.Context, t *testing.T, client *ag
 	aAPI := proto.NewDRPCAgentClient(cc)
 	bannersProto, err := aAPI.GetAnnouncementBanners(ctx, &proto.GetAnnouncementBannersRequest{})
 	require.NoError(t, err)
-	banners := make([]codersdk.BannerConfig, 0, len(bannersProto.AnnouncementBanners))
+	banners := make([]wirtualsdk.BannerConfig, 0, len(bannersProto.AnnouncementBanners))
 	for _, bannerProto := range bannersProto.AnnouncementBanners {
 		banners = append(banners, agentsdk.BannerConfigFromProto(bannerProto))
 	}
@@ -192,7 +192,7 @@ func requireGetAnnouncementBanners(ctx context.Context, t *testing.T, client *ag
 func TestCustomSupportLinks(t *testing.T) {
 	t.Parallel()
 
-	supportLinks := []codersdk.LinkConfig{
+	supportLinks := []wirtualsdk.LinkConfig{
 		{
 			Name:   "First link",
 			Target: "http://first-link-1",
@@ -205,7 +205,7 @@ func TestCustomSupportLinks(t *testing.T) {
 		},
 	}
 	cfg := coderdtest.DeploymentValues(t)
-	cfg.Support.Links = serpent.Struct[[]codersdk.LinkConfig]{
+	cfg.Support.Links = serpent.Struct[[]wirtualsdk.LinkConfig]{
 		Value: supportLinks,
 	}
 
@@ -215,7 +215,7 @@ func TestCustomSupportLinks(t *testing.T) {
 		},
 		LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureAppearance: 1,
+				wirtualsdk.FeatureAppearance: 1,
 			},
 		},
 	})
@@ -265,7 +265,7 @@ func TestDefaultSupportLinksWithCustomDocsUrl(t *testing.T) {
 
 	appr, err := anotherClient.Appearance(ctx)
 	require.NoError(t, err)
-	require.Equal(t, codersdk.DefaultSupportLinks(testURLRawString), appr.SupportLinks)
+	require.Equal(t, wirtualsdk.DefaultSupportLinks(testURLRawString), appr.SupportLinks)
 }
 
 func TestDefaultSupportLinks(t *testing.T) {
@@ -280,5 +280,5 @@ func TestDefaultSupportLinks(t *testing.T) {
 
 	appr, err := anotherClient.Appearance(ctx)
 	require.NoError(t, err)
-	require.Equal(t, codersdk.DefaultSupportLinks(codersdk.DefaultDocsURL()), appr.SupportLinks)
+	require.Equal(t, wirtualsdk.DefaultSupportLinks(wirtualsdk.DefaultDocsURL()), appr.SupportLinks)
 }

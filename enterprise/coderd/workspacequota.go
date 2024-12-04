@@ -156,7 +156,7 @@ func (api *API) workspaceQuota(rw http.ResponseWriter, r *http.Request) {
 		user         = httpmw.UserParam(r)
 	)
 
-	licensed := api.Entitlements.Enabled(codersdk.FeatureTemplateRBAC)
+	licensed := api.Entitlements.Enabled(wirtualsdk.FeatureTemplateRBAC)
 
 	// There are no groups and thus no allowance if RBAC isn't licensed.
 	var quotaAllowance int64 = -1
@@ -167,7 +167,7 @@ func (api *API) workspaceQuota(rw http.ResponseWriter, r *http.Request) {
 			OrganizationID: organization.ID,
 		})
 		if err != nil {
-			httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(r.Context(), rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Failed to get allowance",
 				Detail:  err.Error(),
 			})
@@ -180,14 +180,14 @@ func (api *API) workspaceQuota(rw http.ResponseWriter, r *http.Request) {
 		OrganizationID: organization.ID,
 	})
 	if err != nil {
-		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to get consumed",
 			Detail:  err.Error(),
 		})
 		return
 	}
 
-	httpapi.Write(r.Context(), rw, http.StatusOK, codersdk.WorkspaceQuota{
+	httpapi.Write(r.Context(), rw, http.StatusOK, wirtualsdk.WorkspaceQuota{
 		CreditsConsumed: int(quotaConsumed),
 		Budget:          int(quotaAllowance),
 	})

@@ -25,7 +25,7 @@ func Test_ProxyCRUD(t *testing.T) {
 		client, _ := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceProxy: 1,
+					wirtualsdk.FeatureWorkspaceProxy: 1,
 				},
 			},
 		})
@@ -87,14 +87,14 @@ func Test_ProxyCRUD(t *testing.T) {
 		client, _ := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceProxy: 1,
+					wirtualsdk.FeatureWorkspaceProxy: 1,
 				},
 			},
 		})
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 		expectedName := "test-proxy"
-		_, err := client.CreateWorkspaceProxy(ctx, codersdk.CreateWorkspaceProxyRequest{
+		_, err := client.CreateWorkspaceProxy(ctx, wirtualsdk.CreateWorkspaceProxyRequest{
 			Name:        expectedName,
 			DisplayName: "Test Proxy",
 			Icon:        "/emojis/us.png",

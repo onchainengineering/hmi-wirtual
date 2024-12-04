@@ -458,7 +458,7 @@ func (r *RootCmd) Command(subcommands []*serpent.Command) (*serpent.Command, err
 		},
 		{
 			Flag:        "debug-http",
-			Description: "Debug codersdk HTTP requests.",
+			Description: "Debug wirtualsdk HTTP requests.",
 			Value:       serpent.BoolOf(&r.debugHTTP),
 			Group:       globalGroup,
 			Hidden:      true,
@@ -510,7 +510,7 @@ type RootCmd struct {
 // InitClient authenticates the client with files from disk
 // and injects header middlewares for telemetry, authentication,
 // and version checks.
-func (r *RootCmd) InitClient(client *codersdk.Client) serpent.MiddlewareFunc {
+func (r *RootCmd) InitClient(client *wirtualsdk.Client) serpent.MiddlewareFunc {
 	return func(next serpent.HandlerFunc) serpent.HandlerFunc {
 		return func(inv *serpent.Invocation) error {
 			conf := r.createConfig()
@@ -559,18 +559,18 @@ func (r *RootCmd) InitClient(client *codersdk.Client) serpent.MiddlewareFunc {
 
 // HeaderTransport creates a new transport that executes `--header-command`
 // if it is set to add headers for all outbound requests.
-func (r *RootCmd) HeaderTransport(ctx context.Context, serverURL *url.URL) (*codersdk.HeaderTransport, error) {
+func (r *RootCmd) HeaderTransport(ctx context.Context, serverURL *url.URL) (*wirtualsdk.HeaderTransport, error) {
 	return headerTransport(ctx, serverURL, r.header, r.headerCommand)
 }
 
-func (r *RootCmd) configureClient(ctx context.Context, client *codersdk.Client, serverURL *url.URL, inv *serpent.Invocation) error {
+func (r *RootCmd) configureClient(ctx context.Context, client *wirtualsdk.Client, serverURL *url.URL, inv *serpent.Invocation) error {
 	transport := http.DefaultTransport
 	transport = wrapTransportWithTelemetryHeader(transport, inv)
 	if !r.noVersionCheck {
-		transport = wrapTransportWithVersionMismatchCheck(transport, inv, buildinfo.Version(), func(ctx context.Context) (codersdk.BuildInfoResponse, error) {
+		transport = wrapTransportWithVersionMismatchCheck(transport, inv, buildinfo.Version(), func(ctx context.Context) (wirtualsdk.BuildInfoResponse, error) {
 			// Create a new client without any wrapped transport
 			// otherwise it creates an infinite loop!
-			basicClient := codersdk.New(serverURL)
+			basicClient := wirtualsdk.New(serverURL)
 			return basicClient.BuildInfo(ctx)
 		})
 	}
@@ -582,7 +582,7 @@ func (r *RootCmd) configureClient(ctx context.Context, client *codersdk.Client, 
 		return xerrors.Errorf("create header transport: %w", err)
 	}
 	// The header transport has to come last.
-	// codersdk checks for the header transport to get headers
+	// wirtualsdk checks for the header transport to get headers
 	// to clone on the DERP client.
 	headerTransport.Transport = transport
 	client.HTTPClient = &http.Client{
@@ -592,8 +592,8 @@ func (r *RootCmd) configureClient(ctx context.Context, client *codersdk.Client, 
 	return nil
 }
 
-func (r *RootCmd) createUnauthenticatedClient(ctx context.Context, serverURL *url.URL, inv *serpent.Invocation) (*codersdk.Client, error) {
-	var client codersdk.Client
+func (r *RootCmd) createUnauthenticatedClient(ctx context.Context, serverURL *url.URL, inv *serpent.Invocation) (*wirtualsdk.Client, error) {
+	var client wirtualsdk.Client
 	err := r.configureClient(ctx, &client, serverURL, inv)
 	return &client, err
 }
@@ -638,16 +638,16 @@ func (o *OrganizationContext) ValueSource(inv *serpent.Invocation) (string, serp
 	return o.FlagSelect, opt.ValueSource
 }
 
-func (o *OrganizationContext) Selected(inv *serpent.Invocation, client *codersdk.Client) (codersdk.Organization, error) {
+func (o *OrganizationContext) Selected(inv *serpent.Invocation, client *wirtualsdk.Client) (wirtualsdk.Organization, error) {
 	// Fetch the set of organizations the user is a member of.
-	orgs, err := client.OrganizationsByUser(inv.Context(), codersdk.Me)
+	orgs, err := client.OrganizationsByUser(inv.Context(), wirtualsdk.Me)
 	if err != nil {
-		return codersdk.Organization{}, xerrors.Errorf("get organizations: %w", err)
+		return wirtualsdk.Organization{}, xerrors.Errorf("get organizations: %w", err)
 	}
 
 	// User manually selected an organization
 	if o.FlagSelect != "" {
-		index := slices.IndexFunc(orgs, func(org codersdk.Organization) bool {
+		index := slices.IndexFunc(orgs, func(org wirtualsdk.Organization) bool {
 			return org.Name == o.FlagSelect || org.ID.String() == o.FlagSelect
 		})
 
@@ -656,7 +656,7 @@ func (o *OrganizationContext) Selected(inv *serpent.Invocation, client *codersdk
 			for _, org := range orgs {
 				names = append(names, org.Name)
 			}
-			return codersdk.Organization{}, xerrors.Errorf("organization %q not found, are you sure you are a member of this organization? "+
+			return wirtualsdk.Organization{}, xerrors.Errorf("organization %q not found, are you sure you are a member of this organization? "+
 				"Valid options for '--org=' are [%s].", o.FlagSelect, strings.Join(names, ", "))
 		}
 		return orgs[index], nil
@@ -672,7 +672,7 @@ func (o *OrganizationContext) Selected(inv *serpent.Invocation, client *codersdk
 		validOrgs = append(validOrgs, org.Name)
 	}
 
-	return codersdk.Organization{}, xerrors.Errorf("Must select an organization with --org=<org_name>. Choose from: %s", strings.Join(validOrgs, ", "))
+	return wirtualsdk.Organization{}, xerrors.Errorf("Must select an organization with --org=<org_name>. Choose from: %s", strings.Join(validOrgs, ", "))
 }
 
 func splitNamedWorkspace(identifier string) (owner string, workspaceName string, err error) {
@@ -680,7 +680,7 @@ func splitNamedWorkspace(identifier string) (owner string, workspaceName string,
 
 	switch len(parts) {
 	case 1:
-		owner = codersdk.Me
+		owner = wirtualsdk.Me
 		workspaceName = parts[0]
 	case 2:
 		owner = parts[0]
@@ -694,20 +694,20 @@ func splitNamedWorkspace(identifier string) (owner string, workspaceName string,
 // namedWorkspace fetches and returns a workspace by an identifier, which may be either
 // a bare name (for a workspace owned by the current user) or a "user/workspace" combination,
 // where user is either a username or UUID.
-func namedWorkspace(ctx context.Context, client *codersdk.Client, identifier string) (codersdk.Workspace, error) {
+func namedWorkspace(ctx context.Context, client *wirtualsdk.Client, identifier string) (wirtualsdk.Workspace, error) {
 	owner, name, err := splitNamedWorkspace(identifier)
 	if err != nil {
-		return codersdk.Workspace{}, err
+		return wirtualsdk.Workspace{}, err
 	}
-	return client.WorkspaceByOwnerAndName(ctx, owner, name, codersdk.WorkspaceOptions{})
+	return client.WorkspaceByOwnerAndName(ctx, owner, name, wirtualsdk.WorkspaceOptions{})
 }
 
-func initAppearance(client *codersdk.Client, outConfig *codersdk.AppearanceConfig) serpent.MiddlewareFunc {
+func initAppearance(client *wirtualsdk.Client, outConfig *wirtualsdk.AppearanceConfig) serpent.MiddlewareFunc {
 	return func(next serpent.HandlerFunc) serpent.HandlerFunc {
 		return func(inv *serpent.Invocation) error {
 			cfg, _ := client.Appearance(inv.Context())
 			if cfg.DocsURL == "" {
-				cfg.DocsURL = codersdk.DefaultDocsURL()
+				cfg.DocsURL = wirtualsdk.DefaultDocsURL()
 			}
 			*outConfig = cfg
 			return next(inv)
@@ -980,8 +980,8 @@ func cliHumanFormatError(from string, err error, opts *formatOpts) (string, bool
 
 	// First check for sentinel errors that we want to handle specially.
 	// Order does matter! We want to check for the most specific errors first.
-	if sdkError, ok := err.(*codersdk.Error); ok {
-		return formatCoderSDKError(from, sdkError, opts), true
+	if sdkError, ok := err.(*wirtualsdk.Error); ok {
+		return formatWirtualSDKError(from, sdkError, opts), true
 	}
 
 	if cmdErr, ok := err.(*serpent.RunCommandError); ok {
@@ -1074,9 +1074,9 @@ func formatRunCommandError(err *serpent.RunCommandError, opts *formatOpts) strin
 	return str.String()
 }
 
-// formatCoderSDKError come from API requests. In verbose mode, add the
+// formatWirtualSDKError come from API requests. In verbose mode, add the
 // request debug information.
-func formatCoderSDKError(from string, err *codersdk.Error, opts *formatOpts) string {
+func formatWirtualSDKError(from string, err *wirtualsdk.Error, opts *formatOpts) string {
 	var str strings.Builder
 	if opts.Verbose {
 		// If all these fields are empty, then do not print this information.
@@ -1182,7 +1182,7 @@ func wrapTransportWithEntitlementsCheck(rt http.RoundTripper, w io.Writer) http.
 			return res, err
 		}
 		once.Do(func() {
-			for _, warning := range res.Header.Values(codersdk.EntitlementsWarningHeader) {
+			for _, warning := range res.Header.Values(wirtualsdk.EntitlementsWarningHeader) {
 				_, _ = fmt.Fprintln(w, pretty.Sprint(cliui.DefaultStyles.Warn, warning))
 			}
 		})
@@ -1193,7 +1193,7 @@ func wrapTransportWithEntitlementsCheck(rt http.RoundTripper, w io.Writer) http.
 // wrapTransportWithVersionMismatchCheck adds a middleware to the HTTP transport
 // that checks for version mismatches between the client and server. If a mismatch
 // is detected, a warning is printed to the user.
-func wrapTransportWithVersionMismatchCheck(rt http.RoundTripper, inv *serpent.Invocation, clientVersion string, getBuildInfo func(ctx context.Context) (codersdk.BuildInfoResponse, error)) http.RoundTripper {
+func wrapTransportWithVersionMismatchCheck(rt http.RoundTripper, inv *serpent.Invocation, clientVersion string, getBuildInfo func(ctx context.Context) (wirtualsdk.BuildInfoResponse, error)) http.RoundTripper {
 	var once sync.Once
 	return roundTripper(func(req *http.Request) (*http.Response, error) {
 		res, err := rt.RoundTrip(req)
@@ -1201,7 +1201,7 @@ func wrapTransportWithVersionMismatchCheck(rt http.RoundTripper, inv *serpent.In
 			return res, err
 		}
 		once.Do(func() {
-			serverVersion := res.Header.Get(codersdk.BuildVersionHeader)
+			serverVersion := res.Header.Get(wirtualsdk.BuildVersionHeader)
 			if serverVersion == "" {
 				return
 			}
@@ -1262,7 +1262,7 @@ func wrapTransportWithTelemetryHeader(transport http.RoundTripper, inv *serpent.
 			}
 		})
 		if value != "" {
-			req.Header.Add(codersdk.CLITelemetryHeader, value)
+			req.Header.Add(wirtualsdk.CLITelemetryHeader, value)
 		}
 		return transport.RoundTrip(req)
 	})
@@ -1276,8 +1276,8 @@ func (r roundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 
 // HeaderTransport creates a new transport that executes `--header-command`
 // if it is set to add headers for all outbound requests.
-func headerTransport(ctx context.Context, serverURL *url.URL, header []string, headerCommand string) (*codersdk.HeaderTransport, error) {
-	transport := &codersdk.HeaderTransport{
+func headerTransport(ctx context.Context, serverURL *url.URL, header []string, headerCommand string) (*wirtualsdk.HeaderTransport, error) {
+	transport := &wirtualsdk.HeaderTransport{
 		Transport: http.DefaultTransport,
 		Header:    http.Header{},
 	}

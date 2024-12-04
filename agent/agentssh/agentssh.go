@@ -72,7 +72,7 @@ type Config struct {
 	// file will be displayed to the user upon login.
 	MOTDFile func() string
 	// ServiceBanner returns the configuration for the Coder service banner.
-	AnnouncementBanners func() *[]codersdk.BannerConfig
+	AnnouncementBanners func() *[]wirtualsdk.BannerConfig
 	// UpdateEnv updates the environment variables for the command to be
 	// executed. It can be used to add, modify or replace environment variables.
 	UpdateEnv func(current []string) (updated []string, err error)
@@ -136,7 +136,7 @@ func NewServer(ctx context.Context, logger slog.Logger, prometheusRegistry *prom
 		config.MOTDFile = func() string { return "" }
 	}
 	if config.AnnouncementBanners == nil {
-		config.AnnouncementBanners = func() *[]codersdk.BannerConfig { return &[]codersdk.BannerConfig{} }
+		config.AnnouncementBanners = func() *[]wirtualsdk.BannerConfig { return &[]wirtualsdk.BannerConfig{} }
 	}
 	if config.WorkingDirectory == nil {
 		config.WorkingDirectory = func() string {
@@ -954,7 +954,7 @@ func isQuietLogin(fs afero.Fs, rawCommand string) bool {
 
 // showAnnouncementBanner will write the service banner if enabled and not blank
 // along with a blank line for spacing.
-func showAnnouncementBanner(session io.Writer, banner codersdk.BannerConfig) error {
+func showAnnouncementBanner(session io.Writer, banner wirtualsdk.BannerConfig) error {
 	if banner.Enabled && banner.Message != "" {
 		// The banner supports Markdown so we might want to parse it but Markdown is
 		// still fairly readable in its raw form.

@@ -226,19 +226,19 @@ func (c *AgentConn) DialContext(ctx context.Context, network string, addr string
 }
 
 // ListeningPorts lists the ports that are currently in use by the workspace.
-func (c *AgentConn) ListeningPorts(ctx context.Context) (codersdk.WorkspaceAgentListeningPortsResponse, error) {
+func (c *AgentConn) ListeningPorts(ctx context.Context) (wirtualsdk.WorkspaceAgentListeningPortsResponse, error) {
 	ctx, span := tracing.StartSpan(ctx)
 	defer span.End()
 	res, err := c.apiRequest(ctx, http.MethodGet, "/api/v0/listening-ports", nil)
 	if err != nil {
-		return codersdk.WorkspaceAgentListeningPortsResponse{}, xerrors.Errorf("do request: %w", err)
+		return wirtualsdk.WorkspaceAgentListeningPortsResponse{}, xerrors.Errorf("do request: %w", err)
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		return codersdk.WorkspaceAgentListeningPortsResponse{}, codersdk.ReadBodyAsError(res)
+		return wirtualsdk.WorkspaceAgentListeningPortsResponse{}, wirtualsdk.ReadBodyAsError(res)
 	}
 
-	var resp codersdk.WorkspaceAgentListeningPortsResponse
+	var resp wirtualsdk.WorkspaceAgentListeningPortsResponse
 	return resp, json.NewDecoder(res.Body).Decode(&resp)
 }
 
@@ -252,7 +252,7 @@ func (c *AgentConn) Netcheck(ctx context.Context) (healthsdk.AgentNetcheckReport
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		return healthsdk.AgentNetcheckReport{}, codersdk.ReadBodyAsError(res)
+		return healthsdk.AgentNetcheckReport{}, wirtualsdk.ReadBodyAsError(res)
 	}
 
 	var resp healthsdk.AgentNetcheckReport
@@ -268,7 +268,7 @@ func (c *AgentConn) DebugMagicsock(ctx context.Context) ([]byte, error) {
 		return nil, xerrors.Errorf("do request: %w", err)
 	}
 	if res.StatusCode != http.StatusOK {
-		return nil, codersdk.ReadBodyAsError(res)
+		return nil, wirtualsdk.ReadBodyAsError(res)
 	}
 	defer res.Body.Close()
 	bs, err := io.ReadAll(res.Body)
@@ -289,7 +289,7 @@ func (c *AgentConn) DebugManifest(ctx context.Context) ([]byte, error) {
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		return nil, codersdk.ReadBodyAsError(res)
+		return nil, wirtualsdk.ReadBodyAsError(res)
 	}
 	bs, err := io.ReadAll(res.Body)
 	if err != nil {
@@ -308,7 +308,7 @@ func (c *AgentConn) DebugLogs(ctx context.Context) ([]byte, error) {
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		return nil, codersdk.ReadBodyAsError(res)
+		return nil, wirtualsdk.ReadBodyAsError(res)
 	}
 	bs, err := io.ReadAll(res.Body)
 	if err != nil {
@@ -327,7 +327,7 @@ func (c *AgentConn) PrometheusMetrics(ctx context.Context) ([]byte, error) {
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		return nil, codersdk.ReadBodyAsError(res)
+		return nil, wirtualsdk.ReadBodyAsError(res)
 	}
 	bs, err := io.ReadAll(res.Body)
 	if err != nil {

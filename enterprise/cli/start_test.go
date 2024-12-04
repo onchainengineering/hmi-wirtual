@@ -31,9 +31,9 @@ func TestStart(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAccessControl:              1,
-					codersdk.FeatureTemplateRBAC:               1,
-					codersdk.FeatureAdvancedTemplateScheduling: 1,
+					wirtualsdk.FeatureAccessControl:              1,
+					wirtualsdk.FeatureTemplateRBAC:               1,
+					wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
 			},
 		})
@@ -46,17 +46,17 @@ func TestStart(t *testing.T) {
 		template := coderdtest.CreateTemplate(t, templateAdminClient, owner.OrganizationID, oldVersion.ID)
 		coderdtest.AwaitTemplateVersionJobCompleted(t, templateAdminClient, oldVersion.ID)
 		require.Equal(t, oldVersion.ID, template.ActiveVersionID)
-		template = coderdtest.UpdateTemplateMeta(t, templateAdminClient, template.ID, codersdk.UpdateTemplateMeta{
+		template = coderdtest.UpdateTemplateMeta(t, templateAdminClient, template.ID, wirtualsdk.UpdateTemplateMeta{
 			RequireActiveVersion: true,
 		})
 		require.True(t, template.RequireActiveVersion)
 
 		// Create a new version that we will promote.
-		activeVersion := coderdtest.CreateTemplateVersion(t, templateAdminClient, owner.OrganizationID, nil, func(ctvr *codersdk.CreateTemplateVersionRequest) {
+		activeVersion := coderdtest.CreateTemplateVersion(t, templateAdminClient, owner.OrganizationID, nil, func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
 			ctvr.TemplateID = template.ID
 		})
 		coderdtest.AwaitTemplateVersionJobCompleted(t, templateAdminClient, activeVersion.ID)
-		err := templateAdminClient.UpdateActiveTemplateVersion(ctx, template.ID, codersdk.UpdateActiveTemplateVersion{
+		err := templateAdminClient.UpdateActiveTemplateVersion(ctx, template.ID, wirtualsdk.UpdateActiveTemplateVersion{
 			ID: activeVersion.ID,
 		})
 		require.NoError(t, err)
@@ -70,19 +70,19 @@ func TestStart(t *testing.T) {
 		group := coderdtest.CreateGroup(t, ownerClient, owner.OrganizationID, "test", templateGroupACLAdmin)
 
 		// Update the template for both users and groups.
-		err = ownerClient.UpdateTemplateACL(ctx, template.ID, codersdk.UpdateTemplateACL{
-			UserPerms: map[string]codersdk.TemplateRole{
-				templateACLAdmin.ID.String(): codersdk.TemplateRoleAdmin,
+		err = ownerClient.UpdateTemplateACL(ctx, template.ID, wirtualsdk.UpdateTemplateACL{
+			UserPerms: map[string]wirtualsdk.TemplateRole{
+				templateACLAdmin.ID.String(): wirtualsdk.TemplateRoleAdmin,
 			},
-			GroupPerms: map[string]codersdk.TemplateRole{
-				group.ID.String(): codersdk.TemplateRoleAdmin,
+			GroupPerms: map[string]wirtualsdk.TemplateRole{
+				group.ID.String(): wirtualsdk.TemplateRoleAdmin,
 			},
 		})
 		require.NoError(t, err)
 
 		type testcase struct {
 			Name            string
-			Client          *codersdk.Client
+			Client          *wirtualsdk.Client
 			WorkspaceOwner  uuid.UUID
 			ExpectedVersion uuid.UUID
 		}
@@ -134,10 +134,10 @@ func TestStart(t *testing.T) {
 						ctx := testutil.Context(t, testutil.WaitMedium)
 						// Create the workspace using the admin since we want
 						// to force the old version.
-						ws, err := ownerClient.CreateWorkspace(ctx, owner.OrganizationID, c.WorkspaceOwner.String(), codersdk.CreateWorkspaceRequest{
+						ws, err := ownerClient.CreateWorkspace(ctx, owner.OrganizationID, c.WorkspaceOwner.String(), wirtualsdk.CreateWorkspaceRequest{
 							TemplateVersionID: oldVersion.ID,
 							Name:              coderdtest.RandomUsername(t),
-							AutomaticUpdates:  codersdk.AutomaticUpdatesNever,
+							AutomaticUpdates:  wirtualsdk.AutomaticUpdatesNever,
 						})
 						require.NoError(t, err)
 						coderdtest.AwaitWorkspaceBuildJobCompleted(t, c.Client, ws.LatestBuild.ID)
@@ -186,7 +186,7 @@ func TestStart(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAdvancedTemplateScheduling: 1,
+					wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
 			},
 		})
@@ -199,7 +199,7 @@ func TestStart(t *testing.T) {
 		workspace := coderdtest.CreateWorkspace(t, memberClient, template.ID)
 		_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, memberClient, workspace.LatestBuild.ID)
 		_ = coderdtest.MustTransitionWorkspace(t, memberClient, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
-		err := memberClient.UpdateWorkspaceDormancy(ctx, workspace.ID, codersdk.UpdateWorkspaceDormancy{
+		err := memberClient.UpdateWorkspaceDormancy(ctx, workspace.ID, wirtualsdk.UpdateWorkspaceDormancy{
 			Dormant: true,
 		})
 		require.NoError(t, err)
@@ -215,6 +215,6 @@ func TestStart(t *testing.T) {
 		require.Contains(t, buf.String(), "Activating dormant workspace...")
 
 		workspace = coderdtest.MustWorkspace(t, memberClient, workspace.ID)
-		require.Equal(t, codersdk.WorkspaceTransitionStart, workspace.LatestBuild.Transition)
+		require.Equal(t, wirtualsdk.WorkspaceTransitionStart, workspace.LatestBuild.Transition)
 	})
 }

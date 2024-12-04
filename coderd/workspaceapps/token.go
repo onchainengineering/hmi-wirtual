@@ -89,12 +89,12 @@ func FromRequest(r *http.Request, mgr cryptokeys.SigningKeycache) (*SignedToken,
 		tokens        = []string{}
 		hasQueryParam = false
 	)
-	if q := r.URL.Query().Get(codersdk.SignedAppTokenQueryParameter); q != "" {
+	if q := r.URL.Query().Get(wirtualsdk.SignedAppTokenQueryParameter); q != "" {
 		hasQueryParam = true
 		tokens = append(tokens, q)
 	}
 	for _, cookie := range r.Cookies() {
-		if cookie.Name == codersdk.SignedAppTokenCookie {
+		if cookie.Name == wirtualsdk.SignedAppTokenCookie {
 			tokens = append(tokens, cookie.Value)
 		}
 	}

@@ -42,7 +42,7 @@ var (
 
 	exampleBasePath = "https://github.com/coder/coder/tree/main/examples/templates/"
 	examplesJSON    = "examples.gen.json"
-	parsedExamples  []codersdk.TemplateExample
+	parsedExamples  []wirtualsdk.TemplateExample
 	parseExamples   sync.Once
 	archives        singleflight.Group
 	ErrNotFound     = xerrors.New("example not found")
@@ -51,7 +51,7 @@ var (
 const rootDir = "templates"
 
 // List returns all embedded examples.
-func List() ([]codersdk.TemplateExample, error) {
+func List() ([]wirtualsdk.TemplateExample, error) {
 	var err error
 	parseExamples.Do(func() {
 		parsedExamples, err = parseAndVerifyExamples()
@@ -59,7 +59,7 @@ func List() ([]codersdk.TemplateExample, error) {
 	return parsedExamples, err
 }
 
-func parseAndVerifyExamples() (examples []codersdk.TemplateExample, err error) {
+func parseAndVerifyExamples() (examples []wirtualsdk.TemplateExample, err error) {
 	f, err := files.Open(examplesJSON)
 	if err != nil {
 		return nil, xerrors.Errorf("open %s: %w", examplesJSON, err)
@@ -121,7 +121,7 @@ func Archive(exampleID string) ([]byte, error) {
 			return nil, xerrors.Errorf("list: %w", err)
 		}
 
-		var selected codersdk.TemplateExample
+		var selected wirtualsdk.TemplateExample
 		for _, example := range examples {
 			if example.ID != exampleID {
 				continue

@@ -22,7 +22,7 @@ import (
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
-// Duplicated in codersdk.
+// Duplicated in wirtualsdk.
 const insightsTimeLayout = time.RFC3339
 
 // @Summary Get deployment DAUs
@@ -50,7 +50,7 @@ func (api *API) returnDAUsInternal(rw http.ResponseWriter, r *http.Request, temp
 	tzOffset := p.Int(vals, 0, "tz_offset")
 	p.ErrorExcessParams(vals)
 	if len(p.Errors) > 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message:     "Query parameters have invalid values.",
 			Validations: p.Errors,
 		})
@@ -77,18 +77,18 @@ func (api *API) returnDAUsInternal(rw http.ResponseWriter, r *http.Request, temp
 			return
 		}
 
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching DAUs.",
 			Detail:  err.Error(),
 		})
 	}
 
-	resp := codersdk.DAUsResponse{
+	resp := wirtualsdk.DAUsResponse{
 		TZHourOffset: tzOffset,
-		Entries:      make([]codersdk.DAUEntry, 0, len(rows)),
+		Entries:      make([]wirtualsdk.DAUEntry, 0, len(rows)),
 	}
 	for _, row := range rows {
-		resp.Entries = append(resp.Entries, codersdk.DAUEntry{
+		resp.Entries = append(resp.Entries, wirtualsdk.DAUEntry{
 			Date:   row.StartTime.Format(time.DateOnly),
 			Amount: int(row.ActiveUsers),
 		})
@@ -122,7 +122,7 @@ func (api *API) insightsUserActivity(rw http.ResponseWriter, r *http.Request) {
 	)
 	p.ErrorExcessParams(vals)
 	if len(p.Errors) > 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message:     "Query parameters have invalid values.",
 			Validations: p.Errors,
 		})
@@ -142,12 +142,12 @@ func (api *API) insightsUserActivity(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// No data is not an error.
 		if xerrors.Is(err, sql.ErrNoRows) {
-			httpapi.Write(ctx, rw, http.StatusOK, codersdk.UserActivityInsightsResponse{
-				Report: codersdk.UserActivityInsightsReport{
+			httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.UserActivityInsightsResponse{
+				Report: wirtualsdk.UserActivityInsightsReport{
 					StartTime:   startTime,
 					EndTime:     endTime,
 					TemplateIDs: []uuid.UUID{},
-					Users:       []codersdk.UserActivity{},
+					Users:       []wirtualsdk.UserActivity{},
 				},
 			})
 			return
@@ -157,7 +157,7 @@ func (api *API) insightsUserActivity(rw http.ResponseWriter, r *http.Request) {
 			httpapi.ResourceNotFound(rw)
 			return
 		}
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching user activity.",
 			Detail:  err.Error(),
 		})
@@ -165,12 +165,12 @@ func (api *API) insightsUserActivity(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	templateIDSet := make(map[uuid.UUID]struct{})
-	userActivities := make([]codersdk.UserActivity, 0, len(rows))
+	userActivities := make([]wirtualsdk.UserActivity, 0, len(rows))
 	for _, row := range rows {
 		for _, templateID := range row.TemplateIDs {
 			templateIDSet[templateID] = struct{}{}
 		}
-		userActivities = append(userActivities, codersdk.UserActivity{
+		userActivities = append(userActivities, wirtualsdk.UserActivity{
 			TemplateIDs: row.TemplateIDs,
 			UserID:      row.UserID,
 			Username:    row.Username,
@@ -188,8 +188,8 @@ func (api *API) insightsUserActivity(rw http.ResponseWriter, r *http.Request) {
 		return slice.Ascending(a.String(), b.String())
 	})
 
-	resp := codersdk.UserActivityInsightsResponse{
-		Report: codersdk.UserActivityInsightsReport{
+	resp := wirtualsdk.UserActivityInsightsResponse{
+		Report: wirtualsdk.UserActivityInsightsReport{
 			StartTime:   startTime,
 			EndTime:     endTime,
 			TemplateIDs: seenTemplateIDs,
@@ -225,7 +225,7 @@ func (api *API) insightsUserLatency(rw http.ResponseWriter, r *http.Request) {
 	)
 	p.ErrorExcessParams(vals)
 	if len(p.Errors) > 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message:     "Query parameters have invalid values.",
 			Validations: p.Errors,
 		})
@@ -247,7 +247,7 @@ func (api *API) insightsUserLatency(rw http.ResponseWriter, r *http.Request) {
 			httpapi.ResourceNotFound(rw)
 			return
 		}
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching user latency.",
 			Detail:  err.Error(),
 		})
@@ -255,17 +255,17 @@ func (api *API) insightsUserLatency(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	templateIDSet := make(map[uuid.UUID]struct{})
-	userLatencies := make([]codersdk.UserLatency, 0, len(rows))
+	userLatencies := make([]wirtualsdk.UserLatency, 0, len(rows))
 	for _, row := range rows {
 		for _, templateID := range row.TemplateIDs {
 			templateIDSet[templateID] = struct{}{}
 		}
-		userLatencies = append(userLatencies, codersdk.UserLatency{
+		userLatencies = append(userLatencies, wirtualsdk.UserLatency{
 			TemplateIDs: row.TemplateIDs,
 			UserID:      row.UserID,
 			Username:    row.Username,
 			AvatarURL:   row.AvatarURL,
-			LatencyMS: codersdk.ConnectionLatency{
+			LatencyMS: wirtualsdk.ConnectionLatency{
 				P50: row.WorkspaceConnectionLatency50,
 				P95: row.WorkspaceConnectionLatency95,
 			},
@@ -281,8 +281,8 @@ func (api *API) insightsUserLatency(rw http.ResponseWriter, r *http.Request) {
 		return slice.Ascending(a.String(), b.String())
 	})
 
-	resp := codersdk.UserLatencyInsightsResponse{
-		Report: codersdk.UserLatencyInsightsReport{
+	resp := wirtualsdk.UserLatencyInsightsResponse{
+		Report: wirtualsdk.UserLatencyInsightsReport{
 			StartTime:   startTime,
 			EndTime:     endTime,
 			TemplateIDs: seenTemplateIDs,
@@ -317,11 +317,11 @@ func (api *API) insightsTemplates(rw http.ResponseWriter, r *http.Request) {
 		endTimeString   = p.String(vals, "", "end_time")
 		intervalString  = p.String(vals, "", "interval")
 		templateIDs     = p.UUIDs(vals, []uuid.UUID{}, "template_ids")
-		sectionStrings  = p.Strings(vals, templateInsightsSectionAsStrings(codersdk.TemplateInsightsSectionIntervalReports, codersdk.TemplateInsightsSectionReport), "sections")
+		sectionStrings  = p.Strings(vals, templateInsightsSectionAsStrings(wirtualsdk.TemplateInsightsSectionIntervalReports, wirtualsdk.TemplateInsightsSectionReport), "sections")
 	)
 	p.ErrorExcessParams(vals)
 	if len(p.Errors) > 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message:     "Query parameters have invalid values.",
 			Validations: p.Errors,
 		})
@@ -354,7 +354,7 @@ func (api *API) insightsTemplates(rw http.ResponseWriter, r *http.Request) {
 	// overhead from a transaction is not worth it.
 	eg.Go(func() error {
 		var err error
-		if interval != "" && slices.Contains(sections, codersdk.TemplateInsightsSectionIntervalReports) {
+		if interval != "" && slices.Contains(sections, wirtualsdk.TemplateInsightsSectionIntervalReports) {
 			dailyUsage, err = api.Database.GetTemplateInsightsByInterval(egCtx, database.GetTemplateInsightsByIntervalParams{
 				StartTime:    startTime,
 				EndTime:      endTime,
@@ -368,7 +368,7 @@ func (api *API) insightsTemplates(rw http.ResponseWriter, r *http.Request) {
 		return nil
 	})
 	eg.Go(func() error {
-		if !slices.Contains(sections, codersdk.TemplateInsightsSectionReport) {
+		if !slices.Contains(sections, wirtualsdk.TemplateInsightsSectionReport) {
 			return nil
 		}
 
@@ -384,7 +384,7 @@ func (api *API) insightsTemplates(rw http.ResponseWriter, r *http.Request) {
 		return nil
 	})
 	eg.Go(func() error {
-		if !slices.Contains(sections, codersdk.TemplateInsightsSectionReport) {
+		if !slices.Contains(sections, wirtualsdk.TemplateInsightsSectionReport) {
 			return nil
 		}
 
@@ -403,7 +403,7 @@ func (api *API) insightsTemplates(rw http.ResponseWriter, r *http.Request) {
 	// Template parameter insights have no risk of inconsistency with the other
 	// insights.
 	eg.Go(func() error {
-		if !slices.Contains(sections, codersdk.TemplateInsightsSectionReport) {
+		if !slices.Contains(sections, wirtualsdk.TemplateInsightsSectionReport) {
 			return nil
 		}
 
@@ -425,7 +425,7 @@ func (api *API) insightsTemplates(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching template insights.",
 			Detail:  err.Error(),
 		})
@@ -434,19 +434,19 @@ func (api *API) insightsTemplates(rw http.ResponseWriter, r *http.Request) {
 
 	parametersUsage, err := db2sdk.TemplateInsightsParameters(parameterRows)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error converting template parameter insights.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 
-	resp := codersdk.TemplateInsightsResponse{
-		IntervalReports: []codersdk.TemplateInsightsIntervalReport{},
+	resp := wirtualsdk.TemplateInsightsResponse{
+		IntervalReports: []wirtualsdk.TemplateInsightsIntervalReport{},
 	}
 
-	if slices.Contains(sections, codersdk.TemplateInsightsSectionReport) {
-		resp.Report = &codersdk.TemplateInsightsReport{
+	if slices.Contains(sections, wirtualsdk.TemplateInsightsSectionReport) {
+		resp.Report = &wirtualsdk.TemplateInsightsReport{
 			StartTime:       startTime,
 			EndTime:         endTime,
 			TemplateIDs:     usage.TemplateIDs,
@@ -457,7 +457,7 @@ func (api *API) insightsTemplates(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, row := range dailyUsage {
-		resp.IntervalReports = append(resp.IntervalReports, codersdk.TemplateInsightsIntervalReport{
+		resp.IntervalReports = append(resp.IntervalReports, wirtualsdk.TemplateInsightsIntervalReport{
 			// NOTE(mafredri): This might not be accurate over DST since the
 			// parsed location only contains the offset.
 			StartTime:   row.StartTime.In(startTime.Location()),
@@ -473,21 +473,21 @@ func (api *API) insightsTemplates(rw http.ResponseWriter, r *http.Request) {
 // convertTemplateInsightsApps builds the list of builtin apps and template apps
 // from the provided database rows, builtin apps are implicitly a part of all
 // templates.
-func convertTemplateInsightsApps(usage database.GetTemplateInsightsRow, appUsage []database.GetTemplateAppInsightsRow) []codersdk.TemplateAppUsage {
+func convertTemplateInsightsApps(usage database.GetTemplateInsightsRow, appUsage []database.GetTemplateAppInsightsRow) []wirtualsdk.TemplateAppUsage {
 	// Builtin apps.
-	apps := []codersdk.TemplateAppUsage{
+	apps := []wirtualsdk.TemplateAppUsage{
 		{
 			TemplateIDs: usage.VscodeTemplateIds,
-			Type:        codersdk.TemplateAppsTypeBuiltin,
-			DisplayName: codersdk.TemplateBuiltinAppDisplayNameVSCode,
+			Type:        wirtualsdk.TemplateAppsTypeBuiltin,
+			DisplayName: wirtualsdk.TemplateBuiltinAppDisplayNameVSCode,
 			Slug:        "vscode",
 			Icon:        "/icon/code.svg",
 			Seconds:     usage.UsageVscodeSeconds,
 		},
 		{
 			TemplateIDs: usage.JetbrainsTemplateIds,
-			Type:        codersdk.TemplateAppsTypeBuiltin,
-			DisplayName: codersdk.TemplateBuiltinAppDisplayNameJetBrains,
+			Type:        wirtualsdk.TemplateAppsTypeBuiltin,
+			DisplayName: wirtualsdk.TemplateBuiltinAppDisplayNameJetBrains,
 			Slug:        "jetbrains",
 			Icon:        "/icon/intellij.svg",
 			Seconds:     usage.UsageJetbrainsSeconds,
@@ -500,24 +500,24 @@ func convertTemplateInsightsApps(usage database.GetTemplateInsightsRow, appUsage
 		// !app.IsApp && app.AccessMethod == "terminal" && app.SlugOrPort == ""
 		{
 			TemplateIDs: usage.ReconnectingPtyTemplateIds,
-			Type:        codersdk.TemplateAppsTypeBuiltin,
-			DisplayName: codersdk.TemplateBuiltinAppDisplayNameWebTerminal,
+			Type:        wirtualsdk.TemplateAppsTypeBuiltin,
+			DisplayName: wirtualsdk.TemplateBuiltinAppDisplayNameWebTerminal,
 			Slug:        "reconnecting-pty",
 			Icon:        "/icon/terminal.svg",
 			Seconds:     usage.UsageReconnectingPtySeconds,
 		},
 		{
 			TemplateIDs: usage.SshTemplateIds,
-			Type:        codersdk.TemplateAppsTypeBuiltin,
-			DisplayName: codersdk.TemplateBuiltinAppDisplayNameSSH,
+			Type:        wirtualsdk.TemplateAppsTypeBuiltin,
+			DisplayName: wirtualsdk.TemplateBuiltinAppDisplayNameSSH,
 			Slug:        "ssh",
 			Icon:        "/icon/terminal.svg",
 			Seconds:     usage.UsageSshSeconds,
 		},
 		{
 			TemplateIDs: usage.SftpTemplateIds,
-			Type:        codersdk.TemplateAppsTypeBuiltin,
-			DisplayName: codersdk.TemplateBuiltinAppDisplayNameSFTP,
+			Type:        wirtualsdk.TemplateAppsTypeBuiltin,
+			DisplayName: wirtualsdk.TemplateBuiltinAppDisplayNameSFTP,
 			Slug:        "sftp",
 			Icon:        "/icon/terminal.svg",
 			Seconds:     usage.UsageSftpSeconds,
@@ -541,9 +541,9 @@ func convertTemplateInsightsApps(usage database.GetTemplateInsightsRow, appUsage
 
 	// Template apps.
 	for _, app := range appUsage {
-		apps = append(apps, codersdk.TemplateAppUsage{
+		apps = append(apps, wirtualsdk.TemplateAppUsage{
 			TemplateIDs: app.TemplateIDs,
-			Type:        codersdk.TemplateAppsTypeApp,
+			Type:        wirtualsdk.TemplateAppsTypeApp,
 			DisplayName: app.DisplayName,
 			Slug:        app.Slug,
 			Icon:        app.Icon,
@@ -571,9 +571,9 @@ func parseInsightsStartAndEndTime(ctx context.Context, rw http.ResponseWriter, n
 	} {
 		t, err := time.Parse(insightsTimeLayout, qp.value)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Query parameter has invalid value.",
-				Validations: []codersdk.ValidationError{
+				Validations: []wirtualsdk.ValidationError{
 					{
 						Field:  qp.name,
 						Detail: fmt.Sprintf("Query param %q must be a valid date format (%s): %s", qp.name, insightsTimeLayout, err.Error()),
@@ -587,9 +587,9 @@ func parseInsightsStartAndEndTime(ctx context.Context, rw http.ResponseWriter, n
 		now := now.In(t.Location())
 
 		if t.IsZero() {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Query parameter has invalid value.",
-				Validations: []codersdk.ValidationError{
+				Validations: []wirtualsdk.ValidationError{
 					{
 						Field:  qp.name,
 						Detail: fmt.Sprintf("Query param %q must not be zero", qp.name),
@@ -601,9 +601,9 @@ func parseInsightsStartAndEndTime(ctx context.Context, rw http.ResponseWriter, n
 
 		// Round upwards one hour to ensure we can fetch the latest data.
 		if t.After(now.Truncate(time.Hour).Add(time.Hour)) {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Query parameter has invalid value.",
-				Validations: []codersdk.ValidationError{
+				Validations: []wirtualsdk.ValidationError{
 					{
 						Field:  qp.name,
 						Detail: fmt.Sprintf("Query param %q must not be in the future", qp.name),
@@ -622,9 +622,9 @@ func parseInsightsStartAndEndTime(ctx context.Context, rw http.ResponseWriter, n
 		}
 		h, m, s := t.Clock()
 		if ensureZeroHour && (h != 0 || m != 0 || s != 0) {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Query parameter has invalid value.",
-				Validations: []codersdk.ValidationError{
+				Validations: []wirtualsdk.ValidationError{
 					{
 						Field:  qp.name,
 						Detail: fmt.Sprintf("Query param %q must have the clock set to 00:00:00, got %s", qp.name, qp.value),
@@ -633,9 +633,9 @@ func parseInsightsStartAndEndTime(ctx context.Context, rw http.ResponseWriter, n
 			})
 			return time.Time{}, time.Time{}, false
 		} else if m != 0 || s != 0 {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Query parameter has invalid value.",
-				Validations: []codersdk.ValidationError{
+				Validations: []wirtualsdk.ValidationError{
 					{
 						Field:  qp.name,
 						Detail: fmt.Sprintf("Query param %q must have the clock set to %02d:00:00, got %s", qp.name, h, qp.value),
@@ -647,9 +647,9 @@ func parseInsightsStartAndEndTime(ctx context.Context, rw http.ResponseWriter, n
 		*qp.dest = t
 	}
 	if endTime.Before(startTime) {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Query parameter has invalid value.",
-			Validations: []codersdk.ValidationError{
+			Validations: []wirtualsdk.ValidationError{
 				{
 					Field:  "end_time",
 					Detail: fmt.Sprintf("Query param %q must be after than %q", "end_time", "start_time"),
@@ -662,13 +662,13 @@ func parseInsightsStartAndEndTime(ctx context.Context, rw http.ResponseWriter, n
 	return startTime, endTime, true
 }
 
-func parseInsightsInterval(ctx context.Context, rw http.ResponseWriter, intervalString string, startTime, endTime time.Time) (codersdk.InsightsReportInterval, bool) {
-	switch v := codersdk.InsightsReportInterval(intervalString); v {
-	case codersdk.InsightsReportIntervalDay, "":
+func parseInsightsInterval(ctx context.Context, rw http.ResponseWriter, intervalString string, startTime, endTime time.Time) (wirtualsdk.InsightsReportInterval, bool) {
+	switch v := wirtualsdk.InsightsReportInterval(intervalString); v {
+	case wirtualsdk.InsightsReportIntervalDay, "":
 		return v, true
-	case codersdk.InsightsReportIntervalWeek:
+	case wirtualsdk.InsightsReportIntervalWeek:
 		if !lastReportIntervalHasAtLeastSixDays(startTime, endTime) {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Query parameter has invalid value.",
 				Detail:  "Last report interval should have at least 6 days.",
 			})
@@ -676,12 +676,12 @@ func parseInsightsInterval(ctx context.Context, rw http.ResponseWriter, interval
 		}
 		return v, true
 	default:
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Query parameter has invalid value.",
-			Validations: []codersdk.ValidationError{
+			Validations: []wirtualsdk.ValidationError{
 				{
 					Field:  "interval",
-					Detail: fmt.Sprintf("must be one of %v", []codersdk.InsightsReportInterval{codersdk.InsightsReportIntervalDay, codersdk.InsightsReportIntervalWeek}),
+					Detail: fmt.Sprintf("must be one of %v", []wirtualsdk.InsightsReportInterval{wirtualsdk.InsightsReportIntervalDay, wirtualsdk.InsightsReportIntervalWeek}),
 				},
 			},
 		})
@@ -699,7 +699,7 @@ func lastReportIntervalHasAtLeastSixDays(startTime, endTime time.Time) bool {
 	return lastReportIntervalDays >= 6*24*time.Hour || startTime.AddDate(0, 0, 6).Equal(endTime)
 }
 
-func templateInsightsSectionAsStrings(sections ...codersdk.TemplateInsightsSection) []string {
+func templateInsightsSectionAsStrings(sections ...wirtualsdk.TemplateInsightsSection) []string {
 	t := make([]string, len(sections))
 	for i, s := range sections {
 		t[i] = string(s)
@@ -707,19 +707,19 @@ func templateInsightsSectionAsStrings(sections ...codersdk.TemplateInsightsSecti
 	return t
 }
 
-func parseTemplateInsightsSections(ctx context.Context, rw http.ResponseWriter, sections []string) ([]codersdk.TemplateInsightsSection, bool) {
-	t := make([]codersdk.TemplateInsightsSection, len(sections))
+func parseTemplateInsightsSections(ctx context.Context, rw http.ResponseWriter, sections []string) ([]wirtualsdk.TemplateInsightsSection, bool) {
+	t := make([]wirtualsdk.TemplateInsightsSection, len(sections))
 	for i, s := range sections {
-		switch v := codersdk.TemplateInsightsSection(s); v {
-		case codersdk.TemplateInsightsSectionIntervalReports, codersdk.TemplateInsightsSectionReport:
+		switch v := wirtualsdk.TemplateInsightsSection(s); v {
+		case wirtualsdk.TemplateInsightsSectionIntervalReports, wirtualsdk.TemplateInsightsSectionReport:
 			t[i] = v
 		default:
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Query parameter has invalid value.",
-				Validations: []codersdk.ValidationError{
+				Validations: []wirtualsdk.ValidationError{
 					{
 						Field:  "sections",
-						Detail: fmt.Sprintf("must be one of %v", []codersdk.TemplateInsightsSection{codersdk.TemplateInsightsSectionIntervalReports, codersdk.TemplateInsightsSectionReport}),
+						Detail: fmt.Sprintf("must be one of %v", []wirtualsdk.TemplateInsightsSection{wirtualsdk.TemplateInsightsSectionIntervalReports, wirtualsdk.TemplateInsightsSectionReport}),
 					},
 				},
 			})

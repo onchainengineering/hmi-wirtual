@@ -42,7 +42,7 @@ func (r *RootCmd) workspaceProxy() *serpent.Command {
 
 func (r *RootCmd) regenerateProxyToken() *serpent.Command {
 	formatter := newUpdateProxyResponseFormatter()
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use: "regenerate-token <name|id>",
 		Short: "Regenerate a workspace proxy authentication token. " +
@@ -62,7 +62,7 @@ func (r *RootCmd) regenerateProxyToken() *serpent.Command {
 			}
 
 			// Only regenerate the token
-			updated, err := client.PatchWorkspaceProxy(ctx, codersdk.PatchWorkspaceProxy{
+			updated, err := client.PatchWorkspaceProxy(ctx, wirtualsdk.PatchWorkspaceProxy{
 				ID:              proxy.ID,
 				Name:            proxy.Name,
 				DisplayName:     proxy.DisplayName,
@@ -94,7 +94,7 @@ func (r *RootCmd) patchProxy() *serpent.Command {
 		formatter   = cliui.NewOutputFormatter(
 			// Text formatter should be human readable.
 			cliui.ChangeFormatterData(cliui.TextFormat(), func(data any) (any, error) {
-				response, ok := data.(codersdk.WorkspaceProxy)
+				response, ok := data.(wirtualsdk.WorkspaceProxy)
 				if !ok {
 					return nil, xerrors.Errorf("unexpected type %T", data)
 				}
@@ -102,17 +102,17 @@ func (r *RootCmd) patchProxy() *serpent.Command {
 			}),
 			cliui.JSONFormat(),
 			// Table formatter expects a slice, make a slice of one.
-			cliui.ChangeFormatterData(cliui.TableFormat([]codersdk.WorkspaceProxy{}, []string{"name", "url"}),
+			cliui.ChangeFormatterData(cliui.TableFormat([]wirtualsdk.WorkspaceProxy{}, []string{"name", "url"}),
 				func(data any) (any, error) {
-					response, ok := data.(codersdk.WorkspaceProxy)
+					response, ok := data.(wirtualsdk.WorkspaceProxy)
 					if !ok {
 						return nil, xerrors.Errorf("unexpected type %T", data)
 					}
-					return []codersdk.WorkspaceProxy{response}, nil
+					return []wirtualsdk.WorkspaceProxy{response}, nil
 				}),
 		)
 	)
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "edit <name|id>",
 		Short: "Edit a workspace proxy",
@@ -145,7 +145,7 @@ func (r *RootCmd) patchProxy() *serpent.Command {
 				proxyIcon = proxy.IconURL
 			}
 
-			updated, err := client.PatchWorkspaceProxy(ctx, codersdk.PatchWorkspaceProxy{
+			updated, err := client.PatchWorkspaceProxy(ctx, wirtualsdk.PatchWorkspaceProxy{
 				ID:          proxy.ID,
 				Name:        proxyName,
 				DisplayName: displayName,
@@ -187,7 +187,7 @@ func (r *RootCmd) patchProxy() *serpent.Command {
 }
 
 func (r *RootCmd) deleteProxy() *serpent.Command {
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "delete <name|id>",
 		Short: "Delete a workspace proxy",
@@ -244,7 +244,7 @@ func (r *RootCmd) createProxy() *serpent.Command {
 		return nil
 	}
 
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "create",
 		Short: "Create a workspace proxy",
@@ -291,7 +291,7 @@ func (r *RootCmd) createProxy() *serpent.Command {
 				return xerrors.New("proxy name is required")
 			}
 
-			resp, err := client.CreateWorkspaceProxy(ctx, codersdk.CreateWorkspaceProxyRequest{
+			resp, err := client.CreateWorkspaceProxy(ctx, wirtualsdk.CreateWorkspaceProxyRequest{
 				Name:        proxyName,
 				DisplayName: displayName,
 				Icon:        proxyIcon,
@@ -337,10 +337,10 @@ func (r *RootCmd) createProxy() *serpent.Command {
 
 func (r *RootCmd) listProxies() *serpent.Command {
 	formatter := cliui.NewOutputFormatter(
-		cliui.TableFormat([]codersdk.WorkspaceProxy{}, []string{"name", "url", "proxy status"}),
+		cliui.TableFormat([]wirtualsdk.WorkspaceProxy{}, []string{"name", "url", "proxy status"}),
 		cliui.JSONFormat(),
 		cliui.ChangeFormatterData(cliui.TextFormat(), func(data any) (any, error) {
-			resp, ok := data.([]codersdk.WorkspaceProxy)
+			resp, ok := data.([]wirtualsdk.WorkspaceProxy)
 			if !ok {
 				return nil, xerrors.Errorf("unexpected type %T", data)
 			}
@@ -362,7 +362,7 @@ func (r *RootCmd) listProxies() *serpent.Command {
 		}),
 	)
 
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:     "ls",
 		Aliases: []string{"list"},
@@ -399,7 +399,7 @@ type updateProxyResponseFormatter struct {
 	primaryAccessURL string
 }
 
-func (f *updateProxyResponseFormatter) Format(ctx context.Context, data codersdk.UpdateWorkspaceProxyResponse) (string, error) {
+func (f *updateProxyResponseFormatter) Format(ctx context.Context, data wirtualsdk.UpdateWorkspaceProxyResponse) (string, error) {
 	if f.onlyToken {
 		return data.ProxyToken, nil
 	}
@@ -424,7 +424,7 @@ func newUpdateProxyResponseFormatter() *updateProxyResponseFormatter {
 	up.formatter = cliui.NewOutputFormatter(
 		// Text formatter should be human readable.
 		cliui.ChangeFormatterData(cliui.TextFormat(), func(data any) (any, error) {
-			response, ok := data.(codersdk.UpdateWorkspaceProxyResponse)
+			response, ok := data.(wirtualsdk.UpdateWorkspaceProxyResponse)
 			if !ok {
 				return nil, xerrors.Errorf("unexpected type %T", data)
 			}
@@ -442,13 +442,13 @@ func newUpdateProxyResponseFormatter() *updateProxyResponseFormatter {
 		}),
 		cliui.JSONFormat(),
 		// Table formatter expects a slice, make a slice of one.
-		cliui.ChangeFormatterData(cliui.TableFormat([]codersdk.UpdateWorkspaceProxyResponse{}, []string{"name", "url", "proxy token"}),
+		cliui.ChangeFormatterData(cliui.TableFormat([]wirtualsdk.UpdateWorkspaceProxyResponse{}, []string{"name", "url", "proxy token"}),
 			func(data any) (any, error) {
-				response, ok := data.(codersdk.UpdateWorkspaceProxyResponse)
+				response, ok := data.(wirtualsdk.UpdateWorkspaceProxyResponse)
 				if !ok {
 					return nil, xerrors.Errorf("unexpected type %T", data)
 				}
-				return []codersdk.UpdateWorkspaceProxyResponse{response}, nil
+				return []wirtualsdk.UpdateWorkspaceProxyResponse{response}, nil
 			}),
 	)
 

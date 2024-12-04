@@ -36,12 +36,12 @@ type tokenParams struct {
 	clientID     string
 	clientSecret string
 	code         string
-	grantType    codersdk.OAuth2ProviderGrantType
+	grantType    wirtualsdk.OAuth2ProviderGrantType
 	redirectURL  *url.URL
 	refreshToken string
 }
 
-func extractTokenParams(r *http.Request, callbackURL *url.URL) (tokenParams, []codersdk.ValidationError, error) {
+func extractTokenParams(r *http.Request, callbackURL *url.URL) (tokenParams, []wirtualsdk.ValidationError, error) {
 	p := httpapi.NewQueryParamParser()
 	err := r.ParseForm()
 	if err != nil {
@@ -50,11 +50,11 @@ func extractTokenParams(r *http.Request, callbackURL *url.URL) (tokenParams, []c
 
 	vals := r.Form
 	p.RequiredNotEmpty("grant_type")
-	grantType := httpapi.ParseCustom(p, vals, "", "grant_type", httpapi.ParseEnum[codersdk.OAuth2ProviderGrantType])
+	grantType := httpapi.ParseCustom(p, vals, "", "grant_type", httpapi.ParseEnum[wirtualsdk.OAuth2ProviderGrantType])
 	switch grantType {
-	case codersdk.OAuth2ProviderGrantTypeRefreshToken:
+	case wirtualsdk.OAuth2ProviderGrantTypeRefreshToken:
 		p.RequiredNotEmpty("refresh_token")
-	case codersdk.OAuth2ProviderGrantTypeAuthorizationCode:
+	case wirtualsdk.OAuth2ProviderGrantTypeAuthorizationCode:
 		p.RequiredNotEmpty("client_secret", "client_id", "code")
 	}
 
@@ -78,14 +78,14 @@ func extractTokenParams(r *http.Request, callbackURL *url.URL) (tokenParams, []c
 // TODO: the sessions lifetime config passed is for coder api tokens.
 // Should there be a separate config for oauth2 tokens? They are related,
 // but they are not the same.
-func Tokens(db database.Store, lifetimes codersdk.SessionLifetime) http.HandlerFunc {
+func Tokens(db database.Store, lifetimes wirtualsdk.SessionLifetime) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		app := httpmw.OAuth2ProviderApp(r)
 
 		callbackURL, err := url.Parse(app.CallbackURL)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Failed to validate form values.",
 				Detail:  err.Error(),
 			})
@@ -94,7 +94,7 @@ func Tokens(db database.Store, lifetimes codersdk.SessionLifetime) http.HandlerF
 
 		params, validationErrs, err := extractTokenParams(r, callbackURL)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message:     "Invalid query params.",
 				Detail:      err.Error(),
 				Validations: validationErrs,
@@ -106,14 +106,14 @@ func Tokens(db database.Store, lifetimes codersdk.SessionLifetime) http.HandlerF
 		//nolint:gocritic,revive // More cases will be added later.
 		switch params.grantType {
 		// TODO: Client creds, device code.
-		case codersdk.OAuth2ProviderGrantTypeRefreshToken:
+		case wirtualsdk.OAuth2ProviderGrantTypeRefreshToken:
 			token, err = refreshTokenGrant(ctx, db, app, lifetimes, params)
-		case codersdk.OAuth2ProviderGrantTypeAuthorizationCode:
+		case wirtualsdk.OAuth2ProviderGrantTypeAuthorizationCode:
 			token, err = authorizationCodeGrant(ctx, db, app, lifetimes, params)
 		default:
 			// Grant types are validated by the parser, so getting through here means
 			// the developer added a type but forgot to add a case here.
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Unhandled grant type.",
 				Detail:  fmt.Sprintf("Grant type %q is unhandled", params.grantType),
 			})
@@ -121,13 +121,13 @@ func Tokens(db database.Store, lifetimes codersdk.SessionLifetime) http.HandlerF
 		}
 
 		if errors.Is(err, errBadCode) || errors.Is(err, errBadSecret) {
-			httpapi.Write(r.Context(), rw, http.StatusUnauthorized, codersdk.Response{
+			httpapi.Write(r.Context(), rw, http.StatusUnauthorized, wirtualsdk.Response{
 				Message: err.Error(),
 			})
 			return
 		}
 		if err != nil {
-			httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(r.Context(), rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Failed to exchange token",
 				Detail:  err.Error(),
 			})
@@ -140,7 +140,7 @@ func Tokens(db database.Store, lifetimes codersdk.SessionLifetime) http.HandlerF
 	}
 }
 
-func authorizationCodeGrant(ctx context.Context, db database.Store, app database.OAuth2ProviderApp, lifetimes codersdk.SessionLifetime, params tokenParams) (oauth2.Token, error) {
+func authorizationCodeGrant(ctx context.Context, db database.Store, app database.OAuth2ProviderApp, lifetimes wirtualsdk.SessionLifetime, params tokenParams) (oauth2.Token, error) {
 	// Validate the client secret.
 	secret, err := parseSecret(params.clientSecret)
 	if err != nil {
@@ -265,7 +265,7 @@ func authorizationCodeGrant(ctx context.Context, db database.Store, app database
 	}, nil
 }
 
-func refreshTokenGrant(ctx context.Context, db database.Store, app database.OAuth2ProviderApp, lifetimes codersdk.SessionLifetime, params tokenParams) (oauth2.Token, error) {
+func refreshTokenGrant(ctx context.Context, db database.Store, app database.OAuth2ProviderApp, lifetimes wirtualsdk.SessionLifetime, params tokenParams) (oauth2.Token, error) {
 	// Validate the token.
 	token, err := parseSecret(params.refreshToken)
 	if err != nil {

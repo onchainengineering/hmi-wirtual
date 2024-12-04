@@ -60,7 +60,7 @@ func TestWorkspaceApps(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})

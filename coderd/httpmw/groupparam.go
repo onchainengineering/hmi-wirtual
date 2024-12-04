@@ -32,7 +32,7 @@ func ExtractGroupByNameParam(db database.Store) func(http.Handler) http.Handler 
 
 			name := chi.URLParam(r, "groupName")
 			if name == "" {
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "Missing group name in URL",
 				})
 				return
@@ -75,7 +75,7 @@ func ExtractGroupParam(db database.Store) func(http.Handler) http.Handler {
 				return
 			}
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error fetching group.",
 					Detail:  err.Error(),
 				})

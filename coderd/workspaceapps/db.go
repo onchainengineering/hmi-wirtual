@@ -36,7 +36,7 @@ type DBTokenProvider struct {
 	DashboardURL                  *url.URL
 	Authorizer                    rbac.Authorizer
 	Database                      database.Store
-	DeploymentValues              *codersdk.DeploymentValues
+	DeploymentValues              *wirtualsdk.DeploymentValues
 	OAuth2Configs                 *httpmw.OAuth2Configs
 	WorkspaceAgentInactiveTimeout time.Duration
 	Keycache                      cryptokeys.SigningKeycache
@@ -48,7 +48,7 @@ func NewDBTokenProvider(log slog.Logger,
 	accessURL *url.URL,
 	authz rbac.Authorizer,
 	db database.Store,
-	cfg *codersdk.DeploymentValues,
+	cfg *wirtualsdk.DeploymentValues,
 	oauth2Cfgs *httpmw.OAuth2Configs,
 	workspaceAgentInactiveTimeout time.Duration,
 	signer cryptokeys.SigningKeycache,

@@ -48,7 +48,7 @@ func TestRequireAPIKeyOrWorkspaceProxyAuth(t *testing.T) {
 			r  = httptest.NewRequest("GET", "/", nil)
 			rw = httptest.NewRecorder()
 		)
-		r.Header.Set(codersdk.SessionTokenHeader, token)
+		r.Header.Set(wirtualsdk.SessionTokenHeader, token)
 
 		var called int64
 		httpmw.ExtractAPIKeyMW(httpmw.ExtractAPIKeyConfig{
@@ -86,7 +86,7 @@ func TestRequireAPIKeyOrWorkspaceProxyAuth(t *testing.T) {
 			r  = httptest.NewRequest("GET", "/", nil)
 			rw = httptest.NewRecorder()
 		)
-		r.Header.Set(codersdk.SessionTokenHeader, userToken)
+		r.Header.Set(wirtualsdk.SessionTokenHeader, userToken)
 		r.Header.Set(httpmw.WorkspaceProxyAuthTokenHeader, fmt.Sprintf("%s:%s", proxy.ID, proxyToken))
 
 		httpmw.ExtractAPIKeyMW(httpmw.ExtractAPIKeyConfig{

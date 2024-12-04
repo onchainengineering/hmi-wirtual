@@ -26,9 +26,9 @@ func TestWorkspaceBuild(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAccessControl:              1,
-					codersdk.FeatureTemplateRBAC:               1,
-					codersdk.FeatureAdvancedTemplateScheduling: 1,
+					wirtualsdk.FeatureAccessControl:              1,
+					wirtualsdk.FeatureTemplateRBAC:               1,
+					wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
 			},
 		})
@@ -40,13 +40,13 @@ func TestWorkspaceBuild(t *testing.T) {
 		template := coderdtest.CreateTemplate(t, ownerClient, owner.OrganizationID, oldVersion.ID)
 		coderdtest.AwaitTemplateVersionJobCompleted(t, ownerClient, oldVersion.ID)
 		require.Equal(t, oldVersion.ID, template.ActiveVersionID)
-		template = coderdtest.UpdateTemplateMeta(t, ownerClient, template.ID, codersdk.UpdateTemplateMeta{
+		template = coderdtest.UpdateTemplateMeta(t, ownerClient, template.ID, wirtualsdk.UpdateTemplateMeta{
 			RequireActiveVersion: true,
 		})
 		require.True(t, template.RequireActiveVersion)
 
 		// Create a new version that we will promote.
-		activeVersion := coderdtest.CreateTemplateVersion(t, ownerClient, owner.OrganizationID, nil, func(ctvr *codersdk.CreateTemplateVersionRequest) {
+		activeVersion := coderdtest.CreateTemplateVersion(t, ownerClient, owner.OrganizationID, nil, func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
 			ctvr.TemplateID = template.ID
 		})
 		coderdtest.AwaitTemplateVersionJobCompleted(t, ownerClient, activeVersion.ID)
@@ -63,19 +63,19 @@ func TestWorkspaceBuild(t *testing.T) {
 
 		// Update the template for both users and groups.
 		//nolint:gocritic // test setup
-		err := ownerClient.UpdateTemplateACL(ctx, template.ID, codersdk.UpdateTemplateACL{
-			UserPerms: map[string]codersdk.TemplateRole{
-				templateACLAdmin.ID.String(): codersdk.TemplateRoleAdmin,
+		err := ownerClient.UpdateTemplateACL(ctx, template.ID, wirtualsdk.UpdateTemplateACL{
+			UserPerms: map[string]wirtualsdk.TemplateRole{
+				templateACLAdmin.ID.String(): wirtualsdk.TemplateRoleAdmin,
 			},
-			GroupPerms: map[string]codersdk.TemplateRole{
-				group.ID.String(): codersdk.TemplateRoleAdmin,
+			GroupPerms: map[string]wirtualsdk.TemplateRole{
+				group.ID.String(): wirtualsdk.TemplateRoleAdmin,
 			},
 		})
 		require.NoError(t, err)
 
 		type testcase struct {
 			Name               string
-			Client             *codersdk.Client
+			Client             *wirtualsdk.Client
 			ExpectedStatusCode int
 		}
 
@@ -109,16 +109,16 @@ func TestWorkspaceBuild(t *testing.T) {
 
 		for _, c := range cases {
 			t.Run(c.Name, func(t *testing.T) {
-				_, err = c.Client.CreateWorkspace(ctx, owner.OrganizationID, codersdk.Me, codersdk.CreateWorkspaceRequest{
+				_, err = c.Client.CreateWorkspace(ctx, owner.OrganizationID, wirtualsdk.Me, wirtualsdk.CreateWorkspaceRequest{
 					TemplateVersionID: oldVersion.ID,
 					Name:              "abc123",
-					AutomaticUpdates:  codersdk.AutomaticUpdatesNever,
+					AutomaticUpdates:  wirtualsdk.AutomaticUpdatesNever,
 				})
 				if c.ExpectedStatusCode == http.StatusOK {
 					require.NoError(t, err)
 				} else {
 					require.Error(t, err)
-					cerr, ok := codersdk.AsError(err)
+					cerr, ok := wirtualsdk.AsError(err)
 					require.True(t, ok)
 					require.Equal(t, c.ExpectedStatusCode, cerr.StatusCode())
 				}

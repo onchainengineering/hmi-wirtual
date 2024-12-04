@@ -1,4 +1,4 @@
-package codersdk_test
+package wirtualsdk_test
 
 import (
 	"testing"
@@ -11,12 +11,12 @@ import (
 
 func TestParameterResolver_ValidateResolve_New(t *testing.T) {
 	t.Parallel()
-	uut := codersdk.ParameterResolver{}
-	p := codersdk.TemplateVersionParameter{
+	uut := wirtualsdk.ParameterResolver{}
+	p := wirtualsdk.TemplateVersionParameter{
 		Name: "n",
 		Type: "number",
 	}
-	v, err := uut.ValidateResolve(p, &codersdk.WorkspaceBuildParameter{
+	v, err := uut.ValidateResolve(p, &wirtualsdk.WorkspaceBuildParameter{
 		Name:  "n",
 		Value: "1",
 	})
@@ -26,8 +26,8 @@ func TestParameterResolver_ValidateResolve_New(t *testing.T) {
 
 func TestParameterResolver_ValidateResolve_Default(t *testing.T) {
 	t.Parallel()
-	uut := codersdk.ParameterResolver{}
-	p := codersdk.TemplateVersionParameter{
+	uut := wirtualsdk.ParameterResolver{}
+	p := wirtualsdk.TemplateVersionParameter{
 		Name:         "n",
 		Type:         "number",
 		DefaultValue: "5",
@@ -39,8 +39,8 @@ func TestParameterResolver_ValidateResolve_Default(t *testing.T) {
 
 func TestParameterResolver_ValidateResolve_MissingRequired(t *testing.T) {
 	t.Parallel()
-	uut := codersdk.ParameterResolver{}
-	p := codersdk.TemplateVersionParameter{
+	uut := wirtualsdk.ParameterResolver{}
+	p := wirtualsdk.TemplateVersionParameter{
 		Name:     "n",
 		Type:     "number",
 		Required: true,
@@ -52,10 +52,10 @@ func TestParameterResolver_ValidateResolve_MissingRequired(t *testing.T) {
 
 func TestParameterResolver_ValidateResolve_PrevRequired(t *testing.T) {
 	t.Parallel()
-	uut := codersdk.ParameterResolver{
-		Rich: []codersdk.WorkspaceBuildParameter{{Name: "n", Value: "5"}},
+	uut := wirtualsdk.ParameterResolver{
+		Rich: []wirtualsdk.WorkspaceBuildParameter{{Name: "n", Value: "5"}},
 	}
-	p := codersdk.TemplateVersionParameter{
+	p := wirtualsdk.TemplateVersionParameter{
 		Name:     "n",
 		Type:     "number",
 		Required: true,
@@ -67,10 +67,10 @@ func TestParameterResolver_ValidateResolve_PrevRequired(t *testing.T) {
 
 func TestParameterResolver_ValidateResolve_PrevInvalid(t *testing.T) {
 	t.Parallel()
-	uut := codersdk.ParameterResolver{
-		Rich: []codersdk.WorkspaceBuildParameter{{Name: "n", Value: "11"}},
+	uut := wirtualsdk.ParameterResolver{
+		Rich: []wirtualsdk.WorkspaceBuildParameter{{Name: "n", Value: "11"}},
 	}
-	p := codersdk.TemplateVersionParameter{
+	p := wirtualsdk.TemplateVersionParameter{
 		Name:          "n",
 		Type:          "number",
 		ValidationMax: ptr.Ref(int32(10)),
@@ -86,8 +86,8 @@ func TestParameterResolver_ValidateResolve_DefaultInvalid(t *testing.T) {
 	// value doesn't pass validation.  But, it's good to catch early and error out
 	// rather than send invalid data to the provisioner
 	t.Parallel()
-	uut := codersdk.ParameterResolver{}
-	p := codersdk.TemplateVersionParameter{
+	uut := wirtualsdk.ParameterResolver{}
+	p := wirtualsdk.TemplateVersionParameter{
 		Name:          "n",
 		Type:          "number",
 		ValidationMax: ptr.Ref(int32(10)),
@@ -101,16 +101,16 @@ func TestParameterResolver_ValidateResolve_DefaultInvalid(t *testing.T) {
 
 func TestParameterResolver_ValidateResolve_NewOverridesOld(t *testing.T) {
 	t.Parallel()
-	uut := codersdk.ParameterResolver{
-		Rich: []codersdk.WorkspaceBuildParameter{{Name: "n", Value: "5"}},
+	uut := wirtualsdk.ParameterResolver{
+		Rich: []wirtualsdk.WorkspaceBuildParameter{{Name: "n", Value: "5"}},
 	}
-	p := codersdk.TemplateVersionParameter{
+	p := wirtualsdk.TemplateVersionParameter{
 		Name:     "n",
 		Type:     "number",
 		Required: true,
 		Mutable:  true,
 	}
-	v, err := uut.ValidateResolve(p, &codersdk.WorkspaceBuildParameter{
+	v, err := uut.ValidateResolve(p, &wirtualsdk.WorkspaceBuildParameter{
 		Name:  "n",
 		Value: "6",
 	})
@@ -120,16 +120,16 @@ func TestParameterResolver_ValidateResolve_NewOverridesOld(t *testing.T) {
 
 func TestParameterResolver_ValidateResolve_Immutable(t *testing.T) {
 	t.Parallel()
-	uut := codersdk.ParameterResolver{
-		Rich: []codersdk.WorkspaceBuildParameter{{Name: "n", Value: "5"}},
+	uut := wirtualsdk.ParameterResolver{
+		Rich: []wirtualsdk.WorkspaceBuildParameter{{Name: "n", Value: "5"}},
 	}
-	p := codersdk.TemplateVersionParameter{
+	p := wirtualsdk.TemplateVersionParameter{
 		Name:     "n",
 		Type:     "number",
 		Required: true,
 		Mutable:  false,
 	}
-	v, err := uut.ValidateResolve(p, &codersdk.WorkspaceBuildParameter{
+	v, err := uut.ValidateResolve(p, &wirtualsdk.WorkspaceBuildParameter{
 		Name:  "n",
 		Value: "6",
 	})
@@ -154,7 +154,7 @@ func TestRichParameterValidation(t *testing.T) {
 		listOfStringsParameterValue = `["a","b","c"]`
 	)
 
-	initialBuildParameters := []codersdk.WorkspaceBuildParameter{
+	initialBuildParameters := []wirtualsdk.WorkspaceBuildParameter{
 		{Name: stringParameterName, Value: stringParameterValue},
 		{Name: numberParameterName, Value: numberParameterValue},
 		{Name: boolParameterName, Value: boolParameterValue},
@@ -164,14 +164,14 @@ func TestRichParameterValidation(t *testing.T) {
 	t.Run("NoValidation", func(t *testing.T) {
 		t.Parallel()
 
-		p := codersdk.TemplateVersionParameter{
+		p := wirtualsdk.TemplateVersionParameter{
 			Name: numberParameterName, Type: "number", Mutable: true,
 		}
 
-		uut := codersdk.ParameterResolver{
+		uut := wirtualsdk.ParameterResolver{
 			Rich: initialBuildParameters,
 		}
-		v, err := uut.ValidateResolve(p, &codersdk.WorkspaceBuildParameter{
+		v, err := uut.ValidateResolve(p, &wirtualsdk.WorkspaceBuildParameter{
 			Name: numberParameterName, Value: "42",
 		})
 		require.NoError(t, err)
@@ -181,55 +181,55 @@ func TestRichParameterValidation(t *testing.T) {
 	t.Run("Validation", func(t *testing.T) {
 		t.Parallel()
 
-		numberRichParameters := []codersdk.TemplateVersionParameter{
+		numberRichParameters := []wirtualsdk.TemplateVersionParameter{
 			{Name: stringParameterName, Type: "string", Mutable: true},
 			{Name: numberParameterName, Type: "number", Mutable: true, ValidationMin: ptr.Ref(int32(3)), ValidationMax: ptr.Ref(int32(10))},
 			{Name: boolParameterName, Type: "bool", Mutable: true},
 		}
 
-		numberRichParametersMinOnly := []codersdk.TemplateVersionParameter{
+		numberRichParametersMinOnly := []wirtualsdk.TemplateVersionParameter{
 			{Name: stringParameterName, Type: "string", Mutable: true},
 			{Name: numberParameterName, Type: "number", Mutable: true, ValidationMin: ptr.Ref(int32(5))},
 			{Name: boolParameterName, Type: "bool", Mutable: true},
 		}
 
-		numberRichParametersMaxOnly := []codersdk.TemplateVersionParameter{
+		numberRichParametersMaxOnly := []wirtualsdk.TemplateVersionParameter{
 			{Name: stringParameterName, Type: "string", Mutable: true},
 			{Name: numberParameterName, Type: "number", Mutable: true, ValidationMax: ptr.Ref(int32(5))},
 			{Name: boolParameterName, Type: "bool", Mutable: true},
 		}
 
-		monotonicIncreasingNumberRichParameters := []codersdk.TemplateVersionParameter{
+		monotonicIncreasingNumberRichParameters := []wirtualsdk.TemplateVersionParameter{
 			{Name: stringParameterName, Type: "string", Mutable: true},
-			{Name: numberParameterName, Type: "number", Mutable: true, ValidationMin: ptr.Ref(int32(3)), ValidationMax: ptr.Ref(int32(100)), ValidationMonotonic: codersdk.MonotonicOrderIncreasing},
+			{Name: numberParameterName, Type: "number", Mutable: true, ValidationMin: ptr.Ref(int32(3)), ValidationMax: ptr.Ref(int32(100)), ValidationMonotonic: wirtualsdk.MonotonicOrderIncreasing},
 			{Name: boolParameterName, Type: "bool", Mutable: true},
 		}
 
-		monotonicDecreasingNumberRichParameters := []codersdk.TemplateVersionParameter{
+		monotonicDecreasingNumberRichParameters := []wirtualsdk.TemplateVersionParameter{
 			{Name: stringParameterName, Type: "string", Mutable: true},
-			{Name: numberParameterName, Type: "number", Mutable: true, ValidationMin: ptr.Ref(int32(3)), ValidationMax: ptr.Ref(int32(100)), ValidationMonotonic: codersdk.MonotonicOrderDecreasing},
+			{Name: numberParameterName, Type: "number", Mutable: true, ValidationMin: ptr.Ref(int32(3)), ValidationMax: ptr.Ref(int32(100)), ValidationMonotonic: wirtualsdk.MonotonicOrderDecreasing},
 			{Name: boolParameterName, Type: "bool", Mutable: true},
 		}
 
-		stringRichParameters := []codersdk.TemplateVersionParameter{
-			{Name: stringParameterName, Type: "string", Mutable: true},
-			{Name: numberParameterName, Type: "number", Mutable: true},
-			{Name: boolParameterName, Type: "bool", Mutable: true},
-		}
-
-		boolRichParameters := []codersdk.TemplateVersionParameter{
+		stringRichParameters := []wirtualsdk.TemplateVersionParameter{
 			{Name: stringParameterName, Type: "string", Mutable: true},
 			{Name: numberParameterName, Type: "number", Mutable: true},
 			{Name: boolParameterName, Type: "bool", Mutable: true},
 		}
 
-		regexRichParameters := []codersdk.TemplateVersionParameter{
+		boolRichParameters := []wirtualsdk.TemplateVersionParameter{
+			{Name: stringParameterName, Type: "string", Mutable: true},
+			{Name: numberParameterName, Type: "number", Mutable: true},
+			{Name: boolParameterName, Type: "bool", Mutable: true},
+		}
+
+		regexRichParameters := []wirtualsdk.TemplateVersionParameter{
 			{Name: stringParameterName, Type: "string", Mutable: true, ValidationRegex: "^[a-z]+$", ValidationError: "this is error"},
 			{Name: numberParameterName, Type: "number", Mutable: true},
 			{Name: boolParameterName, Type: "bool", Mutable: true},
 		}
 
-		listOfStringsRichParameters := []codersdk.TemplateVersionParameter{
+		listOfStringsRichParameters := []wirtualsdk.TemplateVersionParameter{
 			{Name: listOfStringsParameterName, Type: "list(string)", Mutable: true},
 		}
 
@@ -237,7 +237,7 @@ func TestRichParameterValidation(t *testing.T) {
 			parameterName  string
 			value          string
 			valid          bool
-			richParameters []codersdk.TemplateVersionParameter
+			richParameters []wirtualsdk.TemplateVersionParameter
 		}{
 			{numberParameterName, "2", false, numberRichParameters},
 			{numberParameterName, "3", true, numberRichParameters},
@@ -285,7 +285,7 @@ func TestRichParameterValidation(t *testing.T) {
 			t.Run(tc.parameterName+"-"+tc.value, func(t *testing.T) {
 				t.Parallel()
 
-				uut := codersdk.ParameterResolver{
+				uut := wirtualsdk.ParameterResolver{
 					Rich: initialBuildParameters,
 				}
 
@@ -293,7 +293,7 @@ func TestRichParameterValidation(t *testing.T) {
 					if p.Name != tc.parameterName {
 						continue
 					}
-					v, err := uut.ValidateResolve(p, &codersdk.WorkspaceBuildParameter{
+					v, err := uut.ValidateResolve(p, &wirtualsdk.WorkspaceBuildParameter{
 						Name:  tc.parameterName,
 						Value: tc.value,
 					})
@@ -311,17 +311,17 @@ func TestRichParameterValidation(t *testing.T) {
 
 func TestParameterResolver_ValidateResolve_EmptyString_Monotonic(t *testing.T) {
 	t.Parallel()
-	uut := codersdk.ParameterResolver{
-		Rich: []codersdk.WorkspaceBuildParameter{{Name: "n", Value: ""}},
+	uut := wirtualsdk.ParameterResolver{
+		Rich: []wirtualsdk.WorkspaceBuildParameter{{Name: "n", Value: ""}},
 	}
-	p := codersdk.TemplateVersionParameter{
+	p := wirtualsdk.TemplateVersionParameter{
 		Name:                "n",
 		Type:                "number",
 		Mutable:             true,
 		DefaultValue:        "0",
-		ValidationMonotonic: codersdk.MonotonicOrderIncreasing,
+		ValidationMonotonic: wirtualsdk.MonotonicOrderIncreasing,
 	}
-	v, err := uut.ValidateResolve(p, &codersdk.WorkspaceBuildParameter{
+	v, err := uut.ValidateResolve(p, &wirtualsdk.WorkspaceBuildParameter{
 		Name:  "n",
 		Value: "1",
 	})
@@ -331,17 +331,17 @@ func TestParameterResolver_ValidateResolve_EmptyString_Monotonic(t *testing.T) {
 
 func TestParameterResolver_ValidateResolve_Ephemeral_OverridePrevious(t *testing.T) {
 	t.Parallel()
-	uut := codersdk.ParameterResolver{
-		Rich: []codersdk.WorkspaceBuildParameter{{Name: "n", Value: "5"}},
+	uut := wirtualsdk.ParameterResolver{
+		Rich: []wirtualsdk.WorkspaceBuildParameter{{Name: "n", Value: "5"}},
 	}
-	p := codersdk.TemplateVersionParameter{
+	p := wirtualsdk.TemplateVersionParameter{
 		Name:         "n",
 		Type:         "number",
 		Mutable:      true,
 		DefaultValue: "4",
 		Ephemeral:    true,
 	}
-	v, err := uut.ValidateResolve(p, &codersdk.WorkspaceBuildParameter{
+	v, err := uut.ValidateResolve(p, &wirtualsdk.WorkspaceBuildParameter{
 		Name:  "n",
 		Value: "6",
 	})
@@ -351,15 +351,15 @@ func TestParameterResolver_ValidateResolve_Ephemeral_OverridePrevious(t *testing
 
 func TestParameterResolver_ValidateResolve_Ephemeral_FirstTime(t *testing.T) {
 	t.Parallel()
-	uut := codersdk.ParameterResolver{}
-	p := codersdk.TemplateVersionParameter{
+	uut := wirtualsdk.ParameterResolver{}
+	p := wirtualsdk.TemplateVersionParameter{
 		Name:         "n",
 		Type:         "number",
 		Mutable:      true,
 		DefaultValue: "5",
 		Ephemeral:    true,
 	}
-	v, err := uut.ValidateResolve(p, &codersdk.WorkspaceBuildParameter{
+	v, err := uut.ValidateResolve(p, &wirtualsdk.WorkspaceBuildParameter{
 		Name:  "n",
 		Value: "6",
 	})
@@ -369,8 +369,8 @@ func TestParameterResolver_ValidateResolve_Ephemeral_FirstTime(t *testing.T) {
 
 func TestParameterResolver_ValidateResolve_Ephemeral_UseDefault(t *testing.T) {
 	t.Parallel()
-	uut := codersdk.ParameterResolver{}
-	p := codersdk.TemplateVersionParameter{
+	uut := wirtualsdk.ParameterResolver{}
+	p := wirtualsdk.TemplateVersionParameter{
 		Name:         "n",
 		Type:         "number",
 		Mutable:      true,
@@ -384,8 +384,8 @@ func TestParameterResolver_ValidateResolve_Ephemeral_UseDefault(t *testing.T) {
 
 func TestParameterResolver_ValidateResolve_Ephemeral_UseEmptyDefault(t *testing.T) {
 	t.Parallel()
-	uut := codersdk.ParameterResolver{}
-	p := codersdk.TemplateVersionParameter{
+	uut := wirtualsdk.ParameterResolver{}
+	p := wirtualsdk.TemplateVersionParameter{
 		Name:         "n",
 		Type:         "number",
 		Mutable:      true,
@@ -399,8 +399,8 @@ func TestParameterResolver_ValidateResolve_Ephemeral_UseEmptyDefault(t *testing.
 
 func TestParameterResolver_ValidateResolve_Number_CustomError(t *testing.T) {
 	t.Parallel()
-	uut := codersdk.ParameterResolver{}
-	p := codersdk.TemplateVersionParameter{
+	uut := wirtualsdk.ParameterResolver{}
+	p := wirtualsdk.TemplateVersionParameter{
 		Name:         "n",
 		Type:         "number",
 		Mutable:      true,
@@ -410,7 +410,7 @@ func TestParameterResolver_ValidateResolve_Number_CustomError(t *testing.T) {
 		ValidationMax:   ptr.Ref(int32(6)),
 		ValidationError: "These are values for testing purposes: {min}, {max}, and {value}.",
 	}
-	_, err := uut.ValidateResolve(p, &codersdk.WorkspaceBuildParameter{
+	_, err := uut.ValidateResolve(p, &wirtualsdk.WorkspaceBuildParameter{
 		Name:  "n",
 		Value: "8",
 	})

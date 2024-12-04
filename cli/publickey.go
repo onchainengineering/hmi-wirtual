@@ -14,7 +14,7 @@ import (
 
 func (r *RootCmd) publickey() *serpent.Command {
 	var reset bool
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:        "publickey",
 		Aliases:    []string{"pubkey"},
@@ -34,15 +34,15 @@ func (r *RootCmd) publickey() *serpent.Command {
 				}
 
 				// Reset the public key, let the retrieve re-read it.
-				_, err = client.RegenerateGitSSHKey(inv.Context(), codersdk.Me)
+				_, err = client.RegenerateGitSSHKey(inv.Context(), wirtualsdk.Me)
 				if err != nil {
 					return err
 				}
 			}
 
-			key, err := client.GitSSHKey(inv.Context(), codersdk.Me)
+			key, err := client.GitSSHKey(inv.Context(), wirtualsdk.Me)
 			if err != nil {
-				return xerrors.Errorf("create codersdk client: %w", err)
+				return xerrors.Errorf("create wirtualsdk client: %w", err)
 			}
 
 			cliui.Infof(inv.Stdout,

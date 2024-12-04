@@ -112,7 +112,7 @@ func TestOAuth2(t *testing.T) {
 		t.Parallel()
 		req := httptest.NewRequest("GET", "/?code=something&state=test", nil)
 		req.AddCookie(&http.Cookie{
-			Name:  codersdk.OAuth2StateCookie,
+			Name:  wirtualsdk.OAuth2StateCookie,
 			Value: "mismatch",
 		})
 		res := httptest.NewRecorder()
@@ -124,7 +124,7 @@ func TestOAuth2(t *testing.T) {
 		t.Parallel()
 		req := httptest.NewRequest("GET", "/?code=test&state=something", nil)
 		req.AddCookie(&http.Cookie{
-			Name:  codersdk.OAuth2StateCookie,
+			Name:  wirtualsdk.OAuth2StateCookie,
 			Value: "something",
 		})
 		req.AddCookie(&http.Cookie{
@@ -161,7 +161,7 @@ func TestOAuth2(t *testing.T) {
 
 		found := false
 		for _, cookie := range res.Result().Cookies() {
-			if cookie.Name == codersdk.OAuth2StateCookie {
+			if cookie.Name == wirtualsdk.OAuth2StateCookie {
 				require.Equal(t, cookie.Value, customState, "expected state")
 				found = true
 			}

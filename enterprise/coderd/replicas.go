@@ -26,15 +26,15 @@ func (api *API) replicas(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	replicas := api.replicaManager.AllPrimary()
-	res := make([]codersdk.Replica, 0, len(replicas))
+	res := make([]wirtualsdk.Replica, 0, len(replicas))
 	for _, replica := range replicas {
 		res = append(res, convertReplica(replica))
 	}
 	httpapi.Write(r.Context(), rw, http.StatusOK, res)
 }
 
-func convertReplica(replica database.Replica) codersdk.Replica {
-	return codersdk.Replica{
+func convertReplica(replica database.Replica) wirtualsdk.Replica {
+	return wirtualsdk.Replica{
 		ID:              replica.ID,
 		Hostname:        replica.Hostname,
 		CreatedAt:       replica.CreatedAt,

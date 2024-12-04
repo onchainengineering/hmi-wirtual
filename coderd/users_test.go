@@ -50,7 +50,7 @@ func TestFirstUser(t *testing.T) {
 		require.NoError(t, err)
 		require.False(t, has)
 
-		_, err = client.CreateFirstUser(ctx, codersdk.CreateFirstUserRequest{})
+		_, err = client.CreateFirstUser(ctx, wirtualsdk.CreateFirstUserRequest{})
 		require.Error(t, err)
 	})
 
@@ -62,12 +62,12 @@ func TestFirstUser(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_, err := client.CreateFirstUser(ctx, codersdk.CreateFirstUserRequest{
+		_, err := client.CreateFirstUser(ctx, wirtualsdk.CreateFirstUserRequest{
 			Email:    "some@email.com",
 			Username: "exampleuser",
 			Password: "SomeSecurePassword!",
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusConflict, apiErr.StatusCode())
 	})
@@ -77,7 +77,7 @@ func TestFirstUser(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitShort)
 		client := coderdtest.New(t, nil)
 		_ = coderdtest.CreateFirstUser(t, client)
-		u, err := client.User(ctx, codersdk.Me)
+		u, err := client.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err)
 		assert.Equal(t, coderdtest.FirstUserParams.Name, u.Name)
 		assert.Equal(t, coderdtest.FirstUserParams.Email, u.Email)
@@ -90,7 +90,7 @@ func TestFirstUser(t *testing.T) {
 		entitlementsRefreshed := make(chan struct{})
 
 		client := coderdtest.New(t, &coderdtest.Options{
-			TrialGenerator: func(context.Context, codersdk.LicensorTrialRequest) error {
+			TrialGenerator: func(context.Context, wirtualsdk.LicensorTrialRequest) error {
 				close(trialGenerated)
 				return nil
 			},
@@ -103,7 +103,7 @@ func TestFirstUser(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		req := codersdk.CreateFirstUserRequest{
+		req := wirtualsdk.CreateFirstUserRequest{
 			Email:    "testuser@coder.com",
 			Username: "testuser",
 			Name:     "Test User",
@@ -126,11 +126,11 @@ func TestPostLogin(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+		_, err := client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 			Email:    "my@email.org",
 			Password: "password",
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusUnauthorized, apiErr.StatusCode())
 	})
@@ -144,19 +144,19 @@ func TestPostLogin(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		req := codersdk.CreateFirstUserRequest{
+		req := wirtualsdk.CreateFirstUserRequest{
 			Email:    "testuser@coder.com",
 			Username: "testuser",
 			Password: "SomeSecurePassword!",
 		}
 		_, err := client.CreateFirstUser(ctx, req)
 		require.NoError(t, err)
-		_, err = client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+		_, err = client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 			Email:    req.Email,
 			Password: "badpass",
 		})
 		numLogs++ // add an audit log for login
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusUnauthorized, apiErr.StatusCode())
 
@@ -179,22 +179,22 @@ func TestPostLogin(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		memberUser, err := member.User(ctx, codersdk.Me)
+		memberUser, err := member.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err, "fetch member user")
 
-		_, err = client.UpdateUserStatus(ctx, memberUser.Username, codersdk.UserStatusSuspended)
+		_, err = client.UpdateUserStatus(ctx, memberUser.Username, wirtualsdk.UserStatusSuspended)
 		require.NoError(t, err, "suspend member")
 		numLogs++ // add an audit log for update user
 
 		// Test an existing session
-		_, err = member.User(ctx, codersdk.Me)
-		var apiErr *codersdk.Error
+		_, err = member.User(ctx, wirtualsdk.Me)
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusUnauthorized, apiErr.StatusCode())
 		require.Contains(t, apiErr.Message, "Contact an admin")
 
 		// Test a new session
-		_, err = client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+		_, err = client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 			Email:    memberUser.Email,
 			Password: "SomeSecurePassword!",
 		})
@@ -222,7 +222,7 @@ func TestPostLogin(t *testing.T) {
 
 		// With a user account.
 		const password = "SomeSecurePassword!"
-		user, err := client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		user, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			Email:           "test+user-@coder.com",
 			Username:        "user",
 			Password:        password,
@@ -232,13 +232,13 @@ func TestPostLogin(t *testing.T) {
 
 		dc.DisablePasswordAuth = serpent.Bool(true)
 
-		userClient := codersdk.New(client.URL)
-		_, err = userClient.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+		userClient := wirtualsdk.New(client.URL)
+		_, err = userClient.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 			Email:    user.Email,
 			Password: password,
 		})
 		require.Error(t, err)
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusForbidden, apiErr.StatusCode())
 		require.Contains(t, apiErr.Message, "Password authentication is disabled")
@@ -253,7 +253,7 @@ func TestPostLogin(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		req := codersdk.CreateFirstUserRequest{
+		req := wirtualsdk.CreateFirstUserRequest{
 			Email:    "testuser@coder.com",
 			Username: "testuser",
 			Password: "SomeSecurePassword!",
@@ -263,14 +263,14 @@ func TestPostLogin(t *testing.T) {
 		numLogs++ // add an audit log for create user
 		numLogs++ // add an audit log for login
 
-		_, err = client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+		_, err = client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 			Email:    req.Email,
 			Password: req.Password,
 		})
 		require.NoError(t, err)
 
 		// Login should be case insensitive
-		_, err = client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+		_, err = client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 			Email:    strings.ToUpper(req.Email),
 			Password: req.Password,
 		})
@@ -295,7 +295,7 @@ func TestPostLogin(t *testing.T) {
 		require.Equal(t, int64(86400), key.LifetimeSeconds, "default should be 86400")
 
 		// tokens have a longer life
-		token, err := client.CreateToken(ctx, codersdk.Me, codersdk.CreateTokenRequest{})
+		token, err := client.CreateToken(ctx, wirtualsdk.Me, wirtualsdk.CreateTokenRequest{})
 		require.NoError(t, err, "make new token api key")
 		split = strings.Split(token.Key, "-")
 		apiKey, err := client.APIKeyByID(ctx, owner.UserID.String(), split[0])
@@ -319,7 +319,7 @@ func TestDeleteUser(t *testing.T) {
 		err := client.DeleteUser(context.Background(), another.ID)
 		require.NoError(t, err)
 		// Attempt to create a user with the same email and username, and delete them again.
-		another, err = client.CreateUserWithOrgs(context.Background(), codersdk.CreateUserRequestWithOrgs{
+		another, err = client.CreateUserWithOrgs(context.Background(), wirtualsdk.CreateUserRequestWithOrgs{
 			Email:           another.Email,
 			Username:        another.Username,
 			Password:        "SomeSecurePassword!",
@@ -330,9 +330,9 @@ func TestDeleteUser(t *testing.T) {
 		require.NoError(t, err)
 
 		// IMPORTANT: assert that the deleted user's session is no longer valid.
-		_, err = anotherClient.User(context.Background(), codersdk.Me)
+		_, err = anotherClient.User(context.Background(), wirtualsdk.Me)
 		require.Error(t, err)
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusUnauthorized, apiErr.StatusCode())
 
@@ -346,7 +346,7 @@ func TestDeleteUser(t *testing.T) {
 		firstUser := coderdtest.CreateFirstUser(t, api)
 		client, _ := coderdtest.CreateAnotherUser(t, api, firstUser.OrganizationID)
 		err := client.DeleteUser(context.Background(), firstUser.UserID)
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 	})
@@ -360,7 +360,7 @@ func TestDeleteUser(t *testing.T) {
 		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 		coderdtest.CreateWorkspace(t, anotherClient, template.ID)
 		err := client.DeleteUser(context.Background(), another.ID)
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusExpectationFailed, apiErr.StatusCode())
 	})
@@ -369,7 +369,7 @@ func TestDeleteUser(t *testing.T) {
 		client := coderdtest.New(t, nil)
 		user := coderdtest.CreateFirstUser(t, client)
 		err := client.DeleteUser(context.Background(), user.UserID)
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.Error(t, err, "should not be able to delete self")
 		require.ErrorAs(t, err, &apiErr, "should be a coderd error")
 		require.Equal(t, http.StatusForbidden, apiErr.StatusCode(), "should be forbidden")
@@ -384,7 +384,7 @@ func TestNotifyUserStatusChanged(t *testing.T) {
 		UserID     uuid.UUID
 	}
 
-	verifyNotificationDispatched := func(notifyEnq *notificationstest.FakeEnqueuer, expectedNotifications []expectedNotification, member codersdk.User, label string) {
+	verifyNotificationDispatched := func(notifyEnq *notificationstest.FakeEnqueuer, expectedNotifications []expectedNotification, member wirtualsdk.User, label string) {
 		require.Equal(t, len(expectedNotifications), len(notifyEnq.Sent()))
 
 		// Validate that each expected notification is present in notifyEnq.Sent()
@@ -417,7 +417,7 @@ func TestNotifyUserStatusChanged(t *testing.T) {
 
 		_, userAdmin := coderdtest.CreateAnotherUser(t, adminClient, firstUser.OrganizationID, rbac.RoleUserAdmin())
 
-		member, err := adminClient.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		member, err := adminClient.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			OrganizationIDs: []uuid.UUID{firstUser.OrganizationID},
 			Email:           "another@user.org",
 			Username:        "someone-else",
@@ -428,7 +428,7 @@ func TestNotifyUserStatusChanged(t *testing.T) {
 		notifyEnq.Clear()
 
 		// when
-		_, err = adminClient.UpdateUserStatus(context.Background(), member.Username, codersdk.UserStatusSuspended)
+		_, err = adminClient.UpdateUserStatus(context.Background(), member.Username, wirtualsdk.UserStatusSuspended)
 		require.NoError(t, err)
 
 		// then
@@ -454,7 +454,7 @@ func TestNotifyUserStatusChanged(t *testing.T) {
 
 		_, userAdmin := coderdtest.CreateAnotherUser(t, adminClient, firstUser.OrganizationID, rbac.RoleUserAdmin())
 
-		member, err := adminClient.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		member, err := adminClient.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			OrganizationIDs: []uuid.UUID{firstUser.OrganizationID},
 			Email:           "another@user.org",
 			Username:        "someone-else",
@@ -462,13 +462,13 @@ func TestNotifyUserStatusChanged(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		_, err = adminClient.UpdateUserStatus(context.Background(), member.Username, codersdk.UserStatusSuspended)
+		_, err = adminClient.UpdateUserStatus(context.Background(), member.Username, wirtualsdk.UserStatusSuspended)
 		require.NoError(t, err)
 
 		notifyEnq.Clear()
 
 		// when
-		_, err = adminClient.UpdateUserStatus(context.Background(), member.Username, codersdk.UserStatusActive)
+		_, err = adminClient.UpdateUserStatus(context.Background(), member.Username, wirtualsdk.UserStatusActive)
 		require.NoError(t, err)
 
 		// then
@@ -499,7 +499,7 @@ func TestNotifyDeletedUser(t *testing.T) {
 		firstUser, err := adminClient.User(ctx, firstUserResponse.UserID.String())
 		require.NoError(t, err)
 
-		user, err := adminClient.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		user, err := adminClient.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			OrganizationIDs: []uuid.UUID{firstUserResponse.OrganizationID},
 			Email:           "another@user.org",
 			Username:        "someone-else",
@@ -537,7 +537,7 @@ func TestNotifyDeletedUser(t *testing.T) {
 
 		_, userAdmin := coderdtest.CreateAnotherUser(t, adminClient, firstUser.OrganizationID, rbac.RoleUserAdmin())
 
-		member, err := adminClient.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		member, err := adminClient.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			OrganizationIDs: []uuid.UUID{firstUser.OrganizationID},
 			Email:           "another@user.org",
 			Username:        "someone-else",
@@ -608,8 +608,8 @@ func TestPostLogout(t *testing.T) {
 
 		var found bool
 		for _, cookie := range cookies {
-			if cookie.Name == codersdk.SessionTokenCookie {
-				require.Equal(t, codersdk.SessionTokenCookie, cookie.Name, "Cookie should be the auth cookie")
+			if cookie.Name == wirtualsdk.SessionTokenCookie {
+				require.Equal(t, wirtualsdk.SessionTokenCookie, cookie.Name, "Cookie should be the auth cookie")
 				require.Equal(t, -1, cookie.MaxAge, "Cookie should be set to delete")
 				found = true
 			}
@@ -617,7 +617,7 @@ func TestPostLogout(t *testing.T) {
 		require.True(t, found, "auth cookie should be returned")
 
 		_, err = client.APIKeyByID(ctx, owner.UserID.String(), keyID)
-		sdkErr := &codersdk.Error{}
+		sdkErr := &wirtualsdk.Error{}
 		require.ErrorAs(t, err, &sdkErr)
 		require.Equal(t, http.StatusUnauthorized, sdkErr.StatusCode(), "Expecting 401")
 	})
@@ -633,7 +633,7 @@ func TestPostUsers(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_, err := client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{})
+		_, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{})
 		require.Error(t, err)
 	})
 
@@ -645,15 +645,15 @@ func TestPostUsers(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		me, err := client.User(ctx, codersdk.Me)
+		me, err := client.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err)
-		_, err = client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		_, err = client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			Email:           me.Email,
 			Username:        me.Username,
 			Password:        "MySecurePassword!",
 			OrganizationIDs: []uuid.UUID{uuid.New()},
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusConflict, apiErr.StatusCode())
 	})
@@ -666,13 +666,13 @@ func TestPostUsers(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_, err := client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		_, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			OrganizationIDs: []uuid.UUID{uuid.New()},
 			Email:           "another@user.org",
 			Username:        "someone-else",
 			Password:        "SomeSecurePassword!",
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusNotFound, apiErr.StatusCode())
 	})
@@ -690,7 +690,7 @@ func TestPostUsers(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		user, err := client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		user, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			OrganizationIDs: []uuid.UUID{firstUser.OrganizationID},
 			Email:           "another@user.org",
 			Username:        "someone-else",
@@ -699,7 +699,7 @@ func TestPostUsers(t *testing.T) {
 		require.NoError(t, err)
 
 		// User should default to dormant.
-		require.Equal(t, codersdk.UserStatusDormant, user.Status)
+		require.Equal(t, wirtualsdk.UserStatusDormant, user.Status)
 
 		require.Len(t, auditor.AuditLogs(), numLogs)
 		require.Equal(t, database.AuditActionCreate, auditor.AuditLogs()[numLogs-1].Action)
@@ -722,16 +722,16 @@ func TestPostUsers(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		user, err := client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		user, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			OrganizationIDs: []uuid.UUID{firstUser.OrganizationID},
 			Email:           "another@user.org",
 			Username:        "someone-else",
 			Password:        "SomeSecurePassword!",
-			UserStatus:      ptr.Ref(codersdk.UserStatusActive),
+			UserStatus:      ptr.Ref(wirtualsdk.UserStatusActive),
 		})
 		require.NoError(t, err)
 
-		require.Equal(t, codersdk.UserStatusActive, user.Status)
+		require.Equal(t, wirtualsdk.UserStatusActive, user.Status)
 
 		require.Len(t, auditor.AuditLogs(), numLogs)
 		require.Equal(t, database.AuditActionCreate, auditor.AuditLogs()[numLogs-1].Action)
@@ -754,7 +754,7 @@ func TestPostUsers(t *testing.T) {
 
 		_, _ = coderdtest.CreateAnotherUser(t, client, firstUserResp.OrganizationID)
 
-		allUsersRes, err := client.Users(ctx, codersdk.UsersRequest{})
+		allUsersRes, err := client.Users(ctx, wirtualsdk.UsersRequest{})
 		require.NoError(t, err)
 
 		require.Len(t, allUsersRes.Users, 2)
@@ -778,18 +778,18 @@ func TestPostUsers(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		user, err := client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		user, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			OrganizationIDs: []uuid.UUID{first.OrganizationID},
 			Email:           "another@user.org",
 			Username:        "someone-else",
 			Password:        "",
-			UserLoginType:   codersdk.LoginTypeNone,
+			UserLoginType:   wirtualsdk.LoginTypeNone,
 		})
 		require.NoError(t, err)
 
 		found, err := client.User(ctx, user.ID.String())
 		require.NoError(t, err)
-		require.Equal(t, found.LoginType, codersdk.LoginTypeNone)
+		require.Equal(t, found.LoginType, wirtualsdk.LoginTypeNone)
 	})
 
 	t.Run("CreateOIDCLoginType", func(t *testing.T) {
@@ -810,12 +810,12 @@ func TestPostUsers(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_, err := client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		_, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			OrganizationIDs: []uuid.UUID{first.OrganizationID},
 			Email:           email,
 			Username:        "someone-else",
 			Password:        "",
-			UserLoginType:   codersdk.LoginTypeOIDC,
+			UserLoginType:   wirtualsdk.LoginTypeOIDC,
 		})
 		require.NoError(t, err)
 
@@ -826,7 +826,7 @@ func TestPostUsers(t *testing.T) {
 
 		found, err := userClient.User(ctx, "me")
 		require.NoError(t, err)
-		require.Equal(t, found.LoginType, codersdk.LoginTypeOIDC)
+		require.Equal(t, found.LoginType, wirtualsdk.LoginTypeOIDC)
 	})
 }
 
@@ -847,7 +847,7 @@ func TestNotifyCreatedUser(t *testing.T) {
 		defer cancel()
 
 		// when
-		user, err := adminClient.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		user, err := adminClient.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			OrganizationIDs: []uuid.UUID{firstUser.OrganizationID},
 			Email:           "another@user.org",
 			Username:        "someone-else",
@@ -876,7 +876,7 @@ func TestNotifyCreatedUser(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		userAdmin, err := adminClient.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		userAdmin, err := adminClient.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			OrganizationIDs: []uuid.UUID{firstUser.OrganizationID},
 			Email:           "user-admin@user.org",
 			Username:        "mr-user-admin",
@@ -884,7 +884,7 @@ func TestNotifyCreatedUser(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		_, err = adminClient.UpdateUserRoles(ctx, userAdmin.Username, codersdk.UpdateRoles{
+		_, err = adminClient.UpdateUserRoles(ctx, userAdmin.Username, wirtualsdk.UpdateRoles{
 			Roles: []string{
 				rbac.RoleUserAdmin().String(),
 			},
@@ -892,7 +892,7 @@ func TestNotifyCreatedUser(t *testing.T) {
 		require.NoError(t, err)
 
 		// when
-		member, err := adminClient.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		member, err := adminClient.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			OrganizationIDs: []uuid.UUID{firstUser.OrganizationID},
 			Email:           "another@user.org",
 			Username:        "someone-else",
@@ -934,10 +934,10 @@ func TestUpdateUserProfile(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_, err := client.UpdateUserProfile(ctx, uuid.New().String(), codersdk.UpdateUserProfileRequest{
+		_, err := client.UpdateUserProfile(ctx, uuid.New().String(), wirtualsdk.UpdateUserProfileRequest{
 			Username: "newusername",
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		// Right now, we are raising a BAD request error because we don't support a
 		// user accessing other users info
@@ -952,17 +952,17 @@ func TestUpdateUserProfile(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		existentUser, err := client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		existentUser, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			Email:           "bruno@coder.com",
 			Username:        "bruno",
 			Password:        "SomeSecurePassword!",
 			OrganizationIDs: []uuid.UUID{user.OrganizationID},
 		})
 		require.NoError(t, err)
-		_, err = client.UpdateUserProfile(ctx, codersdk.Me, codersdk.UpdateUserProfileRequest{
+		_, err = client.UpdateUserProfile(ctx, wirtualsdk.Me, wirtualsdk.UpdateUserProfileRequest{
 			Username: existentUser.Username,
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusConflict, apiErr.StatusCode())
 	})
@@ -979,10 +979,10 @@ func TestUpdateUserProfile(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		me, err := client.User(ctx, codersdk.Me)
+		me, err := client.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err)
 
-		userProfile, err := client.UpdateUserProfile(ctx, codersdk.Me, codersdk.UpdateUserProfileRequest{
+		userProfile, err := client.UpdateUserProfile(ctx, wirtualsdk.Me, wirtualsdk.UpdateUserProfileRequest{
 			Username: me.Username + "1",
 			Name:     me.Name + "1",
 		})
@@ -1011,7 +1011,7 @@ func TestUpdateUserProfile(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		userProfile, err := memberClient.UpdateUserProfile(ctx, codersdk.Me, codersdk.UpdateUserProfileRequest{
+		userProfile, err := memberClient.UpdateUserProfile(ctx, wirtualsdk.Me, wirtualsdk.UpdateUserProfileRequest{
 			Username: memberUser.Username + "1",
 			Name:     memberUser.Name + "1",
 		})
@@ -1034,17 +1034,17 @@ func TestUpdateUserProfile(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_, err := client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		_, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			Email:           "john@coder.com",
 			Username:        "john",
 			Password:        "SomeSecurePassword!",
 			OrganizationIDs: []uuid.UUID{user.OrganizationID},
 		})
 		require.NoError(t, err)
-		_, err = client.UpdateUserProfile(ctx, codersdk.Me, codersdk.UpdateUserProfileRequest{
+		_, err = client.UpdateUserProfile(ctx, wirtualsdk.Me, wirtualsdk.UpdateUserProfileRequest{
 			Name: " Mr Bean", // must not have leading space
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 	})
@@ -1062,7 +1062,7 @@ func TestUpdateUserPassword(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		err := member.UpdateUserPassword(ctx, owner.UserID.String(), codersdk.UpdateUserPasswordRequest{
+		err := member.UpdateUserPassword(ctx, owner.UserID.String(), wirtualsdk.UpdateUserPasswordRequest{
 			Password: "newpassword",
 		})
 		require.Error(t, err, "member should not be able to update admin password")
@@ -1076,19 +1076,19 @@ func TestUpdateUserPassword(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		member, err := client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		member, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			Email:           "coder@coder.com",
 			Username:        "coder",
 			Password:        "SomeStrongPassword!",
 			OrganizationIDs: []uuid.UUID{owner.OrganizationID},
 		})
 		require.NoError(t, err, "create member")
-		err = client.UpdateUserPassword(ctx, member.ID.String(), codersdk.UpdateUserPasswordRequest{
+		err = client.UpdateUserPassword(ctx, member.ID.String(), wirtualsdk.UpdateUserPasswordRequest{
 			Password: "SomeNewStrongPassword!",
 		})
 		require.NoError(t, err, "admin should be able to update member password")
 		// Check if the member can login using the new password
-		_, err = client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+		_, err = client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 			Email:    "coder@coder.com",
 			Password: "SomeNewStrongPassword!",
 		})
@@ -1105,7 +1105,7 @@ func TestUpdateUserPassword(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		member, err := client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		member, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			Email:           "coder@coder.com",
 			Username:        "coder",
 			Password:        "SomeStrongPassword!",
@@ -1113,7 +1113,7 @@ func TestUpdateUserPassword(t *testing.T) {
 		})
 		require.NoError(t, err, "create member")
 
-		err = auditor.UpdateUserPassword(ctx, member.ID.String(), codersdk.UpdateUserPasswordRequest{
+		err = auditor.UpdateUserPassword(ctx, member.ID.String(), wirtualsdk.UpdateUserPasswordRequest{
 			Password: "SomeNewStrongPassword!",
 		})
 		require.Error(t, err, "auditor should not be able to update member password")
@@ -1136,7 +1136,7 @@ func TestUpdateUserPassword(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		err := member.UpdateUserPassword(ctx, "me", codersdk.UpdateUserPasswordRequest{
+		err := member.UpdateUserPassword(ctx, "me", wirtualsdk.UpdateUserPasswordRequest{
 			OldPassword: "SomeSecurePassword!",
 			Password:    "MyNewSecurePassword!",
 		})
@@ -1157,7 +1157,7 @@ func TestUpdateUserPassword(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		err := member.UpdateUserPassword(ctx, "me", codersdk.UpdateUserPasswordRequest{
+		err := member.UpdateUserPassword(ctx, "me", wirtualsdk.UpdateUserPasswordRequest{
 			Password: "newpassword",
 		})
 		require.Error(t, err, "member should not be able to update own password without providing old password")
@@ -1182,13 +1182,13 @@ func TestUpdateUserPassword(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		err := auditorClient.UpdateUserPassword(ctx, memberUser.ID.String(), codersdk.UpdateUserPasswordRequest{
+		err := auditorClient.UpdateUserPassword(ctx, memberUser.ID.String(), wirtualsdk.UpdateUserPasswordRequest{
 			Password: "MySecurePassword!",
 		})
 		numLogs++ // add an audit log for user update
 
 		require.Error(t, err, "auditors shouldn't be able to update passwords")
-		var httpErr *codersdk.Error
+		var httpErr *wirtualsdk.Error
 		require.True(t, xerrors.As(err, &httpErr))
 		// ensure that the error we get is "not found" and not "bad request"
 		require.Equal(t, http.StatusNotFound, httpErr.StatusCode())
@@ -1210,7 +1210,7 @@ func TestUpdateUserPassword(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		err := client.UpdateUserPassword(ctx, "me", codersdk.UpdateUserPasswordRequest{
+		err := client.UpdateUserPassword(ctx, "me", wirtualsdk.UpdateUserPasswordRequest{
 			Password: "MySecurePassword!",
 		})
 		numLogs++ // add an audit log for user update
@@ -1232,7 +1232,7 @@ func TestUpdateUserPassword(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		resp, err := client.ValidateUserPassword(ctx, codersdk.ValidateUserPasswordRequest{
+		resp, err := client.ValidateUserPassword(ctx, wirtualsdk.ValidateUserPasswordRequest{
 			Password: "MySecurePassword!",
 		})
 
@@ -1247,13 +1247,13 @@ func TestUpdateUserPassword(t *testing.T) {
 		user := coderdtest.CreateFirstUser(t, client)
 		ctx := testutil.Context(t, testutil.WaitLong)
 
-		apikey1, err := client.CreateToken(ctx, user.UserID.String(), codersdk.CreateTokenRequest{})
+		apikey1, err := client.CreateToken(ctx, user.UserID.String(), wirtualsdk.CreateTokenRequest{})
 		require.NoError(t, err)
 
-		apikey2, err := client.CreateToken(ctx, user.UserID.String(), codersdk.CreateTokenRequest{})
+		apikey2, err := client.CreateToken(ctx, user.UserID.String(), wirtualsdk.CreateTokenRequest{})
 		require.NoError(t, err)
 
-		err = client.UpdateUserPassword(ctx, "me", codersdk.UpdateUserPasswordRequest{
+		err = client.UpdateUserPassword(ctx, "me", wirtualsdk.UpdateUserPasswordRequest{
 			OldPassword: "SomeSecurePassword!",
 			Password:    "MyNewSecurePassword!",
 		})
@@ -1266,7 +1266,7 @@ func TestUpdateUserPassword(t *testing.T) {
 		cerr := coderdtest.SDKError(t, err)
 		require.Equal(t, http.StatusUnauthorized, cerr.StatusCode())
 
-		resp, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+		resp, err := client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 			Email:    coderdtest.FirstUserParams.Email,
 			Password: "MyNewSecurePassword!",
 		})
@@ -1294,7 +1294,7 @@ func TestUpdateUserPassword(t *testing.T) {
 		_ = coderdtest.CreateFirstUser(t, client)
 		ctx := testutil.Context(t, testutil.WaitLong)
 
-		err := client.UpdateUserPassword(ctx, "me", codersdk.UpdateUserPasswordRequest{
+		err := client.UpdateUserPassword(ctx, "me", wirtualsdk.UpdateUserPasswordRequest{
 			Password: coderdtest.FirstUserParams.Password,
 		})
 		require.Error(t, err)
@@ -1310,10 +1310,10 @@ func TestInitialRoles(t *testing.T) {
 	client := coderdtest.New(t, nil)
 	first := coderdtest.CreateFirstUser(t, client)
 
-	roles, err := client.UserRoles(ctx, codersdk.Me)
+	roles, err := client.UserRoles(ctx, wirtualsdk.Me)
 	require.NoError(t, err)
 	require.ElementsMatch(t, roles.Roles, []string{
-		codersdk.RoleOwner,
+		wirtualsdk.RoleOwner,
 	}, "should be a member and admin")
 
 	require.ElementsMatch(t, roles.OrganizationRoles[first.OrganizationID], []string{}, "should be a member")
@@ -1331,7 +1331,7 @@ func TestPutUserSuspend(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_, err := client.UpdateUserStatus(ctx, user.Username, codersdk.UserStatusSuspended)
+		_, err := client.UpdateUserStatus(ctx, user.Username, wirtualsdk.UserStatusSuspended)
 		require.Error(t, err, "cannot suspend owners")
 	})
 
@@ -1351,9 +1351,9 @@ func TestPutUserSuspend(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		user, err := client.UpdateUserStatus(ctx, user.Username, codersdk.UserStatusSuspended)
+		user, err := client.UpdateUserStatus(ctx, user.Username, wirtualsdk.UserStatusSuspended)
 		require.NoError(t, err)
-		require.Equal(t, user.Status, codersdk.UserStatusSuspended)
+		require.Equal(t, user.Status, wirtualsdk.UserStatusSuspended)
 		numLogs++ // add an audit log for user update
 
 		require.Len(t, auditor.AuditLogs(), numLogs)
@@ -1368,8 +1368,8 @@ func TestPutUserSuspend(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		client.User(ctx, codersdk.Me)
-		_, err := client.UpdateUserStatus(ctx, codersdk.Me, codersdk.UserStatusSuspended)
+		client.User(ctx, wirtualsdk.Me)
+		_, err := client.UpdateUserStatus(ctx, wirtualsdk.Me, wirtualsdk.UserStatusSuspended)
 
 		require.ErrorContains(t, err, "suspend yourself", "cannot suspend yourself")
 	})
@@ -1383,7 +1383,7 @@ func TestActivateDormantUser(t *testing.T) {
 	me := coderdtest.CreateFirstUser(t, client)
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
-	anotherUser, err := client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+	anotherUser, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 		Email:           "coder@coder.com",
 		Username:        "coder",
 		Password:        "SomeStrongPassword!",
@@ -1392,16 +1392,16 @@ func TestActivateDormantUser(t *testing.T) {
 	require.NoError(t, err)
 
 	// Ensure that new user has dormant account
-	require.Equal(t, codersdk.UserStatusDormant, anotherUser.Status)
+	require.Equal(t, wirtualsdk.UserStatusDormant, anotherUser.Status)
 
 	// Activate user account
-	_, err = client.UpdateUserStatus(ctx, anotherUser.Username, codersdk.UserStatusActive)
+	_, err = client.UpdateUserStatus(ctx, anotherUser.Username, wirtualsdk.UserStatusActive)
 	require.NoError(t, err)
 
 	// Verify if the account is active now
 	anotherUser, err = client.User(ctx, anotherUser.Username)
 	require.NoError(t, err)
-	require.Equal(t, codersdk.UserStatusActive, anotherUser.Status)
+	require.Equal(t, wirtualsdk.UserStatusActive, anotherUser.Status)
 }
 
 func TestGetUser(t *testing.T) {
@@ -1416,7 +1416,7 @@ func TestGetUser(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		user, err := client.User(ctx, codersdk.Me)
+		user, err := client.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err)
 		require.Equal(t, firstUser.UserID, user.ID)
 		require.Equal(t, firstUser.OrganizationID, user.OrganizationIDs[0])
@@ -1465,7 +1465,7 @@ func TestUsersFilter(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	t.Cleanup(cancel)
 
-	firstUser, err := client.User(ctx, codersdk.Me)
+	firstUser, err := client.User(ctx, wirtualsdk.Me)
 	require.NoError(t, err, "fetch me")
 
 	// Noon on Jan 18 is the "now" for this test for last_seen timestamps.
@@ -1475,7 +1475,7 @@ func TestUsersFilter(t *testing.T) {
 	// 2023-01-18T13:00:00+01:00 (Europe/Madrid)
 	// 2023-01-16T00:00:00+12:00 (Asia/Anadyr)
 	lastSeenNow := time.Date(2023, 1, 18, 12, 0, 0, 0, time.UTC)
-	users := make([]codersdk.User, 0)
+	users := make([]wirtualsdk.User, 0)
 	users = append(users, firstUser)
 	for i := 0; i < 15; i++ {
 		roles := []rbac.RoleIdentifier{}
@@ -1495,16 +1495,16 @@ func TestUsersFilter(t *testing.T) {
 		})
 		require.NoError(t, err, "set a last seen")
 
-		user, err := userClient.User(ctx, codersdk.Me)
+		user, err := userClient.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err, "fetch me")
 
 		if i%4 == 0 {
-			user, err = client.UpdateUserStatus(ctx, user.ID.String(), codersdk.UserStatusSuspended)
+			user, err = client.UpdateUserStatus(ctx, user.ID.String(), wirtualsdk.UserStatusSuspended)
 			require.NoError(t, err, "suspend user")
 		}
 
 		if i%5 == 0 {
-			user, err = client.UpdateUserProfile(ctx, user.ID.String(), codersdk.UpdateUserProfileRequest{
+			user, err = client.UpdateUserProfile(ctx, user.ID.String(), wirtualsdk.UpdateUserProfileRequest{
 				Username: strings.ToUpper(user.Username),
 			})
 			require.NoError(t, err, "update username to uppercase")
@@ -1516,64 +1516,64 @@ func TestUsersFilter(t *testing.T) {
 	// --- Setup done ---
 	testCases := []struct {
 		Name   string
-		Filter codersdk.UsersRequest
+		Filter wirtualsdk.UsersRequest
 		// If FilterF is true, we include it in the expected results
-		FilterF func(f codersdk.UsersRequest, user codersdk.User) bool
+		FilterF func(f wirtualsdk.UsersRequest, user wirtualsdk.User) bool
 	}{
 		{
 			Name: "All",
-			Filter: codersdk.UsersRequest{
-				Status: codersdk.UserStatusSuspended + "," + codersdk.UserStatusActive,
+			Filter: wirtualsdk.UsersRequest{
+				Status: wirtualsdk.UserStatusSuspended + "," + wirtualsdk.UserStatusActive,
 			},
-			FilterF: func(_ codersdk.UsersRequest, u codersdk.User) bool {
+			FilterF: func(_ wirtualsdk.UsersRequest, u wirtualsdk.User) bool {
 				return true
 			},
 		},
 		{
 			Name: "Active",
-			Filter: codersdk.UsersRequest{
-				Status: codersdk.UserStatusActive,
+			Filter: wirtualsdk.UsersRequest{
+				Status: wirtualsdk.UserStatusActive,
 			},
-			FilterF: func(_ codersdk.UsersRequest, u codersdk.User) bool {
-				return u.Status == codersdk.UserStatusActive
+			FilterF: func(_ wirtualsdk.UsersRequest, u wirtualsdk.User) bool {
+				return u.Status == wirtualsdk.UserStatusActive
 			},
 		},
 		{
 			Name: "ActiveUppercase",
-			Filter: codersdk.UsersRequest{
+			Filter: wirtualsdk.UsersRequest{
 				Status: "ACTIVE",
 			},
-			FilterF: func(_ codersdk.UsersRequest, u codersdk.User) bool {
-				return u.Status == codersdk.UserStatusActive
+			FilterF: func(_ wirtualsdk.UsersRequest, u wirtualsdk.User) bool {
+				return u.Status == wirtualsdk.UserStatusActive
 			},
 		},
 		{
 			Name: "Suspended",
-			Filter: codersdk.UsersRequest{
-				Status: codersdk.UserStatusSuspended,
+			Filter: wirtualsdk.UsersRequest{
+				Status: wirtualsdk.UserStatusSuspended,
 			},
-			FilterF: func(_ codersdk.UsersRequest, u codersdk.User) bool {
-				return u.Status == codersdk.UserStatusSuspended
+			FilterF: func(_ wirtualsdk.UsersRequest, u wirtualsdk.User) bool {
+				return u.Status == wirtualsdk.UserStatusSuspended
 			},
 		},
 		{
 			Name: "NameContains",
-			Filter: codersdk.UsersRequest{
+			Filter: wirtualsdk.UsersRequest{
 				Search: "a",
 			},
-			FilterF: func(_ codersdk.UsersRequest, u codersdk.User) bool {
+			FilterF: func(_ wirtualsdk.UsersRequest, u wirtualsdk.User) bool {
 				return (strings.ContainsAny(u.Username, "aA") || strings.ContainsAny(u.Email, "aA"))
 			},
 		},
 		{
 			Name: "Admins",
-			Filter: codersdk.UsersRequest{
-				Role:   codersdk.RoleOwner,
-				Status: codersdk.UserStatusSuspended + "," + codersdk.UserStatusActive,
+			Filter: wirtualsdk.UsersRequest{
+				Role:   wirtualsdk.RoleOwner,
+				Status: wirtualsdk.UserStatusSuspended + "," + wirtualsdk.UserStatusActive,
 			},
-			FilterF: func(_ codersdk.UsersRequest, u codersdk.User) bool {
+			FilterF: func(_ wirtualsdk.UsersRequest, u wirtualsdk.User) bool {
 				for _, r := range u.Roles {
-					if r.Name == codersdk.RoleOwner {
+					if r.Name == wirtualsdk.RoleOwner {
 						return true
 					}
 				}
@@ -1582,13 +1582,13 @@ func TestUsersFilter(t *testing.T) {
 		},
 		{
 			Name: "AdminsUppercase",
-			Filter: codersdk.UsersRequest{
+			Filter: wirtualsdk.UsersRequest{
 				Role:   "OWNER",
-				Status: codersdk.UserStatusSuspended + "," + codersdk.UserStatusActive,
+				Status: wirtualsdk.UserStatusSuspended + "," + wirtualsdk.UserStatusActive,
 			},
-			FilterF: func(_ codersdk.UsersRequest, u codersdk.User) bool {
+			FilterF: func(_ wirtualsdk.UsersRequest, u wirtualsdk.User) bool {
 				for _, r := range u.Roles {
-					if r.Name == codersdk.RoleOwner {
+					if r.Name == wirtualsdk.RoleOwner {
 						return true
 					}
 				}
@@ -1597,24 +1597,24 @@ func TestUsersFilter(t *testing.T) {
 		},
 		{
 			Name: "Members",
-			Filter: codersdk.UsersRequest{
-				Role:   codersdk.RoleMember,
-				Status: codersdk.UserStatusSuspended + "," + codersdk.UserStatusActive,
+			Filter: wirtualsdk.UsersRequest{
+				Role:   wirtualsdk.RoleMember,
+				Status: wirtualsdk.UserStatusSuspended + "," + wirtualsdk.UserStatusActive,
 			},
-			FilterF: func(_ codersdk.UsersRequest, u codersdk.User) bool {
+			FilterF: func(_ wirtualsdk.UsersRequest, u wirtualsdk.User) bool {
 				return true
 			},
 		},
 		{
 			Name: "SearchQuery",
-			Filter: codersdk.UsersRequest{
+			Filter: wirtualsdk.UsersRequest{
 				SearchQuery: "i role:owner status:active",
 			},
-			FilterF: func(_ codersdk.UsersRequest, u codersdk.User) bool {
+			FilterF: func(_ wirtualsdk.UsersRequest, u wirtualsdk.User) bool {
 				for _, r := range u.Roles {
-					if r.Name == codersdk.RoleOwner {
+					if r.Name == wirtualsdk.RoleOwner {
 						return (strings.ContainsAny(u.Username, "iI") || strings.ContainsAny(u.Email, "iI")) &&
-							u.Status == codersdk.UserStatusActive
+							u.Status == wirtualsdk.UserStatusActive
 					}
 				}
 				return false
@@ -1622,14 +1622,14 @@ func TestUsersFilter(t *testing.T) {
 		},
 		{
 			Name: "SearchQueryInsensitive",
-			Filter: codersdk.UsersRequest{
+			Filter: wirtualsdk.UsersRequest{
 				SearchQuery: "i Role:Owner STATUS:Active",
 			},
-			FilterF: func(_ codersdk.UsersRequest, u codersdk.User) bool {
+			FilterF: func(_ wirtualsdk.UsersRequest, u wirtualsdk.User) bool {
 				for _, r := range u.Roles {
-					if r.Name == codersdk.RoleOwner {
+					if r.Name == wirtualsdk.RoleOwner {
 						return (strings.ContainsAny(u.Username, "iI") || strings.ContainsAny(u.Email, "iI")) &&
-							u.Status == codersdk.UserStatusActive
+							u.Status == wirtualsdk.UserStatusActive
 					}
 				}
 				return false
@@ -1637,19 +1637,19 @@ func TestUsersFilter(t *testing.T) {
 		},
 		{
 			Name: "LastSeenBeforeNow",
-			Filter: codersdk.UsersRequest{
+			Filter: wirtualsdk.UsersRequest{
 				SearchQuery: `last_seen_before:"2023-01-16T00:00:00+12:00"`,
 			},
-			FilterF: func(_ codersdk.UsersRequest, u codersdk.User) bool {
+			FilterF: func(_ wirtualsdk.UsersRequest, u wirtualsdk.User) bool {
 				return u.LastSeenAt.Before(lastSeenNow)
 			},
 		},
 		{
 			Name: "LastSeenLastWeek",
-			Filter: codersdk.UsersRequest{
+			Filter: wirtualsdk.UsersRequest{
 				SearchQuery: `last_seen_before:"2023-01-14T23:59:59Z" last_seen_after:"2023-01-08T00:00:00Z"`,
 			},
-			FilterF: func(_ codersdk.UsersRequest, u codersdk.User) bool {
+			FilterF: func(_ wirtualsdk.UsersRequest, u wirtualsdk.User) bool {
 				start := time.Date(2023, 1, 8, 0, 0, 0, 0, time.UTC)
 				end := time.Date(2023, 1, 14, 23, 59, 59, 0, time.UTC)
 				return u.LastSeenAt.Before(end) && u.LastSeenAt.After(start)
@@ -1668,7 +1668,7 @@ func TestUsersFilter(t *testing.T) {
 			matched, err := client.Users(ctx, c.Filter)
 			require.NoError(t, err, "fetch workspaces")
 
-			exp := make([]codersdk.User, 0)
+			exp := make([]wirtualsdk.User, 0)
 			for _, made := range users {
 				match := c.FilterF(c.Filter, made)
 				if match {
@@ -1690,21 +1690,21 @@ func TestGetUsers(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			Email:           "alice@email.com",
 			Username:        "alice",
 			Password:        "MySecurePassword!",
 			OrganizationIDs: []uuid.UUID{user.OrganizationID},
 		})
 		// No params is all users
-		res, err := client.Users(ctx, codersdk.UsersRequest{})
+		res, err := client.Users(ctx, wirtualsdk.UsersRequest{})
 		require.NoError(t, err)
 		require.Len(t, res.Users, 2)
 		require.Len(t, res.Users[0].OrganizationIDs, 1)
 	})
 	t.Run("ActiveUsers", func(t *testing.T) {
 		t.Parallel()
-		active := make([]codersdk.User, 0)
+		active := make([]wirtualsdk.User, 0)
 		client := coderdtest.New(t, nil)
 		first := coderdtest.CreateFirstUser(t, client)
 
@@ -1716,7 +1716,7 @@ func TestGetUsers(t *testing.T) {
 		active = append(active, firstUser)
 
 		// Alice will be suspended
-		alice, err := client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		alice, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			Email:           "alice@email.com",
 			Username:        "alice",
 			Password:        "MySecurePassword!",
@@ -1724,11 +1724,11 @@ func TestGetUsers(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		_, err = client.UpdateUserStatus(ctx, alice.Username, codersdk.UserStatusSuspended)
+		_, err = client.UpdateUserStatus(ctx, alice.Username, wirtualsdk.UserStatusSuspended)
 		require.NoError(t, err)
 
 		// Tom will be active
-		tom, err := client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		tom, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			Email:           "tom@email.com",
 			Username:        "tom",
 			Password:        "MySecurePassword!",
@@ -1736,12 +1736,12 @@ func TestGetUsers(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		tom, err = client.UpdateUserStatus(ctx, tom.Username, codersdk.UserStatusActive)
+		tom, err = client.UpdateUserStatus(ctx, tom.Username, wirtualsdk.UserStatusActive)
 		require.NoError(t, err)
 		active = append(active, tom)
 
-		res, err := client.Users(ctx, codersdk.UsersRequest{
-			Status: codersdk.UserStatusActive,
+		res, err := client.Users(ctx, wirtualsdk.UsersRequest{
+			Status: wirtualsdk.UserStatusActive,
 		})
 		require.NoError(t, err)
 		require.ElementsMatch(t, active, res.Users)
@@ -1759,7 +1759,7 @@ func TestGetUsersPagination(t *testing.T) {
 	_, err := client.User(ctx, first.UserID.String())
 	require.NoError(t, err, "")
 
-	_, err = client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+	_, err = client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 		Email:           "alice@email.com",
 		Username:        "alice",
 		Password:        "MySecurePassword!",
@@ -1767,13 +1767,13 @@ func TestGetUsersPagination(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	res, err := client.Users(ctx, codersdk.UsersRequest{})
+	res, err := client.Users(ctx, wirtualsdk.UsersRequest{})
 	require.NoError(t, err)
 	require.Len(t, res.Users, 2)
 	require.Equal(t, res.Count, 2)
 
-	res, err = client.Users(ctx, codersdk.UsersRequest{
-		Pagination: codersdk.Pagination{
+	res, err = client.Users(ctx, wirtualsdk.UsersRequest{
+		Pagination: wirtualsdk.Pagination{
 			Limit: 1,
 		},
 	})
@@ -1781,8 +1781,8 @@ func TestGetUsersPagination(t *testing.T) {
 	require.Len(t, res.Users, 1)
 	require.Equal(t, res.Count, 2)
 
-	res, err = client.Users(ctx, codersdk.UsersRequest{
-		Pagination: codersdk.Pagination{
+	res, err = client.Users(ctx, wirtualsdk.UsersRequest{
+		Pagination: wirtualsdk.Pagination{
 			Offset: 1,
 		},
 	})
@@ -1792,8 +1792,8 @@ func TestGetUsersPagination(t *testing.T) {
 
 	// if offset is higher than the count postgres returns an empty array
 	// and not an ErrNoRows error.
-	res, err = client.Users(ctx, codersdk.UsersRequest{
-		Pagination: codersdk.Pagination{
+	res, err = client.Users(ctx, wirtualsdk.UsersRequest{
+		Pagination: wirtualsdk.Pagination{
 			Offset: 3,
 		},
 	})
@@ -1810,7 +1810,7 @@ func TestPostTokens(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
 
-	apiKey, err := client.CreateToken(ctx, codersdk.Me, codersdk.CreateTokenRequest{})
+	apiKey, err := client.CreateToken(ctx, wirtualsdk.Me, wirtualsdk.CreateTokenRequest{})
 	require.NotNil(t, apiKey)
 	require.GreaterOrEqual(t, len(apiKey.Key), 2)
 	require.NoError(t, err)
@@ -1826,8 +1826,8 @@ func TestWorkspacesByUser(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		res, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
-			Owner: codersdk.Me,
+		res, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{
+			Owner: wirtualsdk.Me,
 		})
 		require.NoError(t, err)
 		require.Len(t, res.Workspaces, 0)
@@ -1840,31 +1840,31 @@ func TestWorkspacesByUser(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		newUser, err := client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		newUser, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			Email:           "test@coder.com",
 			Username:        "someone",
 			Password:        "MySecurePassword!",
 			OrganizationIDs: []uuid.UUID{user.OrganizationID},
 		})
 		require.NoError(t, err)
-		auth, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+		auth, err := client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 			Email:    newUser.Email,
 			Password: "MySecurePassword!",
 		})
 		require.NoError(t, err)
 
-		newUserClient := codersdk.New(client.URL)
+		newUserClient := wirtualsdk.New(client.URL)
 		newUserClient.SetSessionToken(auth.SessionToken)
 		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 		coderdtest.CreateWorkspace(t, client, template.ID)
 
-		res, err := newUserClient.Workspaces(ctx, codersdk.WorkspaceFilter{Owner: codersdk.Me})
+		res, err := newUserClient.Workspaces(ctx, wirtualsdk.WorkspaceFilter{Owner: wirtualsdk.Me})
 		require.NoError(t, err)
 		require.Len(t, res.Workspaces, 0)
 
-		res, err = client.Workspaces(ctx, codersdk.WorkspaceFilter{Owner: codersdk.Me})
+		res, err = client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{Owner: wirtualsdk.Me})
 		require.NoError(t, err)
 		require.Len(t, res.Workspaces, 1)
 	})
@@ -1880,7 +1880,7 @@ func TestDormantUser(t *testing.T) {
 	defer cancel()
 
 	// Create a new user
-	newUser, err := client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+	newUser, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 		Email:           "test@coder.com",
 		Username:        "someone",
 		Password:        "MySecurePassword!",
@@ -1889,23 +1889,23 @@ func TestDormantUser(t *testing.T) {
 	require.NoError(t, err)
 
 	// User should be dormant as they haven't logged in yet
-	users, err := client.Users(ctx, codersdk.UsersRequest{Search: newUser.Username})
+	users, err := client.Users(ctx, wirtualsdk.UsersRequest{Search: newUser.Username})
 	require.NoError(t, err)
 	require.Len(t, users.Users, 1)
-	require.Equal(t, codersdk.UserStatusDormant, users.Users[0].Status)
+	require.Equal(t, wirtualsdk.UserStatusDormant, users.Users[0].Status)
 
 	// User logs in now
-	_, err = client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+	_, err = client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 		Email:    newUser.Email,
 		Password: "MySecurePassword!",
 	})
 	require.NoError(t, err)
 
 	// User status should be active now
-	users, err = client.Users(ctx, codersdk.UsersRequest{Search: newUser.Username})
+	users, err = client.Users(ctx, wirtualsdk.UsersRequest{Search: newUser.Username})
 	require.NoError(t, err)
 	require.Len(t, users.Users, 1)
-	require.Equal(t, codersdk.UserStatusActive, users.Users[0].Status)
+	require.Equal(t, wirtualsdk.UserStatusActive, users.Users[0].Status)
 }
 
 // TestSuspendedPagination is when the after_id is a suspended record.
@@ -1921,17 +1921,17 @@ func TestSuspendedPagination(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	t.Cleanup(cancel)
 
-	me, err := client.User(ctx, codersdk.Me)
+	me, err := client.User(ctx, wirtualsdk.Me)
 	require.NoError(t, err)
 	orgID := me.OrganizationIDs[0]
 
 	total := 10
-	users := make([]codersdk.User, 0, total)
+	users := make([]wirtualsdk.User, 0, total)
 	// Create users
 	for i := 0; i < total; i++ {
 		email := fmt.Sprintf("%d@coder.com", i)
 		username := fmt.Sprintf("user%d", i)
-		user, err := client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		user, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			Email:           email,
 			Username:        username,
 			Password:        "MySecurePassword!",
@@ -1943,11 +1943,11 @@ func TestSuspendedPagination(t *testing.T) {
 	sortUsers(users)
 	deletedUser := users[2]
 	expected := users[3:8]
-	_, err = client.UpdateUserStatus(ctx, deletedUser.ID.String(), codersdk.UserStatusSuspended)
+	_, err = client.UpdateUserStatus(ctx, deletedUser.ID.String(), wirtualsdk.UserStatusSuspended)
 	require.NoError(t, err, "suspend user")
 
-	page, err := client.Users(ctx, codersdk.UsersRequest{
-		Pagination: codersdk.Pagination{
+	page, err := client.Users(ctx, wirtualsdk.UsersRequest{
+		Pagination: wirtualsdk.Pagination{
 			Limit:   len(expected),
 			AfterID: deletedUser.ID,
 		},
@@ -1985,7 +1985,7 @@ func TestUserAutofillParameters(t *testing.T) {
 			version.Template.ID,
 		)
 
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 
@@ -2090,7 +2090,7 @@ func TestPaginatedUsers(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong*4)
 	t.Cleanup(cancel)
 
-	me, err := client.User(ctx, codersdk.Me)
+	me, err := client.User(ctx, wirtualsdk.Me)
 	require.NoError(t, err)
 
 	// When 50 users exist
@@ -2139,11 +2139,11 @@ func TestPaginatedUsers(t *testing.T) {
 	sortDatabaseUsers(allUsers)
 	sortDatabaseUsers(specialUsers)
 
-	gmailSearch := func(request codersdk.UsersRequest) codersdk.UsersRequest {
+	gmailSearch := func(request wirtualsdk.UsersRequest) wirtualsdk.UsersRequest {
 		request.Search = "gmail"
 		return request
 	}
-	usernameSearch := func(request codersdk.UsersRequest) codersdk.UsersRequest {
+	usernameSearch := func(request wirtualsdk.UsersRequest) wirtualsdk.UsersRequest {
 		request.Search = "specialuser"
 		return request
 	}
@@ -2152,7 +2152,7 @@ func TestPaginatedUsers(t *testing.T) {
 		name     string
 		limit    int
 		allUsers []database.User
-		opt      func(request codersdk.UsersRequest) codersdk.UsersRequest
+		opt      func(request wirtualsdk.UsersRequest) wirtualsdk.UsersRequest
 	}{
 		{name: "all users", limit: 10, allUsers: allUsers},
 		{name: "all users", limit: 5, allUsers: allUsers},
@@ -2179,19 +2179,19 @@ func TestPaginatedUsers(t *testing.T) {
 // Assert pagination will page through the list of all users using the given
 // limit for each page. The 'allUsers' is the expected full list to compare
 // against.
-func assertPagination(ctx context.Context, t *testing.T, client *codersdk.Client, limit int, allUsers []database.User,
-	opt func(request codersdk.UsersRequest) codersdk.UsersRequest,
+func assertPagination(ctx context.Context, t *testing.T, client *wirtualsdk.Client, limit int, allUsers []database.User,
+	opt func(request wirtualsdk.UsersRequest) wirtualsdk.UsersRequest,
 ) {
 	var count int
 	if opt == nil {
-		opt = func(request codersdk.UsersRequest) codersdk.UsersRequest {
+		opt = func(request wirtualsdk.UsersRequest) wirtualsdk.UsersRequest {
 			return request
 		}
 	}
 
 	// Check the first page
-	page, err := client.Users(ctx, opt(codersdk.UsersRequest{
-		Pagination: codersdk.Pagination{
+	page, err := client.Users(ctx, opt(wirtualsdk.UsersRequest{
+		Pagination: wirtualsdk.Pagination{
 			Limit: limit,
 		},
 	}))
@@ -2208,8 +2208,8 @@ func assertPagination(ctx context.Context, t *testing.T, client *codersdk.Client
 		// Assert each page is the next expected page
 		// This is using a cursor, and only works if all users created_at
 		// is unique.
-		page, err = client.Users(ctx, opt(codersdk.UsersRequest{
-			Pagination: codersdk.Pagination{
+		page, err = client.Users(ctx, opt(wirtualsdk.UsersRequest{
+			Pagination: wirtualsdk.Pagination{
 				Limit:   limit,
 				AfterID: afterCursor,
 			},
@@ -2217,8 +2217,8 @@ func assertPagination(ctx context.Context, t *testing.T, client *codersdk.Client
 		require.NoError(t, err, "next cursor page")
 
 		// Also check page by offset
-		offsetPage, err := client.Users(ctx, opt(codersdk.UsersRequest{
-			Pagination: codersdk.Pagination{
+		offsetPage, err := client.Users(ctx, opt(wirtualsdk.UsersRequest{
+			Pagination: wirtualsdk.Pagination{
 				Limit:  limit,
 				Offset: count,
 			},
@@ -2235,8 +2235,8 @@ func assertPagination(ctx context.Context, t *testing.T, client *codersdk.Client
 		require.Equalf(t, onlyUsernames(offsetPage.Users), onlyUsernames(expected), "offset users, offset=%d, limit=%d", count, limit)
 
 		// Also check the before
-		prevPage, err := client.Users(ctx, opt(codersdk.UsersRequest{
-			Pagination: codersdk.Pagination{
+		prevPage, err := client.Users(ctx, opt(wirtualsdk.UsersRequest{
+			Pagination: wirtualsdk.Pagination{
 				Offset: count - limit,
 				Limit:  limit,
 			},
@@ -2248,8 +2248,8 @@ func assertPagination(ctx context.Context, t *testing.T, client *codersdk.Client
 }
 
 // sortUsers sorts by (created_at, id)
-func sortUsers(users []codersdk.User) {
-	slices.SortFunc(users, func(a, b codersdk.User) int {
+func sortUsers(users []wirtualsdk.User) {
+	slices.SortFunc(users, func(a, b wirtualsdk.User) int {
 		return slice.Ascending(strings.ToLower(a.Username), strings.ToLower(b.Username))
 	})
 }
@@ -2260,11 +2260,11 @@ func sortDatabaseUsers(users []database.User) {
 	})
 }
 
-func onlyUsernames[U codersdk.User | database.User](users []U) []string {
+func onlyUsernames[U wirtualsdk.User | database.User](users []U) []string {
 	var out []string
 	for _, u := range users {
 		switch u := (any(u)).(type) {
-		case codersdk.User:
+		case wirtualsdk.User:
 			out = append(out, u.Username)
 		case database.User:
 			out = append(out, u.Username)
@@ -2283,7 +2283,7 @@ func BenchmarkUsersMe(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, err := client.User(ctx, codersdk.Me)
+		_, err := client.User(ctx, wirtualsdk.Me)
 		require.NoError(b, err)
 	}
 }

@@ -29,13 +29,13 @@ func TestAuditLogs(t *testing.T) {
 		client := coderdtest.New(t, nil)
 		user := coderdtest.CreateFirstUser(t, client)
 
-		err := client.CreateTestAuditLog(ctx, codersdk.CreateTestAuditLogRequest{
+		err := client.CreateTestAuditLog(ctx, wirtualsdk.CreateTestAuditLogRequest{
 			ResourceID: user.UserID,
 		})
 		require.NoError(t, err)
 
-		alogs, err := client.AuditLogs(ctx, codersdk.AuditLogsRequest{
-			Pagination: codersdk.Pagination{
+		alogs, err := client.AuditLogs(ctx, wirtualsdk.AuditLogsRequest{
+			Pagination: wirtualsdk.Pagination{
 				Limit: 1,
 			},
 		})
@@ -53,13 +53,13 @@ func TestAuditLogs(t *testing.T) {
 		user := coderdtest.CreateFirstUser(t, client)
 		client2, user2 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleOwner())
 
-		err := client2.CreateTestAuditLog(ctx, codersdk.CreateTestAuditLogRequest{
+		err := client2.CreateTestAuditLog(ctx, wirtualsdk.CreateTestAuditLogRequest{
 			ResourceID: user2.ID,
 		})
 		require.NoError(t, err)
 
-		alogs, err := client.AuditLogs(ctx, codersdk.AuditLogsRequest{
-			Pagination: codersdk.Pagination{
+		alogs, err := client.AuditLogs(ctx, wirtualsdk.AuditLogsRequest{
+			Pagination: wirtualsdk.Pagination{
 				Limit: 1,
 			},
 		})
@@ -79,8 +79,8 @@ func TestAuditLogs(t *testing.T) {
 		err = client.DeleteUser(ctx, user2.ID)
 		require.NoError(t, err)
 
-		alogs, err = client.AuditLogs(ctx, codersdk.AuditLogsRequest{
-			Pagination: codersdk.Pagination{
+		alogs, err = client.AuditLogs(ctx, wirtualsdk.AuditLogsRequest{
+			Pagination: wirtualsdk.Pagination{
 				Limit: 1,
 			},
 		})
@@ -118,16 +118,16 @@ func TestAuditLogs(t *testing.T) {
 		wriBytes, err := json.Marshal(buildResourceInfo)
 		require.NoError(t, err)
 
-		err = client.CreateTestAuditLog(ctx, codersdk.CreateTestAuditLogRequest{
-			Action:           codersdk.AuditActionStop,
-			ResourceType:     codersdk.ResourceTypeWorkspaceBuild,
+		err = client.CreateTestAuditLog(ctx, wirtualsdk.CreateTestAuditLogRequest{
+			Action:           wirtualsdk.AuditActionStop,
+			ResourceType:     wirtualsdk.ResourceTypeWorkspaceBuild,
 			ResourceID:       workspace.LatestBuild.ID,
 			AdditionalFields: wriBytes,
 		})
 		require.NoError(t, err)
 
-		auditLogs, err := client.AuditLogs(ctx, codersdk.AuditLogsRequest{
-			Pagination: codersdk.Pagination{
+		auditLogs, err := client.AuditLogs(ctx, wirtualsdk.AuditLogsRequest{
+			Pagination: wirtualsdk.Pagination{
 				Limit: 1,
 			},
 		})
@@ -150,22 +150,22 @@ func TestAuditLogs(t *testing.T) {
 		owner := coderdtest.CreateFirstUser(t, client)
 		orgAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.ScopedRoleOrgAdmin(owner.OrganizationID))
 
-		err := client.CreateTestAuditLog(ctx, codersdk.CreateTestAuditLogRequest{
+		err := client.CreateTestAuditLog(ctx, wirtualsdk.CreateTestAuditLogRequest{
 			ResourceID:     owner.UserID,
 			OrganizationID: owner.OrganizationID,
 		})
 		require.NoError(t, err)
 
 		// Add an extra audit log in another organization
-		err = client.CreateTestAuditLog(ctx, codersdk.CreateTestAuditLogRequest{
+		err = client.CreateTestAuditLog(ctx, wirtualsdk.CreateTestAuditLogRequest{
 			ResourceID: owner.UserID,
 		})
 		require.NoError(t, err)
 
 		// Fetching audit logs without an organization selector should only
 		// return organization audit logs the org admin is an admin of.
-		alogs, err := orgAdmin.AuditLogs(ctx, codersdk.AuditLogsRequest{
-			Pagination: codersdk.Pagination{
+		alogs, err := orgAdmin.AuditLogs(ctx, wirtualsdk.AuditLogsRequest{
+			Pagination: wirtualsdk.Pagination{
 				Limit: 5,
 			},
 		})
@@ -173,9 +173,9 @@ func TestAuditLogs(t *testing.T) {
 		require.Len(t, alogs.AuditLogs, 1)
 
 		// Using the organization selector allows the org admin to fetch audit logs
-		alogs, err = orgAdmin.AuditLogs(ctx, codersdk.AuditLogsRequest{
+		alogs, err = orgAdmin.AuditLogs(ctx, wirtualsdk.AuditLogsRequest{
 			SearchQuery: fmt.Sprintf("organization:%s", owner.OrganizationID.String()),
-			Pagination: codersdk.Pagination{
+			Pagination: wirtualsdk.Pagination{
 				Limit: 5,
 			},
 		})
@@ -186,9 +186,9 @@ func TestAuditLogs(t *testing.T) {
 		organization, err := orgAdmin.Organization(ctx, owner.OrganizationID)
 		require.NoError(t, err)
 
-		alogs, err = orgAdmin.AuditLogs(ctx, codersdk.AuditLogsRequest{
+		alogs, err = orgAdmin.AuditLogs(ctx, wirtualsdk.AuditLogsRequest{
 			SearchQuery: fmt.Sprintf("organization:%s", organization.Name),
-			Pagination: codersdk.Pagination{
+			Pagination: wirtualsdk.Pagination{
 				Limit: 5,
 			},
 		})
@@ -209,9 +209,9 @@ func TestAuditLogs(t *testing.T) {
 		owner := coderdtest.CreateFirstUser(t, client)
 		orgAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.ScopedRoleOrgAdmin(owner.OrganizationID))
 
-		_, err := orgAdmin.AuditLogs(ctx, codersdk.AuditLogsRequest{
+		_, err := orgAdmin.AuditLogs(ctx, wirtualsdk.AuditLogsRequest{
 			SearchQuery: fmt.Sprintf("organization:%s", "random-name"),
-			Pagination: codersdk.Pagination{
+			Pagination: wirtualsdk.Pagination{
 				Limit: 5,
 			},
 		})
@@ -237,43 +237,43 @@ func TestAuditLogsFilter(t *testing.T) {
 		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
 
 		// Create two logs with "Create"
-		err := client.CreateTestAuditLog(ctx, codersdk.CreateTestAuditLogRequest{
-			Action:       codersdk.AuditActionCreate,
-			ResourceType: codersdk.ResourceTypeTemplate,
+		err := client.CreateTestAuditLog(ctx, wirtualsdk.CreateTestAuditLogRequest{
+			Action:       wirtualsdk.AuditActionCreate,
+			ResourceType: wirtualsdk.ResourceTypeTemplate,
 			ResourceID:   template.ID,
 			Time:         time.Date(2022, 8, 15, 14, 30, 45, 100, time.UTC), // 2022-8-15 14:30:45
 		})
 		require.NoError(t, err)
-		err = client.CreateTestAuditLog(ctx, codersdk.CreateTestAuditLogRequest{
-			Action:       codersdk.AuditActionCreate,
-			ResourceType: codersdk.ResourceTypeUser,
+		err = client.CreateTestAuditLog(ctx, wirtualsdk.CreateTestAuditLogRequest{
+			Action:       wirtualsdk.AuditActionCreate,
+			ResourceType: wirtualsdk.ResourceTypeUser,
 			ResourceID:   user.UserID,
 			Time:         time.Date(2022, 8, 16, 14, 30, 45, 100, time.UTC), // 2022-8-16 14:30:45
 		})
 		require.NoError(t, err)
 
 		// Create one log with "Delete"
-		err = client.CreateTestAuditLog(ctx, codersdk.CreateTestAuditLogRequest{
-			Action:       codersdk.AuditActionDelete,
-			ResourceType: codersdk.ResourceTypeUser,
+		err = client.CreateTestAuditLog(ctx, wirtualsdk.CreateTestAuditLogRequest{
+			Action:       wirtualsdk.AuditActionDelete,
+			ResourceType: wirtualsdk.ResourceTypeUser,
 			ResourceID:   user.UserID,
 			Time:         time.Date(2022, 8, 15, 14, 30, 45, 100, time.UTC), // 2022-8-15 14:30:45
 		})
 		require.NoError(t, err)
 
 		// Create one log with "Start"
-		err = client.CreateTestAuditLog(ctx, codersdk.CreateTestAuditLogRequest{
-			Action:       codersdk.AuditActionStart,
-			ResourceType: codersdk.ResourceTypeWorkspaceBuild,
+		err = client.CreateTestAuditLog(ctx, wirtualsdk.CreateTestAuditLogRequest{
+			Action:       wirtualsdk.AuditActionStart,
+			ResourceType: wirtualsdk.ResourceTypeWorkspaceBuild,
 			ResourceID:   workspace.LatestBuild.ID,
 			Time:         time.Date(2022, 8, 15, 14, 30, 45, 100, time.UTC), // 2022-8-15 14:30:45
 		})
 		require.NoError(t, err)
 
 		// Create one log with "Stop"
-		err = client.CreateTestAuditLog(ctx, codersdk.CreateTestAuditLogRequest{
-			Action:       codersdk.AuditActionStop,
-			ResourceType: codersdk.ResourceTypeWorkspaceBuild,
+		err = client.CreateTestAuditLog(ctx, wirtualsdk.CreateTestAuditLogRequest{
+			Action:       wirtualsdk.AuditActionStop,
+			ResourceType: wirtualsdk.ResourceTypeWorkspaceBuild,
 			ResourceID:   workspace.LatestBuild.ID,
 			Time:         time.Date(2022, 8, 15, 14, 30, 45, 100, time.UTC), // 2022-8-15 14:30:45
 		})
@@ -373,7 +373,7 @@ func TestAuditLogsFilter(t *testing.T) {
 			// Test filtering
 			t.Run(testCase.Name, func(t *testing.T) {
 				t.Parallel()
-				auditLogs, err := client.AuditLogs(ctx, codersdk.AuditLogsRequest{
+				auditLogs, err := client.AuditLogs(ctx, wirtualsdk.AuditLogsRequest{
 					SearchQuery: testCase.SearchQuery,
 				})
 				if testCase.ExpectedError {

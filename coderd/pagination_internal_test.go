@@ -24,7 +24,7 @@ func TestPagination(t *testing.T) {
 		Offset  string
 
 		ExpectedError  string
-		ExpectedParams codersdk.Pagination
+		ExpectedParams wirtualsdk.Pagination
 	}{
 		{
 			Name:          "BadAfterID",
@@ -78,7 +78,7 @@ func TestPagination(t *testing.T) {
 			AfterID: "d6c1c331-bfc8-44ef-a0d2-d2294be6195a",
 			Offset:  "100",
 			Limit:   "50",
-			ExpectedParams: codersdk.Pagination{
+			ExpectedParams: wirtualsdk.Pagination{
 				AfterID: uuid.MustParse("d6c1c331-bfc8-44ef-a0d2-d2294be6195a"),
 				Limit:   50,
 				Offset:  100,
@@ -87,7 +87,7 @@ func TestPagination(t *testing.T) {
 		{
 			Name:  "ValidLimit",
 			Limit: "50",
-			ExpectedParams: codersdk.Pagination{
+			ExpectedParams: wirtualsdk.Pagination{
 				AfterID: uuid.Nil,
 				Limit:   50,
 			},
@@ -95,7 +95,7 @@ func TestPagination(t *testing.T) {
 		{
 			Name:   "ValidOffset",
 			Offset: "150",
-			ExpectedParams: codersdk.Pagination{
+			ExpectedParams: wirtualsdk.Pagination{
 				AfterID: uuid.Nil,
 				Offset:  150,
 			},
@@ -103,7 +103,7 @@ func TestPagination(t *testing.T) {
 		{
 			Name:    "ValidAfterID",
 			AfterID: "5f2005fc-acc4-4e5e-a7fa-be017359c60b",
-			ExpectedParams: codersdk.Pagination{
+			ExpectedParams: wirtualsdk.Pagination{
 				AfterID: uuid.MustParse("5f2005fc-acc4-4e5e-a7fa-be017359c60b"),
 			},
 		},
@@ -131,7 +131,7 @@ func TestPagination(t *testing.T) {
 			} else {
 				require.False(t, ok, "expect !ok")
 				require.Equal(t, http.StatusBadRequest, rw.Code, "bad request status code")
-				var apiError codersdk.Error
+				var apiError wirtualsdk.Error
 				err := json.NewDecoder(rw.Body).Decode(&apiError)
 				require.NoError(t, err, "decode response")
 				require.Contains(t, apiError.Message, c.ExpectedError, "expected error")

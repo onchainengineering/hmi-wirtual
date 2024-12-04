@@ -214,7 +214,7 @@ func TestWorkspaceLatestBuildTotals(t *testing.T) {
 		Name     string
 		Database func() database.Store
 		Total    int
-		Status   map[codersdk.ProvisionerJobStatus]int
+		Status   map[wirtualsdk.ProvisionerJobStatus]int
 	}{{
 		Name: "None",
 		Database: func() database.Store {
@@ -235,11 +235,11 @@ func TestWorkspaceLatestBuildTotals(t *testing.T) {
 			return db
 		},
 		Total: 7,
-		Status: map[codersdk.ProvisionerJobStatus]int{
-			codersdk.ProvisionerJobCanceled:  1,
-			codersdk.ProvisionerJobFailed:    2,
-			codersdk.ProvisionerJobSucceeded: 3,
-			codersdk.ProvisionerJobRunning:   1,
+		Status: map[wirtualsdk.ProvisionerJobStatus]int{
+			wirtualsdk.ProvisionerJobCanceled:  1,
+			wirtualsdk.ProvisionerJobFailed:    2,
+			wirtualsdk.ProvisionerJobSucceeded: 3,
+			wirtualsdk.ProvisionerJobRunning:   1,
 		},
 	}} {
 		tc := tc
@@ -260,7 +260,7 @@ func TestWorkspaceLatestBuildTotals(t *testing.T) {
 					}
 
 					for _, metric := range m.Metric {
-						count, ok := tc.Status[codersdk.ProvisionerJobStatus(metric.Label[0].GetValue())]
+						count, ok := tc.Status[wirtualsdk.ProvisionerJobStatus(metric.Label[0].GetValue())]
 						if metric.Gauge.GetValue() == 0 {
 							continue
 						}
@@ -287,7 +287,7 @@ func TestWorkspaceLatestBuildStatuses(t *testing.T) {
 		Name               string
 		Database           func() database.Store
 		ExpectedWorkspaces int
-		ExpectedStatuses   map[codersdk.ProvisionerJobStatus]int
+		ExpectedStatuses   map[wirtualsdk.ProvisionerJobStatus]int
 	}{{
 		Name: "None",
 		Database: func() database.Store {
@@ -309,11 +309,11 @@ func TestWorkspaceLatestBuildStatuses(t *testing.T) {
 			return db
 		},
 		ExpectedWorkspaces: 7,
-		ExpectedStatuses: map[codersdk.ProvisionerJobStatus]int{
-			codersdk.ProvisionerJobCanceled:  1,
-			codersdk.ProvisionerJobFailed:    2,
-			codersdk.ProvisionerJobSucceeded: 3,
-			codersdk.ProvisionerJobRunning:   1,
+		ExpectedStatuses: map[wirtualsdk.ProvisionerJobStatus]int{
+			wirtualsdk.ProvisionerJobCanceled:  1,
+			wirtualsdk.ProvisionerJobFailed:    2,
+			wirtualsdk.ProvisionerJobSucceeded: 3,
+			wirtualsdk.ProvisionerJobRunning:   1,
 		},
 	}} {
 		tc := tc
@@ -328,7 +328,7 @@ func TestWorkspaceLatestBuildStatuses(t *testing.T) {
 				metrics, err := registry.Gather()
 				assert.NoError(t, err)
 
-				stMap := map[codersdk.ProvisionerJobStatus]int{}
+				stMap := map[wirtualsdk.ProvisionerJobStatus]int{}
 				for _, m := range metrics {
 					if m.GetName() != "coderd_workspace_latest_build_status" {
 						continue
@@ -341,7 +341,7 @@ func TestWorkspaceLatestBuildStatuses(t *testing.T) {
 							}
 
 							if l.GetName() == "status" {
-								status := codersdk.ProvisionerJobStatus(l.GetValue())
+								status := wirtualsdk.ProvisionerJobStatus(l.GetValue())
 								stMap[status] += int(metric.Gauge.GetValue())
 							}
 						}
@@ -616,35 +616,35 @@ func TestAgentStats(t *testing.T) {
 func TestExperimentsMetric(t *testing.T) {
 	t.Parallel()
 
-	if len(codersdk.ExperimentsAll) == 0 {
+	if len(wirtualsdk.ExperimentsAll) == 0 {
 		t.Skip("No experiments are currently defined; skipping test.")
 	}
 
 	tests := []struct {
 		name        string
-		experiments codersdk.Experiments
-		expected    map[codersdk.Experiment]float64
+		experiments wirtualsdk.Experiments
+		expected    map[wirtualsdk.Experiment]float64
 	}{
 		{
 			name: "Enabled experiment is exported in metrics",
-			experiments: codersdk.Experiments{
-				codersdk.ExperimentsAll[0],
+			experiments: wirtualsdk.Experiments{
+				wirtualsdk.ExperimentsAll[0],
 			},
-			expected: map[codersdk.Experiment]float64{
-				codersdk.ExperimentsAll[0]: 1,
+			expected: map[wirtualsdk.Experiment]float64{
+				wirtualsdk.ExperimentsAll[0]: 1,
 			},
 		},
 		{
 			name:        "Disabled experiment is exported in metrics",
-			experiments: codersdk.Experiments{},
-			expected: map[codersdk.Experiment]float64{
-				codersdk.ExperimentsAll[0]: 0,
+			experiments: wirtualsdk.Experiments{},
+			expected: map[wirtualsdk.Experiment]float64{
+				wirtualsdk.ExperimentsAll[0]: 0,
 			},
 		},
 		{
 			name:        "Unknown experiment is not exported in metrics",
-			experiments: codersdk.Experiments{codersdk.Experiment("bob")},
-			expected:    map[codersdk.Experiment]float64{},
+			experiments: wirtualsdk.Experiments{wirtualsdk.Experiment("bob")},
+			expected:    map[wirtualsdk.Experiment]float64{},
 		},
 	}
 
@@ -661,7 +661,7 @@ func TestExperimentsMetric(t *testing.T) {
 			require.NoError(t, err)
 			require.Lenf(t, out, 1, "unexpected number of registered metrics")
 
-			seen := make(map[codersdk.Experiment]float64)
+			seen := make(map[wirtualsdk.Experiment]float64)
 
 			for _, metric := range out[0].GetMetric() {
 				require.Equal(t, "coderd_experiments", out[0].GetName())
@@ -669,7 +669,7 @@ func TestExperimentsMetric(t *testing.T) {
 				labels := metric.GetLabel()
 				require.Lenf(t, labels, 1, "unexpected number of labels")
 
-				experiment := codersdk.Experiment(labels[0].GetValue())
+				experiment := wirtualsdk.Experiment(labels[0].GetValue())
 				value := metric.GetGauge().GetValue()
 
 				seen[experiment] = value
@@ -687,7 +687,7 @@ func TestExperimentsMetric(t *testing.T) {
 				require.EqualValuesf(t, expectedValue, value, "expected %d value for experiment %q", expectedValue, experiment)
 			}
 
-			// We don't want to define the state of all experiments because codersdk.ExperimentAll will change at some
+			// We don't want to define the state of all experiments because wirtualsdk.ExperimentAll will change at some
 			// point and break these tests; so we only validate the experiments we know about.
 			for exp, val := range seen {
 				expectedVal, found := tc.expected[exp]
@@ -701,7 +701,7 @@ func TestExperimentsMetric(t *testing.T) {
 	}
 }
 
-func prepareWorkspaceAndAgent(ctx context.Context, t *testing.T, client *codersdk.Client, user codersdk.CreateFirstUserResponse, workspaceNum int) agentproto.DRPCAgentClient {
+func prepareWorkspaceAndAgent(ctx context.Context, t *testing.T, client *wirtualsdk.Client, user wirtualsdk.CreateFirstUserResponse, workspaceNum int) agentproto.DRPCAgentClient {
 	authToken := uuid.NewString()
 
 	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
@@ -711,7 +711,7 @@ func prepareWorkspaceAndAgent(ctx context.Context, t *testing.T, client *codersd
 	})
 	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
+	workspace := coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 		cwr.Name = fmt.Sprintf("workspace-%d", workspaceNum)
 	})
 	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)

@@ -223,7 +223,7 @@ func New(ctx context.Context, options *Options) (_ *API, err error) {
 		})
 		r.Route("/workspaceproxies", func(r chi.Router) {
 			r.Use(
-				api.RequireFeatureMW(codersdk.FeatureWorkspaceProxy),
+				api.RequireFeatureMW(wirtualsdk.FeatureWorkspaceProxy),
 			)
 			r.Group(func(r chi.Router) {
 				r.Use(
@@ -261,7 +261,7 @@ func New(ctx context.Context, options *Options) (_ *API, err error) {
 		r.Group(func(r chi.Router) {
 			r.Use(
 				apiKeyMiddleware,
-				api.RequireFeatureMW(codersdk.FeatureMultipleOrganizations),
+				api.RequireFeatureMW(wirtualsdk.FeatureMultipleOrganizations),
 			)
 			r.Post("/organizations", api.postOrganizations)
 		})
@@ -269,7 +269,7 @@ func New(ctx context.Context, options *Options) (_ *API, err error) {
 		r.Group(func(r chi.Router) {
 			r.Use(
 				apiKeyMiddleware,
-				api.RequireFeatureMW(codersdk.FeatureMultipleOrganizations),
+				api.RequireFeatureMW(wirtualsdk.FeatureMultipleOrganizations),
 				httpmw.ExtractOrganizationParam(api.Database),
 			)
 			r.Patch("/organizations/{organization}", api.patchOrganization)
@@ -279,7 +279,7 @@ func New(ctx context.Context, options *Options) (_ *API, err error) {
 		r.Group(func(r chi.Router) {
 			r.Use(
 				apiKeyMiddleware,
-				api.RequireFeatureMW(codersdk.FeatureCustomRoles),
+				api.RequireFeatureMW(wirtualsdk.FeatureCustomRoles),
 				httpmw.ExtractOrganizationParam(api.Database),
 			)
 			r.Post("/organizations/{organization}/members/roles", api.postOrgRoles)
@@ -356,7 +356,7 @@ func New(ctx context.Context, options *Options) (_ *API, err error) {
 			r.Use(
 				apiKeyMiddleware,
 				httpmw.ExtractOrganizationParam(api.Database),
-				api.RequireFeatureMW(codersdk.FeatureExternalProvisionerDaemons),
+				api.RequireFeatureMW(wirtualsdk.FeatureExternalProvisionerDaemons),
 			)
 			r.Get("/", api.provisionerKeys)
 			r.Post("/", api.postProvisionerKey)
@@ -479,7 +479,7 @@ func New(ctx context.Context, options *Options) (_ *API, err error) {
 	if len(options.SCIMAPIKey) != 0 {
 		api.AGPL.RootHandler.Route("/scim/v2", func(r chi.Router) {
 			r.Use(
-				api.RequireFeatureMW(codersdk.FeatureSCIM),
+				api.RequireFeatureMW(wirtualsdk.FeatureSCIM),
 			)
 			r.Get("/ServiceProviderConfig", api.scimServiceProviderConfig)
 			r.Post("/Users", api.scimPostUser)
@@ -491,7 +491,7 @@ func New(ctx context.Context, options *Options) (_ *API, err error) {
 			})
 			r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 				u := r.URL.String()
-				httpapi.Write(r.Context(), w, http.StatusNotFound, codersdk.Response{
+				httpapi.Write(r.Context(), w, http.StatusNotFound, wirtualsdk.Response{
 					Message: fmt.Sprintf("SCIM endpoint %s not found", u),
 					Detail:  "This endpoint is not implemented. If it is correct and required, please contact support.",
 				})
@@ -504,7 +504,7 @@ func New(ctx context.Context, options *Options) (_ *API, err error) {
 		// the issue.
 		// Using Mount to cover all subroute possibilities.
 		api.AGPL.RootHandler.Mount("/scim/v2", http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			httpapi.Write(r.Context(), w, http.StatusNotFound, codersdk.Response{
+			httpapi.Write(r.Context(), w, http.StatusNotFound, wirtualsdk.Response{
 				Message: "SCIM is disabled, please contact your administrator if you believe this is an error",
 				Detail:  "SCIM endpoints are disabled if no SCIM is configured. Configure 'WIRTUAL_SCIM_AUTH_HEADER' to enable.",
 			})
@@ -657,7 +657,7 @@ func (api *API) Close() error {
 }
 
 func (api *API) updateEntitlements(ctx context.Context) error {
-	return api.Entitlements.Update(ctx, func(ctx context.Context) (codersdk.Entitlements, error) {
+	return api.Entitlements.Update(ctx, func(ctx context.Context) (wirtualsdk.Entitlements, error) {
 		replicas := api.replicaManager.AllPrimary()
 		agedReplicas := make([]database.Replica, 0, len(replicas))
 		for _, replica := range replicas {
@@ -675,30 +675,30 @@ func (api *API) updateEntitlements(ctx context.Context) error {
 
 		reloadedEntitlements, err := license.Entitlements(
 			ctx, api.Database,
-			len(agedReplicas), len(api.ExternalAuthConfigs), api.LicenseKeys, map[codersdk.FeatureName]bool{
-				codersdk.FeatureAuditLog:                   api.AuditLogging,
-				codersdk.FeatureBrowserOnly:                api.BrowserOnly,
-				codersdk.FeatureSCIM:                       len(api.SCIMAPIKey) != 0,
-				codersdk.FeatureMultipleExternalAuth:       len(api.ExternalAuthConfigs) > 1,
-				codersdk.FeatureTemplateRBAC:               api.RBAC,
-				codersdk.FeatureExternalTokenEncryption:    len(api.ExternalTokenEncryption) > 0,
-				codersdk.FeatureExternalProvisionerDaemons: true,
-				codersdk.FeatureAdvancedTemplateScheduling: true,
-				codersdk.FeatureWorkspaceProxy:             true,
-				codersdk.FeatureUserRoleManagement:         true,
-				codersdk.FeatureAccessControl:              true,
-				codersdk.FeatureControlSharedPorts:         true,
+			len(agedReplicas), len(api.ExternalAuthConfigs), api.LicenseKeys, map[wirtualsdk.FeatureName]bool{
+				wirtualsdk.FeatureAuditLog:                   api.AuditLogging,
+				wirtualsdk.FeatureBrowserOnly:                api.BrowserOnly,
+				wirtualsdk.FeatureSCIM:                       len(api.SCIMAPIKey) != 0,
+				wirtualsdk.FeatureMultipleExternalAuth:       len(api.ExternalAuthConfigs) > 1,
+				wirtualsdk.FeatureTemplateRBAC:               api.RBAC,
+				wirtualsdk.FeatureExternalTokenEncryption:    len(api.ExternalTokenEncryption) > 0,
+				wirtualsdk.FeatureExternalProvisionerDaemons: true,
+				wirtualsdk.FeatureAdvancedTemplateScheduling: true,
+				wirtualsdk.FeatureWorkspaceProxy:             true,
+				wirtualsdk.FeatureUserRoleManagement:         true,
+				wirtualsdk.FeatureAccessControl:              true,
+				wirtualsdk.FeatureControlSharedPorts:         true,
 			})
 		if err != nil {
-			return codersdk.Entitlements{}, err
+			return wirtualsdk.Entitlements{}, err
 		}
 
 		if reloadedEntitlements.RequireTelemetry && !api.DeploymentValues.Telemetry.Enable.Value() {
 			api.Logger.Error(ctx, "license requires telemetry enabled")
-			return codersdk.Entitlements{}, entitlements.ErrLicenseRequiresTelemetry
+			return wirtualsdk.Entitlements{}, entitlements.ErrLicenseRequiresTelemetry
 		}
 
-		featureChanged := func(featureName codersdk.FeatureName) (initial, changed, enabled bool) {
+		featureChanged := func(featureName wirtualsdk.FeatureName) (initial, changed, enabled bool) {
 			return api.Entitlements.FeatureChanged(featureName, reloadedEntitlements.Features[featureName])
 		}
 
@@ -707,7 +707,7 @@ func (api *API) updateEntitlements(ctx context.Context) error {
 			return changed || (initial && enabled)
 		}
 
-		if initial, changed, enabled := featureChanged(codersdk.FeatureAuditLog); shouldUpdate(initial, changed, enabled) {
+		if initial, changed, enabled := featureChanged(wirtualsdk.FeatureAuditLog); shouldUpdate(initial, changed, enabled) {
 			auditor := agplaudit.NewNop()
 			if enabled {
 				auditor = api.AGPL.Options.Auditor
@@ -715,7 +715,7 @@ func (api *API) updateEntitlements(ctx context.Context) error {
 			api.AGPL.Auditor.Store(&auditor)
 		}
 
-		if initial, changed, enabled := featureChanged(codersdk.FeatureBrowserOnly); shouldUpdate(initial, changed, enabled) {
+		if initial, changed, enabled := featureChanged(wirtualsdk.FeatureBrowserOnly); shouldUpdate(initial, changed, enabled) {
 			var handler func(rw http.ResponseWriter) bool
 			if enabled {
 				handler = api.shouldBlockNonBrowserConnections
@@ -723,7 +723,7 @@ func (api *API) updateEntitlements(ctx context.Context) error {
 			api.AGPL.WorkspaceClientCoordinateOverride.Store(&handler)
 		}
 
-		if initial, changed, enabled := featureChanged(codersdk.FeatureTemplateRBAC); shouldUpdate(initial, changed, enabled) {
+		if initial, changed, enabled := featureChanged(wirtualsdk.FeatureTemplateRBAC); shouldUpdate(initial, changed, enabled) {
 			if enabled {
 				committer := committer{
 					Log:      api.Logger.Named("quota_committer"),
@@ -736,7 +736,7 @@ func (api *API) updateEntitlements(ctx context.Context) error {
 			}
 		}
 
-		if initial, changed, enabled := featureChanged(codersdk.FeatureAdvancedTemplateScheduling); shouldUpdate(initial, changed, enabled) {
+		if initial, changed, enabled := featureChanged(wirtualsdk.FeatureAdvancedTemplateScheduling); shouldUpdate(initial, changed, enabled) {
 			if enabled {
 				templateStore := schedule.NewEnterpriseTemplateScheduleStore(api.AGPL.UserQuietHoursScheduleStore, api.NotificationsEnqueuer, api.Logger.Named("template.schedule-store"))
 				templateStoreInterface := agplschedule.TemplateScheduleStore(templateStore)
@@ -760,7 +760,7 @@ func (api *API) updateEntitlements(ctx context.Context) error {
 			}
 		}
 
-		if initial, changed, enabled := featureChanged(codersdk.FeatureHighAvailability); shouldUpdate(initial, changed, enabled) {
+		if initial, changed, enabled := featureChanged(wirtualsdk.FeatureHighAvailability); shouldUpdate(initial, changed, enabled) {
 			var coordinator agpltailnet.Coordinator
 			// If HA is enabled, but the database is in-memory, we can't actually
 			// run HA and the PG coordinator. So throw a log line, and continue to use
@@ -815,7 +815,7 @@ func (api *API) updateEntitlements(ctx context.Context) error {
 			}
 		}
 
-		if initial, changed, enabled := featureChanged(codersdk.FeatureWorkspaceProxy); shouldUpdate(initial, changed, enabled) {
+		if initial, changed, enabled := featureChanged(wirtualsdk.FeatureWorkspaceProxy); shouldUpdate(initial, changed, enabled) {
 			if enabled {
 				fn := derpMapper(api.Logger, api.ProxyHealth)
 				api.AGPL.DERPMapper.Store(&fn)
@@ -824,7 +824,7 @@ func (api *API) updateEntitlements(ctx context.Context) error {
 			}
 		}
 
-		if initial, changed, enabled := featureChanged(codersdk.FeatureAccessControl); shouldUpdate(initial, changed, enabled) {
+		if initial, changed, enabled := featureChanged(wirtualsdk.FeatureAccessControl); shouldUpdate(initial, changed, enabled) {
 			var acs agpldbauthz.AccessControlStore = agpldbauthz.AGPLTemplateAccessControlStore{}
 			if enabled {
 				acs = dbauthz.EnterpriseTemplateAccessControlStore{}
@@ -832,7 +832,7 @@ func (api *API) updateEntitlements(ctx context.Context) error {
 			api.AGPL.AccessControlStore.Store(&acs)
 		}
 
-		if initial, changed, enabled := featureChanged(codersdk.FeatureAppearance); shouldUpdate(initial, changed, enabled) {
+		if initial, changed, enabled := featureChanged(wirtualsdk.FeatureAppearance); shouldUpdate(initial, changed, enabled) {
 			if enabled {
 				f := newAppearanceFetcher(
 					api.Database,
@@ -847,7 +847,7 @@ func (api *API) updateEntitlements(ctx context.Context) error {
 			}
 		}
 
-		if initial, changed, enabled := featureChanged(codersdk.FeatureControlSharedPorts); shouldUpdate(initial, changed, enabled) {
+		if initial, changed, enabled := featureChanged(wirtualsdk.FeatureControlSharedPorts); shouldUpdate(initial, changed, enabled) {
 			var ps agplportsharing.PortSharer = agplportsharing.DefaultPortSharer
 			if enabled {
 				ps = portsharing.NewEnterprisePortSharer()
@@ -856,14 +856,14 @@ func (api *API) updateEntitlements(ctx context.Context) error {
 		}
 
 		// External token encryption is soft-enforced
-		featureExternalTokenEncryption := reloadedEntitlements.Features[codersdk.FeatureExternalTokenEncryption]
+		featureExternalTokenEncryption := reloadedEntitlements.Features[wirtualsdk.FeatureExternalTokenEncryption]
 		featureExternalTokenEncryption.Enabled = len(api.ExternalTokenEncryption) > 0
-		if featureExternalTokenEncryption.Enabled && featureExternalTokenEncryption.Entitlement != codersdk.EntitlementEntitled {
-			msg := fmt.Sprintf("%s is enabled (due to setting external token encryption keys) but your license is not entitled to this feature.", codersdk.FeatureExternalTokenEncryption.Humanize())
+		if featureExternalTokenEncryption.Enabled && featureExternalTokenEncryption.Entitlement != wirtualsdk.EntitlementEntitled {
+			msg := fmt.Sprintf("%s is enabled (due to setting external token encryption keys) but your license is not entitled to this feature.", wirtualsdk.FeatureExternalTokenEncryption.Humanize())
 			api.Logger.Warn(ctx, msg)
 			reloadedEntitlements.Warnings = append(reloadedEntitlements.Warnings, msg)
 		}
-		reloadedEntitlements.Features[codersdk.FeatureExternalTokenEncryption] = featureExternalTokenEncryption
+		reloadedEntitlements.Features[wirtualsdk.FeatureExternalTokenEncryption] = featureExternalTokenEncryption
 		return reloadedEntitlements, nil
 	})
 }

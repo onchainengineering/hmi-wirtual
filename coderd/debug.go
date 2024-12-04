@@ -90,14 +90,14 @@ func (api *API) debugDeploymentHealth(rw http.ResponseWriter, r *http.Request) {
 
 	select {
 	case <-ctx.Done():
-		httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 			Message: "Healthcheck is in progress and did not complete in time. Try again in a few seconds.",
 		})
 		return
 	case res := <-resChan:
 		report := res.Val
 		if report == nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "There was an unknown error completing the healthcheck.",
 				Detail:  "nil report from healthcheck result channel",
 			})
@@ -142,7 +142,7 @@ func formatHealthcheck(ctx context.Context, rw http.ResponseWriter, r *http.Requ
 		httpapi.WriteIndent(ctx, rw, http.StatusOK, hc)
 
 	default:
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: fmt.Sprintf("Invalid format option %q.", format),
 			Detail:  "Allowed values are: \"json\", \"simple\".",
 		})
@@ -159,7 +159,7 @@ func formatHealthcheck(ctx context.Context, rw http.ResponseWriter, r *http.Requ
 func (api *API) deploymentHealthSettings(rw http.ResponseWriter, r *http.Request) {
 	settingsJSON, err := api.Database.GetHealthSettings(r.Context())
 	if err != nil {
-		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to fetch health settings.",
 			Detail:  err.Error(),
 		})
@@ -169,7 +169,7 @@ func (api *API) deploymentHealthSettings(rw http.ResponseWriter, r *http.Request
 	var settings healthsdk.HealthSettings
 	err = json.Unmarshal([]byte(settingsJSON), &settings)
 	if err != nil {
-		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to unmarshal health settings.",
 			Detail:  err.Error(),
 		})
@@ -196,7 +196,7 @@ func (api *API) putDeploymentHealthSettings(rw http.ResponseWriter, r *http.Requ
 	ctx := r.Context()
 
 	if !api.Authorize(r, policy.ActionUpdate, rbac.ResourceDeploymentConfig) {
-		httpapi.Write(ctx, rw, http.StatusForbidden, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusForbidden, wirtualsdk.Response{
 			Message: "Insufficient permissions to update health settings.",
 		})
 		return
@@ -209,7 +209,7 @@ func (api *API) putDeploymentHealthSettings(rw http.ResponseWriter, r *http.Requ
 
 	err := validateHealthSettings(settings)
 	if err != nil {
-		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to validate health settings.",
 			Detail:  err.Error(),
 		})
@@ -218,7 +218,7 @@ func (api *API) putDeploymentHealthSettings(rw http.ResponseWriter, r *http.Requ
 
 	settingsJSON, err := json.Marshal(&settings)
 	if err != nil {
-		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to marshal health settings.",
 			Detail:  err.Error(),
 		})
@@ -227,7 +227,7 @@ func (api *API) putDeploymentHealthSettings(rw http.ResponseWriter, r *http.Requ
 
 	currentSettingsJSON, err := api.Database.GetHealthSettings(r.Context())
 	if err != nil {
-		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to fetch current health settings.",
 			Detail:  err.Error(),
 		})
@@ -256,7 +256,7 @@ func (api *API) putDeploymentHealthSettings(rw http.ResponseWriter, r *http.Requ
 
 	err = api.Database.UpsertHealthSettings(ctx, string(settingsJSON))
 	if err != nil {
-		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to update health settings.",
 			Detail:  err.Error(),
 		})

@@ -61,17 +61,17 @@ func (api *API) regions(rw http.ResponseWriter, r *http.Request) {
 	httpapi.Write(r.Context(), rw, http.StatusOK, regions)
 }
 
-func (api *API) fetchRegions(ctx context.Context) (codersdk.RegionsResponse[codersdk.Region], error) {
+func (api *API) fetchRegions(ctx context.Context) (wirtualsdk.RegionsResponse[wirtualsdk.Region], error) {
 	//nolint:gocritic // this intentionally requests resources that users
 	// cannot usually access in order to give them a full list of available
 	// regions. Regions are just a data subset of proxies.
 	ctx = dbauthz.AsSystemRestricted(ctx)
 	proxies, err := api.fetchWorkspaceProxies(ctx)
 	if err != nil {
-		return codersdk.RegionsResponse[codersdk.Region]{}, err
+		return wirtualsdk.RegionsResponse[wirtualsdk.Region]{}, err
 	}
 
-	regions := make([]codersdk.Region, 0, len(proxies.Regions))
+	regions := make([]wirtualsdk.Region, 0, len(proxies.Regions))
 	for i := range proxies.Regions {
 		// Ignore deleted and DERP-only proxies.
 		if proxies.Regions[i].Deleted || proxies.Regions[i].DerpOnly {
@@ -81,7 +81,7 @@ func (api *API) fetchRegions(ctx context.Context) (codersdk.RegionsResponse[code
 		regions = append(regions, proxies.Regions[i].Region)
 	}
 
-	return codersdk.RegionsResponse[codersdk.Region]{
+	return wirtualsdk.RegionsResponse[wirtualsdk.Region]{
 		Regions: regions,
 	}, nil
 }
@@ -111,7 +111,7 @@ func (api *API) patchWorkspaceProxy(rw http.ResponseWriter, r *http.Request) {
 	aReq.Old = proxy
 	defer commitAudit()
 
-	var req codersdk.PatchWorkspaceProxy
+	var req wirtualsdk.PatchWorkspaceProxy
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
@@ -166,7 +166,7 @@ func (api *API) patchWorkspaceProxy(rw http.ResponseWriter, r *http.Request) {
 		// The proxy should have some status, but just in case.
 		status.Status = proxyhealth.Unknown
 	}
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.UpdateWorkspaceProxyResponse{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.UpdateWorkspaceProxyResponse{
 		Proxy:      convertProxy(updatedProxy, status),
 		ProxyToken: fullToken,
 	})
@@ -176,7 +176,7 @@ func (api *API) patchWorkspaceProxy(rw http.ResponseWriter, r *http.Request) {
 }
 
 // patchPrimaryWorkspaceProxy handles the special case of updating the default
-func (api *API) patchPrimaryWorkspaceProxy(req codersdk.PatchWorkspaceProxy, rw http.ResponseWriter, r *http.Request) (database.WorkspaceProxy, bool) {
+func (api *API) patchPrimaryWorkspaceProxy(req wirtualsdk.PatchWorkspaceProxy, rw http.ResponseWriter, r *http.Request) (database.WorkspaceProxy, bool) {
 	var (
 		ctx   = r.Context()
 		proxy = httpmw.WorkspaceProxyParam(r)
@@ -184,18 +184,18 @@ func (api *API) patchPrimaryWorkspaceProxy(req codersdk.PatchWorkspaceProxy, rw 
 
 	// User is editing the default primary proxy.
 	if req.Name != "" && req.Name != proxy.Name {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Cannot update name of default primary proxy, did you mean to update the 'display name'?",
-			Validations: []codersdk.ValidationError{
+			Validations: []wirtualsdk.ValidationError{
 				{Field: "name", Detail: "Cannot update name of default primary proxy"},
 			},
 		})
 		return database.WorkspaceProxy{}, false
 	}
 	if req.DisplayName == "" && req.Icon == "" {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "No update arguments provided. Nothing to do.",
-			Validations: []codersdk.ValidationError{
+			Validations: []wirtualsdk.ValidationError{
 				{Field: "display_name", Detail: "No value provided."},
 				{Field: "icon", Detail: "No value provided."},
 			},
@@ -261,7 +261,7 @@ func (api *API) deleteWorkspaceProxy(rw http.ResponseWriter, r *http.Request) {
 	defer commitAudit()
 
 	if proxy.IsPrimary() {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Cannot delete primary proxy",
 		})
 		return
@@ -281,7 +281,7 @@ func (api *API) deleteWorkspaceProxy(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	aReq.New = database.WorkspaceProxy{}
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.Response{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.Response{
 		Message: "Proxy has been deleted!",
 	})
 
@@ -328,16 +328,16 @@ func (api *API) postWorkspaceProxy(rw http.ResponseWriter, r *http.Request) {
 	)
 	defer commitAudit()
 
-	var req codersdk.CreateWorkspaceProxyRequest
+	var req wirtualsdk.CreateWorkspaceProxyRequest
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
 
 	if strings.ToLower(req.Name) == "primary" {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: `The name "primary" is reserved for the primary region.`,
 			Detail:  "Cannot name a workspace proxy 'primary'.",
-			Validations: []codersdk.ValidationError{
+			Validations: []wirtualsdk.ValidationError{
 				{
 					Field:  "name",
 					Detail: "Reserved name",
@@ -369,7 +369,7 @@ func (api *API) postWorkspaceProxy(rw http.ResponseWriter, r *http.Request) {
 		UpdatedAt: dbtime.Now(),
 	})
 	if database.IsUniqueViolation(err, database.UniqueWorkspaceProxiesLowerNameIndex) {
-		httpapi.Write(ctx, rw, http.StatusConflict, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusConflict, wirtualsdk.Response{
 			Message: fmt.Sprintf("Workspace proxy with name %q already exists.", req.Name),
 		})
 		return
@@ -384,7 +384,7 @@ func (api *API) postWorkspaceProxy(rw http.ResponseWriter, r *http.Request) {
 	})
 
 	aReq.New = proxy
-	httpapi.Write(ctx, rw, http.StatusCreated, codersdk.UpdateWorkspaceProxyResponse{
+	httpapi.Write(ctx, rw, http.StatusCreated, wirtualsdk.UpdateWorkspaceProxyResponse{
 		Proxy: convertProxy(proxy, proxyhealth.ProxyStatus{
 			Proxy:     proxy,
 			CheckedAt: time.Now(),
@@ -417,14 +417,14 @@ func validateProxyURL(u string) error {
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Enterprise
-// @Success 200 {array} wirtualsdk.RegionsResponse[codersdk.WorkspaceProxy]
+// @Success 200 {array} wirtualsdk.RegionsResponse[wirtualsdk.WorkspaceProxy]
 // @Router /workspaceproxies [get]
 func (api *API) workspaceProxies(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	proxies, err := api.fetchWorkspaceProxies(r.Context())
 	if err != nil {
 		if dbauthz.IsNotAuthorizedError(err) {
-			httpapi.Write(ctx, rw, http.StatusForbidden, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusForbidden, wirtualsdk.Response{
 				Message: "You are not authorized to use this endpoint.",
 			})
 			return
@@ -435,21 +435,21 @@ func (api *API) workspaceProxies(rw http.ResponseWriter, r *http.Request) {
 	httpapi.Write(ctx, rw, http.StatusOK, proxies)
 }
 
-func (api *API) fetchWorkspaceProxies(ctx context.Context) (codersdk.RegionsResponse[codersdk.WorkspaceProxy], error) {
+func (api *API) fetchWorkspaceProxies(ctx context.Context) (wirtualsdk.RegionsResponse[wirtualsdk.WorkspaceProxy], error) {
 	proxies, err := api.Database.GetWorkspaceProxies(ctx)
 	if err != nil && !xerrors.Is(err, sql.ErrNoRows) {
-		return codersdk.RegionsResponse[codersdk.WorkspaceProxy]{}, err
+		return wirtualsdk.RegionsResponse[wirtualsdk.WorkspaceProxy]{}, err
 	}
 
 	// Add the primary as well
 	primaryProxy, err := api.AGPL.PrimaryWorkspaceProxy(ctx)
 	if err != nil && !xerrors.Is(err, sql.ErrNoRows) {
-		return codersdk.RegionsResponse[codersdk.WorkspaceProxy]{}, err
+		return wirtualsdk.RegionsResponse[wirtualsdk.WorkspaceProxy]{}, err
 	}
 	proxies = append([]database.WorkspaceProxy{primaryProxy}, proxies...)
 
 	statues := api.ProxyHealth.HealthStatus()
-	return codersdk.RegionsResponse[codersdk.WorkspaceProxy]{
+	return wirtualsdk.RegionsResponse[wirtualsdk.WorkspaceProxy]{
 		Regions: convertProxies(proxies, statues),
 	}, nil
 }
@@ -489,7 +489,7 @@ func (api *API) workspaceProxyIssueSignedAppToken(rw http.ResponseWriter, r *htt
 		httpapi.InternalServerError(rw, xerrors.Errorf("[DEV ERROR] new request: %w", err))
 		return
 	}
-	userReq.Header.Set(codersdk.SessionTokenHeader, req.SessionToken)
+	userReq.Header.Set(wirtualsdk.SessionTokenHeader, req.SessionToken)
 
 	// Exchange the token.
 	token, tokenStr, ok := api.AGPL.WorkspaceAppsProvider.Issue(ctx, rw, userReq, req)
@@ -573,7 +573,7 @@ func (api *API) workspaceProxyRegister(rw http.ResponseWriter, r *http.Request) 
 	// healthcheck warnings.
 
 	if err := validateProxyURL(req.AccessURL); err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "URL is invalid.",
 			Detail:  err.Error(),
 		})
@@ -582,7 +582,7 @@ func (api *API) workspaceProxyRegister(rw http.ResponseWriter, r *http.Request) 
 
 	if req.WildcardHostname != "" {
 		if _, err := appurl.CompileHostnamePattern(req.WildcardHostname); err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Wildcard URL is invalid.",
 				Detail:  err.Error(),
 			})
@@ -591,14 +591,14 @@ func (api *API) workspaceProxyRegister(rw http.ResponseWriter, r *http.Request) 
 	}
 
 	if req.ReplicaID == uuid.Nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Replica ID is invalid.",
 		})
 		return
 	}
 
 	if req.DerpOnly && !req.DerpEnabled {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "DerpOnly cannot be true when DerpEnabled is false.",
 		})
 		return
@@ -699,7 +699,7 @@ func (api *API) workspaceProxyRegister(rw http.ResponseWriter, r *http.Request) 
 
 	// Find sibling regions to respond with for derpmesh.
 	siblings := api.replicaManager.InRegion(regionID)
-	siblingsRes := make([]codersdk.Replica, 0, len(siblings))
+	siblingsRes := make([]wirtualsdk.Replica, 0, len(siblings))
 	for _, replica := range siblings {
 		if replica.ID == req.ReplicaID {
 			continue
@@ -737,14 +737,14 @@ func (api *API) workspaceProxyCryptoKeys(rw http.ResponseWriter, r *http.Request
 
 	feature := database.CryptoKeyFeature(r.URL.Query().Get("feature"))
 	if feature == "" {
-		httpapi.Write(r.Context(), rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Missing feature query parameter.",
 		})
 		return
 	}
 
 	if !slices.Contains(whitelistedCryptoKeyFeatures, feature) {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: fmt.Sprintf("Invalid feature: %q", feature),
 		})
 		return
@@ -855,7 +855,7 @@ func (api *API) reconnectingPTYSignedToken(rw http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	var req codersdk.IssueReconnectingPTYSignedTokenRequest
+	var req wirtualsdk.IssueReconnectingPTYSignedTokenRequest
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
@@ -865,7 +865,7 @@ func (api *API) reconnectingPTYSignedToken(rw http.ResponseWriter, r *http.Reque
 		err = xerrors.Errorf("invalid URL scheme %q, expected 'ws' or 'wss'", u.Scheme)
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Invalid URL.",
 			Detail:  err.Error(),
 		})
@@ -875,7 +875,7 @@ func (api *API) reconnectingPTYSignedToken(rw http.ResponseWriter, r *http.Reque
 	// Assert the URL is a valid reconnecting-pty URL.
 	expectedPath := fmt.Sprintf("/api/v2/workspaceagents/%s/pty", req.AgentID.String())
 	if u.Path != expectedPath {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Invalid URL path.",
 			Detail:  "The provided URL is not a valid reconnecting PTY endpoint URL.",
 		})
@@ -891,14 +891,14 @@ func (api *API) reconnectingPTYSignedToken(rw http.ResponseWriter, r *http.Reque
 		AllowProxyWildcard:    false,
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to verify hostname in URL.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 	if scheme == "" {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Invalid hostname in URL.",
 			Detail:  "The hostname must be the primary wildcard app hostname, a workspace proxy access URL or a workspace proxy wildcard app hostname.",
 		})
@@ -925,7 +925,7 @@ func (api *API) reconnectingPTYSignedToken(rw http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.IssueReconnectingPTYSignedTokenResponse{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.IssueReconnectingPTYSignedTokenResponse{
 		SignedToken: tokenStr,
 	})
 }
@@ -940,16 +940,16 @@ func generateWorkspaceProxyToken(id uuid.UUID) (token string, hashed []byte, err
 	return fullToken, hashedSecret[:], nil
 }
 
-func convertProxies(p []database.WorkspaceProxy, statuses map[uuid.UUID]proxyhealth.ProxyStatus) []codersdk.WorkspaceProxy {
-	resp := make([]codersdk.WorkspaceProxy, 0, len(p))
+func convertProxies(p []database.WorkspaceProxy, statuses map[uuid.UUID]proxyhealth.ProxyStatus) []wirtualsdk.WorkspaceProxy {
+	resp := make([]wirtualsdk.WorkspaceProxy, 0, len(p))
 	for _, proxy := range p {
 		resp = append(resp, convertProxy(proxy, statuses[proxy.ID]))
 	}
 	return resp
 }
 
-func convertRegion(proxy database.WorkspaceProxy, status proxyhealth.ProxyStatus) codersdk.Region {
-	return codersdk.Region{
+func convertRegion(proxy database.WorkspaceProxy, status proxyhealth.ProxyStatus) wirtualsdk.Region {
+	return wirtualsdk.Region{
 		ID:               proxy.ID,
 		Name:             proxy.Name,
 		DisplayName:      proxy.DisplayName,
@@ -960,7 +960,7 @@ func convertRegion(proxy database.WorkspaceProxy, status proxyhealth.ProxyStatus
 	}
 }
 
-func convertProxy(p database.WorkspaceProxy, status proxyhealth.ProxyStatus) codersdk.WorkspaceProxy {
+func convertProxy(p database.WorkspaceProxy, status proxyhealth.ProxyStatus) wirtualsdk.WorkspaceProxy {
 	now := dbtime.Now()
 	if p.IsPrimary() {
 		// Primary is always healthy since the primary serves the api that this
@@ -970,7 +970,7 @@ func convertProxy(p database.WorkspaceProxy, status proxyhealth.ProxyStatus) cod
 			Proxy:     p,
 			ProxyHost: u.Host,
 			Status:    proxyhealth.Healthy,
-			Report:    codersdk.ProxyHealthReport{},
+			Report:    wirtualsdk.ProxyHealthReport{},
 			CheckedAt: now,
 		}
 		// For primary, created at / updated at are always 'now'
@@ -986,7 +986,7 @@ func convertProxy(p database.WorkspaceProxy, status proxyhealth.ProxyStatus) cod
 	if status.Report.Warnings == nil {
 		status.Report.Warnings = make([]string, 0)
 	}
-	return codersdk.WorkspaceProxy{
+	return wirtualsdk.WorkspaceProxy{
 		Region:      convertRegion(p, status),
 		DerpEnabled: p.DerpEnabled,
 		DerpOnly:    p.DerpOnly,
@@ -994,8 +994,8 @@ func convertProxy(p database.WorkspaceProxy, status proxyhealth.ProxyStatus) cod
 		UpdatedAt:   p.UpdatedAt,
 		Deleted:     p.Deleted,
 		Version:     p.Version,
-		Status: codersdk.WorkspaceProxyStatus{
-			Status:    codersdk.ProxyHealthStatus(status.Status),
+		Status: wirtualsdk.WorkspaceProxyStatus{
+			Status:    wirtualsdk.ProxyHealthStatus(status.Status),
 			Report:    status.Report,
 			CheckedAt: status.CheckedAt,
 		},
@@ -1005,11 +1005,11 @@ func convertProxy(p database.WorkspaceProxy, status proxyhealth.ProxyStatus) cod
 // workspaceProxiesFetchUpdater implements healthcheck.WorkspaceProxyFetchUpdater
 // in an actually useful and meaningful way.
 type workspaceProxiesFetchUpdater struct {
-	fetchFunc  func(context.Context) (codersdk.RegionsResponse[codersdk.WorkspaceProxy], error)
+	fetchFunc  func(context.Context) (wirtualsdk.RegionsResponse[wirtualsdk.WorkspaceProxy], error)
 	updateFunc func(context.Context) error
 }
 
-func (w *workspaceProxiesFetchUpdater) Fetch(ctx context.Context) (codersdk.RegionsResponse[codersdk.WorkspaceProxy], error) {
+func (w *workspaceProxiesFetchUpdater) Fetch(ctx context.Context) (wirtualsdk.RegionsResponse[wirtualsdk.WorkspaceProxy], error) {
 	//nolint:gocritic // Need perms to read all workspace proxies.
 	authCtx := dbauthz.AsSystemRestricted(ctx)
 	return w.fetchFunc(authCtx)

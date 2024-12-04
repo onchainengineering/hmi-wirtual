@@ -121,7 +121,7 @@ func TestPostWorkspaceAuthGoogleInstanceIdentity(t *testing.T) {
 			SDK: client,
 		}
 		_, err := agentClient.AuthGoogleInstanceIdentity(ctx, "", metadata)
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusUnauthorized, apiErr.StatusCode())
 	})
@@ -141,7 +141,7 @@ func TestPostWorkspaceAuthGoogleInstanceIdentity(t *testing.T) {
 			SDK: client,
 		}
 		_, err := agentClient.AuthGoogleInstanceIdentity(ctx, "", metadata)
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusNotFound, apiErr.StatusCode())
 	})

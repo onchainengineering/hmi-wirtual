@@ -18,15 +18,15 @@ const TimeFormatHHMM = "15:04"
 
 func (api *API) autostopRequirementEnabledMW(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-		feature, ok := api.Entitlements.Feature(codersdk.FeatureAdvancedTemplateScheduling)
+		feature, ok := api.Entitlements.Feature(wirtualsdk.FeatureAdvancedTemplateScheduling)
 		if !ok || !feature.Entitlement.Entitled() {
-			httpapi.Write(r.Context(), rw, http.StatusForbidden, codersdk.Response{
+			httpapi.Write(r.Context(), rw, http.StatusForbidden, wirtualsdk.Response{
 				Message: "Advanced template scheduling (and user quiet hours schedule) is an Enterprise feature. Contact sales!",
 			})
 			return
 		}
 		if !feature.Enabled {
-			httpapi.Write(r.Context(), rw, http.StatusForbidden, codersdk.Response{
+			httpapi.Write(r.Context(), rw, http.StatusForbidden, wirtualsdk.Response{
 				Message: "Advanced template scheduling (and user quiet hours schedule) is not enabled.",
 			})
 			return
@@ -60,7 +60,7 @@ func (api *API) userQuietHoursSchedule(rw http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.UserQuietHoursScheduleResponse{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.UserQuietHoursScheduleResponse{
 		RawSchedule: opts.Schedule.String(),
 		UserSet:     opts.UserSet,
 		UserCanSet:  opts.UserCanSet,
@@ -84,7 +84,7 @@ func (api *API) putUserQuietHoursSchedule(rw http.ResponseWriter, r *http.Reques
 	var (
 		ctx               = r.Context()
 		user              = httpmw.UserParam(r)
-		params            codersdk.UpdateUserQuietHoursScheduleRequest
+		params            wirtualsdk.UpdateUserQuietHoursScheduleRequest
 		aReq, commitAudit = audit.InitRequest[database.User](rw, &audit.RequestParams{
 			Audit:   api.Auditor,
 			Log:     api.Logger,
@@ -101,7 +101,7 @@ func (api *API) putUserQuietHoursSchedule(rw http.ResponseWriter, r *http.Reques
 
 	opts, err := (*api.UserQuietHoursScheduleStore.Load()).Set(ctx, api.Database, user.ID, params.Schedule)
 	if xerrors.Is(err, schedule.ErrUserCannotSetQuietHoursSchedule) {
-		httpapi.Write(ctx, rw, http.StatusForbidden, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusForbidden, wirtualsdk.Response{
 			Message: "Users cannot set custom quiet hours schedule due to deployment configuration.",
 		})
 		return
@@ -112,7 +112,7 @@ func (api *API) putUserQuietHoursSchedule(rw http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.UserQuietHoursScheduleResponse{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.UserQuietHoursScheduleResponse{
 		RawSchedule: opts.Schedule.String(),
 		UserSet:     opts.UserSet,
 		UserCanSet:  opts.UserCanSet,

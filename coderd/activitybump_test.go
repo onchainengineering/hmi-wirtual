@@ -14,10 +14,9 @@ import (
 	"github.com/coder/coder/v2/coderd/database/dbtestutil"
 	"github.com/coder/coder/v2/coderd/database/dbtime"
 	"github.com/coder/coder/v2/coderd/schedule"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/testutil"
+	"
 )
 
 func TestWorkspaceActivityBump(t *testing.T) {
@@ -28,7 +27,7 @@ func TestWorkspaceActivityBump(t *testing.T) {
 	// deadline allows you to forcibly set a max_deadline on the build. This
 	// doesn't use template autostop requirements and instead edits the
 	// max_deadline on the build directly in the database.
-	setupActivityTest := func(t *testing.T, deadline ...time.Duration) (client *codersdk.Client, workspace codersdk.Workspace, assertBumped func(want bool)) {
+	setupActivityTest := func(t *testing.T, deadline ...time.Duration) (client *wirtualsdk.Client, workspace wirtualsdk.Workspace, assertBumped func(want bool)) {
 		t.Helper()
 		const ttl = time.Hour
 
@@ -62,7 +61,7 @@ func TestWorkspaceActivityBump(t *testing.T) {
 		})
 		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		workspace = coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
+		workspace = coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 			cwr.TTLMillis = &ttlMillis
 		})
 		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)

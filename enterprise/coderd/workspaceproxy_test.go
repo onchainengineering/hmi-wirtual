@@ -86,7 +86,7 @@ func TestRegions(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceProxy: 1,
+					wirtualsdk.FeatureWorkspaceProxy: 1,
 				},
 			},
 		})
@@ -191,7 +191,7 @@ func TestRegions(t *testing.T) {
 			},
 		})
 
-		unauthedClient := codersdk.New(client.URL)
+		unauthedClient := wirtualsdk.New(client.URL)
 		regions, err := unauthedClient.Regions(ctx)
 		require.Error(t, err)
 		require.Empty(t, regions)
@@ -207,12 +207,12 @@ func TestWorkspaceProxyCRUD(t *testing.T) {
 		client, _ := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceProxy: 1,
+					wirtualsdk.FeatureWorkspaceProxy: 1,
 				},
 			},
 		})
 		ctx := testutil.Context(t, testutil.WaitLong)
-		proxyRes, err := client.CreateWorkspaceProxy(ctx, codersdk.CreateWorkspaceProxyRequest{
+		proxyRes, err := client.CreateWorkspaceProxy(ctx, wirtualsdk.CreateWorkspaceProxyRequest{
 			Name: testutil.GetRandomName(t),
 			Icon: "/emojis/flag.png",
 		})
@@ -229,7 +229,7 @@ func TestWorkspaceProxyCRUD(t *testing.T) {
 		expName := testutil.GetRandomName(t)
 		expDisplayName := testutil.GetRandomName(t)
 		expIcon := testutil.GetRandomName(t)
-		_, err = client.PatchWorkspaceProxy(ctx, codersdk.PatchWorkspaceProxy{
+		_, err = client.PatchWorkspaceProxy(ctx, wirtualsdk.PatchWorkspaceProxy{
 			ID:          proxyRes.Proxy.ID,
 			Name:        expName,
 			DisplayName: expDisplayName,
@@ -250,12 +250,12 @@ func TestWorkspaceProxyCRUD(t *testing.T) {
 		client, _ := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceProxy: 1,
+					wirtualsdk.FeatureWorkspaceProxy: 1,
 				},
 			},
 		})
 		ctx := testutil.Context(t, testutil.WaitLong)
-		proxyRes, err := client.CreateWorkspaceProxy(ctx, codersdk.CreateWorkspaceProxyRequest{
+		proxyRes, err := client.CreateWorkspaceProxy(ctx, wirtualsdk.CreateWorkspaceProxyRequest{
 			Name: testutil.GetRandomName(t),
 			Icon: "/emojis/flag.png",
 		})
@@ -274,7 +274,7 @@ func TestWorkspaceProxyCRUD(t *testing.T) {
 func TestProxyRegisterDeregister(t *testing.T) {
 	t.Parallel()
 
-	setup := func(t *testing.T) (*codersdk.Client, database.Store) {
+	setup := func(t *testing.T) (*wirtualsdk.Client, database.Store) {
 		db, pubsub := dbtestutil.NewDB(t)
 		client, _ := coderdenttest.New(t, &coderdenttest.Options{
 			Options: &coderdtest.Options{
@@ -285,7 +285,7 @@ func TestProxyRegisterDeregister(t *testing.T) {
 			ReplicaSyncUpdateInterval: time.Minute,
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceProxy: 1,
+					wirtualsdk.FeatureWorkspaceProxy: 1,
 				},
 			},
 		})
@@ -304,7 +304,7 @@ func TestProxyRegisterDeregister(t *testing.T) {
 			proxyDisplayName = "Hello World"
 			proxyIcon        = "/emojis/flag.png"
 		)
-		createRes, err := client.CreateWorkspaceProxy(ctx, codersdk.CreateWorkspaceProxyRequest{
+		createRes, err := client.CreateWorkspaceProxy(ctx, wirtualsdk.CreateWorkspaceProxyRequest{
 			Name:        proxyName,
 			DisplayName: proxyDisplayName,
 			Icon:        proxyIcon,
@@ -421,7 +421,7 @@ func TestProxyRegisterDeregister(t *testing.T) {
 		client, db := setup(t)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		createRes, err := client.CreateWorkspaceProxy(ctx, codersdk.CreateWorkspaceProxyRequest{
+		createRes, err := client.CreateWorkspaceProxy(ctx, wirtualsdk.CreateWorkspaceProxyRequest{
 			Name: "hi",
 		})
 		require.NoError(t, err)
@@ -466,7 +466,7 @@ func TestProxyRegisterDeregister(t *testing.T) {
 		client, _ := setup(t)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		createRes, err := client.CreateWorkspaceProxy(ctx, codersdk.CreateWorkspaceProxyRequest{
+		createRes, err := client.CreateWorkspaceProxy(ctx, wirtualsdk.CreateWorkspaceProxyRequest{
 			Name: "hi",
 		})
 		require.NoError(t, err)
@@ -478,7 +478,7 @@ func TestProxyRegisterDeregister(t *testing.T) {
 			ReplicaID: uuid.New(),
 		})
 		require.Error(t, err)
-		var sdkErr *codersdk.Error
+		var sdkErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &sdkErr)
 		require.Equal(t, http.StatusNotFound, sdkErr.StatusCode())
 	})
@@ -489,11 +489,11 @@ func TestProxyRegisterDeregister(t *testing.T) {
 		client, _ := setup(t)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		createRes1, err := client.CreateWorkspaceProxy(ctx, codersdk.CreateWorkspaceProxyRequest{
+		createRes1, err := client.CreateWorkspaceProxy(ctx, wirtualsdk.CreateWorkspaceProxyRequest{
 			Name: "one",
 		})
 		require.NoError(t, err)
-		createRes2, err := client.CreateWorkspaceProxy(ctx, codersdk.CreateWorkspaceProxyRequest{
+		createRes2, err := client.CreateWorkspaceProxy(ctx, wirtualsdk.CreateWorkspaceProxyRequest{
 			Name: "two",
 		})
 		require.NoError(t, err)
@@ -568,7 +568,7 @@ func TestProxyRegisterDeregister(t *testing.T) {
 		client, _ := setup(t)
 		ctx := testutil.Context(t, testutil.WaitLong)
 
-		createRes, err := client.CreateWorkspaceProxy(ctx, codersdk.CreateWorkspaceProxyRequest{
+		createRes, err := client.CreateWorkspaceProxy(ctx, wirtualsdk.CreateWorkspaceProxyRequest{
 			Name: "proxy",
 		})
 		require.NoError(t, err)
@@ -621,7 +621,7 @@ func TestIssueSignedAppToken(t *testing.T) {
 		},
 		LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureWorkspaceProxy: 1,
+				wirtualsdk.FeatureWorkspaceProxy: 1,
 			},
 		},
 	})
@@ -643,7 +643,7 @@ func TestIssueSignedAppToken(t *testing.T) {
 	_ = coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 	createProxyCtx := testutil.Context(t, testutil.WaitLong)
-	proxyRes, err := client.CreateWorkspaceProxy(createProxyCtx, codersdk.CreateWorkspaceProxyRequest{
+	proxyRes, err := client.CreateWorkspaceProxy(createProxyCtx, wirtualsdk.CreateWorkspaceProxyRequest{
 		Name: testutil.GetRandomName(t),
 		Icon: "/emojis/flag.png",
 	})
@@ -711,7 +711,7 @@ func TestReconnectingPTYSignedToken(t *testing.T) {
 		},
 		LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureWorkspaceProxy: 1,
+				wirtualsdk.FeatureWorkspaceProxy: 1,
 			},
 		},
 	})
@@ -762,13 +762,13 @@ func TestReconnectingPTYSignedToken(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		res, err := client.IssueReconnectingPTYSignedToken(ctx, codersdk.IssueReconnectingPTYSignedTokenRequest{
+		res, err := client.IssueReconnectingPTYSignedToken(ctx, wirtualsdk.IssueReconnectingPTYSignedTokenRequest{
 			URL:     "",
 			AgentID: uuid.Nil,
 		})
 		require.Error(t, err)
 		require.Empty(t, res)
-		var sdkErr *codersdk.Error
+		var sdkErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &sdkErr)
 		require.Equal(t, http.StatusBadRequest, sdkErr.StatusCode())
 	})
@@ -777,13 +777,13 @@ func TestReconnectingPTYSignedToken(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		res, err := client.IssueReconnectingPTYSignedToken(ctx, codersdk.IssueReconnectingPTYSignedTokenRequest{
+		res, err := client.IssueReconnectingPTYSignedToken(ctx, wirtualsdk.IssueReconnectingPTYSignedTokenRequest{
 			URL:     ":",
 			AgentID: agentID,
 		})
 		require.Error(t, err)
 		require.Empty(t, res)
-		var sdkErr *codersdk.Error
+		var sdkErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &sdkErr)
 		require.Equal(t, http.StatusBadRequest, sdkErr.StatusCode())
 		require.Contains(t, sdkErr.Response.Message, "Invalid URL")
@@ -796,13 +796,13 @@ func TestReconnectingPTYSignedToken(t *testing.T) {
 		u.Scheme = "ftp"
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		res, err := client.IssueReconnectingPTYSignedToken(ctx, codersdk.IssueReconnectingPTYSignedTokenRequest{
+		res, err := client.IssueReconnectingPTYSignedToken(ctx, wirtualsdk.IssueReconnectingPTYSignedTokenRequest{
 			URL:     u.String(),
 			AgentID: agentID,
 		})
 		require.Error(t, err)
 		require.Empty(t, res)
-		var sdkErr *codersdk.Error
+		var sdkErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &sdkErr)
 		require.Equal(t, http.StatusBadRequest, sdkErr.StatusCode())
 		require.Contains(t, sdkErr.Response.Message, "Invalid URL")
@@ -816,13 +816,13 @@ func TestReconnectingPTYSignedToken(t *testing.T) {
 		u.Path = "/hello"
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		res, err := client.IssueReconnectingPTYSignedToken(ctx, codersdk.IssueReconnectingPTYSignedTokenRequest{
+		res, err := client.IssueReconnectingPTYSignedToken(ctx, wirtualsdk.IssueReconnectingPTYSignedTokenRequest{
 			URL:     u.String(),
 			AgentID: agentID,
 		})
 		require.Error(t, err)
 		require.Empty(t, res)
-		var sdkErr *codersdk.Error
+		var sdkErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &sdkErr)
 		require.Equal(t, http.StatusBadRequest, sdkErr.StatusCode())
 		require.Contains(t, sdkErr.Response.Message, "Invalid URL")
@@ -836,13 +836,13 @@ func TestReconnectingPTYSignedToken(t *testing.T) {
 		u.Host = "badhostname.com"
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		res, err := client.IssueReconnectingPTYSignedToken(ctx, codersdk.IssueReconnectingPTYSignedTokenRequest{
+		res, err := client.IssueReconnectingPTYSignedToken(ctx, wirtualsdk.IssueReconnectingPTYSignedTokenRequest{
 			URL:     u.String(),
 			AgentID: agentID,
 		})
 		require.Error(t, err)
 		require.Empty(t, res)
-		var sdkErr *codersdk.Error
+		var sdkErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &sdkErr)
 		require.Equal(t, http.StatusBadRequest, sdkErr.StatusCode())
 		require.Contains(t, sdkErr.Response.Message, "Invalid hostname in URL")
@@ -851,16 +851,16 @@ func TestReconnectingPTYSignedToken(t *testing.T) {
 	t.Run("NoToken", func(t *testing.T) {
 		t.Parallel()
 
-		unauthedClient := codersdk.New(client.URL)
+		unauthedClient := wirtualsdk.New(client.URL)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		res, err := unauthedClient.IssueReconnectingPTYSignedToken(ctx, codersdk.IssueReconnectingPTYSignedTokenRequest{
+		res, err := unauthedClient.IssueReconnectingPTYSignedToken(ctx, wirtualsdk.IssueReconnectingPTYSignedTokenRequest{
 			URL:     u.String(),
 			AgentID: agentID,
 		})
 		require.Error(t, err)
 		require.Empty(t, res)
-		var sdkErr *codersdk.Error
+		var sdkErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &sdkErr)
 		require.Equal(t, http.StatusUnauthorized, sdkErr.StatusCode())
 	})
@@ -871,13 +871,13 @@ func TestReconnectingPTYSignedToken(t *testing.T) {
 		userClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		res, err := userClient.IssueReconnectingPTYSignedToken(ctx, codersdk.IssueReconnectingPTYSignedTokenRequest{
+		res, err := userClient.IssueReconnectingPTYSignedToken(ctx, wirtualsdk.IssueReconnectingPTYSignedTokenRequest{
 			URL:     u.String(),
 			AgentID: agentID,
 		})
 		require.Error(t, err)
 		require.Empty(t, res)
-		var sdkErr *codersdk.Error
+		var sdkErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &sdkErr)
 		require.Equal(t, http.StatusNotFound, sdkErr.StatusCode())
 	})
@@ -886,7 +886,7 @@ func TestReconnectingPTYSignedToken(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		res, err := client.IssueReconnectingPTYSignedToken(ctx, codersdk.IssueReconnectingPTYSignedTokenRequest{
+		res, err := client.IssueReconnectingPTYSignedToken(ctx, wirtualsdk.IssueReconnectingPTYSignedTokenRequest{
 			URL:     u.String(),
 			AgentID: agentID,
 		})
@@ -914,7 +914,7 @@ func TestGetCryptoKeys(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceProxy: 1,
+					wirtualsdk.FeatureWorkspaceProxy: 1,
 				},
 			},
 		})
@@ -950,7 +950,7 @@ func TestGetCryptoKeys(t *testing.T) {
 			Name: testutil.GetRandomName(t),
 		})
 
-		keys, err := proxy.SDKClient.CryptoKeys(ctx, codersdk.CryptoKeyFeatureWorkspaceAppsAPIKey)
+		keys, err := proxy.SDKClient.CryptoKeys(ctx, wirtualsdk.CryptoKeyFeatureWorkspaceAppsAPIKey)
 		require.NoError(t, err)
 		require.NotEmpty(t, keys)
 		// 1 key is generated on startup, the other we manually generated.
@@ -958,7 +958,7 @@ func TestGetCryptoKeys(t *testing.T) {
 		requireContainsKeys(t, keys.CryptoKeys, encryptionKey)
 		requireNotContainsKeys(t, keys.CryptoKeys, signingKey)
 
-		keys, err = proxy.SDKClient.CryptoKeys(ctx, codersdk.CryptoKeyFeatureWorkspaceAppsToken)
+		keys, err = proxy.SDKClient.CryptoKeys(ctx, wirtualsdk.CryptoKeyFeatureWorkspaceAppsToken)
 		require.NoError(t, err)
 		require.NotEmpty(t, keys)
 		// 1 key is generated on startup, the other we manually generated.
@@ -980,7 +980,7 @@ func TestGetCryptoKeys(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceProxy: 1,
+					wirtualsdk.FeatureWorkspaceProxy: 1,
 				},
 			},
 		})
@@ -989,12 +989,12 @@ func TestGetCryptoKeys(t *testing.T) {
 			Name: testutil.GetRandomName(t),
 		})
 
-		_, err := proxy.SDKClient.CryptoKeys(ctx, codersdk.CryptoKeyFeatureOIDCConvert)
+		_, err := proxy.SDKClient.CryptoKeys(ctx, wirtualsdk.CryptoKeyFeatureOIDCConvert)
 		require.Error(t, err)
-		var sdkErr *codersdk.Error
+		var sdkErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &sdkErr)
 		require.Equal(t, http.StatusBadRequest, sdkErr.StatusCode())
-		_, err = proxy.SDKClient.CryptoKeys(ctx, codersdk.CryptoKeyFeatureTailnetResume)
+		_, err = proxy.SDKClient.CryptoKeys(ctx, wirtualsdk.CryptoKeyFeatureTailnetResume)
 		require.Error(t, err)
 		require.ErrorAs(t, err, &sdkErr)
 		require.Equal(t, http.StatusBadRequest, sdkErr.StatusCode())
@@ -1017,7 +1017,7 @@ func TestGetCryptoKeys(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceProxy: 1,
+					wirtualsdk.FeatureWorkspaceProxy: 1,
 				},
 			},
 		})
@@ -1029,15 +1029,15 @@ func TestGetCryptoKeys(t *testing.T) {
 		client := wsproxysdk.New(cclient.URL)
 		client.SetSessionToken(cclient.SessionToken())
 
-		_, err := client.CryptoKeys(ctx, codersdk.CryptoKeyFeatureWorkspaceAppsAPIKey)
+		_, err := client.CryptoKeys(ctx, wirtualsdk.CryptoKeyFeatureWorkspaceAppsAPIKey)
 		require.Error(t, err)
-		var sdkErr *codersdk.Error
+		var sdkErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &sdkErr)
 		require.Equal(t, http.StatusUnauthorized, sdkErr.StatusCode())
 	})
 }
 
-func requireNotContainsKeys(t *testing.T, keys []codersdk.CryptoKey, unexpected ...codersdk.CryptoKey) {
+func requireNotContainsKeys(t *testing.T, keys []wirtualsdk.CryptoKey, unexpected ...wirtualsdk.CryptoKey) {
 	t.Helper()
 
 	for _, unexpectedKey := range unexpected {
@@ -1049,7 +1049,7 @@ func requireNotContainsKeys(t *testing.T, keys []codersdk.CryptoKey, unexpected 
 	}
 }
 
-func requireContainsKeys(t *testing.T, keys []codersdk.CryptoKey, expected ...codersdk.CryptoKey) {
+func requireContainsKeys(t *testing.T, keys []wirtualsdk.CryptoKey, expected ...wirtualsdk.CryptoKey) {
 	t.Helper()
 
 	for _, expectedKey := range expected {

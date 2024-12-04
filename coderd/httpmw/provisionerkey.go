@@ -32,7 +32,7 @@ func ExtractProvisionerKeyParam(db database.Store) func(http.Handler) http.Handl
 
 			provisionerKeyQuery := chi.URLParam(r, "provisionerkey")
 			if provisionerKeyQuery == "" {
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "\"provisionerkey\" must be provided.",
 				})
 				return

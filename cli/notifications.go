@@ -37,7 +37,7 @@ func (r *RootCmd) notifications() *serpent.Command {
 }
 
 func (r *RootCmd) pauseNotifications() *serpent.Command {
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "pause",
 		Short: "Pause notifications",
@@ -46,7 +46,7 @@ func (r *RootCmd) pauseNotifications() *serpent.Command {
 			r.InitClient(client),
 		),
 		Handler: func(inv *serpent.Invocation) error {
-			err := client.PutNotificationsSettings(inv.Context(), codersdk.NotificationsSettings{
+			err := client.PutNotificationsSettings(inv.Context(), wirtualsdk.NotificationsSettings{
 				NotifierPaused: true,
 			})
 			if err != nil {
@@ -61,7 +61,7 @@ func (r *RootCmd) pauseNotifications() *serpent.Command {
 }
 
 func (r *RootCmd) resumeNotifications() *serpent.Command {
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "resume",
 		Short: "Resume notifications",
@@ -70,7 +70,7 @@ func (r *RootCmd) resumeNotifications() *serpent.Command {
 			r.InitClient(client),
 		),
 		Handler: func(inv *serpent.Invocation) error {
-			err := client.PutNotificationsSettings(inv.Context(), codersdk.NotificationsSettings{
+			err := client.PutNotificationsSettings(inv.Context(), wirtualsdk.NotificationsSettings{
 				NotifierPaused: false,
 			})
 			if err != nil {

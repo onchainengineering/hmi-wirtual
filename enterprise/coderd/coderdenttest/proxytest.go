@@ -27,7 +27,7 @@ import (
 
 type ProxyOptions struct {
 	Name        string
-	Experiments codersdk.Experiments
+	Experiments wirtualsdk.Experiments
 
 	TLSCertificates []tls.Certificate
 	AppHostname     string
@@ -45,7 +45,7 @@ type ProxyOptions struct {
 	Token string
 
 	// ReplicaPingCallback is optional.
-	ReplicaPingCallback func(replicas []codersdk.Replica, err string)
+	ReplicaPingCallback func(replicas []wirtualsdk.Replica, err string)
 
 	// FlushStats is optional
 	FlushStats chan chan<- struct{}
@@ -64,7 +64,7 @@ type WorkspaceProxy struct {
 // If a token is not provided, a new workspace proxy region is created using the
 // owner client. If a token is provided, the proxy will become a replica of the
 // existing proxy region.
-func NewWorkspaceProxyReplica(t *testing.T, coderdAPI *coderd.API, owner *codersdk.Client, options *ProxyOptions) WorkspaceProxy {
+func NewWorkspaceProxyReplica(t *testing.T, coderdAPI *coderd.API, owner *wirtualsdk.Client, options *ProxyOptions) WorkspaceProxy {
 	t.Helper()
 
 	ctx, cancelFunc := context.WithCancel(context.Background())
@@ -129,7 +129,7 @@ func NewWorkspaceProxyReplica(t *testing.T, coderdAPI *coderd.API, owner *coders
 
 	token := options.Token
 	if token == "" {
-		proxyRes, err := owner.CreateWorkspaceProxy(ctx, codersdk.CreateWorkspaceProxyRequest{
+		proxyRes, err := owner.CreateWorkspaceProxy(ctx, wirtualsdk.CreateWorkspaceProxyRequest{
 			Name: options.Name,
 			Icon: "/emojis/flag.png",
 		})

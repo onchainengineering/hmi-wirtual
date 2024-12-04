@@ -35,7 +35,7 @@ type WorkspaceResourcesOptions struct {
 // │ ├─ go (linux, amd64)         ⦿ connected           coder ssh dev.go        │
 // │ └─ postgres (linux, amd64)   ⦾ disconnected [4s]   coder ssh dev.postgres  │
 // └────────────────────────────────────────────────────────────────────────────┘
-func WorkspaceResources(writer io.Writer, resources []codersdk.WorkspaceResource, options WorkspaceResourcesOptions) error {
+func WorkspaceResources(writer io.Writer, resources []wirtualsdk.WorkspaceResource, options WorkspaceResourcesOptions) error {
 	// Sort resources by type for consistent output.
 	sort.Slice(resources, func(i, j int) bool {
 		return resources[i].Type < resources[j].Type
@@ -119,31 +119,31 @@ func WorkspaceResources(writer io.Writer, resources []codersdk.WorkspaceResource
 	return err
 }
 
-func renderAgentStatus(agent codersdk.WorkspaceAgent) string {
+func renderAgentStatus(agent wirtualsdk.WorkspaceAgent) string {
 	switch agent.Status {
-	case codersdk.WorkspaceAgentConnecting:
+	case wirtualsdk.WorkspaceAgentConnecting:
 		since := dbtime.Now().Sub(agent.CreatedAt)
 		return pretty.Sprint(DefaultStyles.Warn, "⦾ connecting") + " " +
 			pretty.Sprint(DefaultStyles.Placeholder, "["+strconv.Itoa(int(since.Seconds()))+"s]")
-	case codersdk.WorkspaceAgentDisconnected:
+	case wirtualsdk.WorkspaceAgentDisconnected:
 		since := dbtime.Now().Sub(*agent.DisconnectedAt)
 		return pretty.Sprint(DefaultStyles.Error, "⦾ disconnected") + " " +
 			pretty.Sprint(DefaultStyles.Placeholder, "["+strconv.Itoa(int(since.Seconds()))+"s]")
-	case codersdk.WorkspaceAgentTimeout:
+	case wirtualsdk.WorkspaceAgentTimeout:
 		since := dbtime.Now().Sub(agent.CreatedAt)
 		return fmt.Sprintf(
 			"%s %s",
 			pretty.Sprint(DefaultStyles.Warn, "⦾ timeout"),
 			pretty.Sprint(DefaultStyles.Placeholder, "["+strconv.Itoa(int(since.Seconds()))+"s]"),
 		)
-	case codersdk.WorkspaceAgentConnected:
+	case wirtualsdk.WorkspaceAgentConnected:
 		return pretty.Sprint(DefaultStyles.Keyword, "⦿ connected")
 	default:
 		return pretty.Sprint(DefaultStyles.Warn, "○ unknown")
 	}
 }
 
-func renderAgentHealth(agent codersdk.WorkspaceAgent) string {
+func renderAgentHealth(agent wirtualsdk.WorkspaceAgent) string {
 	if agent.Health.Healthy {
 		return pretty.Sprint(DefaultStyles.Keyword, "✔ healthy")
 	}

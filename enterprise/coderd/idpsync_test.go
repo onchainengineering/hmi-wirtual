@@ -28,8 +28,8 @@ func TestGetGroupSyncConfig(t *testing.T) {
 		owner, db, user := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureCustomRoles:           1,
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureCustomRoles:           1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -65,8 +65,8 @@ func TestGetGroupSyncConfig(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureCustomRoles:           1,
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureCustomRoles:           1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -91,8 +91,8 @@ func TestPostGroupSyncConfig(t *testing.T) {
 		owner, user := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureCustomRoles:           1,
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureCustomRoles:           1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -101,7 +101,7 @@ func TestPostGroupSyncConfig(t *testing.T) {
 
 		// Test as org admin
 		ctx := testutil.Context(t, testutil.WaitShort)
-		settings, err := orgAdmin.PatchGroupIDPSyncSettings(ctx, user.OrganizationID.String(), codersdk.GroupSyncSettings{
+		settings, err := orgAdmin.PatchGroupIDPSyncSettings(ctx, user.OrganizationID.String(), wirtualsdk.GroupSyncSettings{
 			Field: "august",
 		})
 		require.NoError(t, err)
@@ -118,8 +118,8 @@ func TestPostGroupSyncConfig(t *testing.T) {
 		owner, user := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureCustomRoles:           1,
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureCustomRoles:           1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -127,10 +127,10 @@ func TestPostGroupSyncConfig(t *testing.T) {
 		member, _ := coderdtest.CreateAnotherUser(t, owner, user.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitShort)
-		_, err := member.PatchGroupIDPSyncSettings(ctx, user.OrganizationID.String(), codersdk.GroupSyncSettings{
+		_, err := member.PatchGroupIDPSyncSettings(ctx, user.OrganizationID.String(), wirtualsdk.GroupSyncSettings{
 			Field: "august",
 		})
-		var apiError *codersdk.Error
+		var apiError *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiError)
 		require.Equal(t, http.StatusForbidden, apiError.StatusCode())
 
@@ -149,15 +149,15 @@ func TestGetRoleSyncConfig(t *testing.T) {
 		owner, _, _, user := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureCustomRoles:           1,
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureCustomRoles:           1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
 		orgAdmin, _ := coderdtest.CreateAnotherUser(t, owner, user.OrganizationID, rbac.ScopedRoleOrgAdmin(user.OrganizationID))
 
 		ctx := testutil.Context(t, testutil.WaitShort)
-		settings, err := orgAdmin.PatchRoleIDPSyncSettings(ctx, user.OrganizationID.String(), codersdk.RoleSyncSettings{
+		settings, err := orgAdmin.PatchRoleIDPSyncSettings(ctx, user.OrganizationID.String(), wirtualsdk.RoleSyncSettings{
 			Field: "august",
 			Mapping: map[string][]string{
 				"foo": {"bar"},
@@ -183,8 +183,8 @@ func TestPostRoleSyncConfig(t *testing.T) {
 		owner, user := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureCustomRoles:           1,
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureCustomRoles:           1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -193,7 +193,7 @@ func TestPostRoleSyncConfig(t *testing.T) {
 
 		// Test as org admin
 		ctx := testutil.Context(t, testutil.WaitShort)
-		settings, err := orgAdmin.PatchRoleIDPSyncSettings(ctx, user.OrganizationID.String(), codersdk.RoleSyncSettings{
+		settings, err := orgAdmin.PatchRoleIDPSyncSettings(ctx, user.OrganizationID.String(), wirtualsdk.RoleSyncSettings{
 			Field: "august",
 		})
 		require.NoError(t, err)
@@ -210,8 +210,8 @@ func TestPostRoleSyncConfig(t *testing.T) {
 		owner, user := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureCustomRoles:           1,
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureCustomRoles:           1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -219,10 +219,10 @@ func TestPostRoleSyncConfig(t *testing.T) {
 		member, _ := coderdtest.CreateAnotherUser(t, owner, user.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitShort)
-		_, err := member.PatchRoleIDPSyncSettings(ctx, user.OrganizationID.String(), codersdk.RoleSyncSettings{
+		_, err := member.PatchRoleIDPSyncSettings(ctx, user.OrganizationID.String(), wirtualsdk.RoleSyncSettings{
 			Field: "august",
 		})
-		var apiError *codersdk.Error
+		var apiError *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiError)
 		require.Equal(t, http.StatusForbidden, apiError.StatusCode())
 

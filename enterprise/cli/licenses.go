@@ -43,7 +43,7 @@ func (r *RootCmd) licenseAdd() *serpent.Command {
 		license  string
 		debug    bool
 	)
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "add [-f file | -l license]",
 		Short: "Add license to Coder deployment",
@@ -93,7 +93,7 @@ func (r *RootCmd) licenseAdd() *serpent.Command {
 
 			licResp, err := client.AddLicense(
 				inv.Context(),
-				codersdk.AddLicenseRequest{License: license},
+				wirtualsdk.AddLicenseRequest{License: license},
 			)
 			if err != nil {
 				return err
@@ -152,7 +152,7 @@ func (r *RootCmd) licensesList() *serpent.Command {
 		cliui.ChangeFormatterData(
 			cliui.TableFormat([]tableLicense{}, []string{"ID", "UUID", "Expires At", "Uploaded At", "Features"}),
 			func(data any) (any, error) {
-				list, ok := data.([]codersdk.License)
+				list, ok := data.([]wirtualsdk.License)
 				if !ok {
 					return nil, xerrors.Errorf("invalid data type %T", data)
 				}
@@ -192,14 +192,14 @@ func (r *RootCmd) licensesList() *serpent.Command {
 				return out, nil
 			}),
 		cliui.ChangeFormatterData(cliui.JSONFormat(), func(data any) (any, error) {
-			list, ok := data.([]codersdk.License)
+			list, ok := data.([]wirtualsdk.License)
 			if !ok {
 				return nil, xerrors.Errorf("invalid data type %T", data)
 			}
 			for i := range list {
 				humanExp, err := list[i].ExpiresAt()
 				if err == nil {
-					list[i].Claims[codersdk.LicenseExpiryClaim+"_human"] = humanExp.Format(time.RFC3339)
+					list[i].Claims[wirtualsdk.LicenseExpiryClaim+"_human"] = humanExp.Format(time.RFC3339)
 				}
 			}
 
@@ -207,7 +207,7 @@ func (r *RootCmd) licensesList() *serpent.Command {
 		}),
 	)
 
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:     "list",
 		Short:   "List licenses (including expired)",
@@ -223,7 +223,7 @@ func (r *RootCmd) licensesList() *serpent.Command {
 			}
 			// Ensure that we print "[]" instead of "null" when there are no licenses.
 			if licenses == nil {
-				licenses = make([]codersdk.License, 0)
+				licenses = make([]wirtualsdk.License, 0)
 			}
 
 			out, err := formatter.Format(inv.Context(), licenses)
@@ -240,7 +240,7 @@ func (r *RootCmd) licensesList() *serpent.Command {
 }
 
 func (r *RootCmd) licenseDelete() *serpent.Command {
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:     "delete <id>",
 		Short:   "Delete license by ID",

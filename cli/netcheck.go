@@ -16,7 +16,7 @@ import (
 )
 
 func (r *RootCmd) netcheck() *serpent.Command {
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 
 	cmd := &serpent.Command{
 		Use:   "netcheck",

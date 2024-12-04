@@ -81,14 +81,14 @@ func (api *API) postLicense(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var addLicense codersdk.AddLicenseRequest
+	var addLicense wirtualsdk.AddLicenseRequest
 	if !httpapi.Read(ctx, rw, r, &addLicense) {
 		return
 	}
 
 	claims, err := license.ParseClaimsIgnoreNbf(addLicense.License, api.LicenseKeys)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Invalid license",
 			Detail:  err.Error(),
 		})
@@ -105,7 +105,7 @@ func (api *API) postLicense(rw http.ResponseWriter, r *http.Request) {
 		id = uuid.New()
 	}
 	if len(claims.DeploymentIDs) > 0 && !slices.Contains(claims.DeploymentIDs, api.AGPL.DeploymentID) {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "License cannot be used on this deployment!",
 			Detail: fmt.Sprintf("The provided license is locked to the following deployments: %q. "+
 				"Your deployment identifier is %q. Please contact sales.", claims.DeploymentIDs, api.AGPL.DeploymentID),
@@ -120,7 +120,7 @@ func (api *API) postLicense(rw http.ResponseWriter, r *http.Request) {
 		UUID:       id,
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Unable to add license to database",
 			Detail:  err.Error(),
 		})
@@ -130,7 +130,7 @@ func (api *API) postLicense(rw http.ResponseWriter, r *http.Request) {
 
 	err = api.updateEntitlements(ctx)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to update entitlements",
 			Detail:  err.Error(),
 		})
@@ -144,7 +144,7 @@ func (api *API) postLicense(rw http.ResponseWriter, r *http.Request) {
 
 	c, err := decodeClaims(dl)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to decode database response",
 			Detail:  err.Error(),
 		})
@@ -181,7 +181,7 @@ func (api *API) postRefreshEntitlements(rw http.ResponseWriter, r *http.Request)
 	now := time.Now()
 	if ok, wait := api.Entitlements.AllowRefresh(now); !ok {
 		rw.Header().Set("Retry-After", strconv.Itoa(int(wait.Seconds())))
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: fmt.Sprintf("Entitlements already recently refreshed, please wait %d seconds to force a new refresh", int(wait.Seconds())),
 		})
 		return
@@ -189,7 +189,7 @@ func (api *API) postRefreshEntitlements(rw http.ResponseWriter, r *http.Request)
 
 	err := api.replicaManager.UpdateNow(ctx)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to sync replicas",
 			Detail:  err.Error(),
 		})
@@ -198,14 +198,14 @@ func (api *API) postRefreshEntitlements(rw http.ResponseWriter, r *http.Request)
 
 	err = api.refreshEntitlements(ctx)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to refresh entitlements",
 			Detail:  err.Error(),
 		})
 		return
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.Response{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.Response{
 		Message: "Entitlements updated",
 	})
 }
@@ -236,11 +236,11 @@ func (api *API) licenses(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	licenses, err := api.Database.GetLicenses(ctx)
 	if xerrors.Is(err, sql.ErrNoRows) {
-		httpapi.Write(ctx, rw, http.StatusOK, []codersdk.License{})
+		httpapi.Write(ctx, rw, http.StatusOK, []wirtualsdk.License{})
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching licenses.",
 			Detail:  err.Error(),
 		})
@@ -249,7 +249,7 @@ func (api *API) licenses(rw http.ResponseWriter, r *http.Request) {
 
 	licenses, err = coderd.AuthorizeFilter(api.AGPL.HTTPAuth, r, policy.ActionRead, licenses)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching licenses.",
 			Detail:  err.Error(),
 		})
@@ -257,7 +257,7 @@ func (api *API) licenses(rw http.ResponseWriter, r *http.Request) {
 	}
 	sdkLicenses, err := convertLicenses(licenses)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error parsing licenses.",
 			Detail:  err.Error(),
 		})
@@ -283,7 +283,7 @@ func (api *API) deleteLicense(rw http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 			Message: "License ID must be an integer",
 		})
 		return
@@ -311,13 +311,13 @@ func (api *API) deleteLicense(rw http.ResponseWriter, r *http.Request) {
 
 	_, err = api.Database.DeleteLicense(ctx, int32(id))
 	if httpapi.Is404Error(err) {
-		httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 			Message: "Unknown license ID",
 		})
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error deleting license",
 			Detail:  err.Error(),
 		})
@@ -325,7 +325,7 @@ func (api *API) deleteLicense(rw http.ResponseWriter, r *http.Request) {
 	}
 	err = api.updateEntitlements(ctx)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to update entitlements",
 			Detail:  err.Error(),
 		})
@@ -339,8 +339,8 @@ func (api *API) deleteLicense(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusOK)
 }
 
-func convertLicense(dl database.License, c jwt.MapClaims) codersdk.License {
-	return codersdk.License{
+func convertLicense(dl database.License, c jwt.MapClaims) wirtualsdk.License {
+	return wirtualsdk.License{
 		ID:         dl.ID,
 		UUID:       dl.UUID,
 		UploadedAt: dl.UploadedAt,
@@ -348,8 +348,8 @@ func convertLicense(dl database.License, c jwt.MapClaims) codersdk.License {
 	}
 }
 
-func convertLicenses(licenses []database.License) ([]codersdk.License, error) {
-	var out []codersdk.License
+func convertLicenses(licenses []database.License) ([]wirtualsdk.License, error) {
+	var out []wirtualsdk.License
 	for _, l := range licenses {
 		c, err := decodeClaims(l)
 		if err != nil {

@@ -277,7 +277,7 @@ func Test_parseInsightsInterval_week(t *testing.T) {
 				return
 			}
 			if tt.wantOk {
-				assert.Equal(t, codersdk.InsightsReportIntervalWeek, parsedInterval)
+				assert.Equal(t, wirtualsdk.InsightsReportIntervalWeek, parsedInterval)
 			}
 		})
 	}

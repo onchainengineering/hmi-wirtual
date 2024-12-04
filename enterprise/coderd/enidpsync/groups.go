@@ -11,7 +11,7 @@ import (
 )
 
 func (e EnterpriseIDPSync) GroupSyncEntitled() bool {
-	return e.entitlements.Enabled(codersdk.FeatureTemplateRBAC)
+	return e.entitlements.Enabled(wirtualsdk.FeatureTemplateRBAC)
 }
 
 // ParseGroupClaims parses the user claims and handles deployment wide group behavior.

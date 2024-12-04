@@ -13,7 +13,7 @@ import (
 )
 
 func (r *RootCmd) logout() *serpent.Command {
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "logout",
 		Short: "Unauthenticate your local session",

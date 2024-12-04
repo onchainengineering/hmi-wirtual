@@ -1,4 +1,4 @@
-package codersdk_test
+package wirtualsdk_test
 
 import (
 	"database/sql"
@@ -51,7 +51,7 @@ func TestNullTime_MarshalJSON(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			tr := codersdk.NewNullTime(tt.input.Time, tt.input.Valid)
+			tr := wirtualsdk.NewNullTime(tt.input.Time, tt.input.Valid)
 			got, err := tr.MarshalJSON()
 			require.NoError(t, err)
 			require.Equal(t, tt.want, string(got))
@@ -68,24 +68,24 @@ func TestNullTime_UnmarshalJSON(t *testing.T) {
 	require.NoError(t, err)
 
 	type request struct {
-		Time codersdk.NullTime `json:"time"`
+		Time wirtualsdk.NullTime `json:"time"`
 	}
 
 	tests := []struct {
 		name    string
 		data    string
-		want    codersdk.NullTime
+		want    wirtualsdk.NullTime
 		wantErr bool
 	}{
 		{
 			name: "null",
 			data: `{"time": null}`,
-			want: codersdk.NullTime{},
+			want: wirtualsdk.NullTime{},
 		},
 		{
 			name: "empty",
 			data: `{}`,
-			want: codersdk.NullTime{},
+			want: wirtualsdk.NullTime{},
 		},
 		{
 			name:    "empty string",
@@ -95,7 +95,7 @@ func TestNullTime_UnmarshalJSON(t *testing.T) {
 		{
 			name: "valid time",
 			data: fmt.Sprintf(`{"time": %s}`, bt1),
-			want: codersdk.NewNullTime(t1, true),
+			want: wirtualsdk.NewNullTime(t1, true),
 		},
 		{
 			name:    "invalid time",
@@ -149,7 +149,7 @@ func TestNullTime_IsZero(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			tr := codersdk.NullTime{NullTime: tt.input}
+			tr := wirtualsdk.NullTime{NullTime: tt.input}
 			require.Equal(t, tt.want, tr.IsZero())
 		})
 	}

@@ -22,7 +22,7 @@ type PostWorkspaceAgentAppHealth func(context.Context, agentsdk.PostAppHealthsRe
 type WorkspaceAppHealthReporter func(ctx context.Context)
 
 // NewWorkspaceAppHealthReporter creates a WorkspaceAppHealthReporter that reports app health to coderd.
-func NewWorkspaceAppHealthReporter(logger slog.Logger, apps []codersdk.WorkspaceApp, postWorkspaceAgentAppHealth PostWorkspaceAgentAppHealth) WorkspaceAppHealthReporter {
+func NewWorkspaceAppHealthReporter(logger slog.Logger, apps []wirtualsdk.WorkspaceApp, postWorkspaceAgentAppHealth PostWorkspaceAgentAppHealth) WorkspaceAppHealthReporter {
 	return NewAppHealthReporterWithClock(logger, apps, postWorkspaceAgentAppHealth, quartz.NewReal())
 }
 
@@ -30,7 +30,7 @@ func NewWorkspaceAppHealthReporter(logger slog.Logger, apps []codersdk.Workspace
 // NewAppHealthReporter.
 func NewAppHealthReporterWithClock(
 	logger slog.Logger,
-	apps []codersdk.WorkspaceApp,
+	apps []wirtualsdk.WorkspaceApp,
 	postWorkspaceAgentAppHealth PostWorkspaceAgentAppHealth,
 	clk quartz.Clock,
 ) WorkspaceAppHealthReporter {
@@ -46,9 +46,9 @@ func NewAppHealthReporterWithClock(
 		}
 
 		hasHealthchecksEnabled := false
-		health := make(map[uuid.UUID]codersdk.WorkspaceAppHealth, 0)
+		health := make(map[uuid.UUID]wirtualsdk.WorkspaceAppHealth, 0)
 		for _, app := range apps {
-			if app.Health == codersdk.WorkspaceAppHealthDisabled {
+			if app.Health == wirtualsdk.WorkspaceAppHealthDisabled {
 				continue
 			}
 			health[app.ID] = app.Health
@@ -113,7 +113,7 @@ func NewAppHealthReporterWithClock(
 						} else {
 							// set to unhealthy if we hit the failure threshold.
 							// we stop incrementing at the threshold to prevent the failure value from increasing forever.
-							health[app.ID] = codersdk.WorkspaceAppHealthUnhealthy
+							health[app.ID] = wirtualsdk.WorkspaceAppHealthUnhealthy
 							nowUnhealthy = true
 						}
 						mu.Unlock()
@@ -125,7 +125,7 @@ func NewAppHealthReporterWithClock(
 					} else {
 						mu.Lock()
 						// we only need one successful health check to be considered healthy.
-						health[app.ID] = codersdk.WorkspaceAppHealthHealthy
+						health[app.ID] = wirtualsdk.WorkspaceAppHealthHealthy
 						failures[app.ID] = 0
 						mu.Unlock()
 						logger.Debug(ctx, "workspace app healthy", slog.F("id", app.ID.String()), slog.F("slug", app.Slug))
@@ -163,11 +163,11 @@ func NewAppHealthReporterWithClock(
 	}
 }
 
-func shouldStartTicker(app codersdk.WorkspaceApp) bool {
+func shouldStartTicker(app wirtualsdk.WorkspaceApp) bool {
 	return app.Healthcheck.URL != "" && app.Healthcheck.Interval > 0 && app.Healthcheck.Threshold > 0
 }
 
-func healthChanged(old map[uuid.UUID]codersdk.WorkspaceAppHealth, new map[uuid.UUID]codersdk.WorkspaceAppHealth) bool {
+func healthChanged(old map[uuid.UUID]wirtualsdk.WorkspaceAppHealth, new map[uuid.UUID]wirtualsdk.WorkspaceAppHealth) bool {
 	for name, newValue := range new {
 		oldValue, found := old[name]
 		if !found {
@@ -181,8 +181,8 @@ func healthChanged(old map[uuid.UUID]codersdk.WorkspaceAppHealth, new map[uuid.U
 	return false
 }
 
-func copyHealth(h1 map[uuid.UUID]codersdk.WorkspaceAppHealth) map[uuid.UUID]codersdk.WorkspaceAppHealth {
-	h2 := make(map[uuid.UUID]codersdk.WorkspaceAppHealth, 0)
+func copyHealth(h1 map[uuid.UUID]wirtualsdk.WorkspaceAppHealth) map[uuid.UUID]wirtualsdk.WorkspaceAppHealth {
+	h2 := make(map[uuid.UUID]wirtualsdk.WorkspaceAppHealth, 0)
 	for k, v := range h1 {
 		h2[k] = v
 	}

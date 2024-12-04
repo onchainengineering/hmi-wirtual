@@ -14,7 +14,7 @@ import (
 func (a *agent) apiHandler() http.Handler {
 	r := chi.NewRouter()
 	r.Get("/", func(rw http.ResponseWriter, r *http.Request) {
-		httpapi.Write(r.Context(), rw, http.StatusOK, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusOK, wirtualsdk.Response{
 			Message: "Hello from the agent!",
 		})
 	})
@@ -54,7 +54,7 @@ type listeningPortsHandler struct {
 	//nolint: unused  // used on some but not all platforms
 	mut sync.Mutex
 	//nolint: unused  // used on some but not all platforms
-	ports []codersdk.WorkspaceAgentListeningPort
+	ports []wirtualsdk.WorkspaceAgentListeningPort
 	//nolint: unused  // used on some but not all platforms
 	mtime time.Time
 }
@@ -64,14 +64,14 @@ type listeningPortsHandler struct {
 func (lp *listeningPortsHandler) handler(rw http.ResponseWriter, r *http.Request) {
 	ports, err := lp.getListeningPorts()
 	if err != nil {
-		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Could not scan for listening ports.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 
-	httpapi.Write(r.Context(), rw, http.StatusOK, codersdk.WorkspaceAgentListeningPortsResponse{
+	httpapi.Write(r.Context(), rw, http.StatusOK, wirtualsdk.WorkspaceAgentListeningPortsResponse{
 		Ports: ports,
 	})
 }

@@ -55,9 +55,9 @@ func TestResetPassword(t *testing.T) {
 	}, testutil.WaitLong, testutil.IntervalFast)
 	accessURL, err := url.Parse(rawURL)
 	require.NoError(t, err)
-	client := codersdk.New(accessURL)
+	client := wirtualsdk.New(accessURL)
 
-	_, err = client.CreateFirstUser(ctx, codersdk.CreateFirstUserRequest{
+	_, err = client.CreateFirstUser(ctx, wirtualsdk.CreateFirstUserRequest{
 		Email:    email,
 		Username: username,
 		Password: oldPassword,
@@ -93,13 +93,13 @@ func TestResetPassword(t *testing.T) {
 
 	// now try logging in
 
-	_, err = client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+	_, err = client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 		Email:    email,
 		Password: oldPassword,
 	})
 	require.Error(t, err)
 
-	_, err = client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+	_, err = client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 		Email:    email,
 		Password: newPassword,
 	})

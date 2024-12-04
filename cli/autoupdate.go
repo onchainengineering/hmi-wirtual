@@ -12,7 +12,7 @@ import (
 )
 
 func (r *RootCmd) autoupdate() *serpent.Command {
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Annotations: workspaceCommand,
 		Use:         "autoupdate <workspace> <always|never>",
@@ -33,8 +33,8 @@ func (r *RootCmd) autoupdate() *serpent.Command {
 				return xerrors.Errorf("get workspace: %w", err)
 			}
 
-			err = client.UpdateWorkspaceAutomaticUpdates(inv.Context(), workspace.ID, codersdk.UpdateWorkspaceAutomaticUpdatesRequest{
-				AutomaticUpdates: codersdk.AutomaticUpdates(policy),
+			err = client.UpdateWorkspaceAutomaticUpdates(inv.Context(), workspace.ID, wirtualsdk.UpdateWorkspaceAutomaticUpdatesRequest{
+				AutomaticUpdates: wirtualsdk.AutomaticUpdates(policy),
 			})
 			if err != nil {
 				return xerrors.Errorf("update workspace automatic updates policy: %w", err)
@@ -49,10 +49,10 @@ func (r *RootCmd) autoupdate() *serpent.Command {
 }
 
 func validateAutoUpdatePolicy(arg string) error {
-	switch codersdk.AutomaticUpdates(arg) {
-	case codersdk.AutomaticUpdatesAlways, codersdk.AutomaticUpdatesNever:
+	switch wirtualsdk.AutomaticUpdates(arg) {
+	case wirtualsdk.AutomaticUpdatesAlways, wirtualsdk.AutomaticUpdatesNever:
 		return nil
 	default:
-		return xerrors.Errorf("invalid option %q must be either of %q or %q", arg, codersdk.AutomaticUpdatesAlways, codersdk.AutomaticUpdatesNever)
+		return xerrors.Errorf("invalid option %q must be either of %q or %q", arg, wirtualsdk.AutomaticUpdatesAlways, wirtualsdk.AutomaticUpdatesNever)
 	}
 }

@@ -1,4 +1,4 @@
-package codersdk_test
+package wirtualsdk_test
 
 import (
 	"os"
@@ -46,7 +46,7 @@ func TestDiscoverVarsFiles(t *testing.T) {
 	}
 
 	// When
-	found, err := codersdk.DiscoverVarsFiles(tempDir)
+	found, err := wirtualsdk.DiscoverVarsFiles(tempDir)
 	require.NoError(t, err)
 
 	// Then
@@ -96,7 +96,7 @@ go_image = ["1.19","1.20","1.21"]`
 	require.NoError(t, err)
 
 	// When
-	actual, err := codersdk.ParseUserVariableValues([]string{
+	actual, err := wirtualsdk.ParseUserVariableValues([]string{
 		filepath.Join(tempDir, hclFilename1),
 		filepath.Join(tempDir, hclFilename2),
 		filepath.Join(tempDir, jsonFilename3),
@@ -105,7 +105,7 @@ go_image = ["1.19","1.20","1.21"]`
 	require.NoError(t, err)
 
 	// Then
-	expected := []codersdk.VariableValue{
+	expected := []wirtualsdk.VariableValue{
 		{Name: "cat", Value: "foobar"},
 		{Name: "cores", Value: "3"},
 		{Name: "dog", Value: "4"},
@@ -135,7 +135,7 @@ func TestParseVariableValuesFromVarsFiles_InvalidJSON(t *testing.T) {
 	require.NoError(t, err)
 
 	// When
-	actual, err := codersdk.ParseUserVariableValues([]string{
+	actual, err := wirtualsdk.ParseUserVariableValues([]string{
 		filepath.Join(tempDir, jsonFilename),
 	}, "", nil)
 
@@ -166,7 +166,7 @@ cores: 2`
 	require.NoError(t, err)
 
 	// When
-	actual, err := codersdk.ParseUserVariableValues([]string{
+	actual, err := wirtualsdk.ParseUserVariableValues([]string{
 		filepath.Join(tempDir, hclFilename),
 	}, "", nil)
 

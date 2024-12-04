@@ -105,7 +105,7 @@ type server struct {
 	Auditor                     *atomic.Pointer[audit.Auditor]
 	TemplateScheduleStore       *atomic.Pointer[schedule.TemplateScheduleStore]
 	UserQuietHoursScheduleStore *atomic.Pointer[schedule.UserQuietHoursScheduleStore]
-	DeploymentValues            *codersdk.DeploymentValues
+	DeploymentValues            *wirtualsdk.DeploymentValues
 	NotificationsEnqueuer       notifications.Enqueuer
 
 	OIDCConfig promoauth.OAuth2Config
@@ -159,7 +159,7 @@ func NewServer(
 	auditor *atomic.Pointer[audit.Auditor],
 	templateScheduleStore *atomic.Pointer[schedule.TemplateScheduleStore],
 	userQuietHoursScheduleStore *atomic.Pointer[schedule.UserQuietHoursScheduleStore],
-	deploymentValues *codersdk.DeploymentValues,
+	deploymentValues *wirtualsdk.DeploymentValues,
 	options Options,
 	enqueuer notifications.Enqueuer,
 ) (proto.DRPCProvisionerDaemonServer, error) {
@@ -689,8 +689,8 @@ func (s *server) acquireProtoJob(ctx context.Context, job database.ProvisionerJo
 	return protoJob, err
 }
 
-func (s *server) includeLastVariableValues(ctx context.Context, templateVersionID uuid.UUID, userVariableValues []codersdk.VariableValue) ([]codersdk.VariableValue, error) {
-	var values []codersdk.VariableValue
+func (s *server) includeLastVariableValues(ctx context.Context, templateVersionID uuid.UUID, userVariableValues []wirtualsdk.VariableValue) ([]wirtualsdk.VariableValue, error) {
+	var values []wirtualsdk.VariableValue
 	values = append(values, userVariableValues...)
 
 	if templateVersionID == uuid.Nil {
@@ -733,7 +733,7 @@ func (s *server) includeLastVariableValues(ctx context.Context, templateVersionI
 			continue
 		}
 
-		values = append(values, codersdk.VariableValue{
+		values = append(values, wirtualsdk.VariableValue{
 			Name:  templateVariable.Name,
 			Value: templateVariable.Value,
 		})
@@ -1177,7 +1177,7 @@ func (s *server) prepareForNotifyWorkspaceManualBuildFailed(ctx context.Context,
 	database.Template, database.TemplateVersion, database.User, error,
 ) {
 	users, err := s.Database.GetUsers(ctx, database.GetUsersParams{
-		RbacRole: []string{codersdk.RoleTemplateAdmin},
+		RbacRole: []string{wirtualsdk.RoleTemplateAdmin},
 	})
 	if err != nil {
 		return nil, database.Template{}, database.TemplateVersion{}, database.User{}, xerrors.Errorf("unable to fetch template admins: %w", err)
@@ -2191,7 +2191,7 @@ func convertRichParameterValues(workspaceBuildParameters []database.WorkspaceBui
 	return protoParameters
 }
 
-func convertVariableValues(variableValues []codersdk.VariableValue) []*sdkproto.VariableValue {
+func convertVariableValues(variableValues []wirtualsdk.VariableValue) []*sdkproto.VariableValue {
 	protoVariableValues := make([]*sdkproto.VariableValue, len(variableValues))
 	for i, variableValue := range variableValues {
 		protoVariableValues[i] = &sdkproto.VariableValue{
@@ -2230,8 +2230,8 @@ func auditActionFromTransition(transition database.WorkspaceTransition) database
 }
 
 type TemplateVersionImportJob struct {
-	TemplateVersionID  uuid.UUID                `json:"template_version_id"`
-	UserVariableValues []codersdk.VariableValue `json:"user_variable_values"`
+	TemplateVersionID  uuid.UUID                  `json:"template_version_id"`
+	UserVariableValues []wirtualsdk.VariableValue `json:"user_variable_values"`
 }
 
 // WorkspaceProvisionJob is the payload for the "workspace_provision" job type.

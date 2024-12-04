@@ -19,8 +19,8 @@ func TestOrganizationByUserAndName(t *testing.T) {
 		coderdtest.CreateFirstUser(t, client)
 		ctx := testutil.Context(t, testutil.WaitLong)
 
-		_, err := client.OrganizationByUserAndName(ctx, codersdk.Me, "nothing")
-		var apiErr *codersdk.Error
+		_, err := client.OrganizationByUserAndName(ctx, wirtualsdk.Me, "nothing")
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusNotFound, apiErr.StatusCode())
 	})
@@ -33,7 +33,7 @@ func TestOrganizationByUserAndName(t *testing.T) {
 
 		org, err := client.Organization(ctx, user.OrganizationID)
 		require.NoError(t, err)
-		_, err = client.OrganizationByUserAndName(ctx, codersdk.Me, org.Name)
+		_, err = client.OrganizationByUserAndName(ctx, wirtualsdk.Me, org.Name)
 		require.NoError(t, err)
 	})
 }

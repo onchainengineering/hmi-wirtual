@@ -39,7 +39,7 @@ func TestUserStatus(t *testing.T) {
 		owner := coderdtest.CreateFirstUser(t, client)
 		userAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleUserAdmin())
 		other, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		otherUser, err := other.User(context.Background(), codersdk.Me)
+		otherUser, err := other.User(context.Background(), wirtualsdk.Me)
 		require.NoError(t, err, "fetch user")
 
 		inv, root := clitest.New(t, "users", "suspend", otherUser.Username)
@@ -52,7 +52,7 @@ func TestUserStatus(t *testing.T) {
 		// Check the user status
 		otherUser, err = client.User(context.Background(), otherUser.Username)
 		require.NoError(t, err, "fetch suspended user")
-		require.Equal(t, codersdk.UserStatusSuspended, otherUser.Status, "suspended user")
+		require.Equal(t, wirtualsdk.UserStatusSuspended, otherUser.Status, "suspended user")
 
 		// Set back to active. Try using a uuid as well
 		inv, root = clitest.New(t, "users", "activate", otherUser.ID.String())
@@ -65,6 +65,6 @@ func TestUserStatus(t *testing.T) {
 		// Check the user status
 		otherUser, err = client.User(context.Background(), otherUser.ID.String())
 		require.NoError(t, err, "fetch active user")
-		require.Equal(t, codersdk.UserStatusActive, otherUser.Status, "active user")
+		require.Equal(t, wirtualsdk.UserStatusActive, otherUser.Status, "active user")
 	})
 }

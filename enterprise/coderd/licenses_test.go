@@ -27,7 +27,7 @@ func TestPostLicense(t *testing.T) {
 			AccountType: license.AccountTypeSalesforce,
 			AccountID:   "testing",
 			Features: license.Features{
-				codersdk.FeatureAuditLog: 1,
+				wirtualsdk.FeatureAuditLog: 1,
 			},
 		})
 		assert.GreaterOrEqual(t, respLic.ID, int32(0))
@@ -35,7 +35,7 @@ func TestPostLicense(t *testing.T) {
 		assert.Equal(t, "testing", respLic.Claims["account_id"])
 		features, err := respLic.FeaturesClaims()
 		require.NoError(t, err)
-		assert.EqualValues(t, 1, features[codersdk.FeatureAuditLog])
+		assert.EqualValues(t, 1, features[wirtualsdk.FeatureAuditLog])
 	})
 
 	t.Run("InvalidDeploymentID", func(t *testing.T) {
@@ -45,10 +45,10 @@ func TestPostLicense(t *testing.T) {
 		license := coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
 			DeploymentIDs: []string{uuid.NewString()},
 		})
-		_, err := client.AddLicense(context.Background(), codersdk.AddLicenseRequest{
+		_, err := client.AddLicense(context.Background(), wirtualsdk.AddLicenseRequest{
 			License: license,
 		})
-		errResp := &codersdk.Error{}
+		errResp := &wirtualsdk.Error{}
 		require.ErrorAs(t, err, &errResp)
 		require.Equal(t, http.StatusBadRequest, errResp.StatusCode())
 		require.Contains(t, errResp.Message, "License cannot be used on this deployment!")
@@ -58,10 +58,10 @@ func TestPostLicense(t *testing.T) {
 		t.Parallel()
 		client, _ := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
 		client.SetSessionToken("")
-		_, err := client.AddLicense(context.Background(), codersdk.AddLicenseRequest{
+		_, err := client.AddLicense(context.Background(), wirtualsdk.AddLicenseRequest{
 			License: "content",
 		})
-		errResp := &codersdk.Error{}
+		errResp := &wirtualsdk.Error{}
 		if xerrors.As(err, &errResp) {
 			assert.Equal(t, 401, errResp.StatusCode())
 		} else {
@@ -73,10 +73,10 @@ func TestPostLicense(t *testing.T) {
 		t.Parallel()
 		client, _ := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
 		coderdenttest.AddLicense(t, client, coderdenttest.LicenseOptions{})
-		_, err := client.AddLicense(context.Background(), codersdk.AddLicenseRequest{
+		_, err := client.AddLicense(context.Background(), wirtualsdk.AddLicenseRequest{
 			License: "invalid",
 		})
-		errResp := &codersdk.Error{}
+		errResp := &wirtualsdk.Error{}
 		if xerrors.As(err, &errResp) {
 			assert.Equal(t, 400, errResp.StatusCode())
 		} else {
@@ -93,7 +93,7 @@ func TestPostLicense(t *testing.T) {
 			AccountType: license.AccountTypeSalesforce,
 			AccountID:   "testing",
 			Features: license.Features{
-				codersdk.FeatureAuditLog: 1,
+				wirtualsdk.FeatureAuditLog: 1,
 			},
 			NotBefore: time.Now().Add(time.Hour),
 			GraceAt:   time.Now().Add(2 * time.Hour),
@@ -104,7 +104,7 @@ func TestPostLicense(t *testing.T) {
 		assert.Equal(t, "testing", respLic.Claims["account_id"])
 		features, err := respLic.FeaturesClaims()
 		require.NoError(t, err)
-		assert.EqualValues(t, 1, features[codersdk.FeatureAuditLog])
+		assert.EqualValues(t, 1, features[wirtualsdk.FeatureAuditLog])
 	})
 
 	// Test we still reject a license that isn't valid yet, but has other issues (e.g. expired
@@ -116,16 +116,16 @@ func TestPostLicense(t *testing.T) {
 			AccountType: license.AccountTypeSalesforce,
 			AccountID:   "testing",
 			Features: license.Features{
-				codersdk.FeatureAuditLog: 1,
+				wirtualsdk.FeatureAuditLog: 1,
 			},
 			NotBefore: time.Now().Add(time.Hour),
 			GraceAt:   time.Now().Add(2 * time.Hour),
 			ExpiresAt: time.Now().Add(-time.Hour),
 		})
-		_, err := client.AddLicense(context.Background(), codersdk.AddLicenseRequest{
+		_, err := client.AddLicense(context.Background(), wirtualsdk.AddLicenseRequest{
 			License: lic,
 		})
-		errResp := &codersdk.Error{}
+		errResp := &wirtualsdk.Error{}
 		require.ErrorAs(t, err, &errResp)
 		require.Equal(t, http.StatusBadRequest, errResp.StatusCode())
 		require.Contains(t, errResp.Detail, license.ErrMultipleIssues.Error())
@@ -143,20 +143,20 @@ func TestGetLicense(t *testing.T) {
 		coderdenttest.AddLicense(t, client, coderdenttest.LicenseOptions{
 			AccountID: "testing",
 			Features: license.Features{
-				codersdk.FeatureAuditLog:     1,
-				codersdk.FeatureSCIM:         1,
-				codersdk.FeatureBrowserOnly:  1,
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureAuditLog:     1,
+				wirtualsdk.FeatureSCIM:         1,
+				wirtualsdk.FeatureBrowserOnly:  1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		})
 
 		coderdenttest.AddLicense(t, client, coderdenttest.LicenseOptions{
 			AccountID: "testing2",
 			Features: license.Features{
-				codersdk.FeatureAuditLog:    1,
-				codersdk.FeatureSCIM:        1,
-				codersdk.FeatureBrowserOnly: 1,
-				codersdk.FeatureUserLimit:   200,
+				wirtualsdk.FeatureAuditLog:    1,
+				wirtualsdk.FeatureSCIM:        1,
+				wirtualsdk.FeatureBrowserOnly: 1,
+				wirtualsdk.FeatureUserLimit:   200,
 			},
 			Trial: true,
 		})
@@ -169,11 +169,11 @@ func TestGetLicense(t *testing.T) {
 
 		features, err := licenses[0].FeaturesClaims()
 		require.NoError(t, err)
-		assert.Equal(t, map[codersdk.FeatureName]int64{
-			codersdk.FeatureAuditLog:     1,
-			codersdk.FeatureSCIM:         1,
-			codersdk.FeatureBrowserOnly:  1,
-			codersdk.FeatureTemplateRBAC: 1,
+		assert.Equal(t, map[wirtualsdk.FeatureName]int64{
+			wirtualsdk.FeatureAuditLog:     1,
+			wirtualsdk.FeatureSCIM:         1,
+			wirtualsdk.FeatureBrowserOnly:  1,
+			wirtualsdk.FeatureTemplateRBAC: 1,
 		}, features)
 		assert.Equal(t, int32(2), licenses[1].ID)
 		assert.Equal(t, "testing2", licenses[1].Claims["account_id"])
@@ -181,11 +181,11 @@ func TestGetLicense(t *testing.T) {
 
 		features, err = licenses[1].FeaturesClaims()
 		require.NoError(t, err)
-		assert.Equal(t, map[codersdk.FeatureName]int64{
-			codersdk.FeatureUserLimit:   200,
-			codersdk.FeatureAuditLog:    1,
-			codersdk.FeatureSCIM:        1,
-			codersdk.FeatureBrowserOnly: 1,
+		assert.Equal(t, map[wirtualsdk.FeatureName]int64{
+			wirtualsdk.FeatureUserLimit:   200,
+			wirtualsdk.FeatureAuditLog:    1,
+			wirtualsdk.FeatureSCIM:        1,
+			wirtualsdk.FeatureBrowserOnly: 1,
 		}, features)
 	})
 }
@@ -199,7 +199,7 @@ func TestDeleteLicense(t *testing.T) {
 		defer cancel()
 
 		err := client.DeleteLicense(ctx, 1)
-		errResp := &codersdk.Error{}
+		errResp := &wirtualsdk.Error{}
 		if xerrors.As(err, &errResp) {
 			assert.Equal(t, 404, errResp.StatusCode())
 		} else {
@@ -229,14 +229,14 @@ func TestDeleteLicense(t *testing.T) {
 		coderdenttest.AddLicense(t, client, coderdenttest.LicenseOptions{
 			AccountID: "testing",
 			Features: license.Features{
-				codersdk.FeatureAuditLog: 1,
+				wirtualsdk.FeatureAuditLog: 1,
 			},
 		})
 		coderdenttest.AddLicense(t, client, coderdenttest.LicenseOptions{
 			AccountID: "testing2",
 			Features: license.Features{
-				codersdk.FeatureAuditLog:  1,
-				codersdk.FeatureUserLimit: 200,
+				wirtualsdk.FeatureAuditLog:  1,
+				wirtualsdk.FeatureUserLimit: 200,
 			},
 		})
 

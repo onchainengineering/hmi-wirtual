@@ -37,8 +37,8 @@ func TestSpeedtest(t *testing.T) {
 			return false
 		}
 		a := ws.LatestBuild.Resources[0].Agents[0]
-		return a.Status == codersdk.WorkspaceAgentConnected &&
-			a.LifecycleState == codersdk.WorkspaceAgentLifecycleReady
+		return a.Status == wirtualsdk.WorkspaceAgentConnected &&
+			a.LifecycleState == wirtualsdk.WorkspaceAgentLifecycleReady
 	}, testutil.WaitLong, testutil.IntervalFast, "agent is not ready")
 
 	inv, root := clitest.New(t, "speedtest", workspace.Name)
@@ -77,8 +77,8 @@ func TestSpeedtestJson(t *testing.T) {
 			return false
 		}
 		a := ws.LatestBuild.Resources[0].Agents[0]
-		return a.Status == codersdk.WorkspaceAgentConnected &&
-			a.LifecycleState == codersdk.WorkspaceAgentLifecycleReady
+		return a.Status == wirtualsdk.WorkspaceAgentConnected &&
+			a.LifecycleState == wirtualsdk.WorkspaceAgentLifecycleReady
 	}, testutil.WaitLong, testutil.IntervalFast, "agent is not ready")
 
 	inv, root := clitest.New(t, "speedtest", "--output=json", workspace.Name)

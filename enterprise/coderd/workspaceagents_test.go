@@ -40,7 +40,7 @@ func TestBlockNonBrowser(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureBrowserOnly: 1,
+					wirtualsdk.FeatureBrowserOnly: 1,
 				},
 			},
 		})
@@ -48,7 +48,7 @@ func TestBlockNonBrowser(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitShort)
 		//nolint:gocritic // Testing that even the owner gets blocked.
 		_, err := workspacesdk.New(client).DialAgent(ctx, r.sdkAgent.ID, nil)
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusConflict, apiErr.StatusCode())
 	})
@@ -60,7 +60,7 @@ func TestBlockNonBrowser(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureBrowserOnly: 0,
+					wirtualsdk.FeatureBrowserOnly: 0,
 				},
 			},
 		})
@@ -74,12 +74,12 @@ func TestBlockNonBrowser(t *testing.T) {
 }
 
 type setupResp struct {
-	workspace codersdk.Workspace
-	sdkAgent  codersdk.WorkspaceAgent
+	workspace wirtualsdk.Workspace
+	sdkAgent  wirtualsdk.WorkspaceAgent
 	agent     agent.Agent
 }
 
-func setupWorkspaceAgent(t *testing.T, client *codersdk.Client, user codersdk.CreateFirstUserResponse, appPort uint16) setupResp {
+func setupWorkspaceAgent(t *testing.T, client *wirtualsdk.Client, user wirtualsdk.CreateFirstUserResponse, appPort uint16) setupResp {
 	authToken := uuid.NewString()
 	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse: echo.ParseComplete,

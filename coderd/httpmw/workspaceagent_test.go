@@ -30,7 +30,7 @@ func TestWorkspaceAgent(t *testing.T) {
 			}))
 
 		rw := httptest.NewRecorder()
-		req.Header.Set(codersdk.SessionTokenHeader, uuid.New().String())
+		req.Header.Set(wirtualsdk.SessionTokenHeader, uuid.New().String())
 		rtr.ServeHTTP(rw, req)
 
 		res := rw.Result()
@@ -49,7 +49,7 @@ func TestWorkspaceAgent(t *testing.T) {
 			}))
 
 		rw := httptest.NewRecorder()
-		req.Header.Set(codersdk.SessionTokenHeader, authToken.String())
+		req.Header.Set(wirtualsdk.SessionTokenHeader, authToken.String())
 		rtr.ServeHTTP(rw, req)
 
 		//nolint:bodyclose // Closed in `t.Cleanup`
@@ -87,7 +87,7 @@ func TestWorkspaceAgent(t *testing.T) {
 		})
 
 		rw := httptest.NewRecorder()
-		req.Header.Set(codersdk.SessionTokenHeader, authToken.String())
+		req.Header.Set(wirtualsdk.SessionTokenHeader, authToken.String())
 		rtr.ServeHTTP(rw, req)
 
 		//nolint:bodyclose // Closed in `t.Cleanup`

@@ -14,7 +14,7 @@ func (r *RootCmd) update() *serpent.Command {
 		parameterFlags workspaceParameterFlags
 		bflags         buildFlags
 	)
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Annotations: workspaceCommand,
 		Use:         "update <workspace>",

@@ -20,12 +20,12 @@ func StripCoderCookies(header string) string {
 			continue
 		}
 		name, _, _ := strings.Cut(part, "=")
-		if name == codersdk.SessionTokenCookie ||
-			name == codersdk.OAuth2StateCookie ||
-			name == codersdk.OAuth2RedirectCookie ||
-			name == codersdk.PathAppSessionTokenCookie ||
-			name == codersdk.SubdomainAppSessionTokenCookie ||
-			name == codersdk.SignedAppTokenCookie {
+		if name == wirtualsdk.SessionTokenCookie ||
+			name == wirtualsdk.OAuth2StateCookie ||
+			name == wirtualsdk.OAuth2RedirectCookie ||
+			name == wirtualsdk.PathAppSessionTokenCookie ||
+			name == wirtualsdk.SubdomainAppSessionTokenCookie ||
+			name == wirtualsdk.SignedAppTokenCookie {
 			continue
 		}
 		cookies = append(cookies, part)

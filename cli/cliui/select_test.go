@@ -51,7 +51,7 @@ func TestRichSelect(t *testing.T) {
 		msgChan := make(chan string)
 		go func() {
 			resp, err := newRichSelect(ptty, cliui.RichSelectOptions{
-				Options: []codersdk.TemplateVersionParameterOption{
+				Options: []wirtualsdk.TemplateVersionParameterOption{
 					{
 						Name:        "A-Name",
 						Value:       "A-Value",

@@ -16,7 +16,7 @@ func (r *RootCmd) templateList() *serpent.Command {
 		cliui.JSONFormat(),
 	)
 
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:     "list",
 		Short:   "List all the templates available for the organization",
@@ -25,7 +25,7 @@ func (r *RootCmd) templateList() *serpent.Command {
 			r.InitClient(client),
 		),
 		Handler: func(inv *serpent.Invocation) error {
-			templates, err := client.Templates(inv.Context(), codersdk.TemplateFilter{})
+			templates, err := client.Templates(inv.Context(), wirtualsdk.TemplateFilter{})
 			if err != nil {
 				return err
 			}

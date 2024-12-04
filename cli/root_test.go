@@ -174,7 +174,7 @@ func TestDERPHeaders(t *testing.T) {
 	t.Cleanup(func() {
 		_ = provisionerCloser.Close()
 	})
-	client := codersdk.New(serverURL)
+	client := wirtualsdk.New(serverURL)
 	t.Cleanup(func() {
 		cancelFunc()
 		_ = provisionerCloser.Close()

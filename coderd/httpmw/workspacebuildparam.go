@@ -37,7 +37,7 @@ func ExtractWorkspaceBuildParam(db database.Store) func(http.Handler) http.Handl
 				return
 			}
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error fetching workspace build.",
 					Detail:  err.Error(),
 				})

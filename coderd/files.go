@@ -51,7 +51,7 @@ func (api *API) postFile(rw http.ResponseWriter, r *http.Request) {
 	switch contentType {
 	case tarMimeType, zipMimeType, windowsZipMimeType:
 	default:
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: fmt.Sprintf("Unsupported content type header %q.", contentType),
 		})
 		return
@@ -60,7 +60,7 @@ func (api *API) postFile(rw http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(rw, r.Body, HTTPFileMaxBytes)
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Failed to read file from request.",
 			Detail:  err.Error(),
 		})
@@ -70,7 +70,7 @@ func (api *API) postFile(rw http.ResponseWriter, r *http.Request) {
 	if contentType == zipMimeType || contentType == windowsZipMimeType {
 		zipReader, err := zip.NewReader(bytes.NewReader(data), int64(len(data)))
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Incomplete .zip archive file.",
 				Detail:  err.Error(),
 			})
@@ -79,7 +79,7 @@ func (api *API) postFile(rw http.ResponseWriter, r *http.Request) {
 
 		data, err = archive.CreateTarFromZip(zipReader, HTTPFileMaxBytes)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Internal error processing .zip archive.",
 				Detail:  err.Error(),
 			})
@@ -96,12 +96,12 @@ func (api *API) postFile(rw http.ResponseWriter, r *http.Request) {
 	})
 	if err == nil {
 		// The file already exists!
-		httpapi.Write(ctx, rw, http.StatusOK, codersdk.UploadResponse{
+		httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.UploadResponse{
 			ID: file.ID,
 		})
 		return
 	} else if !errors.Is(err, sql.ErrNoRows) {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error getting file.",
 			Detail:  err.Error(),
 		})
@@ -118,14 +118,14 @@ func (api *API) postFile(rw http.ResponseWriter, r *http.Request) {
 		Data:      data,
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error saving file.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 
-	httpapi.Write(ctx, rw, http.StatusCreated, codersdk.UploadResponse{
+	httpapi.Write(ctx, rw, http.StatusCreated, wirtualsdk.UploadResponse{
 		ID: file.ID,
 	})
 }
@@ -145,7 +145,7 @@ func (api *API) fileByID(rw http.ResponseWriter, r *http.Request) {
 
 	fileID := chi.URLParam(r, "fileID")
 	if fileID == "" {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "File id must be provided in url.",
 		})
 		return
@@ -153,7 +153,7 @@ func (api *API) fileByID(rw http.ResponseWriter, r *http.Request) {
 
 	id, err := uuid.Parse(fileID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "File id must be a valid UUID.",
 		})
 		return
@@ -165,7 +165,7 @@ func (api *API) fileByID(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching file.",
 			Detail:  err.Error(),
 		})
@@ -173,15 +173,15 @@ func (api *API) fileByID(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	switch format {
-	case codersdk.FormatZip:
-		if file.Mimetype != codersdk.ContentTypeTar {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+	case wirtualsdk.FormatZip:
+		if file.Mimetype != wirtualsdk.ContentTypeTar {
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Only .tar files can be converted to .zip format",
 			})
 			return
 		}
 
-		rw.Header().Set("Content-Type", codersdk.ContentTypeZip)
+		rw.Header().Set("Content-Type", wirtualsdk.ContentTypeZip)
 		rw.WriteHeader(http.StatusOK)
 		err = archive.WriteZip(rw, tar.NewReader(bytes.NewReader(file.Data)), HTTPFileMaxBytes)
 		if err != nil {
@@ -191,7 +191,7 @@ func (api *API) fileByID(rw http.ResponseWriter, r *http.Request) {
 		rw.Header().Set("Content-Type", file.Mimetype)
 		_, _ = rw.Write(file.Data)
 	default:
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Unsupported conversion format.",
 		})
 	}

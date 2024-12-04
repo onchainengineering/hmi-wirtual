@@ -29,8 +29,8 @@ func TestEnterpriseListTemplates(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations:      1,
-					codersdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureMultipleOrganizations:      1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 		})
@@ -60,7 +60,7 @@ func TestEnterpriseListTemplates(t *testing.T) {
 		err := inv.WithContext(ctx).Run()
 		require.NoError(t, err)
 
-		var templates []codersdk.Template
+		var templates []wirtualsdk.Template
 		require.NoError(t, json.Unmarshal(out.Bytes(), &templates))
 		require.Len(t, templates, 2)
 	})

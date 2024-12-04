@@ -42,15 +42,15 @@ func (api *API) postGroupByOrganization(rw http.ResponseWriter, r *http.Request)
 	)
 	defer commitAudit()
 
-	var req codersdk.CreateGroupRequest
+	var req wirtualsdk.CreateGroupRequest
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
 
 	if req.Name == database.EveryoneGroup {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message:     "Invalid group name.",
-			Validations: []codersdk.ValidationError{{Field: "name", Detail: fmt.Sprintf("%q is a reserved group name", req.Name)}},
+			Validations: []wirtualsdk.ValidationError{{Field: "name", Detail: fmt.Sprintf("%q is a reserved group name", req.Name)}},
 		})
 		return
 	}
@@ -64,9 +64,9 @@ func (api *API) postGroupByOrganization(rw http.ResponseWriter, r *http.Request)
 		QuotaAllowance: int32(req.QuotaAllowance),
 	})
 	if database.IsUniqueViolation(err) {
-		httpapi.Write(ctx, rw, http.StatusConflict, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusConflict, wirtualsdk.Response{
 			Message:     fmt.Sprintf("A group named %q already exists.", req.Name),
-			Validations: []codersdk.ValidationError{{Field: "name", Detail: "Group names must be unique"}},
+			Validations: []wirtualsdk.ValidationError{{Field: "name", Detail: "Group names must be unique"}},
 		})
 		return
 	}
@@ -110,7 +110,7 @@ func (api *API) patchGroup(rw http.ResponseWriter, r *http.Request) {
 	)
 	defer commitAudit()
 
-	var req codersdk.PatchGroupRequest
+	var req wirtualsdk.PatchGroupRequest
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
@@ -122,21 +122,21 @@ func (api *API) patchGroup(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if group.IsEveryone() && req.Name != "" {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: fmt.Sprintf("Cannot rename the %q group!", database.EveryoneGroup),
 		})
 		return
 	}
 
 	if group.IsEveryone() && (req.DisplayName != nil && *req.DisplayName != "") {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: fmt.Sprintf("Cannot update the Display Name for the %q group!", database.EveryoneGroup),
 		})
 		return
 	}
 
 	if req.Name == database.EveryoneGroup {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: fmt.Sprintf("%q is a reserved group name!", database.EveryoneGroup),
 		})
 		return
@@ -147,7 +147,7 @@ func (api *API) patchGroup(rw http.ResponseWriter, r *http.Request) {
 	users = append(users, req.RemoveUsers...)
 
 	if len(users) > 0 && group.Name == database.EveryoneGroup {
-		httpapi.Write(ctx, rw, http.StatusForbidden, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusForbidden, wirtualsdk.Response{
 			Message: fmt.Sprintf("Cannot add or remove users from the %q group!", database.EveryoneGroup),
 		})
 		return
@@ -162,7 +162,7 @@ func (api *API) patchGroup(rw http.ResponseWriter, r *http.Request) {
 
 	for _, id := range users {
 		if _, err := uuid.Parse(id); err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: fmt.Sprintf("ID %q must be a valid user UUID.", id),
 			})
 			return
@@ -174,7 +174,7 @@ func (api *API) patchGroup(rw http.ResponseWriter, r *http.Request) {
 			UserID:         uuid.MustParse(id),
 		}))
 		if errors.Is(err, sql.ErrNoRows) {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: fmt.Sprintf("User must be a member of organization %q", group.Name),
 			})
 			return
@@ -191,7 +191,7 @@ func (api *API) patchGroup(rw http.ResponseWriter, r *http.Request) {
 			Name:           req.Name,
 		})
 		if err == nil {
-			httpapi.Write(ctx, rw, http.StatusConflict, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusConflict, wirtualsdk.Response{
 				Message: fmt.Sprintf("A group with name %q already exists.", req.Name),
 			})
 			return
@@ -261,14 +261,14 @@ func (api *API) patchGroup(rw http.ResponseWriter, r *http.Request) {
 	})
 
 	if database.IsUniqueViolation(err) {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Cannot add the same user to a group twice!",
 			Detail:  err.Error(),
 		})
 		return
 	}
 	if httpapi.Is404Error(err) {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Failed to add or remove non-existent group member",
 			Detail:  err.Error(),
 		})
@@ -329,7 +329,7 @@ func (api *API) deleteGroup(rw http.ResponseWriter, r *http.Request) {
 	defer commitAudit()
 
 	if group.Name == database.EveryoneGroup {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: fmt.Sprintf("%q is a reserved group and cannot be deleted!", database.EveryoneGroup),
 		})
 		return
@@ -349,7 +349,7 @@ func (api *API) deleteGroup(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.Response{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.Response{
 		Message: "Successfully deleted group!",
 	})
 }
@@ -463,7 +463,7 @@ func (api *API) groups(rw http.ResponseWriter, r *http.Request) {
 
 	parser.ErrorExcessParams(r.URL.Query())
 	if len(parser.Errors) > 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message:     "Query parameters have invalid values.",
 			Validations: parser.Errors,
 		})
@@ -480,7 +480,7 @@ func (api *API) groups(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := make([]codersdk.Group, 0, len(groups))
+	resp := make([]wirtualsdk.Group, 0, len(groups))
 	for _, group := range groups {
 		members, err := api.Database.GetGroupMembersByGroupID(ctx, group.Group.ID)
 		if err != nil {

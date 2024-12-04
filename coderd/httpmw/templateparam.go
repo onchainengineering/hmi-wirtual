@@ -37,7 +37,7 @@ func ExtractTemplateParam(db database.Store) func(http.Handler) http.Handler {
 				return
 			}
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error fetching template.",
 					Detail:  err.Error(),
 				})

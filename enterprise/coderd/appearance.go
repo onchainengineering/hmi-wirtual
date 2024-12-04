@@ -31,7 +31,7 @@ func (api *API) appearance(rw http.ResponseWriter, r *http.Request) {
 	af := *api.AGPL.AppearanceFetcher.Load()
 	cfg, err := af.Fetch(r.Context())
 	if err != nil {
-		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to fetch appearance config.",
 			Detail:  err.Error(),
 		})
@@ -43,14 +43,14 @@ func (api *API) appearance(rw http.ResponseWriter, r *http.Request) {
 
 type appearanceFetcher struct {
 	database     database.Store
-	supportLinks []codersdk.LinkConfig
+	supportLinks []wirtualsdk.LinkConfig
 	docsURL      string
 	coderVersion string
 }
 
-func newAppearanceFetcher(store database.Store, links []codersdk.LinkConfig, docsURL, coderVersion string) agpl.Fetcher {
+func newAppearanceFetcher(store database.Store, links []wirtualsdk.LinkConfig, docsURL, coderVersion string) agpl.Fetcher {
 	if docsURL == "" {
-		docsURL = codersdk.DefaultDocsURL()
+		docsURL = wirtualsdk.DefaultDocsURL()
 	}
 	return &appearanceFetcher{
 		database:     store,
@@ -60,7 +60,7 @@ func newAppearanceFetcher(store database.Store, links []codersdk.LinkConfig, doc
 	}
 }
 
-func (f *appearanceFetcher) Fetch(ctx context.Context) (codersdk.AppearanceConfig, error) {
+func (f *appearanceFetcher) Fetch(ctx context.Context) (wirtualsdk.AppearanceConfig, error) {
 	var eg errgroup.Group
 	var (
 		applicationName         string
@@ -90,21 +90,21 @@ func (f *appearanceFetcher) Fetch(ctx context.Context) (codersdk.AppearanceConfi
 	})
 	err := eg.Wait()
 	if err != nil {
-		return codersdk.AppearanceConfig{}, err
+		return wirtualsdk.AppearanceConfig{}, err
 	}
 
-	cfg := codersdk.AppearanceConfig{
+	cfg := wirtualsdk.AppearanceConfig{
 		ApplicationName:     applicationName,
 		LogoURL:             logoURL,
-		AnnouncementBanners: []codersdk.BannerConfig{},
-		SupportLinks:        codersdk.DefaultSupportLinks(f.docsURL),
+		AnnouncementBanners: []wirtualsdk.BannerConfig{},
+		SupportLinks:        wirtualsdk.DefaultSupportLinks(f.docsURL),
 		DocsURL:             f.docsURL,
 	}
 
 	if announcementBannersJSON != "" {
 		err = json.Unmarshal([]byte(announcementBannersJSON), &cfg.AnnouncementBanners)
 		if err != nil {
-			return codersdk.AppearanceConfig{}, xerrors.Errorf(
+			return wirtualsdk.AppearanceConfig{}, xerrors.Errorf(
 				"unmarshal announcement banners json: %w, raw: %s", err, announcementBannersJSON,
 			)
 		}
@@ -146,20 +146,20 @@ func (api *API) putAppearance(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	if !api.Authorize(r, policy.ActionUpdate, rbac.ResourceDeploymentConfig) {
-		httpapi.Write(ctx, rw, http.StatusForbidden, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusForbidden, wirtualsdk.Response{
 			Message: "Insufficient permissions to update appearance",
 		})
 		return
 	}
 
-	var appearance codersdk.UpdateAppearanceConfig
+	var appearance wirtualsdk.UpdateAppearanceConfig
 	if !httpapi.Read(ctx, rw, r, &appearance) {
 		return
 	}
 
 	for _, banner := range appearance.AnnouncementBanners {
 		if err := validateHexColor(banner.BackgroundColor); err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: fmt.Sprintf("Invalid color format: %q", banner.BackgroundColor),
 				Detail:  err.Error(),
 			})
@@ -168,11 +168,11 @@ func (api *API) putAppearance(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if appearance.AnnouncementBanners == nil {
-		appearance.AnnouncementBanners = []codersdk.BannerConfig{}
+		appearance.AnnouncementBanners = []wirtualsdk.BannerConfig{}
 	}
 	announcementBannersJSON, err := json.Marshal(appearance.AnnouncementBanners)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Unable to marshal announcement banners",
 			Detail:  err.Error(),
 		})
@@ -181,7 +181,7 @@ func (api *API) putAppearance(rw http.ResponseWriter, r *http.Request) {
 
 	err = api.Database.UpsertAnnouncementBanners(ctx, string(announcementBannersJSON))
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Unable to set announcement banners",
 			Detail:  err.Error(),
 		})
@@ -190,7 +190,7 @@ func (api *API) putAppearance(rw http.ResponseWriter, r *http.Request) {
 
 	err = api.Database.UpsertApplicationName(ctx, appearance.ApplicationName)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Unable to set application name",
 			Detail:  err.Error(),
 		})
@@ -199,7 +199,7 @@ func (api *API) putAppearance(rw http.ResponseWriter, r *http.Request) {
 
 	err = api.Database.UpsertLogoURL(ctx, appearance.LogoURL)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Unable to set logo URL",
 			Detail:  err.Error(),
 		})

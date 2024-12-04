@@ -37,9 +37,9 @@ func (r *RootCmd) showOrganizationRoles(orgContext *OrganizationContext) *serpen
 		cliui.ChangeFormatterData(
 			cliui.TableFormat([]roleTableRow{}, []string{"name", "display name", "site permissions", "organization permissions", "user permissions"}),
 			func(data any) (any, error) {
-				inputs, ok := data.([]codersdk.AssignableRoles)
+				inputs, ok := data.([]wirtualsdk.AssignableRoles)
 				if !ok {
-					return nil, xerrors.Errorf("expected []codersdk.AssignableRoles got %T", data)
+					return nil, xerrors.Errorf("expected []wirtualsdk.AssignableRoles got %T", data)
 				}
 
 				tableRows := make([]roleTableRow, 0)
@@ -53,7 +53,7 @@ func (r *RootCmd) showOrganizationRoles(orgContext *OrganizationContext) *serpen
 		cliui.JSONFormat(),
 	)
 
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "show [role_names ...]",
 		Short: "Show role(s)",
@@ -74,7 +74,7 @@ func (r *RootCmd) showOrganizationRoles(orgContext *OrganizationContext) *serpen
 
 			if len(inv.Args) > 0 {
 				// filter roles
-				filtered := make([]codersdk.AssignableRoles, 0)
+				filtered := make([]wirtualsdk.AssignableRoles, 0)
 				for _, role := range roles {
 					if slices.ContainsFunc(inv.Args, func(s string) bool {
 						return strings.EqualFold(s, role.Name)
@@ -104,7 +104,7 @@ func (r *RootCmd) editOrganizationRole(orgContext *OrganizationContext) *serpent
 		cliui.ChangeFormatterData(
 			cliui.TableFormat([]roleTableRow{}, []string{"name", "display name", "site permissions", "organization permissions", "user permissions"}),
 			func(data any) (any, error) {
-				typed, _ := data.(codersdk.Role)
+				typed, _ := data.(wirtualsdk.Role)
 				return []roleTableRow{roleToTableView(typed)}, nil
 			},
 		),
@@ -116,7 +116,7 @@ func (r *RootCmd) editOrganizationRole(orgContext *OrganizationContext) *serpent
 		jsonInput bool
 	)
 
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "edit <role_name>",
 		Short: "Edit an organization custom role",
@@ -153,7 +153,7 @@ func (r *RootCmd) editOrganizationRole(orgContext *OrganizationContext) *serpent
 			}
 
 			createNewRole := true
-			var customRole codersdk.Role
+			var customRole wirtualsdk.Role
 			if jsonInput {
 				// JSON Upload mode
 				bytes, err := io.ReadAll(inv.Stdin)
@@ -211,7 +211,7 @@ func (r *RootCmd) editOrganizationRole(orgContext *OrganizationContext) *serpent
 				}
 			}
 
-			var updated codersdk.Role
+			var updated wirtualsdk.Role
 			if dryRun {
 				// Do not actually post
 				updated = customRole
@@ -241,7 +241,7 @@ func (r *RootCmd) editOrganizationRole(orgContext *OrganizationContext) *serpent
 	return cmd
 }
 
-func interactiveOrgRoleEdit(inv *serpent.Invocation, orgID uuid.UUID, client *codersdk.Client) (*codersdk.Role, bool, error) {
+func interactiveOrgRoleEdit(inv *serpent.Invocation, orgID uuid.UUID, client *wirtualsdk.Client) (*wirtualsdk.Role, bool, error) {
 	newRole := false
 	ctx := inv.Context()
 	roles, err := client.ListOrganizationRoles(ctx, orgID)
@@ -250,7 +250,7 @@ func interactiveOrgRoleEdit(inv *serpent.Invocation, orgID uuid.UUID, client *co
 	}
 
 	// Make sure the role actually exists first
-	var originalRole codersdk.AssignableRoles
+	var originalRole wirtualsdk.AssignableRoles
 	for _, r := range roles {
 		if strings.EqualFold(inv.Args[0], r.Name) {
 			originalRole = r
@@ -268,7 +268,7 @@ func interactiveOrgRoleEdit(inv *serpent.Invocation, orgID uuid.UUID, client *co
 			return nil, newRole, xerrors.Errorf("abort: %w", err)
 		}
 
-		originalRole.Role = codersdk.Role{
+		originalRole.Role = wirtualsdk.Role{
 			Name:           inv.Args[0],
 			OrganizationID: orgID.String(),
 		}
@@ -285,11 +285,11 @@ func interactiveOrgRoleEdit(inv *serpent.Invocation, orgID uuid.UUID, client *co
 	}
 
 	role := &originalRole.Role
-	allowedResources := []codersdk.RBACResource{
-		codersdk.ResourceTemplate,
-		codersdk.ResourceWorkspace,
-		codersdk.ResourceUser,
-		codersdk.ResourceGroup,
+	allowedResources := []wirtualsdk.RBACResource{
+		wirtualsdk.ResourceTemplate,
+		wirtualsdk.ResourceWorkspace,
+		wirtualsdk.ResourceUser,
+		wirtualsdk.ResourceGroup,
 	}
 
 	const done = "Finish and submit changes"
@@ -316,7 +316,7 @@ customRoleLoop:
 
 			actions, err := cliui.MultiSelect(inv, cliui.MultiSelectOptions{
 				Message:  fmt.Sprintf("Select actions to allow across the whole deployment for resources=%q", resource),
-				Options:  slice.ToStrings(codersdk.RBACResourceActions[codersdk.RBACResource(resource)]),
+				Options:  slice.ToStrings(wirtualsdk.RBACResourceActions[wirtualsdk.RBACResource(resource)]),
 				Defaults: defaultActions(role, resource),
 			})
 			if err != nil {
@@ -332,13 +332,13 @@ customRoleLoop:
 	return role, newRole, nil
 }
 
-func applyOrgResourceActions(role *codersdk.Role, resource string, actions []string) {
+func applyOrgResourceActions(role *wirtualsdk.Role, resource string, actions []string) {
 	if role.OrganizationPermissions == nil {
-		role.OrganizationPermissions = make([]codersdk.Permission, 0)
+		role.OrganizationPermissions = make([]wirtualsdk.Permission, 0)
 	}
 
 	// Construct new site perms with only new perms for the resource
-	keep := make([]codersdk.Permission, 0)
+	keep := make([]wirtualsdk.Permission, 0)
 	for _, perm := range role.OrganizationPermissions {
 		perm := perm
 		if string(perm.ResourceType) != resource {
@@ -348,19 +348,19 @@ func applyOrgResourceActions(role *codersdk.Role, resource string, actions []str
 
 	// Add new perms
 	for _, action := range actions {
-		keep = append(keep, codersdk.Permission{
+		keep = append(keep, wirtualsdk.Permission{
 			Negate:       false,
-			ResourceType: codersdk.RBACResource(resource),
-			Action:       codersdk.RBACAction(action),
+			ResourceType: wirtualsdk.RBACResource(resource),
+			Action:       wirtualsdk.RBACAction(action),
 		})
 	}
 
 	role.OrganizationPermissions = keep
 }
 
-func defaultActions(role *codersdk.Role, resource string) []string {
+func defaultActions(role *wirtualsdk.Role, resource string) []string {
 	if role.OrganizationPermissions == nil {
-		role.OrganizationPermissions = []codersdk.Permission{}
+		role.OrganizationPermissions = []wirtualsdk.Permission{}
 	}
 
 	defaults := make([]string, 0)
@@ -372,7 +372,7 @@ func defaultActions(role *codersdk.Role, resource string) []string {
 	return defaults
 }
 
-func permissionPreviews(role *codersdk.Role, resources []codersdk.RBACResource) []string {
+func permissionPreviews(role *wirtualsdk.Role, resources []wirtualsdk.RBACResource) []string {
 	previews := make([]string, 0, len(resources))
 	for _, resource := range resources {
 		previews = append(previews, permissionPreview(role, resource))
@@ -380,9 +380,9 @@ func permissionPreviews(role *codersdk.Role, resources []codersdk.RBACResource) 
 	return previews
 }
 
-func permissionPreview(role *codersdk.Role, resource codersdk.RBACResource) string {
+func permissionPreview(role *wirtualsdk.Role, resource wirtualsdk.RBACResource) string {
 	if role.OrganizationPermissions == nil {
-		role.OrganizationPermissions = []codersdk.Permission{}
+		role.OrganizationPermissions = []wirtualsdk.Permission{}
 	}
 
 	count := 0
@@ -394,7 +394,7 @@ func permissionPreview(role *codersdk.Role, resource codersdk.RBACResource) stri
 	return fmt.Sprintf("%s :: %d permissions", resource, count)
 }
 
-func roleToTableView(role codersdk.Role) roleTableRow {
+func roleToTableView(role wirtualsdk.Role) roleTableRow {
 	return roleTableRow{
 		Name:                    role.Name,
 		DisplayName:             role.DisplayName,

@@ -32,16 +32,16 @@ import (
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
-func verifyQuota(ctx context.Context, t *testing.T, client *codersdk.Client, organizationID string, consumed, total int) {
-	verifyQuotaUser(ctx, t, client, organizationID, codersdk.Me, consumed, total)
+func verifyQuota(ctx context.Context, t *testing.T, client *wirtualsdk.Client, organizationID string, consumed, total int) {
+	verifyQuotaUser(ctx, t, client, organizationID, wirtualsdk.Me, consumed, total)
 }
 
-func verifyQuotaUser(ctx context.Context, t *testing.T, client *codersdk.Client, organizationID string, user string, consumed, total int) {
+func verifyQuotaUser(ctx context.Context, t *testing.T, client *wirtualsdk.Client, organizationID string, user string, consumed, total int) {
 	t.Helper()
 
 	got, err := client.WorkspaceQuota(ctx, organizationID, user)
 	require.NoError(t, err)
-	require.EqualValues(t, codersdk.WorkspaceQuota{
+	require.EqualValues(t, wirtualsdk.WorkspaceQuota{
 		Budget:          total,
 		CreditsConsumed: consumed,
 	}, got)
@@ -78,7 +78,7 @@ func TestWorkspaceQuota(t *testing.T) {
 			UserWorkspaceQuota: max,
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureTemplateRBAC: 1,
+					wirtualsdk.FeatureTemplateRBAC: 1,
 				},
 			},
 		})
@@ -87,31 +87,31 @@ func TestWorkspaceQuota(t *testing.T) {
 		verifyQuota(ctx, t, client, user.OrganizationID.String(), 0, 0)
 
 		// Patch the 'Everyone' group to verify its quota allowance is being accounted for.
-		_, err := client.PatchGroup(ctx, user.OrganizationID, codersdk.PatchGroupRequest{
+		_, err := client.PatchGroup(ctx, user.OrganizationID, wirtualsdk.PatchGroupRequest{
 			QuotaAllowance: ptr.Ref(1),
 		})
 		require.NoError(t, err)
 		verifyQuota(ctx, t, client, user.OrganizationID.String(), 0, 1)
 
 		// Add user to two groups, granting them a total budget of 4.
-		group1, err := client.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group1, err := client.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name:           "test-1",
 			QuotaAllowance: 1,
 		})
 		require.NoError(t, err)
 
-		group2, err := client.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group2, err := client.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name:           "test-2",
 			QuotaAllowance: 2,
 		})
 		require.NoError(t, err)
 
-		_, err = client.PatchGroup(ctx, group1.ID, codersdk.PatchGroupRequest{
+		_, err = client.PatchGroup(ctx, group1.ID, wirtualsdk.PatchGroupRequest{
 			AddUsers: []string{user.UserID.String()},
 		})
 		require.NoError(t, err)
 
-		_, err = client.PatchGroup(ctx, group2.ID, codersdk.PatchGroupRequest{
+		_, err = client.PatchGroup(ctx, group2.ID, wirtualsdk.PatchGroupRequest{
 			AddUsers: []string{user.UserID.String()},
 		})
 		require.NoError(t, err)
@@ -151,7 +151,7 @@ func TestWorkspaceQuota(t *testing.T) {
 				defer wg.Done()
 				workspace := coderdtest.CreateWorkspace(t, client, template.ID)
 				build := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
-				assert.Equal(t, codersdk.WorkspaceStatusRunning, build.Status)
+				assert.Equal(t, wirtualsdk.WorkspaceStatusRunning, build.Status)
 			}()
 		}
 		wg.Wait()
@@ -163,18 +163,18 @@ func TestWorkspaceQuota(t *testing.T) {
 
 		// Consumed shouldn't bump
 		verifyQuota(ctx, t, client, user.OrganizationID.String(), 4, 4)
-		require.Equal(t, codersdk.WorkspaceStatusFailed, build.Status)
+		require.Equal(t, wirtualsdk.WorkspaceStatusFailed, build.Status)
 		require.Contains(t, build.Job.Error, "quota")
 
 		// Delete one random workspace, then quota should recover.
-		workspaces, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{})
+		workspaces, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{})
 		require.NoError(t, err)
 		for _, w := range workspaces.Workspaces {
-			if w.LatestBuild.Status != codersdk.WorkspaceStatusRunning {
+			if w.LatestBuild.Status != wirtualsdk.WorkspaceStatusRunning {
 				continue
 			}
-			build, err := client.CreateWorkspaceBuild(ctx, w.ID, codersdk.CreateWorkspaceBuildRequest{
-				Transition: codersdk.WorkspaceTransitionDelete,
+			build, err := client.CreateWorkspaceBuild(ctx, w.ID, wirtualsdk.CreateWorkspaceBuildRequest{
+				Transition: wirtualsdk.WorkspaceTransitionDelete,
 			})
 			require.NoError(t, err)
 			coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
@@ -187,7 +187,7 @@ func TestWorkspaceQuota(t *testing.T) {
 		build = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		verifyQuota(ctx, t, client, user.OrganizationID.String(), 4, 4)
-		require.Equal(t, codersdk.WorkspaceStatusRunning, build.Status)
+		require.Equal(t, wirtualsdk.WorkspaceStatusRunning, build.Status)
 	})
 
 	t.Run("StartStop", func(t *testing.T) {
@@ -200,7 +200,7 @@ func TestWorkspaceQuota(t *testing.T) {
 			UserWorkspaceQuota: max,
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureTemplateRBAC: 1,
+					wirtualsdk.FeatureTemplateRBAC: 1,
 				},
 			},
 		})
@@ -209,7 +209,7 @@ func TestWorkspaceQuota(t *testing.T) {
 		verifyQuota(ctx, t, client, user.OrganizationID.String(), 0, 0)
 
 		// Patch the 'Everyone' group to verify its quota allowance is being accounted for.
-		_, err := client.PatchGroup(ctx, user.OrganizationID, codersdk.PatchGroupRequest{
+		_, err := client.PatchGroup(ctx, user.OrganizationID, wirtualsdk.PatchGroupRequest{
 			QuotaAllowance: ptr.Ref(4),
 		})
 		require.NoError(t, err)
@@ -232,12 +232,12 @@ func TestWorkspaceQuota(t *testing.T) {
 
 		// Spin up two workspaces.
 		var wg sync.WaitGroup
-		var workspaces []codersdk.Workspace
+		var workspaces []wirtualsdk.Workspace
 		for i := 0; i < 2; i++ {
 			workspace := coderdtest.CreateWorkspace(t, client, template.ID)
 			workspaces = append(workspaces, workspace)
 			build := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
-			assert.Equal(t, codersdk.WorkspaceStatusRunning, build.Status)
+			assert.Equal(t, wirtualsdk.WorkspaceStatusRunning, build.Status)
 		}
 		wg.Wait()
 		verifyQuota(ctx, t, client, user.OrganizationID.String(), 4, 4)
@@ -249,21 +249,21 @@ func TestWorkspaceQuota(t *testing.T) {
 
 		// Consumed shouldn't bump
 		verifyQuota(ctx, t, client, user.OrganizationID.String(), 4, 4)
-		require.Equal(t, codersdk.WorkspaceStatusFailed, build.Status)
+		require.Equal(t, wirtualsdk.WorkspaceStatusFailed, build.Status)
 
 		build = coderdtest.CreateWorkspaceBuild(t, client, workspaces[0], database.WorkspaceTransitionStop)
 		build = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
 
 		// Quota goes down one
 		verifyQuota(ctx, t, client, user.OrganizationID.String(), 3, 4)
-		require.Equal(t, codersdk.WorkspaceStatusStopped, build.Status)
+		require.Equal(t, wirtualsdk.WorkspaceStatusStopped, build.Status)
 
 		build = coderdtest.CreateWorkspaceBuild(t, client, workspaces[0], database.WorkspaceTransitionStart)
 		build = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
 
 		// Quota goes back up
 		verifyQuota(ctx, t, client, user.OrganizationID.String(), 4, 4)
-		require.Equal(t, codersdk.WorkspaceStatusRunning, build.Status)
+		require.Equal(t, wirtualsdk.WorkspaceStatusRunning, build.Status)
 	})
 
 	// Ensures allowance from everyone groups only counts if you are an org member.
@@ -275,8 +275,8 @@ func TestWorkspaceQuota(t *testing.T) {
 		owner, first := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureTemplateRBAC:          1,
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureTemplateRBAC:          1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -290,12 +290,12 @@ func TestWorkspaceQuota(t *testing.T) {
 
 		// update everyone quotas
 		//nolint:gocritic // using owner for simplicity
-		_, err := owner.PatchGroup(ctx, first.OrganizationID, codersdk.PatchGroupRequest{
+		_, err := owner.PatchGroup(ctx, first.OrganizationID, wirtualsdk.PatchGroupRequest{
 			QuotaAllowance: ptr.Ref(30),
 		})
 		require.NoError(t, err)
 
-		_, err = owner.PatchGroup(ctx, second.ID, codersdk.PatchGroupRequest{
+		_, err = owner.PatchGroup(ctx, second.ID, wirtualsdk.PatchGroupRequest{
 			QuotaAllowance: ptr.Ref(15),
 		})
 		require.NoError(t, err)
@@ -314,8 +314,8 @@ func TestWorkspaceQuota(t *testing.T) {
 		owner, db, first := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureTemplateRBAC:          1,
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureTemplateRBAC:          1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -892,16 +892,16 @@ func TestWorkspaceSerialization(t *testing.T) {
 	})
 }
 
-func deprecatedQuotaEndpoint(ctx context.Context, client *codersdk.Client, userID string) (codersdk.WorkspaceQuota, error) {
+func deprecatedQuotaEndpoint(ctx context.Context, client *wirtualsdk.Client, userID string) (wirtualsdk.WorkspaceQuota, error) {
 	res, err := client.Request(ctx, http.MethodGet, fmt.Sprintf("/api/v2/workspace-quota/%s", userID), nil)
 	if err != nil {
-		return codersdk.WorkspaceQuota{}, err
+		return wirtualsdk.WorkspaceQuota{}, err
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		return codersdk.WorkspaceQuota{}, codersdk.ReadBodyAsError(res)
+		return wirtualsdk.WorkspaceQuota{}, wirtualsdk.ReadBodyAsError(res)
 	}
-	var quota codersdk.WorkspaceQuota
+	var quota wirtualsdk.WorkspaceQuota
 	return quota, json.NewDecoder(res.Body).Decode(&quota)
 }
 

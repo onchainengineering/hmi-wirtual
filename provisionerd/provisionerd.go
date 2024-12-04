@@ -201,7 +201,7 @@ connectLoop:
 			if errors.Is(err, context.Canceled) {
 				return
 			}
-			var sdkErr *codersdk.Error
+			var sdkErr *wirtualsdk.Error
 			// If something is wrong with our auth, stop trying to connect.
 			if errors.As(err, &sdkErr) && sdkErr.StatusCode() == http.StatusForbidden {
 				p.opts.Logger.Error(p.closeContext, "not authorized to dial coderd", slog.Error(err))

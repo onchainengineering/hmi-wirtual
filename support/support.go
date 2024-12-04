@@ -39,10 +39,10 @@ type Bundle struct {
 }
 
 type Deployment struct {
-	BuildInfo    *codersdk.BuildInfoResponse  `json:"build"`
-	Config       *codersdk.DeploymentConfig   `json:"config"`
-	Experiments  codersdk.Experiments         `json:"experiments"`
-	HealthReport *healthsdk.HealthcheckReport `json:"health_report"`
+	BuildInfo    *wirtualsdk.BuildInfoResponse `json:"build"`
+	Config       *wirtualsdk.DeploymentConfig  `json:"config"`
+	Experiments  wirtualsdk.Experiments        `json:"experiments"`
+	HealthReport *healthsdk.HealthcheckReport  `json:"health_report"`
 }
 
 type Network struct {
@@ -60,32 +60,32 @@ type Netcheck struct {
 }
 
 type Workspace struct {
-	Workspace          codersdk.Workspace                 `json:"workspace"`
-	Parameters         []codersdk.WorkspaceBuildParameter `json:"parameters"`
-	Template           codersdk.Template                  `json:"template"`
-	TemplateVersion    codersdk.TemplateVersion           `json:"template_version"`
-	TemplateFileBase64 string                             `json:"template_file_base64"`
-	BuildLogs          []codersdk.ProvisionerJobLog       `json:"build_logs"`
+	Workspace          wirtualsdk.Workspace                 `json:"workspace"`
+	Parameters         []wirtualsdk.WorkspaceBuildParameter `json:"parameters"`
+	Template           wirtualsdk.Template                  `json:"template"`
+	TemplateVersion    wirtualsdk.TemplateVersion           `json:"template_version"`
+	TemplateFileBase64 string                               `json:"template_file_base64"`
+	BuildLogs          []wirtualsdk.ProvisionerJobLog       `json:"build_logs"`
 }
 
 type Agent struct {
-	Agent               *codersdk.WorkspaceAgent                       `json:"agent"`
-	ConnectionInfo      *workspacesdk.AgentConnectionInfo              `json:"connection_info"`
-	ListeningPorts      *codersdk.WorkspaceAgentListeningPortsResponse `json:"listening_ports"`
-	Logs                []byte                                         `json:"logs"`
-	ClientMagicsockHTML []byte                                         `json:"client_magicsock_html"`
-	AgentMagicsockHTML  []byte                                         `json:"agent_magicsock_html"`
-	Manifest            *agentsdk.Manifest                             `json:"manifest"`
-	PeerDiagnostics     *tailnet.PeerDiagnostics                       `json:"peer_diagnostics"`
-	PingResult          *ipnstate.PingResult                           `json:"ping_result"`
-	Prometheus          []byte                                         `json:"prometheus"`
-	StartupLogs         []codersdk.WorkspaceAgentLog                   `json:"startup_logs"`
+	Agent               *wirtualsdk.WorkspaceAgent                       `json:"agent"`
+	ConnectionInfo      *workspacesdk.AgentConnectionInfo                `json:"connection_info"`
+	ListeningPorts      *wirtualsdk.WorkspaceAgentListeningPortsResponse `json:"listening_ports"`
+	Logs                []byte                                           `json:"logs"`
+	ClientMagicsockHTML []byte                                           `json:"client_magicsock_html"`
+	AgentMagicsockHTML  []byte                                           `json:"agent_magicsock_html"`
+	Manifest            *agentsdk.Manifest                               `json:"manifest"`
+	PeerDiagnostics     *tailnet.PeerDiagnostics                         `json:"peer_diagnostics"`
+	PingResult          *ipnstate.PingResult                             `json:"ping_result"`
+	Prometheus          []byte                                           `json:"prometheus"`
+	StartupLogs         []wirtualsdk.WorkspaceAgentLog                   `json:"startup_logs"`
 }
 
 // Deps is a set of dependencies for discovering information
 type Deps struct {
 	// Source from which to obtain information.
-	Client *codersdk.Client
+	Client *wirtualsdk.Client
 	// Log is where to log any informational or warning messages.
 	Log slog.Logger
 	// WorkspaceID is the optional workspace against which to run connection tests.
@@ -95,7 +95,7 @@ type Deps struct {
 	AgentID uuid.UUID
 }
 
-func DeploymentInfo(ctx context.Context, client *codersdk.Client, log slog.Logger) Deployment {
+func DeploymentInfo(ctx context.Context, client *wirtualsdk.Client, log slog.Logger) Deployment {
 	// Note: each goroutine assigns to a different struct field, hence no mutex.
 	var (
 		d  Deployment
@@ -145,7 +145,7 @@ func DeploymentInfo(ctx context.Context, client *codersdk.Client, log slog.Logge
 	return d
 }
 
-func NetworkInfo(ctx context.Context, client *codersdk.Client, log slog.Logger) Network {
+func NetworkInfo(ctx context.Context, client *wirtualsdk.Client, log slog.Logger) Network {
 	var (
 		n  Network
 		eg errgroup.Group
@@ -211,7 +211,7 @@ func NetworkInfo(ctx context.Context, client *codersdk.Client, log slog.Logger) 
 	return n
 }
 
-func WorkspaceInfo(ctx context.Context, client *codersdk.Client, log slog.Logger, workspaceID uuid.UUID) Workspace {
+func WorkspaceInfo(ctx context.Context, client *wirtualsdk.Client, log slog.Logger, workspaceID uuid.UUID) Workspace {
 	var (
 		w  Workspace
 		eg errgroup.Group
@@ -241,7 +241,7 @@ func WorkspaceInfo(ctx context.Context, client *codersdk.Client, log slog.Logger
 			return xerrors.Errorf("fetch provisioner job logs: %w", err)
 		}
 		defer closer.Close()
-		var logs []codersdk.ProvisionerJobLog
+		var logs []wirtualsdk.ProvisionerJobLog
 		for log := range buildLogCh {
 			logs = append(w.BuildLogs, log)
 		}
@@ -262,12 +262,12 @@ func WorkspaceInfo(ctx context.Context, client *codersdk.Client, log slog.Logger
 		if tv.Job.FileID == uuid.Nil {
 			return xerrors.Errorf("template file id is nil")
 		}
-		raw, ctype, err := client.DownloadWithFormat(ctx, tv.Job.FileID, codersdk.FormatZip)
+		raw, ctype, err := client.DownloadWithFormat(ctx, tv.Job.FileID, wirtualsdk.FormatZip)
 		if err != nil {
 			return err
 		}
-		if ctype != codersdk.ContentTypeZip {
-			return xerrors.Errorf("expected content-type %s, got %s", codersdk.ContentTypeZip, ctype)
+		if ctype != wirtualsdk.ContentTypeZip {
+			return xerrors.Errorf("expected content-type %s, got %s", wirtualsdk.ContentTypeZip, ctype)
 		}
 
 		b64encoded := base64.StdEncoding.EncodeToString(raw)
@@ -306,7 +306,7 @@ func WorkspaceInfo(ctx context.Context, client *codersdk.Client, log slog.Logger
 	return w
 }
 
-func AgentInfo(ctx context.Context, client *codersdk.Client, log slog.Logger, agentID uuid.UUID) Agent {
+func AgentInfo(ctx context.Context, client *wirtualsdk.Client, log slog.Logger, agentID uuid.UUID) Agent {
 	var (
 		a  Agent
 		eg errgroup.Group
@@ -333,7 +333,7 @@ func AgentInfo(ctx context.Context, client *codersdk.Client, log slog.Logger, ag
 			return xerrors.Errorf("fetch agent startup logs: %w", err)
 		}
 		defer closer.Close()
-		var logs []codersdk.WorkspaceAgentLog
+		var logs []wirtualsdk.WorkspaceAgentLog
 		for logChunk := range agentLogCh {
 			logs = append(logs, logChunk...)
 		}
@@ -353,7 +353,7 @@ func AgentInfo(ctx context.Context, client *codersdk.Client, log slog.Logger, ag
 	return a
 }
 
-func connectedAgentInfo(ctx context.Context, client *codersdk.Client, log slog.Logger, agentID uuid.UUID, eg *errgroup.Group, a *Agent) (closer func()) {
+func connectedAgentInfo(ctx context.Context, client *wirtualsdk.Client, log slog.Logger, agentID uuid.UUID, eg *errgroup.Group, a *Agent) (closer func()) {
 	conn, err := workspacesdk.New(client).
 		DialAgent(ctx, agentID, &workspacesdk.DialAgentOptions{
 			Logger:         log.Named("dial-agent"),
@@ -464,12 +464,12 @@ func Run(ctx context.Context, d *Deps) (*Bundle, error) {
 		return nil, xerrors.Errorf("developer error: missing client!")
 	}
 
-	authChecks := map[string]codersdk.AuthorizationCheck{
+	authChecks := map[string]wirtualsdk.AuthorizationCheck{
 		"Read DeploymentValues": {
-			Object: codersdk.AuthorizationObject{
-				ResourceType: codersdk.ResourceDeploymentConfig,
+			Object: wirtualsdk.AuthorizationObject{
+				ResourceType: wirtualsdk.ResourceDeploymentConfig,
 			},
-			Action: codersdk.ActionRead,
+			Action: wirtualsdk.ActionRead,
 		},
 	}
 
@@ -481,7 +481,7 @@ func Run(ctx context.Context, d *Deps) (*Bundle, error) {
 		b.Logs = strings.Split(logw.String(), "\n")
 	}()
 
-	authResp, err := d.Client.AuthCheck(ctx, codersdk.AuthorizationRequest{Checks: authChecks})
+	authResp, err := d.Client.AuthCheck(ctx, wirtualsdk.AuthorizationRequest{Checks: authChecks})
 	if err != nil {
 		return &b, xerrors.Errorf("check authorization: %w", err)
 	}

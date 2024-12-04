@@ -29,12 +29,12 @@ func TestCreateGroup(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
-		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name:      "hi",
 			AvatarURL: "https://example.com",
 		})
@@ -58,8 +58,8 @@ func TestCreateGroup(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureTemplateRBAC: 1,
-					codersdk.FeatureAuditLog:     1,
+					wirtualsdk.FeatureTemplateRBAC: 1,
+					wirtualsdk.FeatureAuditLog:     1,
 				},
 			},
 		})
@@ -68,7 +68,7 @@ func TestCreateGroup(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitLong)
 
 		numLogs := len(auditor.AuditLogs())
-		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
 		})
 		require.NoError(t, err)
@@ -85,21 +85,21 @@ func TestCreateGroup(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
-		_, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		_, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
 		})
 		require.NoError(t, err)
 
-		_, err = userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		_, err = userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
 		})
 		require.Error(t, err)
-		cerr, ok := codersdk.AsError(err)
+		cerr, ok := wirtualsdk.AsError(err)
 		require.True(t, ok)
 		require.Equal(t, http.StatusConflict, cerr.StatusCode())
 	})
@@ -109,17 +109,17 @@ func TestCreateGroup(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
-		_, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		_, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "new",
 		})
 
 		require.Error(t, err)
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 	})
@@ -129,16 +129,16 @@ func TestCreateGroup(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
-		_, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		_, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: database.EveryoneGroup,
 		})
 		require.Error(t, err)
-		cerr, ok := codersdk.AsError(err)
+		cerr, ok := wirtualsdk.AsError(err)
 		require.True(t, ok)
 		require.Equal(t, http.StatusBadRequest, cerr.StatusCode())
 	})
@@ -152,13 +152,13 @@ func TestPatchGroup(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		const displayName = "foobar"
 		ctx := testutil.Context(t, testutil.WaitLong)
-		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name:           "ff7dcee2-e7c4-4bc4-a9e4-84870770e4c5", // GUID should fit.
 			AvatarURL:      "https://example.com",
 			QuotaAllowance: 10,
@@ -167,7 +167,7 @@ func TestPatchGroup(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, 10, group.QuotaAllowance)
 
-		group, err = userAdminClient.PatchGroup(ctx, group.ID, codersdk.PatchGroupRequest{
+		group, err = userAdminClient.PatchGroup(ctx, group.ID, wirtualsdk.PatchGroupRequest{
 			Name:           "ddd502d2-2984-4724-b5bf-1109a4d7462d", // GUID should fit.
 			AvatarURL:      ptr.Ref("https://google.com"),
 			QuotaAllowance: ptr.Ref(20),
@@ -185,13 +185,13 @@ func TestPatchGroup(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		const displayName = "foobar"
 		ctx := testutil.Context(t, testutil.WaitLong)
-		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name:           "hi",
 			AvatarURL:      "https://example.com",
 			QuotaAllowance: 10,
@@ -200,7 +200,7 @@ func TestPatchGroup(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, 10, group.QuotaAllowance)
 
-		group, err = userAdminClient.PatchGroup(ctx, group.ID, codersdk.PatchGroupRequest{
+		group, err = userAdminClient.PatchGroup(ctx, group.ID, wirtualsdk.PatchGroupRequest{
 			Name:           "bye",
 			AvatarURL:      ptr.Ref("https://google.com"),
 			QuotaAllowance: ptr.Ref(20),
@@ -220,17 +220,17 @@ func TestPatchGroup(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
-		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
 		})
 		require.NoError(t, err)
 
-		group, err = userAdminClient.PatchGroup(ctx, group.ID, codersdk.PatchGroupRequest{
+		group, err = userAdminClient.PatchGroup(ctx, group.ID, wirtualsdk.PatchGroupRequest{
 			Name: "hi",
 		})
 		require.NoError(t, err)
@@ -242,7 +242,7 @@ func TestPatchGroup(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
@@ -250,12 +250,12 @@ func TestPatchGroup(t *testing.T) {
 		_, user3 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
 		})
 		require.NoError(t, err)
 
-		group, err = userAdminClient.PatchGroup(ctx, group.ID, codersdk.PatchGroupRequest{
+		group, err = userAdminClient.PatchGroup(ctx, group.ID, wirtualsdk.PatchGroupRequest{
 			AddUsers: []string{user2.ID.String(), user3.ID.String()},
 		})
 		require.NoError(t, err)
@@ -268,7 +268,7 @@ func TestPatchGroup(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
@@ -277,19 +277,19 @@ func TestPatchGroup(t *testing.T) {
 		_, user4 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
 		})
 		require.NoError(t, err)
 
-		group, err = userAdminClient.PatchGroup(ctx, group.ID, codersdk.PatchGroupRequest{
+		group, err = userAdminClient.PatchGroup(ctx, group.ID, wirtualsdk.PatchGroupRequest{
 			AddUsers: []string{user2.ID.String(), user3.ID.String(), user4.ID.String()},
 		})
 		require.NoError(t, err)
 		require.Contains(t, group.Members, user2.ReducedUser)
 		require.Contains(t, group.Members, user3.ReducedUser)
 
-		group, err = userAdminClient.PatchGroup(ctx, group.ID, codersdk.PatchGroupRequest{
+		group, err = userAdminClient.PatchGroup(ctx, group.ID, wirtualsdk.PatchGroupRequest{
 			RemoveUsers: []string{user2.ID.String(), user3.ID.String()},
 		})
 		require.NoError(t, err)
@@ -310,21 +310,21 @@ func TestPatchGroup(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureTemplateRBAC: 1,
-					codersdk.FeatureAuditLog:     1,
+					wirtualsdk.FeatureTemplateRBAC: 1,
+					wirtualsdk.FeatureAuditLog:     1,
 				},
 			},
 		})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
 
-		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
 		})
 		require.NoError(t, err)
 
 		numLogs := len(auditor.AuditLogs())
-		group, err = userAdminClient.PatchGroup(ctx, group.ID, codersdk.PatchGroupRequest{
+		group, err = userAdminClient.PatchGroup(ctx, group.ID, wirtualsdk.PatchGroupRequest{
 			Name: "bye",
 		})
 		require.NoError(t, err)
@@ -339,28 +339,28 @@ func TestPatchGroup(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
-		group1, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group1, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name:      "hi",
 			AvatarURL: "https://example.com",
 		})
 		require.NoError(t, err)
 
-		group2, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group2, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "bye",
 		})
 		require.NoError(t, err)
 
-		group1, err = userAdminClient.PatchGroup(ctx, group1.ID, codersdk.PatchGroupRequest{
+		group1, err = userAdminClient.PatchGroup(ctx, group1.ID, wirtualsdk.PatchGroupRequest{
 			Name:      group2.Name,
 			AvatarURL: ptr.Ref("https://google.com"),
 		})
 		require.Error(t, err)
-		cerr, ok := codersdk.AsError(err)
+		cerr, ok := wirtualsdk.AsError(err)
 		require.True(t, ok)
 		require.Equal(t, http.StatusConflict, cerr.StatusCode())
 	})
@@ -370,21 +370,21 @@ func TestPatchGroup(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
-		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
 		})
 		require.NoError(t, err)
 
-		group, err = userAdminClient.PatchGroup(ctx, group.ID, codersdk.PatchGroupRequest{
+		group, err = userAdminClient.PatchGroup(ctx, group.ID, wirtualsdk.PatchGroupRequest{
 			AddUsers: []string{uuid.NewString()},
 		})
 		require.Error(t, err)
-		cerr, ok := codersdk.AsError(err)
+		cerr, ok := wirtualsdk.AsError(err)
 		require.True(t, ok)
 		require.Equal(t, http.StatusBadRequest, cerr.StatusCode())
 	})
@@ -394,21 +394,21 @@ func TestPatchGroup(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
-		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
 		})
 		require.NoError(t, err)
 
-		group, err = userAdminClient.PatchGroup(ctx, group.ID, codersdk.PatchGroupRequest{
+		group, err = userAdminClient.PatchGroup(ctx, group.ID, wirtualsdk.PatchGroupRequest{
 			AddUsers: []string{"yeet"},
 		})
 		require.Error(t, err)
-		cerr, ok := codersdk.AsError(err)
+		cerr, ok := wirtualsdk.AsError(err)
 		require.True(t, ok)
 		require.Equal(t, http.StatusBadRequest, cerr.StatusCode())
 	})
@@ -418,22 +418,22 @@ func TestPatchGroup(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		_, user2 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
 		ctx := testutil.Context(t, testutil.WaitLong)
-		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
 		})
 		require.NoError(t, err)
 
-		group, err = userAdminClient.PatchGroup(ctx, group.ID, codersdk.PatchGroupRequest{
+		group, err = userAdminClient.PatchGroup(ctx, group.ID, wirtualsdk.PatchGroupRequest{
 			AddUsers: []string{user2.ID.String(), user2.ID.String()},
 		})
 		require.Error(t, err)
-		cerr, ok := codersdk.AsError(err)
+		cerr, ok := wirtualsdk.AsError(err)
 		require.True(t, ok)
 
 		require.Equal(t, http.StatusBadRequest, cerr.StatusCode())
@@ -444,21 +444,21 @@ func TestPatchGroup(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
-		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
 		})
 		require.NoError(t, err)
 
-		group, err = userAdminClient.PatchGroup(ctx, group.ID, codersdk.PatchGroupRequest{
+		group, err = userAdminClient.PatchGroup(ctx, group.ID, wirtualsdk.PatchGroupRequest{
 			Name: database.EveryoneGroup,
 		})
 		require.Error(t, err)
-		cerr, ok := codersdk.AsError(err)
+		cerr, ok := wirtualsdk.AsError(err)
 		require.True(t, ok)
 		require.Equal(t, http.StatusBadRequest, cerr.StatusCode())
 	})
@@ -470,16 +470,16 @@ func TestPatchGroup(t *testing.T) {
 
 			client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureTemplateRBAC: 1,
+					wirtualsdk.FeatureTemplateRBAC: 1,
 				},
 			}})
 			userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 			ctx := testutil.Context(t, testutil.WaitLong)
-			_, err := userAdminClient.PatchGroup(ctx, user.OrganizationID, codersdk.PatchGroupRequest{
+			_, err := userAdminClient.PatchGroup(ctx, user.OrganizationID, wirtualsdk.PatchGroupRequest{
 				Name: "hi",
 			})
 			require.Error(t, err)
-			cerr, ok := codersdk.AsError(err)
+			cerr, ok := wirtualsdk.AsError(err)
 			require.True(t, ok)
 			require.Equal(t, http.StatusBadRequest, cerr.StatusCode())
 		})
@@ -489,16 +489,16 @@ func TestPatchGroup(t *testing.T) {
 
 			client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureTemplateRBAC: 1,
+					wirtualsdk.FeatureTemplateRBAC: 1,
 				},
 			}})
 			userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 			ctx := testutil.Context(t, testutil.WaitLong)
-			_, err := userAdminClient.PatchGroup(ctx, user.OrganizationID, codersdk.PatchGroupRequest{
+			_, err := userAdminClient.PatchGroup(ctx, user.OrganizationID, wirtualsdk.PatchGroupRequest{
 				DisplayName: ptr.Ref("hi"),
 			})
 			require.Error(t, err)
-			cerr, ok := codersdk.AsError(err)
+			cerr, ok := wirtualsdk.AsError(err)
 			require.True(t, ok)
 			require.Equal(t, http.StatusBadRequest, cerr.StatusCode())
 		})
@@ -508,18 +508,18 @@ func TestPatchGroup(t *testing.T) {
 
 			client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureTemplateRBAC: 1,
+					wirtualsdk.FeatureTemplateRBAC: 1,
 				},
 			}})
 			userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 			_, user2 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 			ctx := testutil.Context(t, testutil.WaitLong)
-			_, err := userAdminClient.PatchGroup(ctx, user.OrganizationID, codersdk.PatchGroupRequest{
+			_, err := userAdminClient.PatchGroup(ctx, user.OrganizationID, wirtualsdk.PatchGroupRequest{
 				AddUsers: []string{user2.ID.String()},
 			})
 			require.Error(t, err)
-			cerr, ok := codersdk.AsError(err)
+			cerr, ok := wirtualsdk.AsError(err)
 			require.True(t, ok)
 			require.Equal(t, http.StatusForbidden, cerr.StatusCode())
 		})
@@ -529,17 +529,17 @@ func TestPatchGroup(t *testing.T) {
 
 			client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureTemplateRBAC: 1,
+					wirtualsdk.FeatureTemplateRBAC: 1,
 				},
 			}})
 			userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 
 			ctx := testutil.Context(t, testutil.WaitLong)
-			_, err := userAdminClient.PatchGroup(ctx, user.OrganizationID, codersdk.PatchGroupRequest{
+			_, err := userAdminClient.PatchGroup(ctx, user.OrganizationID, wirtualsdk.PatchGroupRequest{
 				RemoveUsers: []string{user.UserID.String()},
 			})
 			require.Error(t, err)
-			cerr, ok := codersdk.AsError(err)
+			cerr, ok := wirtualsdk.AsError(err)
 			require.True(t, ok)
 			require.Equal(t, http.StatusForbidden, cerr.StatusCode())
 		})
@@ -549,7 +549,7 @@ func TestPatchGroup(t *testing.T) {
 
 			client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureTemplateRBAC: 1,
+					wirtualsdk.FeatureTemplateRBAC: 1,
 				},
 			}})
 			userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
@@ -561,7 +561,7 @@ func TestPatchGroup(t *testing.T) {
 			require.Equal(t, 0, group.QuotaAllowance)
 
 			expectedQuota := 123
-			group, err = userAdminClient.PatchGroup(ctx, user.OrganizationID, codersdk.PatchGroupRequest{
+			group, err = userAdminClient.PatchGroup(ctx, user.OrganizationID, wirtualsdk.PatchGroupRequest{
 				QuotaAllowance: ptr.Ref(expectedQuota),
 			})
 			require.NoError(t, err)
@@ -570,14 +570,14 @@ func TestPatchGroup(t *testing.T) {
 	})
 }
 
-func normalizeAllGroups(groups []codersdk.Group) {
+func normalizeAllGroups(groups []wirtualsdk.Group) {
 	for i := range groups {
 		normalizeGroupMembers(&groups[i])
 	}
 }
 
 // normalizeGroupMembers removes comparison noise from the group members.
-func normalizeGroupMembers(group *codersdk.Group) {
+func normalizeGroupMembers(group *wirtualsdk.Group) {
 	for i := range group.Members {
 		group.Members[i].LastSeenAt = time.Time{}
 		group.Members[i].CreatedAt = time.Time{}
@@ -597,12 +597,12 @@ func TestGroup(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
-		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
 		})
 		require.NoError(t, err)
@@ -617,12 +617,12 @@ func TestGroup(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
-		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
 		})
 		require.NoError(t, err)
@@ -637,7 +637,7 @@ func TestGroup(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
@@ -645,12 +645,12 @@ func TestGroup(t *testing.T) {
 		_, user3 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
 		})
 		require.NoError(t, err)
 
-		group, err = userAdminClient.PatchGroup(ctx, group.ID, codersdk.PatchGroupRequest{
+		group, err = userAdminClient.PatchGroup(ctx, group.ID, wirtualsdk.PatchGroupRequest{
 			AddUsers: []string{user2.ID.String(), user3.ID.String()},
 		})
 		require.NoError(t, err)
@@ -670,14 +670,14 @@ func TestGroup(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		client1, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 		//nolint:gocritic // test setup
-		group, err := client.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group, err := client.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
 		})
 		require.NoError(t, err)
@@ -691,7 +691,7 @@ func TestGroup(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
@@ -700,12 +700,12 @@ func TestGroup(t *testing.T) {
 		_, user2 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
 		})
 		require.NoError(t, err)
 
-		group, err = userAdminClient.PatchGroup(ctx, group.ID, codersdk.PatchGroupRequest{
+		group, err = userAdminClient.PatchGroup(ctx, group.ID, wirtualsdk.PatchGroupRequest{
 			AddUsers: []string{user1.ID.String(), user2.ID.String()},
 		})
 		require.NoError(t, err)
@@ -725,7 +725,7 @@ func TestGroup(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
@@ -734,12 +734,12 @@ func TestGroup(t *testing.T) {
 		_, user2 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
 		})
 		require.NoError(t, err)
 
-		group, err = userAdminClient.PatchGroup(ctx, group.ID, codersdk.PatchGroupRequest{
+		group, err = userAdminClient.PatchGroup(ctx, group.ID, wirtualsdk.PatchGroupRequest{
 			AddUsers: []string{user1.ID.String(), user2.ID.String()},
 		})
 		require.NoError(t, err)
@@ -747,7 +747,7 @@ func TestGroup(t *testing.T) {
 		require.Contains(t, group.Members, user1.ReducedUser)
 		require.Contains(t, group.Members, user2.ReducedUser)
 
-		user1, err = userAdminClient.UpdateUserStatus(ctx, user1.ID.String(), codersdk.UserStatusSuspended)
+		user1, err = userAdminClient.UpdateUserStatus(ctx, user1.ID.String(), wirtualsdk.UserStatusSuspended)
 		require.NoError(t, err)
 
 		group, err = userAdminClient.Group(ctx, group.ID)
@@ -757,7 +757,7 @@ func TestGroup(t *testing.T) {
 		require.Contains(t, group.Members, user2.ReducedUser)
 
 		// cannot explicitly set a dormant user status so must create a new user
-		anotherUser, err := userAdminClient.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		anotherUser, err := userAdminClient.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			Email:           "coder@coder.com",
 			Username:        "coder",
 			Password:        "SomeStrongPassword!",
@@ -766,9 +766,9 @@ func TestGroup(t *testing.T) {
 		require.NoError(t, err)
 
 		// Ensure that new user has dormant account
-		require.Equal(t, codersdk.UserStatusDormant, anotherUser.Status)
+		require.Equal(t, wirtualsdk.UserStatusDormant, anotherUser.Status)
 
-		group, _ = userAdminClient.PatchGroup(ctx, group.ID, codersdk.PatchGroupRequest{
+		group, _ = userAdminClient.PatchGroup(ctx, group.ID, wirtualsdk.PatchGroupRequest{
 			AddUsers: []string{anotherUser.ID.String()},
 		})
 
@@ -784,34 +784,34 @@ func TestGroup(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		groupA, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		groupA, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "group-a",
 		})
 		require.NoError(t, err)
 
-		groupB, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		groupB, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "group-b",
 		})
 		require.NoError(t, err)
 
 		// group-c should be omitted from the filter
-		_, err = userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		_, err = userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "group-c",
 		})
 		require.NoError(t, err)
 
-		found, err := userAdminClient.Groups(ctx, codersdk.GroupArguments{
+		found, err := userAdminClient.Groups(ctx, wirtualsdk.GroupArguments{
 			GroupIDs: []uuid.UUID{groupA.ID, groupB.ID},
 		})
 		require.NoError(t, err)
 
-		foundIDs := db2sdk.List(found, func(g codersdk.Group) uuid.UUID {
+		foundIDs := db2sdk.List(found, func(g wirtualsdk.Group) uuid.UUID {
 			return g.ID
 		})
 
@@ -823,7 +823,7 @@ func TestGroup(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
@@ -853,7 +853,7 @@ func TestGroups(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
@@ -863,23 +863,23 @@ func TestGroups(t *testing.T) {
 		user5Client, user5 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		group1, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group1, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
 		})
 		require.NoError(t, err)
 
-		group2, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group2, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hey",
 		})
 		require.NoError(t, err)
 
-		group1, err = userAdminClient.PatchGroup(ctx, group1.ID, codersdk.PatchGroupRequest{
+		group1, err = userAdminClient.PatchGroup(ctx, group1.ID, wirtualsdk.PatchGroupRequest{
 			AddUsers: []string{user2.ID.String(), user3.ID.String()},
 		})
 		require.NoError(t, err)
 		normalizeGroupMembers(&group1)
 
-		group2, err = userAdminClient.PatchGroup(ctx, group2.ID, codersdk.PatchGroupRequest{
+		group2, err = userAdminClient.PatchGroup(ctx, group2.ID, wirtualsdk.PatchGroupRequest{
 			AddUsers: []string{user4.ID.String(), user5.ID.String()},
 		})
 		require.NoError(t, err)
@@ -890,39 +890,39 @@ func TestGroups(t *testing.T) {
 		require.NoError(t, err)
 		normalizeGroupMembers(&everyoneGroup)
 
-		groups, err := userAdminClient.Groups(ctx, codersdk.GroupArguments{
+		groups, err := userAdminClient.Groups(ctx, wirtualsdk.GroupArguments{
 			Organization: user.OrganizationID.String(),
 		})
 		require.NoError(t, err)
 		normalizeAllGroups(groups)
 
 		// 'Everyone' group + 2 custom groups.
-		require.ElementsMatch(t, []codersdk.Group{
+		require.ElementsMatch(t, []wirtualsdk.Group{
 			everyoneGroup,
 			group1,
 			group2,
 		}, groups)
 
 		// Filter by user
-		user5Groups, err := userAdminClient.Groups(ctx, codersdk.GroupArguments{
+		user5Groups, err := userAdminClient.Groups(ctx, wirtualsdk.GroupArguments{
 			HasMember: user5.Username,
 		})
 		require.NoError(t, err)
 		normalizeAllGroups(user5Groups)
 		// Everyone group and group 2
-		require.ElementsMatch(t, []codersdk.Group{
+		require.ElementsMatch(t, []wirtualsdk.Group{
 			everyoneGroup,
 			group2,
 		}, user5Groups)
 
 		// Query from the user's perspective
-		user5View, err := user5Client.Groups(ctx, codersdk.GroupArguments{})
+		user5View, err := user5Client.Groups(ctx, wirtualsdk.GroupArguments{})
 		require.NoError(t, err)
 		normalizeAllGroups(user5Groups)
 
 		// Everyone group and group 2
 		require.Len(t, user5View, 2)
-		user5ViewIDs := db2sdk.List(user5View, func(g codersdk.Group) uuid.UUID {
+		user5ViewIDs := db2sdk.List(user5View, func(g wirtualsdk.Group) uuid.UUID {
 			return g.ID
 		})
 
@@ -946,12 +946,12 @@ func TestDeleteGroup(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
-		group1, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group1, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
 		})
 		require.NoError(t, err)
@@ -961,7 +961,7 @@ func TestDeleteGroup(t *testing.T) {
 
 		_, err = userAdminClient.Group(ctx, group1.ID)
 		require.Error(t, err)
-		cerr, ok := codersdk.AsError(err)
+		cerr, ok := wirtualsdk.AsError(err)
 		require.True(t, ok)
 		require.Equal(t, http.StatusNotFound, cerr.StatusCode())
 	})
@@ -981,13 +981,13 @@ func TestDeleteGroup(t *testing.T) {
 
 		_ = coderdenttest.AddLicense(t, client, coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
-				codersdk.FeatureAuditLog:     1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureAuditLog:     1,
 			},
 		})
 		ctx := testutil.Context(t, testutil.WaitLong)
 
-		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
 		})
 		require.NoError(t, err)
@@ -1009,14 +1009,14 @@ func TestDeleteGroup(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
 		err := userAdminClient.DeleteGroup(ctx, user.OrganizationID)
 		require.Error(t, err)
-		cerr, ok := codersdk.AsError(err)
+		cerr, ok := wirtualsdk.AsError(err)
 		require.True(t, ok)
 		require.Equal(t, http.StatusBadRequest, cerr.StatusCode())
 	})

@@ -20,8 +20,8 @@ import (
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
-func defaultNotificationsConfig(method database.NotificationMethod) codersdk.NotificationsConfig {
-	return codersdk.NotificationsConfig{
+func defaultNotificationsConfig(method database.NotificationMethod) wirtualsdk.NotificationsConfig {
+	return wirtualsdk.NotificationsConfig{
 		Method:              serpent.String(method),
 		MaxSendAttempts:     5,
 		FetchInterval:       serpent.Duration(time.Millisecond * 100),
@@ -31,8 +31,8 @@ func defaultNotificationsConfig(method database.NotificationMethod) codersdk.Not
 		RetryInterval:       serpent.Duration(time.Millisecond * 50),
 		LeaseCount:          10,
 		StoreSyncBufferSize: 50,
-		SMTP:                codersdk.NotificationsEmailConfig{},
-		Webhook:             codersdk.NotificationsWebhookConfig{},
+		SMTP:                wirtualsdk.NotificationsEmailConfig{},
+		Webhook:             wirtualsdk.NotificationsWebhookConfig{},
 	}
 }
 

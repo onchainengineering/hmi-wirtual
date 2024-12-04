@@ -275,7 +275,7 @@ func TestSearchWorkspace(t *testing.T) {
 			if c.Setup != nil {
 				c.Setup(t, db)
 			}
-			values, errs := searchquery.Workspaces(context.Background(), db, c.Query, codersdk.Pagination{}, 0)
+			values, errs := searchquery.Workspaces(context.Background(), db, c.Query, wirtualsdk.Pagination{}, 0)
 			if c.ExpectedErrorContains != "" {
 				assert.True(t, len(errs) > 0, "expect some errors")
 				var s strings.Builder
@@ -302,7 +302,7 @@ func TestSearchWorkspace(t *testing.T) {
 
 		query := ``
 		timeout := 1337 * time.Second
-		values, errs := searchquery.Workspaces(context.Background(), dbmem.New(), query, codersdk.Pagination{}, timeout)
+		values, errs := searchquery.Workspaces(context.Background(), dbmem.New(), query, wirtualsdk.Pagination{}, timeout)
 		require.Empty(t, errs)
 		require.Equal(t, int64(timeout.Seconds()), values.AgentInactiveDisconnectTimeoutSeconds)
 	})
@@ -418,7 +418,7 @@ func TestSearchUsers(t *testing.T) {
 			Expected: database.GetUsersParams{
 				Search:   "user-name",
 				Status:   []database.UserStatus{database.UserStatusActive},
-				RbacRole: []string{codersdk.RoleOwner},
+				RbacRole: []string{wirtualsdk.RoleOwner},
 			},
 		},
 		{
@@ -427,7 +427,7 @@ func TestSearchUsers(t *testing.T) {
 			Expected: database.GetUsersParams{
 				Search:   "user name",
 				Status:   []database.UserStatus{database.UserStatusSuspended},
-				RbacRole: []string{codersdk.RoleMember},
+				RbacRole: []string{wirtualsdk.RoleMember},
 			},
 		},
 		{
@@ -436,7 +436,7 @@ func TestSearchUsers(t *testing.T) {
 			Expected: database.GetUsersParams{
 				Search:   "user-name",
 				Status:   []database.UserStatus{database.UserStatusActive},
-				RbacRole: []string{codersdk.RoleOwner},
+				RbacRole: []string{wirtualsdk.RoleOwner},
 			},
 		},
 		{

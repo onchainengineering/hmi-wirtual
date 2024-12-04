@@ -12,7 +12,7 @@ import (
 )
 
 type ExternalAuthOptions struct {
-	Fetch         func(context.Context) ([]codersdk.TemplateVersionExternalAuth, error)
+	Fetch         func(context.Context) ([]wirtualsdk.TemplateVersionExternalAuth, error)
 	FetchInterval time.Duration
 }
 

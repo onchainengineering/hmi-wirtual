@@ -32,7 +32,7 @@ func (api *API) logReportCSPViolations(rw http.ResponseWriter, r *http.Request) 
 	err := dec.Decode(&v)
 	if err != nil {
 		api.Logger.Warn(ctx, "CSP violation reported", slog.Error(err))
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Failed to read body, invalid json.",
 			Detail:  err.Error(),
 		})

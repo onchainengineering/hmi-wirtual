@@ -31,30 +31,30 @@ func TestTokenCRUD(t *testing.T) {
 	_ = coderdtest.CreateFirstUser(t, client)
 	numLogs++ // add an audit log for user creation
 
-	keys, err := client.Tokens(ctx, codersdk.Me, codersdk.TokensFilter{})
+	keys, err := client.Tokens(ctx, wirtualsdk.Me, wirtualsdk.TokensFilter{})
 	require.NoError(t, err)
 	require.Empty(t, keys)
 
-	res, err := client.CreateToken(ctx, codersdk.Me, codersdk.CreateTokenRequest{})
+	res, err := client.CreateToken(ctx, wirtualsdk.Me, wirtualsdk.CreateTokenRequest{})
 	require.NoError(t, err)
 	require.Greater(t, len(res.Key), 2)
 	numLogs++ // add an audit log for token creation
 
-	keys, err = client.Tokens(ctx, codersdk.Me, codersdk.TokensFilter{})
+	keys, err = client.Tokens(ctx, wirtualsdk.Me, wirtualsdk.TokensFilter{})
 	require.NoError(t, err)
 	require.EqualValues(t, len(keys), 1)
 	require.Contains(t, res.Key, keys[0].ID)
 	// expires_at should default to 30 days
 	require.Greater(t, keys[0].ExpiresAt, time.Now().Add(time.Hour*24*6))
 	require.Less(t, keys[0].ExpiresAt, time.Now().Add(time.Hour*24*8))
-	require.Equal(t, codersdk.APIKeyScopeAll, keys[0].Scope)
+	require.Equal(t, wirtualsdk.APIKeyScopeAll, keys[0].Scope)
 
 	// no update
 
-	err = client.DeleteAPIKey(ctx, codersdk.Me, keys[0].ID)
+	err = client.DeleteAPIKey(ctx, wirtualsdk.Me, keys[0].ID)
 	require.NoError(t, err)
 	numLogs++ // add an audit log for token deletion
-	keys, err = client.Tokens(ctx, codersdk.Me, codersdk.TokensFilter{})
+	keys, err = client.Tokens(ctx, wirtualsdk.Me, wirtualsdk.TokensFilter{})
 	require.NoError(t, err)
 	require.Empty(t, keys)
 
@@ -72,17 +72,17 @@ func TestTokenScoped(t *testing.T) {
 	client := coderdtest.New(t, nil)
 	_ = coderdtest.CreateFirstUser(t, client)
 
-	res, err := client.CreateToken(ctx, codersdk.Me, codersdk.CreateTokenRequest{
-		Scope: codersdk.APIKeyScopeApplicationConnect,
+	res, err := client.CreateToken(ctx, wirtualsdk.Me, wirtualsdk.CreateTokenRequest{
+		Scope: wirtualsdk.APIKeyScopeApplicationConnect,
 	})
 	require.NoError(t, err)
 	require.Greater(t, len(res.Key), 2)
 
-	keys, err := client.Tokens(ctx, codersdk.Me, codersdk.TokensFilter{})
+	keys, err := client.Tokens(ctx, wirtualsdk.Me, wirtualsdk.TokensFilter{})
 	require.NoError(t, err)
 	require.EqualValues(t, len(keys), 1)
 	require.Contains(t, res.Key, keys[0].ID)
-	require.Equal(t, keys[0].Scope, codersdk.APIKeyScopeApplicationConnect)
+	require.Equal(t, keys[0].Scope, wirtualsdk.APIKeyScopeApplicationConnect)
 }
 
 func TestUserSetTokenDuration(t *testing.T) {
@@ -93,11 +93,11 @@ func TestUserSetTokenDuration(t *testing.T) {
 	client := coderdtest.New(t, nil)
 	_ = coderdtest.CreateFirstUser(t, client)
 
-	_, err := client.CreateToken(ctx, codersdk.Me, codersdk.CreateTokenRequest{
+	_, err := client.CreateToken(ctx, wirtualsdk.Me, wirtualsdk.CreateTokenRequest{
 		Lifetime: time.Hour * 24 * 7,
 	})
 	require.NoError(t, err)
-	keys, err := client.Tokens(ctx, codersdk.Me, codersdk.TokensFilter{})
+	keys, err := client.Tokens(ctx, wirtualsdk.Me, wirtualsdk.TokensFilter{})
 	require.NoError(t, err)
 	require.Greater(t, keys[0].ExpiresAt, time.Now().Add(time.Hour*6*24))
 	require.Less(t, keys[0].ExpiresAt, time.Now().Add(time.Hour*8*24))
@@ -111,9 +111,9 @@ func TestDefaultTokenDuration(t *testing.T) {
 	client := coderdtest.New(t, nil)
 	_ = coderdtest.CreateFirstUser(t, client)
 
-	_, err := client.CreateToken(ctx, codersdk.Me, codersdk.CreateTokenRequest{})
+	_, err := client.CreateToken(ctx, wirtualsdk.Me, wirtualsdk.CreateTokenRequest{})
 	require.NoError(t, err)
-	keys, err := client.Tokens(ctx, codersdk.Me, codersdk.TokensFilter{})
+	keys, err := client.Tokens(ctx, wirtualsdk.Me, wirtualsdk.TokensFilter{})
 	require.NoError(t, err)
 	require.Greater(t, keys[0].ExpiresAt, time.Now().Add(time.Hour*24*6))
 	require.Less(t, keys[0].ExpiresAt, time.Now().Add(time.Hour*24*8))
@@ -132,13 +132,13 @@ func TestTokenUserSetMaxLifetime(t *testing.T) {
 	_ = coderdtest.CreateFirstUser(t, client)
 
 	// success
-	_, err := client.CreateToken(ctx, codersdk.Me, codersdk.CreateTokenRequest{
+	_, err := client.CreateToken(ctx, wirtualsdk.Me, wirtualsdk.CreateTokenRequest{
 		Lifetime: time.Hour * 24 * 6,
 	})
 	require.NoError(t, err)
 
 	// fail
-	_, err = client.CreateToken(ctx, codersdk.Me, codersdk.CreateTokenRequest{
+	_, err = client.CreateToken(ctx, wirtualsdk.Me, wirtualsdk.CreateTokenRequest{
 		Lifetime: time.Hour * 24 * 8,
 	})
 	require.ErrorContains(t, err, "lifetime must be less")
@@ -156,10 +156,10 @@ func TestTokenCustomDefaultLifetime(t *testing.T) {
 	})
 	_ = coderdtest.CreateFirstUser(t, client)
 
-	_, err := client.CreateToken(ctx, codersdk.Me, codersdk.CreateTokenRequest{})
+	_, err := client.CreateToken(ctx, wirtualsdk.Me, wirtualsdk.CreateTokenRequest{})
 	require.NoError(t, err)
 
-	tokens, err := client.Tokens(ctx, codersdk.Me, codersdk.TokensFilter{})
+	tokens, err := client.Tokens(ctx, wirtualsdk.Me, wirtualsdk.TokensFilter{})
 	require.NoError(t, err)
 	require.Len(t, tokens, 1)
 	require.EqualValues(t, dc.Sessions.DefaultTokenDuration.Value().Seconds(), tokens[0].LifetimeSeconds)
@@ -208,9 +208,9 @@ func TestSessionExpiry(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	_, err = userClient.User(ctx, codersdk.Me)
+	_, err = userClient.User(ctx, wirtualsdk.Me)
 	require.Error(t, err)
-	var sdkErr *codersdk.Error
+	var sdkErr *wirtualsdk.Error
 	if assert.ErrorAs(t, err, &sdkErr) {
 		require.Equal(t, http.StatusUnauthorized, sdkErr.StatusCode())
 		require.Contains(t, sdkErr.Message, "session has expired")
@@ -224,7 +224,7 @@ func TestAPIKey_OK(t *testing.T) {
 	client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
 	_ = coderdtest.CreateFirstUser(t, client)
 
-	res, err := client.CreateAPIKey(ctx, codersdk.Me)
+	res, err := client.CreateAPIKey(ctx, wirtualsdk.Me)
 	require.NoError(t, err)
 	require.Greater(t, len(res.Key), 2)
 }
@@ -241,7 +241,7 @@ func TestAPIKey_Deleted(t *testing.T) {
 	// Attempt to create an API key for the deleted user. This should fail.
 	_, err := client.CreateAPIKey(ctx, anotherUser.Username)
 	require.Error(t, err)
-	var apiErr *codersdk.Error
+	var apiErr *wirtualsdk.Error
 	require.ErrorAs(t, err, &apiErr)
 	require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 }

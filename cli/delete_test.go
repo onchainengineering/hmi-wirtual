@@ -121,7 +121,7 @@ func TestDelete(t *testing.T) {
 		adminUser := coderdtest.CreateFirstUser(t, adminClient)
 		orgID := adminUser.OrganizationID
 		client, _ := coderdtest.CreateAnotherUser(t, adminClient, orgID)
-		user, err := client.User(context.Background(), codersdk.Me)
+		user, err := client.User(context.Background(), wirtualsdk.Me)
 		require.NoError(t, err)
 
 		version := coderdtest.CreateTemplateVersion(t, adminClient, orgID, nil)

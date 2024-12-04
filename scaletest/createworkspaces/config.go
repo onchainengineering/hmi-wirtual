@@ -71,7 +71,7 @@ func (c Config) Validate() error {
 	}
 	c.Workspace.OrganizationID = c.User.OrganizationID
 	// This value will be overwritten during the test.
-	c.Workspace.UserID = codersdk.Me
+	c.Workspace.UserID = wirtualsdk.Me
 	if err := c.Workspace.Validate(); err != nil {
 		return xerrors.Errorf("validate workspace: %w", err)
 	}

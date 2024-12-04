@@ -67,7 +67,7 @@ func ExtractWorkspaceAgentAndLatestBuild(opts ExtractWorkspaceAgentAndLatestBuil
 			//
 			// It should be used when the token is not provided or is invalid, but not
 			// when there are other errors.
-			optionalWrite := func(code int, response codersdk.Response) {
+			optionalWrite := func(code int, response wirtualsdk.Response) {
 				if opts.Optional {
 					next.ServeHTTP(rw, r)
 					return
@@ -77,14 +77,14 @@ func ExtractWorkspaceAgentAndLatestBuild(opts ExtractWorkspaceAgentAndLatestBuil
 
 			tokenValue := APITokenFromRequest(r)
 			if tokenValue == "" {
-				optionalWrite(http.StatusUnauthorized, codersdk.Response{
-					Message: fmt.Sprintf("Cookie %q must be provided.", codersdk.SessionTokenCookie),
+				optionalWrite(http.StatusUnauthorized, wirtualsdk.Response{
+					Message: fmt.Sprintf("Cookie %q must be provided.", wirtualsdk.SessionTokenCookie),
 				})
 				return
 			}
 			token, err := uuid.Parse(tokenValue)
 			if err != nil {
-				optionalWrite(http.StatusUnauthorized, codersdk.Response{
+				optionalWrite(http.StatusUnauthorized, wirtualsdk.Response{
 					Message: "Workspace agent token invalid.",
 					Detail:  fmt.Sprintf("An agent token must be a valid UUIDv4. (len %d)", len(tokenValue)),
 				})
@@ -95,14 +95,14 @@ func ExtractWorkspaceAgentAndLatestBuild(opts ExtractWorkspaceAgentAndLatestBuil
 			row, err := opts.DB.GetWorkspaceAgentAndLatestBuildByAuthToken(dbauthz.AsSystemRestricted(ctx), token)
 			if err != nil {
 				if errors.Is(err, sql.ErrNoRows) {
-					optionalWrite(http.StatusUnauthorized, codersdk.Response{
+					optionalWrite(http.StatusUnauthorized, wirtualsdk.Response{
 						Message: "Workspace agent not authorized.",
 						Detail:  "The agent cannot authenticate until the workspace provision job has been completed. If the job is no longer running, this agent is invalid.",
 					})
 					return
 				}
 
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error checking workspace agent authorization.",
 					Detail:  err.Error(),
 				})
@@ -112,7 +112,7 @@ func ExtractWorkspaceAgentAndLatestBuild(opts ExtractWorkspaceAgentAndLatestBuil
 			//nolint:gocritic // System needs to be able to get owner roles.
 			roles, err := opts.DB.GetAuthorizationUserRoles(dbauthz.AsSystemRestricted(ctx), row.WorkspaceTable.OwnerID)
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error checking workspace agent authorization.",
 					Detail:  err.Error(),
 				})
@@ -121,7 +121,7 @@ func ExtractWorkspaceAgentAndLatestBuild(opts ExtractWorkspaceAgentAndLatestBuil
 
 			roleNames, err := roles.RoleNames()
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal server error",
 					Detail:  err.Error(),
 				})

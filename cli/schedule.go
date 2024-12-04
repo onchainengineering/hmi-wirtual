@@ -90,7 +90,7 @@ func (r *RootCmd) scheduleShow() *serpent.Command {
 			cliui.JSONFormat(),
 		)
 	)
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	showCmd := &serpent.Command{
 		Use:   "show <workspace | --search <query> | --all>",
 		Short: "Show workspace schedules",
@@ -137,7 +137,7 @@ func (r *RootCmd) scheduleShow() *serpent.Command {
 }
 
 func (r *RootCmd) scheduleStart() *serpent.Command {
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use: "start <workspace-name> { <start-time> [day-of-week] [location] | manual }",
 		Long: scheduleStartDescriptionLong + "\n" + FormatExamples(
@@ -167,7 +167,7 @@ func (r *RootCmd) scheduleStart() *serpent.Command {
 				schedStr = ptr.Ref(sched.String())
 			}
 
-			err = client.UpdateWorkspaceAutostart(inv.Context(), workspace.ID, codersdk.UpdateWorkspaceAutostartRequest{
+			err = client.UpdateWorkspaceAutostart(inv.Context(), workspace.ID, wirtualsdk.UpdateWorkspaceAutostartRequest{
 				Schedule: schedStr,
 			})
 			if err != nil {
@@ -186,7 +186,7 @@ func (r *RootCmd) scheduleStart() *serpent.Command {
 }
 
 func (r *RootCmd) scheduleStop() *serpent.Command {
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	return &serpent.Command{
 		Use: "stop <workspace-name> { <duration> | manual }",
 		Long: scheduleStopDescriptionLong + "\n" + FormatExamples(
@@ -214,7 +214,7 @@ func (r *RootCmd) scheduleStop() *serpent.Command {
 				durMillis = ptr.Ref(dur.Milliseconds())
 			}
 
-			if err := client.UpdateWorkspaceTTL(inv.Context(), workspace.ID, codersdk.UpdateWorkspaceTTLRequest{
+			if err := client.UpdateWorkspaceTTL(inv.Context(), workspace.ID, wirtualsdk.UpdateWorkspaceTTLRequest{
 				TTLMillis: durMillis,
 			}); err != nil {
 				return err
@@ -230,7 +230,7 @@ func (r *RootCmd) scheduleStop() *serpent.Command {
 }
 
 func (r *RootCmd) scheduleOverride() *serpent.Command {
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	overrideCmd := &serpent.Command{
 		Use:   "override-stop <workspace-name> <duration from now>",
 		Short: "Override the stop time of a currently running workspace instance.",
@@ -268,7 +268,7 @@ func (r *RootCmd) scheduleOverride() *serpent.Command {
 			}
 
 			newDeadline := time.Now().In(loc).Add(overrideDuration)
-			if err := client.PutExtendWorkspace(inv.Context(), workspace.ID, codersdk.PutExtendWorkspaceRequest{
+			if err := client.PutExtendWorkspace(inv.Context(), workspace.ID, wirtualsdk.PutExtendWorkspaceRequest{
 				Deadline: newDeadline,
 			}); err != nil {
 				return err
@@ -284,7 +284,7 @@ func (r *RootCmd) scheduleOverride() *serpent.Command {
 	return overrideCmd
 }
 
-func displaySchedule(ws codersdk.Workspace, out io.Writer) error {
+func displaySchedule(ws wirtualsdk.Workspace, out io.Writer) error {
 	rows := []workspaceListRow{workspaceListRowFromWorkspace(time.Now(), ws)}
 	rendered, err := cliui.DisplayTable(rows, "workspace", []string{
 		"workspace", "starts at", "starts next", "stops after", "stops next",
@@ -306,7 +306,7 @@ type scheduleListRow struct {
 	StopsNext     string `json:"stops_next" table:"stops next"`
 }
 
-func scheduleListRowFromWorkspace(now time.Time, workspace codersdk.Workspace) scheduleListRow {
+func scheduleListRowFromWorkspace(now time.Time, workspace wirtualsdk.Workspace) scheduleListRow {
 	autostartDisplay := ""
 	nextStartDisplay := ""
 	if !ptr.NilOrEmpty(workspace.AutostartSchedule) {
@@ -321,7 +321,7 @@ func scheduleListRowFromWorkspace(now time.Time, workspace codersdk.Workspace) s
 	if !ptr.NilOrZero(workspace.TTLMillis) {
 		dur := time.Duration(*workspace.TTLMillis) * time.Millisecond
 		autostopDisplay = durationDisplay(dur)
-		if !workspace.LatestBuild.Deadline.IsZero() && workspace.LatestBuild.Transition == codersdk.WorkspaceTransitionStart {
+		if !workspace.LatestBuild.Deadline.IsZero() && workspace.LatestBuild.Transition == wirtualsdk.WorkspaceTransitionStart {
 			nextStopDisplay = timeDisplay(workspace.LatestBuild.Deadline.Time)
 		}
 	}

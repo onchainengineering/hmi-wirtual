@@ -26,7 +26,7 @@ func TestInternalServerError(t *testing.T) {
 		w := httptest.NewRecorder()
 		httpapi.InternalServerError(w, nil)
 
-		var resp codersdk.Response
+		var resp wirtualsdk.Response
 		err := json.NewDecoder(w.Body).Decode(&resp)
 		require.NoError(t, err)
 		require.Equal(t, http.StatusInternalServerError, w.Code)
@@ -43,7 +43,7 @@ func TestInternalServerError(t *testing.T) {
 
 		httpapi.InternalServerError(w, httpErr)
 
-		var resp codersdk.Response
+		var resp wirtualsdk.Response
 		err := json.NewDecoder(w.Body).Decode(&resp)
 		require.NoError(t, err)
 		require.Equal(t, http.StatusInternalServerError, w.Code)
@@ -58,7 +58,7 @@ func TestWrite(t *testing.T) {
 		t.Parallel()
 		ctx := context.Background()
 		rw := httptest.NewRecorder()
-		httpapi.Write(ctx, rw, http.StatusOK, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.Response{
 			Message: "Wow.",
 		})
 		var m map[string]interface{}
@@ -114,7 +114,7 @@ func TestRead(t *testing.T) {
 
 		var validate toValidate
 		require.False(t, httpapi.Read(ctx, rw, r, &validate))
-		var v codersdk.Response
+		var v wirtualsdk.Response
 		err := json.NewDecoder(rw.Body).Decode(&v)
 		require.NoError(t, err)
 		require.Len(t, v.Validations, 1)

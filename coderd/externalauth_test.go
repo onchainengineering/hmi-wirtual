@@ -40,7 +40,7 @@ func TestExternalAuthByID(t *testing.T) {
 		client := coderdtest.New(t, &coderdtest.Options{
 			ExternalAuthConfigs: []*externalauth.Config{
 				fake.ExternalAuthConfig(t, providerID, nil, func(cfg *externalauth.Config) {
-					cfg.Type = codersdk.EnhancedExternalAuthProviderGitHub.String()
+					cfg.Type = wirtualsdk.EnhancedExternalAuthProviderGitHub.String()
 				}),
 			},
 		})
@@ -60,7 +60,7 @@ func TestExternalAuthByID(t *testing.T) {
 			ExternalAuthConfigs: []*externalauth.Config{
 				// AzureDevops doesn't have a user endpoint!
 				fake.ExternalAuthConfig(t, providerID, nil, func(cfg *externalauth.Config) {
-					cfg.Type = codersdk.EnhancedExternalAuthProviderAzureDevops.String()
+					cfg.Type = wirtualsdk.EnhancedExternalAuthProviderAzureDevops.String()
 				}),
 			},
 		})
@@ -86,7 +86,7 @@ func TestExternalAuthByID(t *testing.T) {
 						}, 0, nil
 					},
 				}, func(cfg *externalauth.Config) {
-					cfg.Type = codersdk.EnhancedExternalAuthProviderGitHub.String()
+					cfg.Type = wirtualsdk.EnhancedExternalAuthProviderGitHub.String()
 				}),
 			},
 		})
@@ -130,7 +130,7 @@ func TestExternalAuthByID(t *testing.T) {
 			ExternalAuthConfigs: []*externalauth.Config{
 				fake.ExternalAuthConfig(t, providerID, routes, func(cfg *externalauth.Config) {
 					cfg.AppInstallationsURL = strings.TrimSuffix(cfg.ValidateURL, "/") + "/installs"
-					cfg.Type = codersdk.EnhancedExternalAuthProviderGitHub.String()
+					cfg.Type = wirtualsdk.EnhancedExternalAuthProviderGitHub.String()
 				}),
 			},
 		})
@@ -165,10 +165,10 @@ func TestExternalAuthManagement(t *testing.T) {
 		owner := coderdtest.New(t, &coderdtest.Options{
 			ExternalAuthConfigs: []*externalauth.Config{
 				github.ExternalAuthConfig(t, githubID, nil, func(cfg *externalauth.Config) {
-					cfg.Type = codersdk.EnhancedExternalAuthProviderGitHub.String()
+					cfg.Type = wirtualsdk.EnhancedExternalAuthProviderGitHub.String()
 				}),
 				gitlab.ExternalAuthConfig(t, gitlabID, nil, func(cfg *externalauth.Config) {
-					cfg.Type = codersdk.EnhancedExternalAuthProviderGitLab.String()
+					cfg.Type = wirtualsdk.EnhancedExternalAuthProviderGitLab.String()
 				}),
 			},
 		})
@@ -220,10 +220,10 @@ func TestExternalAuthManagement(t *testing.T) {
 		owner, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
 			ExternalAuthConfigs: []*externalauth.Config{
 				githubApp.ExternalAuthConfig(t, githubID, nil, func(cfg *externalauth.Config) {
-					cfg.Type = codersdk.EnhancedExternalAuthProviderGitHub.String()
+					cfg.Type = wirtualsdk.EnhancedExternalAuthProviderGitHub.String()
 				}),
 				gitlab.ExternalAuthConfig(t, gitlabID, nil, func(cfg *externalauth.Config) {
-					cfg.Type = codersdk.EnhancedExternalAuthProviderGitLab.String()
+					cfg.Type = wirtualsdk.EnhancedExternalAuthProviderGitLab.String()
 				}),
 			},
 		})
@@ -295,14 +295,14 @@ func TestExternalAuthDevice(t *testing.T) {
 		})
 		coderdtest.CreateFirstUser(t, client)
 		_, err := client.ExternalAuthDeviceByID(context.Background(), "test")
-		var sdkErr *codersdk.Error
+		var sdkErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &sdkErr)
 		require.Equal(t, http.StatusBadRequest, sdkErr.StatusCode())
 	})
 	t.Run("FetchCode", func(t *testing.T) {
 		t.Parallel()
 		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			httpapi.Write(r.Context(), w, http.StatusOK, codersdk.ExternalAuthDevice{
+			httpapi.Write(r.Context(), w, http.StatusOK, wirtualsdk.ExternalAuthDevice{
 				UserCode: "hey",
 			})
 		}))
@@ -342,10 +342,10 @@ func TestExternalAuthDevice(t *testing.T) {
 			}},
 		})
 		coderdtest.CreateFirstUser(t, client)
-		err := client.ExternalAuthDeviceExchange(context.Background(), "test", codersdk.ExternalAuthDeviceExchange{
+		err := client.ExternalAuthDeviceExchange(context.Background(), "test", wirtualsdk.ExternalAuthDeviceExchange{
 			DeviceCode: "hey",
 		})
-		var sdkErr *codersdk.Error
+		var sdkErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &sdkErr)
 		require.Equal(t, http.StatusBadRequest, sdkErr.StatusCode())
 		require.Equal(t, "authorization_pending", sdkErr.Detail)
@@ -354,7 +354,7 @@ func TestExternalAuthDevice(t *testing.T) {
 			AccessToken: "hey",
 		}
 
-		err = client.ExternalAuthDeviceExchange(context.Background(), "test", codersdk.ExternalAuthDeviceExchange{
+		err = client.ExternalAuthDeviceExchange(context.Background(), "test", wirtualsdk.ExternalAuthDeviceExchange{
 			DeviceCode: "hey",
 		})
 		require.NoError(t, err)
@@ -437,7 +437,7 @@ func TestExternalAuthCallback(t *testing.T) {
 		_, err := agentClient.ExternalAuth(context.Background(), agentsdk.ExternalAuthRequest{
 			Match: "github.com",
 		})
-		var apiError *codersdk.Error
+		var apiError *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiError)
 		require.Equal(t, http.StatusNotFound, apiError.StatusCode())
 	})
@@ -449,7 +449,7 @@ func TestExternalAuthCallback(t *testing.T) {
 				InstrumentedOAuth2Config: &testutil.OAuth2Config{},
 				ID:                       "github",
 				Regex:                    regexp.MustCompile(`github\.com`),
-				Type:                     codersdk.EnhancedExternalAuthProviderGitHub.String(),
+				Type:                     wirtualsdk.EnhancedExternalAuthProviderGitHub.String(),
 			}},
 		})
 		user := coderdtest.CreateFirstUser(t, client)
@@ -480,7 +480,7 @@ func TestExternalAuthCallback(t *testing.T) {
 				InstrumentedOAuth2Config: &testutil.OAuth2Config{},
 				ID:                       "github",
 				Regex:                    regexp.MustCompile(`github\.com`),
-				Type:                     codersdk.EnhancedExternalAuthProviderGitHub.String(),
+				Type:                     wirtualsdk.EnhancedExternalAuthProviderGitHub.String(),
 			}},
 		})
 		resp := coderdtest.RequestExternalAuthCallback(t, "github", client)
@@ -494,7 +494,7 @@ func TestExternalAuthCallback(t *testing.T) {
 				InstrumentedOAuth2Config: &testutil.OAuth2Config{},
 				ID:                       "github",
 				Regex:                    regexp.MustCompile(`github\.com`),
-				Type:                     codersdk.EnhancedExternalAuthProviderGitHub.String(),
+				Type:                     wirtualsdk.EnhancedExternalAuthProviderGitHub.String(),
 			}},
 		})
 		_ = coderdtest.CreateFirstUser(t, client)
@@ -517,7 +517,7 @@ func TestExternalAuthCallback(t *testing.T) {
 				InstrumentedOAuth2Config: &testutil.OAuth2Config{},
 				ID:                       "github",
 				Regex:                    regexp.MustCompile(`github\.com`),
-				Type:                     codersdk.EnhancedExternalAuthProviderGitHub.String(),
+				Type:                     wirtualsdk.EnhancedExternalAuthProviderGitHub.String(),
 			}},
 		})
 		maliciousHost := "https://malicious.com"
@@ -525,7 +525,7 @@ func TestExternalAuthCallback(t *testing.T) {
 		_ = coderdtest.CreateFirstUser(t, client)
 		resp := coderdtest.RequestExternalAuthCallback(t, "github", client, func(req *http.Request) {
 			req.AddCookie(&http.Cookie{
-				Name:  codersdk.OAuth2RedirectCookie,
+				Name:  wirtualsdk.OAuth2RedirectCookie,
 				Value: maliciousHost + expectedURI,
 			})
 		})
@@ -550,7 +550,7 @@ func TestExternalAuthCallback(t *testing.T) {
 				InstrumentedOAuth2Config: &testutil.OAuth2Config{},
 				ID:                       "github",
 				Regex:                    regexp.MustCompile(`github\.com`),
-				Type:                     codersdk.EnhancedExternalAuthProviderGitHub.String(),
+				Type:                     wirtualsdk.EnhancedExternalAuthProviderGitHub.String(),
 			}},
 		})
 		user := coderdtest.CreateFirstUser(t, client)
@@ -591,7 +591,7 @@ func TestExternalAuthCallback(t *testing.T) {
 		_, err = agentClient.ExternalAuth(ctx, agentsdk.ExternalAuthRequest{
 			Match: "github.com/asd/asd",
 		})
-		var apiError *codersdk.Error
+		var apiError *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiError)
 		require.Equal(t, http.StatusInternalServerError, apiError.StatusCode())
 		require.Equal(t, "validate external auth token: status 400: body: Something went wrong!", apiError.Detail)
@@ -611,7 +611,7 @@ func TestExternalAuthCallback(t *testing.T) {
 				},
 				ID:        "github",
 				Regex:     regexp.MustCompile(`github\.com`),
-				Type:      codersdk.EnhancedExternalAuthProviderGitHub.String(),
+				Type:      wirtualsdk.EnhancedExternalAuthProviderGitHub.String(),
 				NoRefresh: true,
 			}},
 		})
@@ -659,7 +659,7 @@ func TestExternalAuthCallback(t *testing.T) {
 				InstrumentedOAuth2Config: &testutil.OAuth2Config{},
 				ID:                       "github",
 				Regex:                    regexp.MustCompile(`github\.com`),
-				Type:                     codersdk.EnhancedExternalAuthProviderGitHub.String(),
+				Type:                     wirtualsdk.EnhancedExternalAuthProviderGitHub.String(),
 			}},
 		})
 		user := coderdtest.CreateFirstUser(t, client)

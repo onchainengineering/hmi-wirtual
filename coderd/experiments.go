@@ -28,7 +28,7 @@ func (api *API) handleExperimentsGet(rw http.ResponseWriter, r *http.Request) {
 // @Router /experiments/available [get]
 func handleExperimentsSafe(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.AvailableExperiments{
-		Safe: codersdk.ExperimentsAll,
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.AvailableExperiments{
+		Safe: wirtualsdk.ExperimentsAll,
 	})
 }

@@ -277,7 +277,7 @@ func (AGPLIDPSync) RolesFromClaim(field string, claims jwt.MapClaims) ([]string,
 	return parsedRoles, nil
 }
 
-type RoleSyncSettings codersdk.RoleSyncSettings
+type RoleSyncSettings wirtualsdk.RoleSyncSettings
 
 func (s *RoleSyncSettings) Set(v string) error {
 	return json.Unmarshal([]byte(v), s)

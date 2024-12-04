@@ -26,8 +26,8 @@ func TestProvisionerKeys(t *testing.T) {
 		},
 		LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureExternalProvisionerDaemons: 1,
-				codersdk.FeatureMultipleOrganizations:      1,
+				wirtualsdk.FeatureExternalProvisionerDaemons: 1,
+				wirtualsdk.FeatureMultipleOrganizations:      1,
 			},
 		},
 	})
@@ -37,7 +37,7 @@ func TestProvisionerKeys(t *testing.T) {
 	outsideOrgAdmin, _ := coderdtest.CreateAnotherUser(t, client, otherOrg.ID, rbac.ScopedRoleOrgAdmin(otherOrg.ID))
 
 	// member cannot create a provisioner key
-	_, err := member.CreateProvisionerKey(ctx, otherOrg.ID, codersdk.CreateProvisionerKeyRequest{
+	_, err := member.CreateProvisionerKey(ctx, otherOrg.ID, wirtualsdk.CreateProvisionerKeyRequest{
 		Name: "key",
 	})
 	require.ErrorContains(t, err, "Resource not found")
@@ -51,7 +51,7 @@ func TestProvisionerKeys(t *testing.T) {
 	require.ErrorContains(t, err, "Resource not found")
 
 	// outside org admin cannot create a provisioner key
-	_, err = outsideOrgAdmin.CreateProvisionerKey(ctx, owner.OrganizationID, codersdk.CreateProvisionerKeyRequest{
+	_, err = outsideOrgAdmin.CreateProvisionerKey(ctx, owner.OrganizationID, wirtualsdk.CreateProvisionerKeyRequest{
 		Name: "key",
 	})
 	require.ErrorContains(t, err, "Resource not found")
@@ -65,16 +65,16 @@ func TestProvisionerKeys(t *testing.T) {
 	require.ErrorContains(t, err, "Resource not found")
 
 	// org admin cannot create reserved provisioner keys
-	_, err = orgAdmin.CreateProvisionerKey(ctx, owner.OrganizationID, codersdk.CreateProvisionerKeyRequest{
-		Name: codersdk.ProvisionerKeyNameBuiltIn,
+	_, err = orgAdmin.CreateProvisionerKey(ctx, owner.OrganizationID, wirtualsdk.CreateProvisionerKeyRequest{
+		Name: wirtualsdk.ProvisionerKeyNameBuiltIn,
 	})
 	require.ErrorContains(t, err, "reserved")
-	_, err = orgAdmin.CreateProvisionerKey(ctx, owner.OrganizationID, codersdk.CreateProvisionerKeyRequest{
-		Name: codersdk.ProvisionerKeyNameUserAuth,
+	_, err = orgAdmin.CreateProvisionerKey(ctx, owner.OrganizationID, wirtualsdk.CreateProvisionerKeyRequest{
+		Name: wirtualsdk.ProvisionerKeyNameUserAuth,
 	})
 	require.ErrorContains(t, err, "reserved")
-	_, err = orgAdmin.CreateProvisionerKey(ctx, owner.OrganizationID, codersdk.CreateProvisionerKeyRequest{
-		Name: codersdk.ProvisionerKeyNamePSK,
+	_, err = orgAdmin.CreateProvisionerKey(ctx, owner.OrganizationID, wirtualsdk.CreateProvisionerKeyRequest{
+		Name: wirtualsdk.ProvisionerKeyNamePSK,
 	})
 	require.ErrorContains(t, err, "reserved")
 
@@ -87,26 +87,26 @@ func TestProvisionerKeys(t *testing.T) {
 		"my": "way",
 	}
 	// org admin can create a provisioner key
-	_, err = orgAdmin.CreateProvisionerKey(ctx, owner.OrganizationID, codersdk.CreateProvisionerKeyRequest{
+	_, err = orgAdmin.CreateProvisionerKey(ctx, owner.OrganizationID, wirtualsdk.CreateProvisionerKeyRequest{
 		Name: "Key", // case insensitive
 		Tags: tags,
 	})
 	require.NoError(t, err, "org admin create provisioner key")
 
 	// org admin can conflict on name creating a provisioner key
-	_, err = orgAdmin.CreateProvisionerKey(ctx, owner.OrganizationID, codersdk.CreateProvisionerKeyRequest{
+	_, err = orgAdmin.CreateProvisionerKey(ctx, owner.OrganizationID, wirtualsdk.CreateProvisionerKeyRequest{
 		Name: "KEY", // still conflicts
 	})
 	require.ErrorContains(t, err, "already exists in organization")
 
 	// key name cannot be too long
-	_, err = orgAdmin.CreateProvisionerKey(ctx, owner.OrganizationID, codersdk.CreateProvisionerKeyRequest{
+	_, err = orgAdmin.CreateProvisionerKey(ctx, owner.OrganizationID, wirtualsdk.CreateProvisionerKeyRequest{
 		Name: "Everyone please pass your watermelons to the front of the pool, the storm is approaching.",
 	})
 	require.ErrorContains(t, err, "must be at most 64 characters")
 
 	// key name cannot be empty
-	_, err = orgAdmin.CreateProvisionerKey(ctx, owner.OrganizationID, codersdk.CreateProvisionerKeyRequest{
+	_, err = orgAdmin.CreateProvisionerKey(ctx, owner.OrganizationID, wirtualsdk.CreateProvisionerKeyRequest{
 		Name: "",
 	})
 	require.ErrorContains(t, err, "is required")
@@ -127,11 +127,11 @@ func TestProvisionerKeys(t *testing.T) {
 	require.ErrorContains(t, err, "Resource not found")
 
 	// org admin cannot delete reserved provisioner keys
-	err = orgAdmin.DeleteProvisionerKey(ctx, owner.OrganizationID, codersdk.ProvisionerKeyNameBuiltIn)
+	err = orgAdmin.DeleteProvisionerKey(ctx, owner.OrganizationID, wirtualsdk.ProvisionerKeyNameBuiltIn)
 	require.ErrorContains(t, err, "reserved")
-	err = orgAdmin.DeleteProvisionerKey(ctx, owner.OrganizationID, codersdk.ProvisionerKeyNameUserAuth)
+	err = orgAdmin.DeleteProvisionerKey(ctx, owner.OrganizationID, wirtualsdk.ProvisionerKeyNameUserAuth)
 	require.ErrorContains(t, err, "reserved")
-	err = orgAdmin.DeleteProvisionerKey(ctx, owner.OrganizationID, codersdk.ProvisionerKeyNamePSK)
+	err = orgAdmin.DeleteProvisionerKey(ctx, owner.OrganizationID, wirtualsdk.ProvisionerKeyNamePSK)
 	require.ErrorContains(t, err, "reserved")
 }
 
@@ -179,14 +179,14 @@ func TestGetProvisionerKey(t *testing.T) {
 				},
 				LicenseOptions: &coderdenttest.LicenseOptions{
 					Features: license.Features{
-						codersdk.FeatureMultipleOrganizations:      1,
-						codersdk.FeatureExternalProvisionerDaemons: 1,
+						wirtualsdk.FeatureMultipleOrganizations:      1,
+						wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 					},
 				},
 			})
 
 			//nolint:gocritic // ignore This client is operating as the owner user, which has unrestricted permissions
-			key, err := client.CreateProvisionerKey(ctx, owner.OrganizationID, codersdk.CreateProvisionerKeyRequest{
+			key, err := client.CreateProvisionerKey(ctx, owner.OrganizationID, wirtualsdk.CreateProvisionerKeyRequest{
 				Name: "my-test-key",
 				Tags: map[string]string{"key1": "value1", "key2": "value2"},
 			})
@@ -203,7 +203,7 @@ func TestGetProvisionerKey(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				require.Equal(t, fetchedKey.Name, "my-test-key")
-				require.Equal(t, fetchedKey.Tags, codersdk.ProvisionerKeyTags{"key1": "value1", "key2": "value2"})
+				require.Equal(t, fetchedKey.Tags, wirtualsdk.ProvisionerKeyTags{"key1": "value1", "key2": "value2"})
 			}
 		})
 	}
@@ -220,14 +220,14 @@ func TestGetProvisionerKey(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations:      1,
-					codersdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureMultipleOrganizations:      1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 		})
 
 		//nolint:gocritic // ignore This client is operating as the owner user, which has unrestricted permissions
-		_, err := client.CreateProvisionerKey(ctx, owner.OrganizationID, codersdk.CreateProvisionerKeyRequest{
+		_, err := client.CreateProvisionerKey(ctx, owner.OrganizationID, wirtualsdk.CreateProvisionerKeyRequest{
 			Name: "my-test-key",
 			Tags: map[string]string{"key1": "value1", "key2": "value2"},
 		})
@@ -249,14 +249,14 @@ func TestGetProvisionerKey(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations:      1,
-					codersdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureMultipleOrganizations:      1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 		})
 
 		//nolint:gocritic // ignore This client is operating as the owner user, which has unrestricted permissions
-		_, err := client.CreateProvisionerKey(ctx, owner.OrganizationID, codersdk.CreateProvisionerKeyRequest{
+		_, err := client.CreateProvisionerKey(ctx, owner.OrganizationID, wirtualsdk.CreateProvisionerKeyRequest{
 			Name: "my-test-key",
 			Tags: map[string]string{"key1": "value1", "key2": "value2"},
 		})

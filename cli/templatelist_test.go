@@ -79,7 +79,7 @@ func TestTemplateList(t *testing.T) {
 		err := inv.WithContext(ctx).Run()
 		require.NoError(t, err)
 
-		var templates []codersdk.Template
+		var templates []wirtualsdk.Template
 		require.NoError(t, json.Unmarshal(out.Bytes(), &templates))
 		require.Len(t, templates, 2)
 	})

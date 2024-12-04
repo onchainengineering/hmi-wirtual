@@ -166,7 +166,7 @@ func (RootCmd) promptExample() *serpent.Command {
 			}, useThingsOption),
 			promptCmd("rich-parameter", func(inv *serpent.Invocation) error {
 				value, err := cliui.RichSelect(inv, cliui.RichSelectOptions{
-					Options: []codersdk.TemplateVersionParameterOption{
+					Options: []wirtualsdk.TemplateVersionParameterOption{
 						{
 							Name:        "Blue",
 							Description: "Like the ocean.",

@@ -137,7 +137,7 @@ func TestWebhook(t *testing.T) {
 				require.NoError(t, err)
 			}
 
-			cfg := codersdk.NotificationsWebhookConfig{
+			cfg := wirtualsdk.NotificationsWebhookConfig{
 				Endpoint: *serpent.URLOf(endpoint),
 			}
 			handler := dispatch.NewWebhookHandler(cfg, logger.With(slog.F("test", tc.name)))

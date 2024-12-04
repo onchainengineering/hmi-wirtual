@@ -86,10 +86,10 @@ func TestEntitlements(t *testing.T) {
 		})
 		// Enable all features
 		features := make(license.Features)
-		for _, feature := range codersdk.FeatureNames {
+		for _, feature := range wirtualsdk.FeatureNames {
 			features[feature] = 1
 		}
-		features[codersdk.FeatureUserLimit] = 100
+		features[wirtualsdk.FeatureUserLimit] = 100
 		coderdenttest.AddLicense(t, adminClient, coderdenttest.LicenseOptions{
 			Features: features,
 			GraceAt:  time.Now().Add(59 * 24 * time.Hour),
@@ -97,8 +97,8 @@ func TestEntitlements(t *testing.T) {
 		res, err := adminClient.Entitlements(context.Background()) //nolint:gocritic // adding another user would put us over user limit
 		require.NoError(t, err)
 		assert.True(t, res.HasLicense)
-		ul := res.Features[codersdk.FeatureUserLimit]
-		assert.Equal(t, codersdk.EntitlementEntitled, ul.Entitlement)
+		ul := res.Features[wirtualsdk.FeatureUserLimit]
+		assert.Equal(t, wirtualsdk.EntitlementEntitled, ul.Entitlement)
 		if assert.NotNil(t, ul.Limit) {
 			assert.Equal(t, int64(100), *ul.Limit)
 		}
@@ -106,8 +106,8 @@ func TestEntitlements(t *testing.T) {
 			assert.Equal(t, int64(1), *ul.Actual)
 		}
 		assert.True(t, ul.Enabled)
-		al := res.Features[codersdk.FeatureAuditLog]
-		assert.Equal(t, codersdk.EntitlementEntitled, al.Entitlement)
+		al := res.Features[wirtualsdk.FeatureAuditLog]
+		assert.Equal(t, wirtualsdk.EntitlementEntitled, al.Entitlement)
 		assert.True(t, al.Enabled)
 		assert.Nil(t, al.Limit)
 		assert.Nil(t, al.Actual)
@@ -122,15 +122,15 @@ func TestEntitlements(t *testing.T) {
 		anotherClient, _ := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
 		license := coderdenttest.AddLicense(t, adminClient, coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureUserLimit: 100,
-				codersdk.FeatureAuditLog:  1,
+				wirtualsdk.FeatureUserLimit: 100,
+				wirtualsdk.FeatureAuditLog:  1,
 			},
 		})
 		res, err := anotherClient.Entitlements(context.Background())
 		require.NoError(t, err)
 		assert.True(t, res.HasLicense)
-		al := res.Features[codersdk.FeatureAuditLog]
-		assert.Equal(t, codersdk.EntitlementEntitled, al.Entitlement)
+		al := res.Features[wirtualsdk.FeatureAuditLog]
+		assert.Equal(t, wirtualsdk.EntitlementEntitled, al.Entitlement)
 		assert.True(t, al.Enabled)
 
 		err = adminClient.DeleteLicense(context.Background(), license.ID)
@@ -139,8 +139,8 @@ func TestEntitlements(t *testing.T) {
 		res, err = anotherClient.Entitlements(context.Background())
 		require.NoError(t, err)
 		assert.False(t, res.HasLicense)
-		al = res.Features[codersdk.FeatureAuditLog]
-		assert.Equal(t, codersdk.EntitlementNotEntitled, al.Entitlement)
+		al = res.Features[wirtualsdk.FeatureAuditLog]
+		assert.Equal(t, wirtualsdk.EntitlementNotEntitled, al.Entitlement)
 		assert.False(t, al.Enabled)
 	})
 	t.Run("Pubsub", func(t *testing.T) {
@@ -157,7 +157,7 @@ func TestEntitlements(t *testing.T) {
 			Exp:        dbtime.Now().AddDate(1, 0, 0),
 			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAuditLog: 1,
+					wirtualsdk.FeatureAuditLog: 1,
 				},
 			}),
 		})
@@ -188,7 +188,7 @@ func TestEntitlements(t *testing.T) {
 			Exp:        dbtime.Now().AddDate(1, 0, 0),
 			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAuditLog: 1,
+					wirtualsdk.FeatureAuditLog: 1,
 				},
 			}),
 		})
@@ -234,7 +234,7 @@ func TestEntitlements_HeaderWarnings(t *testing.T) {
 		require.NoError(t, err)
 		defer res.Body.Close()
 		require.Equal(t, http.StatusOK, res.StatusCode)
-		require.NotEmpty(t, res.Header.Values(codersdk.EntitlementsWarningHeader))
+		require.NotEmpty(t, res.Header.Values(wirtualsdk.EntitlementsWarningHeader))
 	})
 	t.Run("NoneForNormalUser", func(t *testing.T) {
 		t.Parallel()
@@ -249,7 +249,7 @@ func TestEntitlements_HeaderWarnings(t *testing.T) {
 		require.NoError(t, err)
 		defer res.Body.Close()
 		require.Equal(t, http.StatusOK, res.StatusCode)
-		require.Empty(t, res.Header.Values(codersdk.EntitlementsWarningHeader))
+		require.Empty(t, res.Header.Values(wirtualsdk.EntitlementsWarningHeader))
 	})
 }
 
@@ -264,7 +264,7 @@ func TestAuditLogging(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAuditLog: 1,
+					wirtualsdk.FeatureAuditLog: 1,
 				},
 			},
 		})
@@ -319,7 +319,7 @@ func TestExternalTokenEncryption(t *testing.T) {
 			ExternalTokenEncryption:    ciphers,
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalTokenEncryption: 1,
+					wirtualsdk.FeatureExternalTokenEncryption: 1,
 				},
 			},
 			Options: &coderdtest.Options{
@@ -335,11 +335,11 @@ func TestExternalTokenEncryption(t *testing.T) {
 		require.Eventually(t, func() bool {
 			entitlements, err := client.Entitlements(context.Background())
 			assert.NoError(t, err)
-			feature := entitlements.Features[codersdk.FeatureExternalTokenEncryption]
-			entitled := feature.Entitlement == codersdk.EntitlementEntitled
+			feature := entitlements.Features[wirtualsdk.FeatureExternalTokenEncryption]
+			entitled := feature.Entitlement == wirtualsdk.EntitlementEntitled
 			var warningExists bool
 			for _, warning := range entitlements.Warnings {
-				if strings.Contains(warning, codersdk.FeatureExternalTokenEncryption.Humanize()) {
+				if strings.Contains(warning, wirtualsdk.FeatureExternalTokenEncryption.Humanize()) {
 					warningExists = true
 					break
 				}
@@ -372,11 +372,11 @@ func TestExternalTokenEncryption(t *testing.T) {
 		require.Eventually(t, func() bool {
 			entitlements, err := client.Entitlements(context.Background())
 			assert.NoError(t, err)
-			feature := entitlements.Features[codersdk.FeatureExternalTokenEncryption]
-			entitled := feature.Entitlement == codersdk.EntitlementEntitled
+			feature := entitlements.Features[wirtualsdk.FeatureExternalTokenEncryption]
+			entitled := feature.Entitlement == wirtualsdk.EntitlementEntitled
 			var warningExists bool
 			for _, warning := range entitlements.Warnings {
-				if strings.Contains(warning, codersdk.FeatureExternalTokenEncryption.Humanize()) {
+				if strings.Contains(warning, wirtualsdk.FeatureExternalTokenEncryption.Humanize()) {
 					warningExists = true
 					break
 				}
@@ -417,11 +417,11 @@ func TestExternalTokenEncryption(t *testing.T) {
 		require.Eventually(t, func() bool {
 			entitlements, err := client.Entitlements(context.Background())
 			assert.NoError(t, err)
-			feature := entitlements.Features[codersdk.FeatureExternalTokenEncryption]
-			entitled := feature.Entitlement == codersdk.EntitlementEntitled
+			feature := entitlements.Features[wirtualsdk.FeatureExternalTokenEncryption]
+			entitled := feature.Entitlement == wirtualsdk.EntitlementEntitled
 			var warningExists bool
 			for _, warning := range entitlements.Warnings {
-				if strings.Contains(warning, codersdk.FeatureExternalTokenEncryption.Humanize()) {
+				if strings.Contains(warning, wirtualsdk.FeatureExternalTokenEncryption.Humanize()) {
 					warningExists = true
 					break
 				}
@@ -546,7 +546,7 @@ func TestSCIMDisabled(t *testing.T) {
 			defer resp.Body.Close()
 			require.Equal(t, http.StatusNotFound, resp.StatusCode)
 
-			var apiError codersdk.Response
+			var apiError wirtualsdk.Response
 			err = json.NewDecoder(resp.Body).Decode(&apiError)
 			require.NoError(t, err)
 
@@ -612,7 +612,7 @@ type restartableTestServer struct {
 	closer io.Closer
 }
 
-func newRestartableTestServer(t *testing.T, options *coderdenttest.Options) (*codersdk.Client, codersdk.CreateFirstUserResponse, *restartableTestServer) {
+func newRestartableTestServer(t *testing.T, options *coderdenttest.Options) (*wirtualsdk.Client, wirtualsdk.CreateFirstUserResponse, *restartableTestServer) {
 	t.Helper()
 	if options == nil {
 		options = &coderdenttest.Options{}
@@ -674,7 +674,7 @@ func (s *restartableTestServer) Start(t *testing.T) {
 	_, _ = s.startWithFirstUser(t)
 }
 
-func (s *restartableTestServer) startWithFirstUser(t *testing.T) (client *codersdk.Client, firstUser codersdk.CreateFirstUserResponse) {
+func (s *restartableTestServer) startWithFirstUser(t *testing.T) (client *wirtualsdk.Client, firstUser wirtualsdk.CreateFirstUserResponse) {
 	t.Helper()
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -730,7 +730,7 @@ func TestConn_CoordinatorRollingRestart(t *testing.T) {
 			t.Parallel()
 
 			store, ps := dbtestutil.NewDB(t)
-			dv := coderdtest.DeploymentValues(t, func(dv *codersdk.DeploymentValues) {
+			dv := coderdtest.DeploymentValues(t, func(dv *wirtualsdk.DeploymentValues) {
 				dv.DERP.Config.BlockDirect = serpent.Bool(!direct)
 			})
 			logger := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true}).Leveled(slog.LevelDebug)
@@ -748,7 +748,7 @@ func TestConn_CoordinatorRollingRestart(t *testing.T) {
 				},
 				LicenseOptions: &coderdenttest.LicenseOptions{
 					Features: license.Features{
-						codersdk.FeatureHighAvailability: 1,
+						wirtualsdk.FeatureHighAvailability: 1,
 					},
 				},
 			})

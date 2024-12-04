@@ -48,7 +48,7 @@ func TestTemplates(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAccessControl: 1,
+					wirtualsdk.FeatureAccessControl: 1,
 				},
 			},
 		})
@@ -73,7 +73,7 @@ func TestTemplates(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		updated, err := client.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+		updated, err := client.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 			DeprecationMessage: ptr.Ref("Stop using this template"),
 		})
 		require.NoError(t, err)
@@ -108,19 +108,19 @@ func TestTemplates(t *testing.T) {
 			assert.NotEqual(t, otherUser.ID, notif.UserID)
 		}
 
-		_, err = client.CreateWorkspace(ctx, user.OrganizationID, codersdk.Me, codersdk.CreateWorkspaceRequest{
+		_, err = client.CreateWorkspace(ctx, user.OrganizationID, wirtualsdk.Me, wirtualsdk.CreateWorkspaceRequest{
 			TemplateID: template.ID,
 			Name:       "foobar",
 		})
 		require.ErrorContains(t, err, "deprecated")
 
 		// Unset deprecated and try again
-		updated, err = client.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{DeprecationMessage: ptr.Ref("")})
+		updated, err = client.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{DeprecationMessage: ptr.Ref("")})
 		require.NoError(t, err)
 		assert.False(t, updated.Deprecated)
 		assert.Empty(t, updated.DeprecationMessage)
 
-		_, err = client.CreateWorkspace(ctx, user.OrganizationID, codersdk.Me, codersdk.CreateWorkspaceRequest{
+		_, err = client.CreateWorkspace(ctx, user.OrganizationID, wirtualsdk.Me, wirtualsdk.CreateWorkspaceRequest{
 			TemplateID: template.ID,
 			Name:       "foobar",
 		})
@@ -139,7 +139,7 @@ func TestTemplates(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureControlSharedPorts: 1,
+					wirtualsdk.FeatureControlSharedPorts: 1,
 				},
 			},
 		})
@@ -175,10 +175,10 @@ func TestTemplates(t *testing.T) {
 				},
 			}},
 		})
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
-			ctr.MaxPortShareLevel = ptr.Ref(codersdk.WorkspaceAgentPortShareLevelPublic)
+		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
+			ctr.MaxPortShareLevel = ptr.Ref(wirtualsdk.WorkspaceAgentPortShareLevelPublic)
 		})
-		require.Equal(t, template.MaxPortShareLevel, codersdk.WorkspaceAgentPortShareLevelPublic)
+		require.Equal(t, template.MaxPortShareLevel, wirtualsdk.WorkspaceAgentPortShareLevelPublic)
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 		ws := coderdtest.CreateWorkspace(t, client, template.ID)
 		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
@@ -189,8 +189,8 @@ func TestTemplates(t *testing.T) {
 		defer cancel()
 
 		// OK
-		var level codersdk.WorkspaceAgentPortShareLevel = codersdk.WorkspaceAgentPortShareLevelPublic
-		updated, err := client.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+		var level wirtualsdk.WorkspaceAgentPortShareLevel = wirtualsdk.WorkspaceAgentPortShareLevelPublic
+		updated, err := client.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 			MaxPortShareLevel: &level,
 		})
 		require.NoError(t, err)
@@ -198,23 +198,23 @@ func TestTemplates(t *testing.T) {
 
 		// Invalid level
 		level = "invalid"
-		_, err = client.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+		_, err = client.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 			MaxPortShareLevel: &level,
 		})
 		require.ErrorContains(t, err, "invalid max port sharing level")
 
 		// Create public port share
-		_, err = client.UpsertWorkspaceAgentPortShare(ctx, ws.ID, codersdk.UpsertWorkspaceAgentPortShareRequest{
+		_, err = client.UpsertWorkspaceAgentPortShare(ctx, ws.ID, wirtualsdk.UpsertWorkspaceAgentPortShareRequest{
 			AgentName:  ws.LatestBuild.Resources[0].Agents[0].Name,
 			Port:       8080,
-			ShareLevel: codersdk.WorkspaceAgentPortShareLevelPublic,
-			Protocol:   codersdk.WorkspaceAgentPortShareProtocolHTTP,
+			ShareLevel: wirtualsdk.WorkspaceAgentPortShareLevelPublic,
+			Protocol:   wirtualsdk.WorkspaceAgentPortShareProtocolHTTP,
 		})
 		require.NoError(t, err)
 
 		// Reduce max level to authenticated
-		level = codersdk.WorkspaceAgentPortShareLevelAuthenticated
-		_, err = client.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+		level = wirtualsdk.WorkspaceAgentPortShareLevelAuthenticated
+		_, err = client.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 			MaxPortShareLevel: &level,
 		})
 		require.NoError(t, err)
@@ -223,11 +223,11 @@ func TestTemplates(t *testing.T) {
 		wpsr, err := client.GetWorkspaceAgentPortShares(ctx, ws.ID)
 		require.NoError(t, err)
 		require.Len(t, wpsr.Shares, 1)
-		assert.Equal(t, codersdk.WorkspaceAgentPortShareLevelAuthenticated, wpsr.Shares[0].ShareLevel)
+		assert.Equal(t, wirtualsdk.WorkspaceAgentPortShareLevelAuthenticated, wpsr.Shares[0].ShareLevel)
 
 		// reduce max level to owner
-		level = codersdk.WorkspaceAgentPortShareLevelOwner
-		_, err = client.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+		level = wirtualsdk.WorkspaceAgentPortShareLevelOwner
+		_, err = client.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 			MaxPortShareLevel: &level,
 		})
 		require.NoError(t, err)
@@ -247,7 +247,7 @@ func TestTemplates(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAdvancedTemplateScheduling: 1,
+					wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
 			},
 		})
@@ -259,12 +259,12 @@ func TestTemplates(t *testing.T) {
 		require.Equal(t, []string{"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"}, template.AutostartRequirement.DaysOfWeek)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		updated, err := anotherClient.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+		updated, err := anotherClient.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 			Name:        template.Name,
 			DisplayName: template.DisplayName,
 			Description: template.Description,
 			Icon:        template.Icon,
-			AutostartRequirement: &codersdk.TemplateAutostartRequirement{
+			AutostartRequirement: &wirtualsdk.TemplateAutostartRequirement{
 				DaysOfWeek: []string{"monday", "saturday"},
 			},
 		})
@@ -276,7 +276,7 @@ func TestTemplates(t *testing.T) {
 		require.Equal(t, []string{"monday", "saturday"}, template.AutostartRequirement.DaysOfWeek)
 
 		// Ensure a missing field is a noop
-		updated, err = anotherClient.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+		updated, err = anotherClient.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 			Name:        template.Name,
 			DisplayName: template.DisplayName,
 			Description: template.Description,
@@ -301,7 +301,7 @@ func TestTemplates(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAdvancedTemplateScheduling: 1,
+					wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
 			},
 		})
@@ -313,12 +313,12 @@ func TestTemplates(t *testing.T) {
 		require.Equal(t, []string{"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"}, template.AutostartRequirement.DaysOfWeek)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		_, err := anotherClient.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+		_, err := anotherClient.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 			Name:        template.Name,
 			DisplayName: template.DisplayName,
 			Description: template.Description,
 			Icon:        template.Icon,
-			AutostartRequirement: &codersdk.TemplateAutostartRequirement{
+			AutostartRequirement: &wirtualsdk.TemplateAutostartRequirement{
 				DaysOfWeek: []string{"foobar", "saturday"},
 			},
 		})
@@ -336,7 +336,7 @@ func TestTemplates(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAdvancedTemplateScheduling: 1,
+					wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
 			},
 		})
@@ -349,14 +349,14 @@ func TestTemplates(t *testing.T) {
 		require.EqualValues(t, 1, template.AutostopRequirement.Weeks)
 
 		ctx := context.Background()
-		updated, err := anotherClient.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+		updated, err := anotherClient.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 			Name:                         template.Name,
 			DisplayName:                  template.DisplayName,
 			Description:                  template.Description,
 			Icon:                         template.Icon,
 			AllowUserCancelWorkspaceJobs: template.AllowUserCancelWorkspaceJobs,
 			DefaultTTLMillis:             time.Hour.Milliseconds(),
-			AutostopRequirement: &codersdk.TemplateAutostopRequirement{
+			AutostopRequirement: &wirtualsdk.TemplateAutostopRequirement{
 				DaysOfWeek: []string{"monday", "saturday"},
 				Weeks:      3,
 			},
@@ -384,7 +384,7 @@ func TestTemplates(t *testing.T) {
 				},
 				LicenseOptions: &coderdenttest.LicenseOptions{
 					Features: license.Features{
-						codersdk.FeatureAdvancedTemplateScheduling: 1,
+						wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
 					},
 				},
 			})
@@ -403,7 +403,7 @@ func TestTemplates(t *testing.T) {
 				dormantTTL    = 3 * time.Minute
 			)
 
-			updated, err := anotherClient.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+			updated, err := anotherClient.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 				Name:                           template.Name,
 				DisplayName:                    template.DisplayName,
 				Description:                    template.Description,
@@ -437,7 +437,7 @@ func TestTemplates(t *testing.T) {
 				},
 				LicenseOptions: &coderdenttest.LicenseOptions{
 					Features: license.Features{
-						codersdk.FeatureAdvancedTemplateScheduling: 1,
+						wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
 					},
 				},
 			})
@@ -474,7 +474,7 @@ func TestTemplates(t *testing.T) {
 
 				// nolint: paralleltest // context is from parent t.Run
 				t.Run(c.Name, func(t *testing.T) {
-					_, err := anotherClient.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+					_, err := anotherClient.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 						Name:                           template.Name,
 						DisplayName:                    template.DisplayName,
 						Description:                    template.Description,
@@ -485,7 +485,7 @@ func TestTemplates(t *testing.T) {
 						TimeTilDormantAutoDeleteMillis: c.DormantAutoDeleteMS,
 					})
 					require.Error(t, err)
-					cerr, ok := codersdk.AsError(err)
+					cerr, ok := wirtualsdk.AsError(err)
 					require.True(t, ok)
 					require.Len(t, cerr.Validations, 3)
 					require.Equal(t, "Value must be at least one minute.", cerr.Validations[0].Detail)
@@ -504,7 +504,7 @@ func TestTemplates(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAdvancedTemplateScheduling: 1,
+					wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
 			},
 		})
@@ -521,7 +521,7 @@ func TestTemplates(t *testing.T) {
 		_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, activeWS.LatestBuild.ID)
 		_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, dormantWS.LatestBuild.ID)
 
-		err := anotherClient.UpdateWorkspaceDormancy(ctx, dormantWS.ID, codersdk.UpdateWorkspaceDormancy{
+		err := anotherClient.UpdateWorkspaceDormancy(ctx, dormantWS.ID, wirtualsdk.UpdateWorkspaceDormancy{
 			Dormant: true,
 		})
 		require.NoError(t, err)
@@ -532,7 +532,7 @@ func TestTemplates(t *testing.T) {
 		require.Nil(t, dormantWS.DeletingAt)
 
 		dormantTTL := time.Minute
-		updated, err := anotherClient.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+		updated, err := anotherClient.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 			TimeTilDormantAutoDeleteMillis: dormantTTL.Milliseconds(),
 		})
 		require.NoError(t, err)
@@ -550,7 +550,7 @@ func TestTemplates(t *testing.T) {
 
 		// Disable the time_til_dormant_auto_delete on the template, then we can assert that the workspaces
 		// no longer have a deleting_at field.
-		updated, err = anotherClient.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+		updated, err = anotherClient.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 			TimeTilDormantAutoDeleteMillis: 0,
 		})
 		require.NoError(t, err)
@@ -578,7 +578,7 @@ func TestTemplates(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAdvancedTemplateScheduling: 1,
+					wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
 			},
 		})
@@ -595,7 +595,7 @@ func TestTemplates(t *testing.T) {
 		_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, activeWS.LatestBuild.ID)
 		_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, dormantWS.LatestBuild.ID)
 
-		err := anotherClient.UpdateWorkspaceDormancy(ctx, dormantWS.ID, codersdk.UpdateWorkspaceDormancy{
+		err := anotherClient.UpdateWorkspaceDormancy(ctx, dormantWS.ID, wirtualsdk.UpdateWorkspaceDormancy{
 			Dormant: true,
 		})
 		require.NoError(t, err)
@@ -607,7 +607,7 @@ func TestTemplates(t *testing.T) {
 
 		dormantTTL := time.Minute
 		//nolint:gocritic // non-template-admin cannot update template meta
-		updated, err := client.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+		updated, err := client.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 			TimeTilDormantAutoDeleteMillis: dormantTTL.Milliseconds(),
 			UpdateWorkspaceDormantAt:       true,
 		})
@@ -636,7 +636,7 @@ func TestTemplates(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAdvancedTemplateScheduling: 1,
+					wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
 			},
 		})
@@ -653,7 +653,7 @@ func TestTemplates(t *testing.T) {
 		_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, activeWorkspace.LatestBuild.ID)
 		_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, dormantWorkspace.LatestBuild.ID)
 
-		err := anotherClient.UpdateWorkspaceDormancy(ctx, dormantWorkspace.ID, codersdk.UpdateWorkspaceDormancy{
+		err := anotherClient.UpdateWorkspaceDormancy(ctx, dormantWorkspace.ID, wirtualsdk.UpdateWorkspaceDormancy{
 			Dormant: true,
 		})
 		require.NoError(t, err)
@@ -664,7 +664,7 @@ func TestTemplates(t *testing.T) {
 		require.Nil(t, dormantWorkspace.DeletingAt)
 
 		inactivityTTL := time.Minute
-		updated, err := anotherClient.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+		updated, err := anotherClient.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 			TimeTilDormantMillis:      inactivityTTL.Milliseconds(),
 			UpdateWorkspaceLastUsedAt: true,
 		})
@@ -693,14 +693,14 @@ func TestTemplates(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAccessControl: 1,
+					wirtualsdk.FeatureAccessControl: 1,
 				},
 			},
 		})
 		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin())
 
 		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			ctr.RequireActiveVersion = true
 		})
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
@@ -710,14 +710,14 @@ func TestTemplates(t *testing.T) {
 		defer cancel()
 
 		// Update the field and assert it persists.
-		updatedTemplate, err := anotherClient.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+		updatedTemplate, err := anotherClient.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 			RequireActiveVersion: false,
 		})
 		require.NoError(t, err)
 		require.False(t, updatedTemplate.RequireActiveVersion)
 
 		// Flip it back to ensure we aren't hardcoding to a default value.
-		updatedTemplate, err = anotherClient.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+		updatedTemplate, err = anotherClient.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 			RequireActiveVersion: true,
 		})
 		require.NoError(t, err)
@@ -743,8 +743,8 @@ func TestTemplates(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAccessControl: 1,
-					codersdk.FeatureTemplateRBAC:  1,
+					wirtualsdk.FeatureAccessControl: 1,
+					wirtualsdk.FeatureTemplateRBAC:  1,
 				},
 			},
 		})
@@ -754,11 +754,11 @@ func TestTemplates(t *testing.T) {
 		template := coderdtest.CreateTemplate(t, client, first.OrganizationID, version.ID)
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		err := client.UpdateTemplateACL(ctx, template.ID, codersdk.UpdateTemplateACL{
+		err := client.UpdateTemplateACL(ctx, template.ID, wirtualsdk.UpdateTemplateACL{
 			UserPerms: nil,
-			GroupPerms: map[string]codersdk.TemplateRole{
+			GroupPerms: map[string]wirtualsdk.TemplateRole{
 				// OrgID is the everyone ID
-				first.OrganizationID.String(): codersdk.TemplateRoleDeleted,
+				first.OrganizationID.String(): wirtualsdk.TemplateRoleDeleted,
 			},
 		})
 		require.NoError(t, err)
@@ -782,10 +782,10 @@ func TestTemplates(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAccessControl:              1,
-					codersdk.FeatureCustomRoles:                1,
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureMultipleOrganizations:      1,
+					wirtualsdk.FeatureAccessControl:              1,
+					wirtualsdk.FeatureCustomRoles:                1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
@@ -796,11 +796,11 @@ func TestTemplates(t *testing.T) {
 		})
 
 		//nolint:gocritic // owner required to make custom roles
-		orgTemplateAdminRole, err := ownerClient.CreateOrganizationRole(ctx, codersdk.Role{
+		orgTemplateAdminRole, err := ownerClient.CreateOrganizationRole(ctx, wirtualsdk.Role{
 			Name:           "org-template-admin",
 			OrganizationID: secondOrg.ID.String(),
-			OrganizationPermissions: codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceTemplate: codersdk.RBACResourceActions[codersdk.ResourceTemplate],
+			OrganizationPermissions: wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				wirtualsdk.ResourceTemplate: wirtualsdk.RBACResourceActions[wirtualsdk.ResourceTemplate],
 			}),
 		})
 		require.NoError(t, err, "create admin role")
@@ -830,7 +830,7 @@ func TestTemplates(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -854,19 +854,19 @@ func TestTemplates(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitLong)
 
 		// All 4 are viewable by the owner
-		templates, err := client.Templates(ctx, codersdk.TemplateFilter{})
+		templates, err := client.Templates(ctx, wirtualsdk.TemplateFilter{})
 		require.NoError(t, err)
 		require.Len(t, templates, 4)
 
 		// View a single organization from the owner
-		templates, err = client.Templates(ctx, codersdk.TemplateFilter{
+		templates, err = client.Templates(ctx, wirtualsdk.TemplateFilter{
 			OrganizationID: owner.OrganizationID,
 		})
 		require.NoError(t, err)
 		require.Len(t, templates, 2)
 
 		// Only 2 are viewable by the org user
-		templates, err = user.Templates(ctx, codersdk.TemplateFilter{})
+		templates, err = user.Templates(ctx, wirtualsdk.TemplateFilter{})
 		require.NoError(t, err)
 		require.Len(t, templates, 2)
 		for _, tmpl := range templates {
@@ -882,7 +882,7 @@ func TestTemplateACL(t *testing.T) {
 		t.Parallel()
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin())
@@ -894,10 +894,10 @@ func TestTemplateACL(t *testing.T) {
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 
-		err := anotherClient.UpdateTemplateACL(ctx, template.ID, codersdk.UpdateTemplateACL{
-			UserPerms: map[string]codersdk.TemplateRole{
-				user2.ID.String(): codersdk.TemplateRoleUse,
-				user3.ID.String(): codersdk.TemplateRoleAdmin,
+		err := anotherClient.UpdateTemplateACL(ctx, template.ID, wirtualsdk.UpdateTemplateACL{
+			UserPerms: map[string]wirtualsdk.TemplateRole{
+				user2.ID.String(): wirtualsdk.TemplateRoleUse,
+				user3.ID.String(): wirtualsdk.TemplateRoleAdmin,
 			},
 		})
 		require.NoError(t, err)
@@ -905,14 +905,14 @@ func TestTemplateACL(t *testing.T) {
 		acl, err := anotherClient.TemplateACL(ctx, template.ID)
 		require.NoError(t, err)
 
-		templateUser2 := codersdk.TemplateUser{
+		templateUser2 := wirtualsdk.TemplateUser{
 			User: user2,
-			Role: codersdk.TemplateRoleUse,
+			Role: wirtualsdk.TemplateRoleUse,
 		}
 
-		templateUser3 := codersdk.TemplateUser{
+		templateUser3 := wirtualsdk.TemplateUser{
 			User: user3,
-			Role: codersdk.TemplateRoleAdmin,
+			Role: wirtualsdk.TemplateRoleAdmin,
 		}
 
 		require.Len(t, acl.Users, 2)
@@ -924,7 +924,7 @@ func TestTemplateACL(t *testing.T) {
 		t.Parallel()
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 
@@ -948,7 +948,7 @@ func TestTemplateACL(t *testing.T) {
 		t.Parallel()
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 
@@ -972,9 +972,9 @@ func TestTemplateACL(t *testing.T) {
 
 		allUsers := acl.Groups[0]
 
-		err = client.UpdateTemplateACL(ctx, template.ID, codersdk.UpdateTemplateACL{
-			GroupPerms: map[string]codersdk.TemplateRole{
-				allUsers.ID.String(): codersdk.TemplateRoleDeleted,
+		err = client.UpdateTemplateACL(ctx, template.ID, wirtualsdk.UpdateTemplateACL{
+			GroupPerms: map[string]wirtualsdk.TemplateRole{
+				allUsers.ID.String(): wirtualsdk.TemplateRoleDeleted,
 			},
 		})
 		require.NoError(t, err)
@@ -989,7 +989,7 @@ func TestTemplateACL(t *testing.T) {
 		// User should not be able to read template due to allUsers group being deleted.
 		_, err = client1.Template(ctx, template.ID)
 		require.Error(t, err)
-		cerr, ok := codersdk.AsError(err)
+		cerr, ok := wirtualsdk.AsError(err)
 		require.True(t, ok)
 		require.Equal(t, http.StatusNotFound, cerr.StatusCode())
 	})
@@ -999,7 +999,7 @@ func TestTemplateACL(t *testing.T) {
 
 		client, admin := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		version := coderdtest.CreateTemplateVersion(t, client, admin.OrganizationID, nil)
@@ -1012,7 +1012,7 @@ func TestTemplateACL(t *testing.T) {
 		acl, err := client.TemplateACL(ctx, template.ID)
 		require.NoError(t, err)
 		require.Equal(t, 1, len(acl.Groups))
-		_, err = client.UpdateTemplateMeta(ctx, template.ID, codersdk.UpdateTemplateMeta{
+		_, err = client.UpdateTemplateMeta(ctx, template.ID, wirtualsdk.UpdateTemplateMeta{
 			Name:                         template.Name,
 			DisplayName:                  template.DisplayName,
 			Description:                  template.Description,
@@ -1033,7 +1033,7 @@ func TestTemplateACL(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin(), rbac.RoleUserAdmin())
@@ -1044,18 +1044,18 @@ func TestTemplateACL(t *testing.T) {
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 
-		err := anotherClient.UpdateTemplateACL(ctx, template.ID, codersdk.UpdateTemplateACL{
-			UserPerms: map[string]codersdk.TemplateRole{
-				user1.ID.String(): codersdk.TemplateRoleUse,
+		err := anotherClient.UpdateTemplateACL(ctx, template.ID, wirtualsdk.UpdateTemplateACL{
+			UserPerms: map[string]wirtualsdk.TemplateRole{
+				user1.ID.String(): wirtualsdk.TemplateRoleUse,
 			},
 		})
 		require.NoError(t, err)
 
 		acl, err := anotherClient.TemplateACL(ctx, template.ID)
 		require.NoError(t, err)
-		require.Contains(t, acl.Users, codersdk.TemplateUser{
+		require.Contains(t, acl.Users, wirtualsdk.TemplateUser{
 			User: user1,
-			Role: codersdk.TemplateRoleUse,
+			Role: wirtualsdk.TemplateRoleUse,
 		})
 
 		err = anotherClient.DeleteUser(ctx, user1.ID)
@@ -1072,7 +1072,7 @@ func TestTemplateACL(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin(), rbac.RoleUserAdmin())
@@ -1080,29 +1080,29 @@ func TestTemplateACL(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitLong)
 
 		// nolint:gocritic // Must use owner to create user.
-		user1, err := client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		user1, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			Email:           "coder@coder.com",
 			Username:        "coder",
 			Password:        "SomeStrongPassword!",
 			OrganizationIDs: []uuid.UUID{user.OrganizationID},
 		})
 		require.NoError(t, err)
-		require.Equal(t, codersdk.UserStatusDormant, user1.Status)
+		require.Equal(t, wirtualsdk.UserStatusDormant, user1.Status)
 		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
-		err = anotherClient.UpdateTemplateACL(ctx, template.ID, codersdk.UpdateTemplateACL{
-			UserPerms: map[string]codersdk.TemplateRole{
-				user1.ID.String(): codersdk.TemplateRoleUse,
+		err = anotherClient.UpdateTemplateACL(ctx, template.ID, wirtualsdk.UpdateTemplateACL{
+			UserPerms: map[string]wirtualsdk.TemplateRole{
+				user1.ID.String(): wirtualsdk.TemplateRoleUse,
 			},
 		})
 		require.NoError(t, err)
 
 		acl, err := anotherClient.TemplateACL(ctx, template.ID)
 		require.NoError(t, err)
-		require.Contains(t, acl.Users, codersdk.TemplateUser{
+		require.Contains(t, acl.Users, wirtualsdk.TemplateUser{
 			User: user1,
-			Role: codersdk.TemplateRoleUse,
+			Role: wirtualsdk.TemplateRoleUse,
 		})
 	})
 
@@ -1112,7 +1112,7 @@ func TestTemplateACL(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin(), rbac.RoleUserAdmin())
@@ -1123,21 +1123,21 @@ func TestTemplateACL(t *testing.T) {
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 
-		err := anotherClient.UpdateTemplateACL(ctx, template.ID, codersdk.UpdateTemplateACL{
-			UserPerms: map[string]codersdk.TemplateRole{
-				user1.ID.String(): codersdk.TemplateRoleUse,
+		err := anotherClient.UpdateTemplateACL(ctx, template.ID, wirtualsdk.UpdateTemplateACL{
+			UserPerms: map[string]wirtualsdk.TemplateRole{
+				user1.ID.String(): wirtualsdk.TemplateRoleUse,
 			},
 		})
 		require.NoError(t, err)
 
 		acl, err := anotherClient.TemplateACL(ctx, template.ID)
 		require.NoError(t, err)
-		require.Contains(t, acl.Users, codersdk.TemplateUser{
+		require.Contains(t, acl.Users, wirtualsdk.TemplateUser{
 			User: user1,
-			Role: codersdk.TemplateRoleUse,
+			Role: wirtualsdk.TemplateRoleUse,
 		})
 
-		_, err = anotherClient.UpdateUserStatus(ctx, user1.ID.String(), codersdk.UserStatusSuspended)
+		_, err = anotherClient.UpdateUserStatus(ctx, user1.ID.String(), wirtualsdk.UserStatusSuspended)
 		require.NoError(t, err)
 
 		acl, err = anotherClient.TemplateACL(ctx, template.ID)
@@ -1151,7 +1151,7 @@ func TestTemplateACL(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin(), rbac.RoleUserAdmin())
@@ -1161,14 +1161,14 @@ func TestTemplateACL(t *testing.T) {
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 
-		group, err := anotherClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group, err := anotherClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "test",
 		})
 		require.NoError(t, err)
 
-		err = anotherClient.UpdateTemplateACL(ctx, template.ID, codersdk.UpdateTemplateACL{
-			GroupPerms: map[string]codersdk.TemplateRole{
-				group.ID.String(): codersdk.TemplateRoleUse,
+		err = anotherClient.UpdateTemplateACL(ctx, template.ID, wirtualsdk.UpdateTemplateACL{
+			GroupPerms: map[string]wirtualsdk.TemplateRole{
+				group.ID.String(): wirtualsdk.TemplateRoleUse,
 			},
 		})
 		require.NoError(t, err)
@@ -1178,9 +1178,9 @@ func TestTemplateACL(t *testing.T) {
 		// Length should be 2 for test group and the implicit allUsers group.
 		require.Len(t, acl.Groups, 2)
 
-		require.Contains(t, acl.Groups, codersdk.TemplateGroup{
+		require.Contains(t, acl.Groups, wirtualsdk.TemplateGroup{
 			Group: group,
-			Role:  codersdk.TemplateRoleUse,
+			Role:  wirtualsdk.TemplateRoleUse,
 		})
 
 		err = anotherClient.DeleteGroup(ctx, group.ID)
@@ -1190,9 +1190,9 @@ func TestTemplateACL(t *testing.T) {
 		require.NoError(t, err)
 		// Length should be 1 for the allUsers group.
 		require.Len(t, acl.Groups, 1)
-		require.NotContains(t, acl.Groups, codersdk.TemplateGroup{
+		require.NotContains(t, acl.Groups, wirtualsdk.TemplateGroup{
 			Group: group,
-			Role:  codersdk.TemplateRoleUse,
+			Role:  wirtualsdk.TemplateRoleUse,
 		})
 	})
 
@@ -1200,7 +1200,7 @@ func TestTemplateACL(t *testing.T) {
 		t.Parallel()
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 
@@ -1211,41 +1211,41 @@ func TestTemplateACL(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitLong)
 
 		//nolint:gocritic // test setup
-		err := client.UpdateTemplateACL(ctx, template.ID, codersdk.UpdateTemplateACL{
-			UserPerms: map[string]codersdk.TemplateRole{
-				user1.ID.String(): codersdk.TemplateRoleUse,
+		err := client.UpdateTemplateACL(ctx, template.ID, wirtualsdk.UpdateTemplateACL{
+			UserPerms: map[string]wirtualsdk.TemplateRole{
+				user1.ID.String(): wirtualsdk.TemplateRoleUse,
 			},
 		})
 		require.NoError(t, err)
 
 		data, err := echo.Tar(nil)
 		require.NoError(t, err)
-		file, err := client1.Upload(context.Background(), codersdk.ContentTypeTar, bytes.NewReader(data))
+		file, err := client1.Upload(context.Background(), wirtualsdk.ContentTypeTar, bytes.NewReader(data))
 		require.NoError(t, err)
 
-		_, err = client1.CreateTemplateVersion(ctx, user.OrganizationID, codersdk.CreateTemplateVersionRequest{
+		_, err = client1.CreateTemplateVersion(ctx, user.OrganizationID, wirtualsdk.CreateTemplateVersionRequest{
 			Name:          "testme",
 			TemplateID:    template.ID,
 			FileID:        file.ID,
-			StorageMethod: codersdk.ProvisionerStorageMethodFile,
-			Provisioner:   codersdk.ProvisionerTypeEcho,
+			StorageMethod: wirtualsdk.ProvisionerStorageMethodFile,
+			Provisioner:   wirtualsdk.ProvisionerTypeEcho,
 		})
 		require.Error(t, err)
 
 		//nolint:gocritic // test setup
-		err = client.UpdateTemplateACL(ctx, template.ID, codersdk.UpdateTemplateACL{
-			UserPerms: map[string]codersdk.TemplateRole{
-				user1.ID.String(): codersdk.TemplateRoleAdmin,
+		err = client.UpdateTemplateACL(ctx, template.ID, wirtualsdk.UpdateTemplateACL{
+			UserPerms: map[string]wirtualsdk.TemplateRole{
+				user1.ID.String(): wirtualsdk.TemplateRoleAdmin,
 			},
 		})
 		require.NoError(t, err)
 
-		_, err = client1.CreateTemplateVersion(ctx, user.OrganizationID, codersdk.CreateTemplateVersionRequest{
+		_, err = client1.CreateTemplateVersion(ctx, user.OrganizationID, wirtualsdk.CreateTemplateVersionRequest{
 			Name:          "testme",
 			TemplateID:    template.ID,
 			FileID:        file.ID,
-			StorageMethod: codersdk.ProvisionerStorageMethodFile,
-			Provisioner:   codersdk.ProvisionerTypeEcho,
+			StorageMethod: wirtualsdk.ProvisionerStorageMethodFile,
+			Provisioner:   wirtualsdk.ProvisionerTypeEcho,
 		})
 		require.NoError(t, err)
 	})
@@ -1258,7 +1258,7 @@ func TestUpdateTemplateACL(t *testing.T) {
 		t.Parallel()
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin())
@@ -1271,10 +1271,10 @@ func TestUpdateTemplateACL(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		err := anotherClient.UpdateTemplateACL(ctx, template.ID, codersdk.UpdateTemplateACL{
-			UserPerms: map[string]codersdk.TemplateRole{
-				user2.ID.String(): codersdk.TemplateRoleUse,
-				user3.ID.String(): codersdk.TemplateRoleAdmin,
+		err := anotherClient.UpdateTemplateACL(ctx, template.ID, wirtualsdk.UpdateTemplateACL{
+			UserPerms: map[string]wirtualsdk.TemplateRole{
+				user2.ID.String(): wirtualsdk.TemplateRoleUse,
+				user3.ID.String(): wirtualsdk.TemplateRoleAdmin,
 			},
 		})
 		require.NoError(t, err)
@@ -1282,14 +1282,14 @@ func TestUpdateTemplateACL(t *testing.T) {
 		acl, err := anotherClient.TemplateACL(ctx, template.ID)
 		require.NoError(t, err)
 
-		templateUser2 := codersdk.TemplateUser{
+		templateUser2 := wirtualsdk.TemplateUser{
 			User: user2,
-			Role: codersdk.TemplateRoleUse,
+			Role: wirtualsdk.TemplateRoleUse,
 		}
 
-		templateUser3 := codersdk.TemplateUser{
+		templateUser3 := wirtualsdk.TemplateUser{
 			User: user3,
-			Role: codersdk.TemplateRoleAdmin,
+			Role: wirtualsdk.TemplateRoleAdmin,
 		}
 
 		require.Len(t, acl.Users, 2)
@@ -1309,8 +1309,8 @@ func TestUpdateTemplateACL(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureTemplateRBAC: 1,
-					codersdk.FeatureAuditLog:     1,
+					wirtualsdk.FeatureTemplateRBAC: 1,
+					wirtualsdk.FeatureAuditLog:     1,
 				},
 			},
 		})
@@ -1323,9 +1323,9 @@ func TestUpdateTemplateACL(t *testing.T) {
 
 		numLogs := len(auditor.AuditLogs())
 
-		req := codersdk.UpdateTemplateACL{
-			GroupPerms: map[string]codersdk.TemplateRole{
-				user.OrganizationID.String(): codersdk.TemplateRoleDeleted,
+		req := wirtualsdk.UpdateTemplateACL{
+			GroupPerms: map[string]wirtualsdk.TemplateRole{
+				user.OrganizationID.String(): wirtualsdk.TemplateRoleDeleted,
 			},
 		}
 		err := anotherClient.UpdateTemplateACL(ctx, template.ID, req)
@@ -1344,7 +1344,7 @@ func TestUpdateTemplateACL(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin())
@@ -1353,10 +1353,10 @@ func TestUpdateTemplateACL(t *testing.T) {
 		_, user3 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
 		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		req := codersdk.UpdateTemplateACL{
-			UserPerms: map[string]codersdk.TemplateRole{
-				user2.ID.String(): codersdk.TemplateRoleUse,
-				user3.ID.String(): codersdk.TemplateRoleAdmin,
+		req := wirtualsdk.UpdateTemplateACL{
+			UserPerms: map[string]wirtualsdk.TemplateRole{
+				user2.ID.String(): wirtualsdk.TemplateRoleUse,
+				user3.ID.String(): wirtualsdk.TemplateRoleAdmin,
 			},
 		}
 
@@ -1368,19 +1368,19 @@ func TestUpdateTemplateACL(t *testing.T) {
 
 		acl, err := anotherClient.TemplateACL(ctx, template.ID)
 		require.NoError(t, err)
-		require.Contains(t, acl.Users, codersdk.TemplateUser{
+		require.Contains(t, acl.Users, wirtualsdk.TemplateUser{
 			User: user2,
-			Role: codersdk.TemplateRoleUse,
+			Role: wirtualsdk.TemplateRoleUse,
 		})
-		require.Contains(t, acl.Users, codersdk.TemplateUser{
+		require.Contains(t, acl.Users, wirtualsdk.TemplateUser{
 			User: user3,
-			Role: codersdk.TemplateRoleAdmin,
+			Role: wirtualsdk.TemplateRoleAdmin,
 		})
 
-		req = codersdk.UpdateTemplateACL{
-			UserPerms: map[string]codersdk.TemplateRole{
-				user2.ID.String(): codersdk.TemplateRoleAdmin,
-				user3.ID.String(): codersdk.TemplateRoleDeleted,
+		req = wirtualsdk.UpdateTemplateACL{
+			UserPerms: map[string]wirtualsdk.TemplateRole{
+				user2.ID.String(): wirtualsdk.TemplateRoleAdmin,
+				user3.ID.String(): wirtualsdk.TemplateRoleDeleted,
 			},
 		}
 
@@ -1390,14 +1390,14 @@ func TestUpdateTemplateACL(t *testing.T) {
 		acl, err = anotherClient.TemplateACL(ctx, template.ID)
 		require.NoError(t, err)
 
-		require.Contains(t, acl.Users, codersdk.TemplateUser{
+		require.Contains(t, acl.Users, wirtualsdk.TemplateUser{
 			User: user2,
-			Role: codersdk.TemplateRoleAdmin,
+			Role: wirtualsdk.TemplateRoleAdmin,
 		})
 
-		require.NotContains(t, acl.Users, codersdk.TemplateUser{
+		require.NotContains(t, acl.Users, wirtualsdk.TemplateUser{
 			User: user3,
-			Role: codersdk.TemplateRoleAdmin,
+			Role: wirtualsdk.TemplateRoleAdmin,
 		})
 	})
 
@@ -1406,14 +1406,14 @@ func TestUpdateTemplateACL(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 
 		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		req := codersdk.UpdateTemplateACL{
-			UserPerms: map[string]codersdk.TemplateRole{
+		req := wirtualsdk.UpdateTemplateACL{
+			UserPerms: map[string]wirtualsdk.TemplateRole{
 				"hi": "admin",
 			},
 		}
@@ -1423,7 +1423,7 @@ func TestUpdateTemplateACL(t *testing.T) {
 		//nolint:gocritic // we're testing invalid UUID so testing RBAC is not relevant here.
 		err := client.UpdateTemplateACL(ctx, template.ID, req)
 		require.Error(t, err)
-		cerr, _ := codersdk.AsError(err)
+		cerr, _ := wirtualsdk.AsError(err)
 		require.Equal(t, http.StatusBadRequest, cerr.StatusCode())
 	})
 
@@ -1432,14 +1432,14 @@ func TestUpdateTemplateACL(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 
 		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		req := codersdk.UpdateTemplateACL{
-			UserPerms: map[string]codersdk.TemplateRole{
+		req := wirtualsdk.UpdateTemplateACL{
+			UserPerms: map[string]wirtualsdk.TemplateRole{
 				uuid.NewString(): "admin",
 			},
 		}
@@ -1449,7 +1449,7 @@ func TestUpdateTemplateACL(t *testing.T) {
 		//nolint:gocritic // we're testing invalid user so testing RBAC is not relevant here.
 		err := client.UpdateTemplateACL(ctx, template.ID, req)
 		require.Error(t, err)
-		cerr, _ := codersdk.AsError(err)
+		cerr, _ := wirtualsdk.AsError(err)
 		require.Equal(t, http.StatusBadRequest, cerr.StatusCode())
 	})
 
@@ -1458,15 +1458,15 @@ func TestUpdateTemplateACL(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 
 		_, user2 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
 		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		req := codersdk.UpdateTemplateACL{
-			UserPerms: map[string]codersdk.TemplateRole{
+		req := wirtualsdk.UpdateTemplateACL{
+			UserPerms: map[string]wirtualsdk.TemplateRole{
 				user2.ID.String(): "updater",
 			},
 		}
@@ -1476,7 +1476,7 @@ func TestUpdateTemplateACL(t *testing.T) {
 		//nolint:gocritic // we're testing invalid role so testing RBAC is not relevant here.
 		err := client.UpdateTemplateACL(ctx, template.ID, req)
 		require.Error(t, err)
-		cerr, _ := codersdk.AsError(err)
+		cerr, _ := wirtualsdk.AsError(err)
 		require.Equal(t, http.StatusBadRequest, cerr.StatusCode())
 	})
 
@@ -1485,7 +1485,7 @@ func TestUpdateTemplateACL(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 
@@ -1494,9 +1494,9 @@ func TestUpdateTemplateACL(t *testing.T) {
 		client2, user2 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
 		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		req := codersdk.UpdateTemplateACL{
-			UserPerms: map[string]codersdk.TemplateRole{
-				user2.ID.String(): codersdk.TemplateRoleUse,
+		req := wirtualsdk.UpdateTemplateACL{
+			UserPerms: map[string]wirtualsdk.TemplateRole{
+				user2.ID.String(): wirtualsdk.TemplateRoleUse,
 			},
 		}
 
@@ -1505,15 +1505,15 @@ func TestUpdateTemplateACL(t *testing.T) {
 		err := client1.UpdateTemplateACL(ctx, template.ID, req)
 		require.NoError(t, err)
 
-		req = codersdk.UpdateTemplateACL{
-			UserPerms: map[string]codersdk.TemplateRole{
-				user2.ID.String(): codersdk.TemplateRoleAdmin,
+		req = wirtualsdk.UpdateTemplateACL{
+			UserPerms: map[string]wirtualsdk.TemplateRole{
+				user2.ID.String(): wirtualsdk.TemplateRoleAdmin,
 			},
 		}
 
 		err = client2.UpdateTemplateACL(ctx, template.ID, req)
 		require.Error(t, err)
-		cerr, _ := codersdk.AsError(err)
+		cerr, _ := wirtualsdk.AsError(err)
 		require.Equal(t, http.StatusInternalServerError, cerr.StatusCode())
 	})
 
@@ -1522,7 +1522,7 @@ func TestUpdateTemplateACL(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		client1, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin())
@@ -1531,9 +1531,9 @@ func TestUpdateTemplateACL(t *testing.T) {
 		_, user3 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
 		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
 		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		req := codersdk.UpdateTemplateACL{
-			UserPerms: map[string]codersdk.TemplateRole{
-				user2.ID.String(): codersdk.TemplateRoleAdmin,
+		req := wirtualsdk.UpdateTemplateACL{
+			UserPerms: map[string]wirtualsdk.TemplateRole{
+				user2.ID.String(): wirtualsdk.TemplateRoleAdmin,
 			},
 		}
 
@@ -1557,9 +1557,9 @@ func TestUpdateTemplateACL(t *testing.T) {
 		}
 		require.True(t, userFound, "user not found in acl available")
 
-		req = codersdk.UpdateTemplateACL{
-			UserPerms: map[string]codersdk.TemplateRole{
-				user3.ID.String(): codersdk.TemplateRoleUse,
+		req = wirtualsdk.UpdateTemplateACL{
+			UserPerms: map[string]wirtualsdk.TemplateRole{
+				user3.ID.String(): wirtualsdk.TemplateRoleUse,
 			},
 		}
 
@@ -1583,7 +1583,7 @@ func TestUpdateTemplateACL(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin())
@@ -1606,7 +1606,7 @@ func TestUpdateTemplateACL(t *testing.T) {
 
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin(), rbac.RoleUserAdmin())
@@ -1618,7 +1618,7 @@ func TestUpdateTemplateACL(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitLong)
 
 		// Create a group to add to the template.
-		group, err := anotherClient.CreateGroup(ctx, user.OrganizationID, codersdk.CreateGroupRequest{
+		group, err := anotherClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "test",
 		})
 		require.NoError(t, err)
@@ -1629,11 +1629,11 @@ func TestUpdateTemplateACL(t *testing.T) {
 		require.Len(t, acl.Groups, 1)
 
 		// Update the template to only allow access to the 'test' group.
-		err = anotherClient.UpdateTemplateACL(ctx, template.ID, codersdk.UpdateTemplateACL{
-			GroupPerms: map[string]codersdk.TemplateRole{
+		err = anotherClient.UpdateTemplateACL(ctx, template.ID, wirtualsdk.UpdateTemplateACL{
+			GroupPerms: map[string]wirtualsdk.TemplateRole{
 				// The allUsers group shares the same ID as the organization.
-				user.OrganizationID.String(): codersdk.TemplateRoleDeleted,
-				group.ID.String():            codersdk.TemplateRoleUse,
+				user.OrganizationID.String(): wirtualsdk.TemplateRoleDeleted,
+				group.ID.String():            wirtualsdk.TemplateRoleUse,
 			},
 		})
 		require.NoError(t, err)
@@ -1651,12 +1651,12 @@ func TestUpdateTemplateACL(t *testing.T) {
 		// fail since we haven't been added to the template yet.
 		_, err = client1.Template(ctx, template.ID)
 		require.Error(t, err)
-		cerr, ok := codersdk.AsError(err)
+		cerr, ok := wirtualsdk.AsError(err)
 		require.True(t, ok)
 		require.Equal(t, http.StatusNotFound, cerr.StatusCode())
 
 		// Patch the group to add the regular user.
-		group, err = anotherClient.PatchGroup(ctx, group.ID, codersdk.PatchGroupRequest{
+		group, err = anotherClient.PatchGroup(ctx, group.ID, wirtualsdk.PatchGroupRequest{
 			AddUsers: []string{user1.ID.String()},
 		})
 		require.NoError(t, err)
@@ -1672,7 +1672,7 @@ func TestUpdateTemplateACL(t *testing.T) {
 		t.Parallel()
 		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin())
@@ -1696,9 +1696,9 @@ func TestUpdateTemplateACL(t *testing.T) {
 
 		allUsers := acl.Groups[0]
 
-		err = anotherClient.UpdateTemplateACL(ctx, template.ID, codersdk.UpdateTemplateACL{
-			GroupPerms: map[string]codersdk.TemplateRole{
-				allUsers.ID.String(): codersdk.TemplateRoleDeleted,
+		err = anotherClient.UpdateTemplateACL(ctx, template.ID, wirtualsdk.UpdateTemplateACL{
+			GroupPerms: map[string]wirtualsdk.TemplateRole{
+				allUsers.ID.String(): wirtualsdk.TemplateRoleDeleted,
 			},
 		})
 		require.NoError(t, err)
@@ -1712,7 +1712,7 @@ func TestUpdateTemplateACL(t *testing.T) {
 		// User should not be able to read template due to allUsers group being deleted.
 		_, err = client1.Template(ctx, template.ID)
 		require.Error(t, err)
-		cerr, ok := codersdk.AsError(err)
+		cerr, ok := wirtualsdk.AsError(err)
 		require.True(t, ok)
 		require.Equal(t, http.StatusNotFound, cerr.StatusCode())
 	})
@@ -1726,14 +1726,14 @@ func TestReadFileWithTemplateUpdate(t *testing.T) {
 		// Upload a file
 		client, first := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 
 		//nolint:gocritic // regular user cannot create file
-		resp, err := client.Upload(ctx, codersdk.ContentTypeTar, bytes.NewReader(make([]byte, 1024)))
+		resp, err := client.Upload(ctx, wirtualsdk.ContentTypeTar, bytes.NewReader(make([]byte, 1024)))
 		require.NoError(t, err)
 
 		// Make a new user
@@ -1744,7 +1744,7 @@ func TestReadFileWithTemplateUpdate(t *testing.T) {
 		require.Error(t, err, "no template yet")
 
 		// Make a new template version with the file
-		version := coderdtest.CreateTemplateVersion(t, client, first.OrganizationID, nil, func(request *codersdk.CreateTemplateVersionRequest) {
+		version := coderdtest.CreateTemplateVersion(t, client, first.OrganizationID, nil, func(request *wirtualsdk.CreateTemplateVersionRequest) {
 			request.FileID = resp.ID
 		})
 		template := coderdtest.CreateTemplate(t, client, first.OrganizationID, version.ID)
@@ -1754,9 +1754,9 @@ func TestReadFileWithTemplateUpdate(t *testing.T) {
 		require.Error(t, err, "not in acl yet")
 
 		//nolint:gocritic // regular user cannot update template acl
-		err = client.UpdateTemplateACL(ctx, template.ID, codersdk.UpdateTemplateACL{
-			UserPerms: map[string]codersdk.TemplateRole{
-				memberData.ID.String(): codersdk.TemplateRoleAdmin,
+		err = client.UpdateTemplateACL(ctx, template.ID, wirtualsdk.UpdateTemplateACL{
+			UserPerms: map[string]wirtualsdk.TemplateRole{
+				memberData.ID.String(): wirtualsdk.TemplateRoleAdmin,
 			},
 		})
 		require.NoError(t, err)
@@ -1786,15 +1786,15 @@ func TestTemplateAccess(t *testing.T) {
 		},
 		LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC:          1,
-				codersdk.FeatureMultipleOrganizations: 1,
+				wirtualsdk.FeatureTemplateRBAC:          1,
+				wirtualsdk.FeatureMultipleOrganizations: 1,
 			},
 		},
 	})
 
 	type coderUser struct {
-		*codersdk.Client
-		User codersdk.User
+		*wirtualsdk.Client
+		User wirtualsdk.User
 	}
 
 	type orgSetup struct {
@@ -1802,13 +1802,13 @@ func TestTemplateAccess(t *testing.T) {
 		MemberInGroup coderUser
 		MemberNoGroup coderUser
 
-		DefaultTemplate codersdk.Template
-		AllRead         codersdk.Template
-		UserACL         codersdk.Template
-		GroupACL        codersdk.Template
+		DefaultTemplate wirtualsdk.Template
+		AllRead         wirtualsdk.Template
+		UserACL         wirtualsdk.Template
+		GroupACL        wirtualsdk.Template
 
-		Group codersdk.Group
-		Org   codersdk.Organization
+		Group wirtualsdk.Group
+		Org   wirtualsdk.Organization
 	}
 
 	// Create the following users
@@ -1827,7 +1827,7 @@ func TestTemplateAccess(t *testing.T) {
 
 	templateAdmin, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
-	makeTemplate := func(t *testing.T, client *codersdk.Client, orgID uuid.UUID, acl codersdk.UpdateTemplateACL) codersdk.Template {
+	makeTemplate := func(t *testing.T, client *wirtualsdk.Client, orgID uuid.UUID, acl wirtualsdk.UpdateTemplateACL) wirtualsdk.Template {
 		version := coderdtest.CreateTemplateVersion(t, client, orgID, nil)
 		template := coderdtest.CreateTemplate(t, client, orgID, version.ID)
 
@@ -1843,7 +1843,7 @@ func TestTemplateAccess(t *testing.T) {
 		require.NoError(t, err, "org name")
 
 		// Make users
-		newOrg, err := ownerClient.CreateOrganization(ctx, codersdk.CreateOrganizationRequest{Name: orgName})
+		newOrg, err := ownerClient.CreateOrganization(ctx, wirtualsdk.CreateOrganizationRequest{Name: orgName})
 		require.NoError(t, err, "failed to create org")
 
 		adminCli, adminUsr := coderdtest.CreateAnotherUser(t, ownerClient, newOrg.ID, rbac.ScopedRoleOrgAdmin(newOrg.ID))
@@ -1851,12 +1851,12 @@ func TestTemplateAccess(t *testing.T) {
 		memberCli, memberUsr := coderdtest.CreateAnotherUser(t, ownerClient, newOrg.ID, rbac.ScopedRoleOrgMember(newOrg.ID))
 
 		// Make group
-		group, err := adminCli.CreateGroup(ctx, newOrg.ID, codersdk.CreateGroupRequest{
+		group, err := adminCli.CreateGroup(ctx, newOrg.ID, wirtualsdk.CreateGroupRequest{
 			Name: "SingleUser",
 		})
 		require.NoError(t, err, "failed to create group")
 
-		group, err = adminCli.PatchGroup(ctx, group.ID, codersdk.PatchGroupRequest{
+		group, err = adminCli.PatchGroup(ctx, group.ID, wirtualsdk.PatchGroupRequest{
 			AddUsers: []string{groupMemUsr.ID.String()},
 		})
 		require.NoError(t, err, "failed to add user to group")
@@ -1870,28 +1870,28 @@ func TestTemplateAccess(t *testing.T) {
 			Org:           newOrg,
 			Group:         group,
 
-			DefaultTemplate: makeTemplate(t, adminCli, newOrg.ID, codersdk.UpdateTemplateACL{
-				GroupPerms: map[string]codersdk.TemplateRole{
-					newOrg.ID.String(): codersdk.TemplateRoleDeleted,
+			DefaultTemplate: makeTemplate(t, adminCli, newOrg.ID, wirtualsdk.UpdateTemplateACL{
+				GroupPerms: map[string]wirtualsdk.TemplateRole{
+					newOrg.ID.String(): wirtualsdk.TemplateRoleDeleted,
 				},
 			}),
-			AllRead: makeTemplate(t, adminCli, newOrg.ID, codersdk.UpdateTemplateACL{
-				GroupPerms: map[string]codersdk.TemplateRole{
-					newOrg.ID.String(): codersdk.TemplateRoleUse,
+			AllRead: makeTemplate(t, adminCli, newOrg.ID, wirtualsdk.UpdateTemplateACL{
+				GroupPerms: map[string]wirtualsdk.TemplateRole{
+					newOrg.ID.String(): wirtualsdk.TemplateRoleUse,
 				},
 			}),
-			UserACL: makeTemplate(t, adminCli, newOrg.ID, codersdk.UpdateTemplateACL{
-				GroupPerms: map[string]codersdk.TemplateRole{
-					newOrg.ID.String(): codersdk.TemplateRoleDeleted,
+			UserACL: makeTemplate(t, adminCli, newOrg.ID, wirtualsdk.UpdateTemplateACL{
+				GroupPerms: map[string]wirtualsdk.TemplateRole{
+					newOrg.ID.String(): wirtualsdk.TemplateRoleDeleted,
 				},
-				UserPerms: map[string]codersdk.TemplateRole{
-					memberUsr.ID.String(): codersdk.TemplateRoleUse,
+				UserPerms: map[string]wirtualsdk.TemplateRole{
+					memberUsr.ID.String(): wirtualsdk.TemplateRoleUse,
 				},
 			}),
-			GroupACL: makeTemplate(t, adminCli, newOrg.ID, codersdk.UpdateTemplateACL{
-				GroupPerms: map[string]codersdk.TemplateRole{
-					group.ID.String():  codersdk.TemplateRoleUse,
-					newOrg.ID.String(): codersdk.TemplateRoleDeleted,
+			GroupACL: makeTemplate(t, adminCli, newOrg.ID, wirtualsdk.UpdateTemplateACL{
+				GroupPerms: map[string]wirtualsdk.TemplateRole{
+					group.ID.String():  wirtualsdk.TemplateRoleUse,
+					newOrg.ID.String(): wirtualsdk.TemplateRoleDeleted,
 				},
 			}),
 		}
@@ -1903,7 +1903,7 @@ func TestTemplateAccess(t *testing.T) {
 		makeOrg(t),
 	}
 
-	testTemplateRead := func(t *testing.T, org orgSetup, usr *codersdk.Client, read []codersdk.Template) {
+	testTemplateRead := func(t *testing.T, org orgSetup, usr *wirtualsdk.Client, read []wirtualsdk.Template) {
 		found, err := usr.TemplatesByOrganization(ctx, org.Org.ID)
 		if len(read) == 0 && err != nil {
 			require.ErrorContains(t, err, "Resource not found")
@@ -1911,7 +1911,7 @@ func TestTemplateAccess(t *testing.T) {
 		}
 		require.NoError(t, err, "failed to get templates")
 
-		exp := make(map[uuid.UUID]codersdk.Template)
+		exp := make(map[uuid.UUID]wirtualsdk.Template)
 		for _, tmpl := range read {
 			exp[tmpl.ID] = tmpl
 		}
@@ -1929,7 +1929,7 @@ func TestTemplateAccess(t *testing.T) {
 	t.Run("OwnerReadAll", func(t *testing.T) {
 		for _, o := range orgs {
 			// Owners can read all templates in all orgs
-			exp := []codersdk.Template{o.DefaultTemplate, o.AllRead, o.UserACL, o.GroupACL}
+			exp := []wirtualsdk.Template{o.DefaultTemplate, o.AllRead, o.UserACL, o.GroupACL}
 			testTemplateRead(t, o, ownerClient, exp)
 		}
 	})
@@ -1938,7 +1938,7 @@ func TestTemplateAccess(t *testing.T) {
 	t.Run("TemplateAdminReadAll", func(t *testing.T) {
 		for _, o := range orgs {
 			// Template Admins can read all templates in all orgs
-			exp := []codersdk.Template{o.DefaultTemplate, o.AllRead, o.UserACL, o.GroupACL}
+			exp := []wirtualsdk.Template{o.DefaultTemplate, o.AllRead, o.UserACL, o.GroupACL}
 			testTemplateRead(t, o, templateAdmin, exp)
 		}
 	})
@@ -1948,12 +1948,12 @@ func TestTemplateAccess(t *testing.T) {
 		for i, o := range orgs {
 			cli := o.Admin.Client
 			// Only read their own org
-			exp := []codersdk.Template{o.DefaultTemplate, o.AllRead, o.UserACL, o.GroupACL}
+			exp := []wirtualsdk.Template{o.DefaultTemplate, o.AllRead, o.UserACL, o.GroupACL}
 			testTemplateRead(t, o, cli, exp)
 
 			other := orgs[(i+1)%len(orgs)]
 			require.NotEqual(t, other.Org.ID, o.Org.ID, "this test needs at least 2 orgs")
-			testTemplateRead(t, other, cli, []codersdk.Template{})
+			testTemplateRead(t, other, cli, []wirtualsdk.Template{})
 		}
 	})
 
@@ -1962,12 +1962,12 @@ func TestTemplateAccess(t *testing.T) {
 		for i, o := range orgs {
 			cli := o.MemberNoGroup.Client
 			// Only read their own org
-			exp := []codersdk.Template{o.AllRead, o.UserACL}
+			exp := []wirtualsdk.Template{o.AllRead, o.UserACL}
 			testTemplateRead(t, o, cli, exp)
 
 			other := orgs[(i+1)%len(orgs)]
 			require.NotEqual(t, other.Org.ID, o.Org.ID, "this test needs at least 2 orgs")
-			testTemplateRead(t, other, cli, []codersdk.Template{})
+			testTemplateRead(t, other, cli, []wirtualsdk.Template{})
 		}
 	})
 
@@ -1976,12 +1976,12 @@ func TestTemplateAccess(t *testing.T) {
 		for i, o := range orgs {
 			cli := o.MemberInGroup.Client
 			// Only read their own org
-			exp := []codersdk.Template{o.AllRead, o.GroupACL}
+			exp := []wirtualsdk.Template{o.AllRead, o.GroupACL}
 			testTemplateRead(t, o, cli, exp)
 
 			other := orgs[(i+1)%len(orgs)]
 			require.NotEqual(t, other.Org.ID, o.Org.ID, "this test needs at least 2 orgs")
-			testTemplateRead(t, other, cli, []codersdk.Template{})
+			testTemplateRead(t, other, cli, []wirtualsdk.Template{})
 		}
 	})
 }
@@ -1998,8 +1998,8 @@ func TestMultipleOrganizationTemplates(t *testing.T) {
 		},
 		LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureExternalProvisionerDaemons: 1,
-				codersdk.FeatureMultipleOrganizations:      1,
+				wirtualsdk.FeatureExternalProvisionerDaemons: 1,
+				wirtualsdk.FeatureMultipleOrganizations:      1,
 			},
 		},
 	})
@@ -2023,7 +2023,7 @@ func TestMultipleOrganizationTemplates(t *testing.T) {
 	start := time.Now()
 	version := coderdtest.CreateTemplateVersion(t, templateAdmin, second.ID, nil)
 	coderdtest.AwaitTemplateVersionJobCompleted(t, ownerClient, version.ID)
-	coderdtest.CreateTemplate(t, templateAdmin, second.ID, version.ID, func(request *codersdk.CreateTemplateRequest) {
+	coderdtest.CreateTemplate(t, templateAdmin, second.ID, version.ID, func(request *wirtualsdk.CreateTemplateRequest) {
 		request.Name = "random"
 	})
 

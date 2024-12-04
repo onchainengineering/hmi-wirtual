@@ -22,13 +22,13 @@ func TestEnterpriseAuditLogs(t *testing.T) {
 		client, user := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
 
 		//nolint:gocritic // only owners can create organizations
-		o, err := client.CreateOrganization(ctx, codersdk.CreateOrganizationRequest{
+		o, err := client.CreateOrganization(ctx, wirtualsdk.CreateOrganizationRequest{
 			Name:        "new-org",
 			DisplayName: "New organization",
 			Description: "A new organization to love and cherish until the test is over.",
@@ -36,14 +36,14 @@ func TestEnterpriseAuditLogs(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		err = client.CreateTestAuditLog(ctx, codersdk.CreateTestAuditLogRequest{
+		err = client.CreateTestAuditLog(ctx, wirtualsdk.CreateTestAuditLogRequest{
 			OrganizationID: o.ID,
 			ResourceID:     user.UserID,
 		})
 		require.NoError(t, err)
 
-		alogs, err := client.AuditLogs(ctx, codersdk.AuditLogsRequest{
-			Pagination: codersdk.Pagination{
+		alogs, err := client.AuditLogs(ctx, wirtualsdk.AuditLogsRequest{
+			Pagination: wirtualsdk.Pagination{
 				Limit: 1,
 			},
 		})
@@ -52,7 +52,7 @@ func TestEnterpriseAuditLogs(t *testing.T) {
 		require.Len(t, alogs.AuditLogs, 1)
 
 		// Make sure the organization is fully populated.
-		require.Equal(t, &codersdk.MinimalOrganization{
+		require.Equal(t, &wirtualsdk.MinimalOrganization{
 			ID:          o.ID,
 			Name:        o.Name,
 			DisplayName: o.DisplayName,
@@ -66,8 +66,8 @@ func TestEnterpriseAuditLogs(t *testing.T) {
 		err = client.DeleteOrganization(ctx, o.ID.String())
 		require.NoError(t, err)
 
-		alogs, err = client.AuditLogs(ctx, codersdk.AuditLogsRequest{
-			Pagination: codersdk.Pagination{
+		alogs, err = client.AuditLogs(ctx, wirtualsdk.AuditLogsRequest{
+			Pagination: wirtualsdk.Pagination{
 				Limit: 1,
 			},
 		})
@@ -75,7 +75,7 @@ func TestEnterpriseAuditLogs(t *testing.T) {
 		require.Equal(t, int64(1), alogs.Count)
 		require.Len(t, alogs.AuditLogs, 1)
 
-		require.Equal(t, &codersdk.MinimalOrganization{
+		require.Equal(t, &wirtualsdk.MinimalOrganization{
 			ID: o.ID,
 		}, alogs.AuditLogs[0].Organization)
 
@@ -84,15 +84,15 @@ func TestEnterpriseAuditLogs(t *testing.T) {
 
 		// Some audit entries do not have an organization at all, in which case the
 		// response omits the organization.
-		err = client.CreateTestAuditLog(ctx, codersdk.CreateTestAuditLogRequest{
-			ResourceType: codersdk.ResourceTypeAPIKey,
+		err = client.CreateTestAuditLog(ctx, wirtualsdk.CreateTestAuditLogRequest{
+			ResourceType: wirtualsdk.ResourceTypeAPIKey,
 			ResourceID:   user.UserID,
 		})
 		require.NoError(t, err)
 
-		alogs, err = client.AuditLogs(ctx, codersdk.AuditLogsRequest{
+		alogs, err = client.AuditLogs(ctx, wirtualsdk.AuditLogsRequest{
 			SearchQuery: "resource_type:api_key",
-			Pagination: codersdk.Pagination{
+			Pagination: wirtualsdk.Pagination{
 				Limit: 1,
 			},
 		})
@@ -101,7 +101,7 @@ func TestEnterpriseAuditLogs(t *testing.T) {
 		require.Len(t, alogs.AuditLogs, 1)
 
 		// The other will have no organization.
-		require.Equal(t, (*codersdk.MinimalOrganization)(nil), alogs.AuditLogs[0].Organization)
+		require.Equal(t, (*wirtualsdk.MinimalOrganization)(nil), alogs.AuditLogs[0].Organization)
 
 		// OrganizationID is deprecated, but make sure it is empty.
 		require.Equal(t, uuid.Nil, alogs.AuditLogs[0].OrganizationID)

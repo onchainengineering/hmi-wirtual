@@ -22,7 +22,7 @@ import (
 func (api *API) updateCheck(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	currentVersion := codersdk.UpdateCheckResponse{
+	currentVersion := wirtualsdk.UpdateCheckResponse{
 		Current: true,
 		Version: buildinfo.Version(),
 		URL:     buildinfo.ExternalURL(),
@@ -52,7 +52,7 @@ func (api *API) updateCheck(rw http.ResponseWriter, r *http.Request) {
 	// ignore everything after "-"."
 	versionWithoutDevel := strings.SplitN(buildinfo.Version(), "-", 2)[0]
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.UpdateCheckResponse{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.UpdateCheckResponse{
 		Current: semver.Compare(versionWithoutDevel, uc.Version) >= 0,
 		Version: uc.Version,
 		URL:     uc.URL,

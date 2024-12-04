@@ -23,7 +23,7 @@ func TestJFrogXrayScan(t *testing.T) {
 		t.Parallel()
 		ownerClient, db, owner := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
-				Features: license.Features{codersdk.FeatureMultipleExternalAuth: 1},
+				Features: license.Features{wirtualsdk.FeatureMultipleExternalAuth: 1},
 			},
 		})
 
@@ -39,7 +39,7 @@ func TestJFrogXrayScan(t *testing.T) {
 		require.Len(t, ws.LatestBuild.Resources[0].Agents, 1)
 
 		agentID := ws.LatestBuild.Resources[0].Agents[0].ID
-		expectedPayload := codersdk.JFrogXrayScan{
+		expectedPayload := wirtualsdk.JFrogXrayScan{
 			WorkspaceID: ws.ID,
 			AgentID:     agentID,
 			Critical:    19,
@@ -57,7 +57,7 @@ func TestJFrogXrayScan(t *testing.T) {
 		require.Equal(t, expectedPayload, resp1)
 
 		// Can update again without error.
-		expectedPayload = codersdk.JFrogXrayScan{
+		expectedPayload = wirtualsdk.JFrogXrayScan{
 			WorkspaceID: ws.ID,
 			AgentID:     agentID,
 			Critical:    20,
@@ -79,7 +79,7 @@ func TestJFrogXrayScan(t *testing.T) {
 
 		ownerClient, db, owner := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
-				Features: license.Features{codersdk.FeatureMultipleExternalAuth: 1},
+				Features: license.Features{wirtualsdk.FeatureMultipleExternalAuth: 1},
 			},
 		})
 
@@ -95,7 +95,7 @@ func TestJFrogXrayScan(t *testing.T) {
 		require.Len(t, ws.LatestBuild.Resources[0].Agents, 1)
 
 		agentID := ws.LatestBuild.Resources[0].Agents[0].ID
-		expectedPayload := codersdk.JFrogXrayScan{
+		expectedPayload := wirtualsdk.JFrogXrayScan{
 			WorkspaceID: ws.ID,
 			AgentID:     agentID,
 			Critical:    19,
@@ -107,7 +107,7 @@ func TestJFrogXrayScan(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		err := memberClient.PostJFrogXrayScan(ctx, expectedPayload)
 		require.Error(t, err)
-		cerr, ok := codersdk.AsError(err)
+		cerr, ok := wirtualsdk.AsError(err)
 		require.True(t, ok)
 		require.Equal(t, http.StatusNotFound, cerr.StatusCode())
 

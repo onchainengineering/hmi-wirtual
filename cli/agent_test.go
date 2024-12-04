@@ -219,7 +219,7 @@ func TestWorkspaceAgent(t *testing.T) {
 			"--log-dir", logDir,
 		)
 		// Set the subsystems for the agent.
-		inv.Environ.Set(agent.EnvAgentSubsystem, fmt.Sprintf("%s,%s", codersdk.AgentSubsystemExectrace, codersdk.AgentSubsystemEnvbox))
+		inv.Environ.Set(agent.EnvAgentSubsystem, fmt.Sprintf("%s,%s", wirtualsdk.AgentSubsystemExectrace, wirtualsdk.AgentSubsystemEnvbox))
 
 		clitest.Start(t, inv)
 
@@ -229,8 +229,8 @@ func TestWorkspaceAgent(t *testing.T) {
 		require.Len(t, resources[0].Agents, 1)
 		require.Len(t, resources[0].Agents[0].Subsystems, 2)
 		// Sorted
-		require.Equal(t, codersdk.AgentSubsystemEnvbox, resources[0].Agents[0].Subsystems[0])
-		require.Equal(t, codersdk.AgentSubsystemExectrace, resources[0].Agents[0].Subsystems[1])
+		require.Equal(t, wirtualsdk.AgentSubsystemEnvbox, resources[0].Agents[0].Subsystems[0])
+		require.Equal(t, wirtualsdk.AgentSubsystemExectrace, resources[0].Agents[0].Subsystems[1])
 	})
 	t.Run("Headers&DERPHeaders", func(t *testing.T) {
 		t.Parallel()
@@ -250,7 +250,7 @@ func TestWorkspaceAgent(t *testing.T) {
 		t.Cleanup(func() {
 			_ = provisionerCloser.Close()
 		})
-		client := codersdk.New(serverURL)
+		client := wirtualsdk.New(serverURL)
 		t.Cleanup(func() {
 			cancelFunc()
 			_ = provisionerCloser.Close()
@@ -321,7 +321,7 @@ func TestWorkspaceAgent(t *testing.T) {
 	})
 }
 
-func matchAgentWithVersion(rs []codersdk.WorkspaceResource) bool {
+func matchAgentWithVersion(rs []wirtualsdk.WorkspaceResource) bool {
 	if len(rs) < 1 {
 		return false
 	}
@@ -334,7 +334,7 @@ func matchAgentWithVersion(rs []codersdk.WorkspaceResource) bool {
 	return true
 }
 
-func matchAgentWithSubsystems(rs []codersdk.WorkspaceResource) bool {
+func matchAgentWithSubsystems(rs []wirtualsdk.WorkspaceResource) bool {
 	if len(rs) < 1 {
 		return false
 	}

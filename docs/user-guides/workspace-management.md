@@ -49,7 +49,7 @@ The following filters are supported:
 - `template` - Name of the template.
 - `status` - Indicates the status of the workspace, e.g, `status:failed` For a
   list of supported statuses, see
-  [WorkspaceStatus documentation](https://pkg.go.dev/github.com/coder/coder/codersdk#WorkspaceStatus).
+  [WorkspaceStatus documentation](https://pkg.go.dev/github.com/coder/coder/wirtualsdk#WorkspaceStatus).
 - `outdated` - Filters workspaces using an outdated template version, e.g,
   `outdated:true`
 - `dormant` - Filters workspaces based on the dormant state, e.g `dormant:true`

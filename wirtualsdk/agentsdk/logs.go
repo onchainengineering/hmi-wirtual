@@ -35,7 +35,7 @@ type startupLogsWriter struct {
 	buf    bytes.Buffer // Buffer to track partial lines.
 	ctx    context.Context
 	send   func(ctx context.Context, log ...Log) error
-	level  codersdk.LogLevel
+	level  wirtualsdk.LogLevel
 	source uuid.UUID
 }
 
@@ -95,7 +95,7 @@ func (w *startupLogsWriter) Close() error {
 //
 // Neither Write nor Close is safe for concurrent use and must be used
 // by a single goroutine.
-func LogsWriter(ctx context.Context, sender func(ctx context.Context, log ...Log) error, source uuid.UUID, level codersdk.LogLevel) io.WriteCloser {
+func LogsWriter(ctx context.Context, sender func(ctx context.Context, log ...Log) error, source uuid.UUID, level wirtualsdk.LogLevel) io.WriteCloser {
 	return &startupLogsWriter{
 		ctx:    ctx,
 		send:   sender,
@@ -200,7 +200,7 @@ func LogsSender(sourceID uuid.UUID, patchLogs func(ctx context.Context, req Patc
 					if errors.Is(err, context.Canceled) {
 						break
 					}
-					// This error is expected to be codersdk.Error, but it has
+					// This error is expected to be wirtualsdk.Error, but it has
 					// private fields so we can't fake it in tests.
 					var statusErr interface{ StatusCode() int }
 					if errors.As(err, &statusErr) {

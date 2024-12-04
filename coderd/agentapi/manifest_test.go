@@ -278,9 +278,9 @@ func TestGetManifest(t *testing.T) {
 			AccessURL:   &url.URL{Scheme: "https", Host: "example.com"},
 			AppHostname: "*--apps.example.com",
 			ExternalAuthConfigs: []*externalauth.Config{
-				{Type: string(codersdk.EnhancedExternalAuthProviderGitHub)},
+				{Type: string(wirtualsdk.EnhancedExternalAuthProviderGitHub)},
 				{Type: "some-provider"},
-				{Type: string(codersdk.EnhancedExternalAuthProviderGitLab)},
+				{Type: string(wirtualsdk.EnhancedExternalAuthProviderGitLab)},
 			},
 			DisableDirectConnections: true,
 			DerpForceWebSockets:      true,
@@ -343,9 +343,9 @@ func TestGetManifest(t *testing.T) {
 			AccessURL:   &url.URL{Scheme: "https", Host: "example.com"},
 			AppHostname: "",
 			ExternalAuthConfigs: []*externalauth.Config{
-				{Type: string(codersdk.EnhancedExternalAuthProviderGitHub)},
+				{Type: string(wirtualsdk.EnhancedExternalAuthProviderGitHub)},
 				{Type: "some-provider"},
-				{Type: string(codersdk.EnhancedExternalAuthProviderGitLab)},
+				{Type: string(wirtualsdk.EnhancedExternalAuthProviderGitLab)},
 			},
 			DisableDirectConnections: true,
 			DerpForceWebSockets:      true,

@@ -38,7 +38,7 @@ type RBACAsserter struct {
 // AssertRBAC returns an RBACAsserter for the given user. This asserter will
 // allow asserting that the correct RBAC checks are performed for the given user.
 // All checks that are not run against this user will be ignored.
-func AssertRBAC(t *testing.T, api *coderd.API, client *codersdk.Client) RBACAsserter {
+func AssertRBAC(t *testing.T, api *coderd.API, client *wirtualsdk.Client) RBACAsserter {
 	if client.SessionToken() == "" {
 		t.Fatal("client must be logged in")
 	}
@@ -108,7 +108,7 @@ func (a RBACAsserter) AssertInOrder(t *testing.T, action policy.Action, objects 
 	a.Recorder.AssertActor(t, a.Subject, pairs...)
 }
 
-// convertObjects converts the codersdk types to rbac.Object. Unfortunately
+// convertObjects converts the wirtualsdk types to rbac.Object. Unfortunately
 // does not have type safety, and instead uses a t.Fatal to enforce types.
 func (RBACAsserter) convertObjects(t *testing.T, objs ...interface{}) []rbac.Object {
 	converted := make([]rbac.Object, 0, len(objs))
@@ -119,11 +119,11 @@ func (RBACAsserter) convertObjects(t *testing.T, objs ...interface{}) []rbac.Obj
 			robj = obj
 		case rbac.Objecter:
 			robj = obj.RBACObject()
-		case codersdk.TemplateVersion:
+		case wirtualsdk.TemplateVersion:
 			robj = rbac.ResourceTemplate.InOrg(obj.OrganizationID)
-		case codersdk.User:
+		case wirtualsdk.User:
 			robj = rbac.ResourceUserObject(obj.ID)
-		case codersdk.Workspace:
+		case wirtualsdk.Workspace:
 			robj = rbac.ResourceWorkspace.WithID(obj.ID).InOrg(obj.OrganizationID).WithOwner(obj.OwnerID.String())
 		default:
 			t.Fatalf("unsupported type %T to convert to rbac.Object, add the implementation", obj)

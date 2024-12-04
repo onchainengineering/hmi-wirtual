@@ -88,7 +88,7 @@ func (r *RootCmd) vscodeSSH() *serpent.Command {
 				return xerrors.Errorf("mkdir: %w", err)
 			}
 
-			client := codersdk.New(serverURL)
+			client := wirtualsdk.New(serverURL)
 			client.SetSessionToken(string(sessionToken))
 
 			// This adds custom headers to the request!
@@ -136,11 +136,11 @@ func (r *RootCmd) vscodeSSH() *serpent.Command {
 
 			appearanceCfg, err := client.Appearance(ctx)
 			if err != nil {
-				var sdkErr *codersdk.Error
+				var sdkErr *wirtualsdk.Error
 				if !(xerrors.As(err, &sdkErr) && sdkErr.StatusCode() == http.StatusNotFound) {
 					return xerrors.Errorf("get appearance config: %w", err)
 				}
-				appearanceCfg.DocsURL = codersdk.DefaultDocsURL()
+				appearanceCfg.DocsURL = wirtualsdk.DefaultDocsURL()
 			}
 
 			err = cliui.Agent(ctx, inv.Stderr, workspaceAgent.ID, cliui.AgentOptions{
@@ -192,9 +192,9 @@ func (r *RootCmd) vscodeSSH() *serpent.Command {
 
 			agentConn.AwaitReachable(ctx)
 
-			closeUsage := client.UpdateWorkspaceUsageWithBodyContext(ctx, workspace.ID, codersdk.PostWorkspaceUsageRequest{
+			closeUsage := client.UpdateWorkspaceUsageWithBodyContext(ctx, workspace.ID, wirtualsdk.PostWorkspaceUsageRequest{
 				AgentID: workspaceAgent.ID,
-				AppName: codersdk.UsageAppNameVscode,
+				AppName: wirtualsdk.UsageAppNameVscode,
 			})
 			defer closeUsage()
 

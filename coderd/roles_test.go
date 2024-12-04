@@ -48,7 +48,7 @@ func TestListCustomRoles(t *testing.T) {
 		roles, err := client.ListOrganizationRoles(ctx, owner.OrganizationID)
 		require.NoError(t, err)
 
-		found := slices.ContainsFunc(roles, func(element codersdk.AssignableRoles) bool {
+		found := slices.ContainsFunc(roles, func(element wirtualsdk.AssignableRoles) bool {
 			return element.Name == roleName && element.OrganizationID == owner.OrganizationID.String()
 		})
 		require.Truef(t, found, "custom organization role listed")

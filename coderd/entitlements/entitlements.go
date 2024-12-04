@@ -15,7 +15,7 @@ import (
 
 type Set struct {
 	entitlementsMu sync.RWMutex
-	entitlements   codersdk.Entitlements
+	entitlements   wirtualsdk.Entitlements
 	// right2Update works like a semaphore. Reading from the chan gives the right to update the set,
 	// and you send on the chan when you are done. We only allow one simultaneous update, so this
 	// serve to serialize them.  You MUST NOT attempt to read from this channel while holding the
@@ -28,8 +28,8 @@ func New() *Set {
 	s := &Set{
 		// Some defaults for an unlicensed instance.
 		// These will be updated when coderd is initialized.
-		entitlements: codersdk.Entitlements{
-			Features:         map[codersdk.FeatureName]codersdk.Feature{},
+		entitlements: wirtualsdk.Entitlements{
+			Features:         map[wirtualsdk.FeatureName]wirtualsdk.Feature{},
 			Warnings:         nil,
 			Errors:           nil,
 			HasLicense:       false,
@@ -47,7 +47,7 @@ func New() *Set {
 // fetched license cannot be used because it requires telemetry.
 var ErrLicenseRequiresTelemetry = xerrors.New("License requires telemetry but telemetry is disabled")
 
-func (l *Set) Update(ctx context.Context, fetch func(context.Context) (codersdk.Entitlements, error)) error {
+func (l *Set) Update(ctx context.Context, fetch func(context.Context) (wirtualsdk.Entitlements, error)) error {
 	select {
 	case <-ctx.Done():
 		return ctx.Err()
@@ -63,7 +63,7 @@ func (l *Set) Update(ctx context.Context, fetch func(context.Context) (codersdk.
 		//
 		// We don't simply append to entitlement.Errors since we don't want any
 		// enterprise features enabled.
-		l.Modify(func(entitlements *codersdk.Entitlements) {
+		l.Modify(func(entitlements *wirtualsdk.Entitlements) {
 			entitlements.Errors = []string{err.Error()}
 		})
 		return nil
@@ -92,7 +92,7 @@ func (l *Set) AllowRefresh(now time.Time) (bool, time.Duration) {
 	return true, 0
 }
 
-func (l *Set) Feature(name codersdk.FeatureName) (codersdk.Feature, bool) {
+func (l *Set) Feature(name wirtualsdk.FeatureName) (wirtualsdk.Feature, bool) {
 	l.entitlementsMu.RLock()
 	defer l.entitlementsMu.RUnlock()
 
@@ -100,7 +100,7 @@ func (l *Set) Feature(name codersdk.FeatureName) (codersdk.Feature, bool) {
 	return f, ok
 }
 
-func (l *Set) Enabled(feature codersdk.FeatureName) bool {
+func (l *Set) Enabled(feature wirtualsdk.FeatureName) bool {
 	l.entitlementsMu.RLock()
 	defer l.entitlementsMu.RUnlock()
 
@@ -121,14 +121,14 @@ func (l *Set) AsJSON() json.RawMessage {
 	return b
 }
 
-func (l *Set) Modify(do func(entitlements *codersdk.Entitlements)) {
+func (l *Set) Modify(do func(entitlements *wirtualsdk.Entitlements)) {
 	l.entitlementsMu.Lock()
 	defer l.entitlementsMu.Unlock()
 
 	do(&l.entitlements)
 }
 
-func (l *Set) FeatureChanged(featureName codersdk.FeatureName, newFeature codersdk.Feature) (initial, changed, enabled bool) {
+func (l *Set) FeatureChanged(featureName wirtualsdk.FeatureName, newFeature wirtualsdk.Feature) (initial, changed, enabled bool) {
 	l.entitlementsMu.RLock()
 	defer l.entitlementsMu.RUnlock()
 
@@ -144,7 +144,7 @@ func (l *Set) WriteEntitlementWarningHeaders(header http.Header) {
 	defer l.entitlementsMu.RUnlock()
 
 	for _, warning := range l.entitlements.Warnings {
-		header.Add(codersdk.EntitlementsWarningHeader, warning)
+		header.Add(wirtualsdk.EntitlementsWarningHeader, warning)
 	}
 }
 

@@ -27,11 +27,11 @@ func TestUserDelete(t *testing.T) {
 		pw, err := cryptorand.String(16)
 		require.NoError(t, err)
 
-		_, err = client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		_, err = client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			Email:           "colin5@coder.com",
 			Username:        "coolin",
 			Password:        pw,
-			UserLoginType:   codersdk.LoginTypePassword,
+			UserLoginType:   wirtualsdk.LoginTypePassword,
 			OrganizationIDs: []uuid.UUID{owner.OrganizationID},
 		})
 		require.NoError(t, err)
@@ -57,11 +57,11 @@ func TestUserDelete(t *testing.T) {
 		pw, err := cryptorand.String(16)
 		require.NoError(t, err)
 
-		user, err := client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		user, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			Email:           "colin5@coder.com",
 			Username:        "coolin",
 			Password:        pw,
-			UserLoginType:   codersdk.LoginTypePassword,
+			UserLoginType:   wirtualsdk.LoginTypePassword,
 			OrganizationIDs: []uuid.UUID{owner.OrganizationID},
 		})
 		require.NoError(t, err)
@@ -87,11 +87,11 @@ func TestUserDelete(t *testing.T) {
 		pw, err := cryptorand.String(16)
 		require.NoError(t, err)
 
-		user, err := client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		user, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			Email:           "colin5@coder.com",
 			Username:        "coolin",
 			Password:        pw,
-			UserLoginType:   codersdk.LoginTypePassword,
+			UserLoginType:   wirtualsdk.LoginTypePassword,
 			OrganizationIDs: []uuid.UUID{owner.OrganizationID},
 		})
 		require.NoError(t, err)
@@ -119,11 +119,11 @@ func TestUserDelete(t *testing.T) {
 	// 	pw, err := cryptorand.String(16)
 	// 	require.NoError(t, err)
 
-	// 	toDelete, err := client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+	// 	toDelete, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 	// 		Email:          "colin5@coder.com",
 	// 		Username:       "coolin",
 	// 		Password:       pw,
-	// 		UserLoginType:  codersdk.LoginTypePassword,
+	// 		UserLoginType:  wirtualsdk.LoginTypePassword,
 	// 		OrganizationID: aUser.OrganizationID,
 	// 	})
 	// 	require.NoError(t, err)

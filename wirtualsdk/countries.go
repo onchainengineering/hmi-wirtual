@@ -1,4 +1,4 @@
-package codersdk
+package wirtualsdk
 
 var Countries = []Country{
 	{Name: "Afghanistan", Flag: "🇦🇫"},

@@ -43,16 +43,16 @@ func (api *API) patchOrganization(rw http.ResponseWriter, r *http.Request) {
 	aReq.Old = organization
 	defer commitAudit()
 
-	var req codersdk.UpdateOrganizationRequest
+	var req wirtualsdk.UpdateOrganizationRequest
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
 
 	// "default" is a reserved name that always refers to the default org (much like the way we
 	// use "me" for users).
-	if req.Name == codersdk.DefaultOrganization {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
-			Message: fmt.Sprintf("Organization name %q is reserved.", codersdk.DefaultOrganization),
+	if req.Name == wirtualsdk.DefaultOrganization {
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
+			Message: fmt.Sprintf("Organization name %q is reserved.", wirtualsdk.DefaultOrganization),
 		})
 		return
 	}
@@ -98,9 +98,9 @@ func (api *API) patchOrganization(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if database.IsUniqueViolation(err) {
-		httpapi.Write(ctx, rw, http.StatusConflict, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusConflict, wirtualsdk.Response{
 			Message: fmt.Sprintf("Organization already exists with the name %q.", req.Name),
-			Validations: []codersdk.ValidationError{{
+			Validations: []wirtualsdk.ValidationError{{
 				Field:  "name",
 				Detail: "This value is already in use and should be unique.",
 			}},
@@ -108,7 +108,7 @@ func (api *API) patchOrganization(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error updating organization.",
 			Detail:  fmt.Sprintf("update organization: %s", err.Error()),
 		})
@@ -144,7 +144,7 @@ func (api *API) deleteOrganization(rw http.ResponseWriter, r *http.Request) {
 	defer commitAudit()
 
 	if organization.IsDefault {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Default organization cannot be deleted.",
 		})
 		return
@@ -152,7 +152,7 @@ func (api *API) deleteOrganization(rw http.ResponseWriter, r *http.Request) {
 
 	err := api.Database.DeleteOrganization(ctx, organization.ID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error deleting organization.",
 			Detail:  fmt.Sprintf("delete organization: %s", err.Error()),
 		})
@@ -160,7 +160,7 @@ func (api *API) deleteOrganization(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	aReq.New = database.Organization{}
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.Response{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.Response{
 		Message: "Organization has been deleted.",
 	})
 }
@@ -192,27 +192,27 @@ func (api *API) postOrganizations(rw http.ResponseWriter, r *http.Request) {
 	aReq.Old = database.Organization{}
 	defer commitAudit()
 
-	var req codersdk.CreateOrganizationRequest
+	var req wirtualsdk.CreateOrganizationRequest
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
 
-	if req.Name == codersdk.DefaultOrganization {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
-			Message: fmt.Sprintf("Organization name %q is reserved.", codersdk.DefaultOrganization),
+	if req.Name == wirtualsdk.DefaultOrganization {
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
+			Message: fmt.Sprintf("Organization name %q is reserved.", wirtualsdk.DefaultOrganization),
 		})
 		return
 	}
 
 	_, err := api.Database.GetOrganizationByName(ctx, req.Name)
 	if err == nil {
-		httpapi.Write(ctx, rw, http.StatusConflict, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusConflict, wirtualsdk.Response{
 			Message: "Organization already exists with that name.",
 		})
 		return
 	}
 	if !xerrors.Is(err, sql.ErrNoRows) {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: fmt.Sprintf("Internal error fetching organization %q.", req.Name),
 			Detail:  err.Error(),
 		})
@@ -260,7 +260,7 @@ func (api *API) postOrganizations(rw http.ResponseWriter, r *http.Request) {
 		return nil
 	}, nil)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error inserting organization member.",
 			Detail:  err.Error(),
 		})

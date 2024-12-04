@@ -28,7 +28,7 @@ func TestSDKFieldsFormatted(t *testing.T) {
 	t.Parallel()
 
 	fileSet := token.NewFileSet()
-	nodes, err := parser.ParseDir(fileSet, "../../codersdk", nil, parser.ParseComments)
+	nodes, err := parser.ParseDir(fileSet, "../../wirtualsdk", nil, parser.ParseComments)
 	require.NoError(t, err, "parser.ParseDir failed")
 
 	for _, node := range nodes {

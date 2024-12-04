@@ -41,7 +41,7 @@ func prepareTestGitSSH(ctx context.Context, t *testing.T) (*agentsdk.Client, str
 	defer t.Cleanup(cancel) // Defer so that cancel is the first cleanup.
 
 	// get user public key
-	keypair, err := client.GitSSHKey(ctx, codersdk.Me)
+	keypair, err := client.GitSSHKey(ctx, wirtualsdk.Me)
 	require.NoError(t, err)
 	//nolint:dogsled
 	pubkey, _, _, _, err := gossh.ParseAuthorizedKey([]byte(keypair.PublicKey))

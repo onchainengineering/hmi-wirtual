@@ -72,9 +72,9 @@ func TestInsertCustomRoles(t *testing.T) {
 
 		// Perms to create on new custom role
 		organizationID uuid.NullUUID
-		site           []codersdk.Permission
-		org            []codersdk.Permission
-		user           []codersdk.Permission
+		site           []wirtualsdk.Permission
+		org            []wirtualsdk.Permission
+		user           []wirtualsdk.Permission
 		errorContains  string
 	}{
 		{
@@ -92,28 +92,28 @@ func TestInsertCustomRoles(t *testing.T) {
 			name:           "mixed-scopes",
 			subject:        merge(canAssignRole, rbac.RoleOwner()),
 			organizationID: orgID,
-			site: codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceWorkspace: {codersdk.ActionRead},
+			site: wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				wirtualsdk.ResourceWorkspace: {wirtualsdk.ActionRead},
 			}),
-			org: codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceWorkspace: {codersdk.ActionRead},
+			org: wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				wirtualsdk.ResourceWorkspace: {wirtualsdk.ActionRead},
 			}),
 			errorContains: "organization roles specify site or user permissions",
 		},
 		{
 			name:    "invalid-action",
 			subject: merge(canAssignRole, rbac.RoleOwner()),
-			site: codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
+			site: wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
 				// Action does not go with resource
-				codersdk.ResourceWorkspace: {codersdk.ActionViewInsights},
+				wirtualsdk.ResourceWorkspace: {wirtualsdk.ActionViewInsights},
 			}),
 			errorContains: "invalid action",
 		},
 		{
 			name:    "invalid-resource",
 			subject: merge(canAssignRole, rbac.RoleOwner()),
-			site: codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				"foobar": {codersdk.ActionViewInsights},
+			site: wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				"foobar": {wirtualsdk.ActionViewInsights},
 			}),
 			errorContains: "invalid resource",
 		},
@@ -121,11 +121,11 @@ func TestInsertCustomRoles(t *testing.T) {
 			// Not allowing these at this time.
 			name:    "negative-permission",
 			subject: merge(canAssignRole, rbac.RoleOwner()),
-			site: []codersdk.Permission{
+			site: []wirtualsdk.Permission{
 				{
 					Negate:       true,
-					ResourceType: codersdk.ResourceWorkspace,
-					Action:       codersdk.ActionRead,
+					ResourceType: wirtualsdk.ResourceWorkspace,
+					Action:       wirtualsdk.ActionRead,
 				},
 			},
 			errorContains: "no negative permissions",
@@ -133,8 +133,8 @@ func TestInsertCustomRoles(t *testing.T) {
 		{
 			name:    "wildcard", // not allowed
 			subject: merge(canAssignRole, rbac.RoleOwner()),
-			site: codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceWorkspace: {"*"},
+			site: wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				wirtualsdk.ResourceWorkspace: {"*"},
 			}),
 			errorContains: "no wildcard symbols",
 		},
@@ -142,8 +142,8 @@ func TestInsertCustomRoles(t *testing.T) {
 		{
 			name:    "read-workspace-escalation",
 			subject: merge(canAssignRole),
-			site: codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceWorkspace: {codersdk.ActionRead},
+			site: wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				wirtualsdk.ResourceWorkspace: {wirtualsdk.ActionRead},
 			}),
 			errorContains: "not allowed to grant this permission",
 		},
@@ -154,8 +154,8 @@ func TestInsertCustomRoles(t *testing.T) {
 				Valid: true,
 			},
 			subject: merge(canAssignRole, rbac.ScopedRoleOrgAdmin(orgID.UUID)),
-			org: codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceWorkspace: {codersdk.ActionRead},
+			org: wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				wirtualsdk.ResourceWorkspace: {wirtualsdk.ActionRead},
 			}),
 			errorContains: "forbidden",
 		},
@@ -163,20 +163,20 @@ func TestInsertCustomRoles(t *testing.T) {
 			name: "user-escalation",
 			// These roles do not grant user perms
 			subject: merge(canAssignRole, rbac.ScopedRoleOrgAdmin(orgID.UUID)),
-			user: codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceWorkspace: {codersdk.ActionRead},
+			user: wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				wirtualsdk.ResourceWorkspace: {wirtualsdk.ActionRead},
 			}),
 			errorContains: "not allowed to grant this permission",
 		},
 		{
 			name:    "template-admin-escalation",
 			subject: merge(canAssignRole, rbac.RoleTemplateAdmin()),
-			site: codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceWorkspace:        {codersdk.ActionRead},   // ok!
-				codersdk.ResourceDeploymentConfig: {codersdk.ActionUpdate}, // not ok!
+			site: wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				wirtualsdk.ResourceWorkspace:        {wirtualsdk.ActionRead},   // ok!
+				wirtualsdk.ResourceDeploymentConfig: {wirtualsdk.ActionUpdate}, // not ok!
 			}),
-			user: codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceWorkspace: {codersdk.ActionRead}, // ok!
+			user: wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				wirtualsdk.ResourceWorkspace: {wirtualsdk.ActionRead}, // ok!
 			}),
 			errorContains: "deployment_config",
 		},
@@ -184,34 +184,34 @@ func TestInsertCustomRoles(t *testing.T) {
 		{
 			name:    "read-workspace-template-admin",
 			subject: merge(canAssignRole, rbac.RoleTemplateAdmin()),
-			site: codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceWorkspace: {codersdk.ActionRead},
+			site: wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				wirtualsdk.ResourceWorkspace: {wirtualsdk.ActionRead},
 			}),
 		},
 		{
 			name:           "read-workspace-in-org",
 			subject:        merge(canAssignRole, rbac.ScopedRoleOrgAdmin(orgID.UUID)),
 			organizationID: orgID,
-			org: codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceWorkspace: {codersdk.ActionRead},
+			org: wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				wirtualsdk.ResourceWorkspace: {wirtualsdk.ActionRead},
 			}),
 		},
 		{
 			name: "user-perms",
 			// This is weird, but is ok
 			subject: merge(canAssignRole, rbac.RoleMember()),
-			user: codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceWorkspace: {codersdk.ActionRead},
+			user: wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				wirtualsdk.ResourceWorkspace: {wirtualsdk.ActionRead},
 			}),
 		},
 		{
 			name:    "site+user-perms",
 			subject: merge(canAssignRole, rbac.RoleMember(), rbac.RoleTemplateAdmin()),
-			site: codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceWorkspace: {codersdk.ActionRead},
+			site: wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				wirtualsdk.ResourceWorkspace: {wirtualsdk.ActionRead},
 			}),
-			user: codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceWorkspace: {codersdk.ActionRead},
+			user: wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				wirtualsdk.ResourceWorkspace: {wirtualsdk.ActionRead},
 			}),
 		},
 	}
@@ -262,7 +262,7 @@ func TestInsertCustomRoles(t *testing.T) {
 	}
 }
 
-func convertSDKPerm(perm codersdk.Permission) database.CustomRolePermission {
+func convertSDKPerm(perm wirtualsdk.Permission) database.CustomRolePermission {
 	return database.CustomRolePermission{
 		Negate:       perm.Negate,
 		ResourceType: string(perm.ResourceType),

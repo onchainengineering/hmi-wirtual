@@ -23,7 +23,7 @@ func (r *RootCmd) templatePull() *serpent.Command {
 		orgContext  = NewOrganizationContext()
 	)
 
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "pull <name> [destination]",
 		Short: "Download the active, latest, or specified version of a template to a path.",
@@ -56,11 +56,11 @@ func (r *RootCmd) templatePull() *serpent.Command {
 				return xerrors.Errorf("get template by name: %w", err)
 			}
 
-			var latestVersion codersdk.TemplateVersion
+			var latestVersion wirtualsdk.TemplateVersion
 			{
 				// Determine the latest template version and compare with the
 				// active version. If they aren't the same, warn the user.
-				versions, err := client.TemplateVersionsByTemplate(ctx, codersdk.TemplateVersionsByTemplateRequest{
+				versions, err := client.TemplateVersionsByTemplate(ctx, wirtualsdk.TemplateVersionsByTemplateRequest{
 					TemplateID: template.ID,
 				})
 				if err != nil {
@@ -79,7 +79,7 @@ func (r *RootCmd) templatePull() *serpent.Command {
 				latestVersion = versions[0]
 			}
 
-			var templateVersion codersdk.TemplateVersion
+			var templateVersion wirtualsdk.TemplateVersion
 			switch versionName {
 			case "", "active":
 				activeVersion, err := client.TemplateVersion(ctx, template.ActiveVersionID)
@@ -107,7 +107,7 @@ func (r *RootCmd) templatePull() *serpent.Command {
 
 			var fileFormat string // empty = default, so .tar
 			if zipMode {
-				fileFormat = codersdk.FormatZip
+				fileFormat = wirtualsdk.FormatZip
 			}
 
 			// Download the tar archive.
@@ -116,11 +116,11 @@ func (r *RootCmd) templatePull() *serpent.Command {
 				return xerrors.Errorf("download template: %w", err)
 			}
 
-			if fileFormat == "" && ctype != codersdk.ContentTypeTar {
-				return xerrors.Errorf("unexpected Content-Type %q, expecting %q", ctype, codersdk.ContentTypeTar)
+			if fileFormat == "" && ctype != wirtualsdk.ContentTypeTar {
+				return xerrors.Errorf("unexpected Content-Type %q, expecting %q", ctype, wirtualsdk.ContentTypeTar)
 			}
-			if fileFormat == codersdk.FormatZip && ctype != codersdk.ContentTypeZip {
-				return xerrors.Errorf("unexpected Content-Type %q, expecting %q", ctype, codersdk.ContentTypeZip)
+			if fileFormat == wirtualsdk.FormatZip && ctype != wirtualsdk.ContentTypeZip {
+				return xerrors.Errorf("unexpected Content-Type %q, expecting %q", ctype, wirtualsdk.ContentTypeZip)
 			}
 
 			if tarMode || zipMode {

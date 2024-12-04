@@ -22,17 +22,17 @@ import (
 
 func TestCustomOrganizationRole(t *testing.T) {
 	t.Parallel()
-	templateAdminCustom := func(orgID uuid.UUID) codersdk.Role {
-		return codersdk.Role{
+	templateAdminCustom := func(orgID uuid.UUID) wirtualsdk.Role {
+		return wirtualsdk.Role{
 			Name:           "test-role",
 			DisplayName:    "Testing Purposes",
 			OrganizationID: orgID.String(),
 			// Basically creating a template admin manually
 			SitePermissions: nil,
-			OrganizationPermissions: codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceTemplate:  {codersdk.ActionCreate, codersdk.ActionRead, codersdk.ActionUpdate, codersdk.ActionViewInsights},
-				codersdk.ResourceFile:      {codersdk.ActionCreate, codersdk.ActionRead},
-				codersdk.ResourceWorkspace: {codersdk.ActionRead},
+			OrganizationPermissions: wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+				wirtualsdk.ResourceTemplate:  {wirtualsdk.ActionCreate, wirtualsdk.ActionRead, wirtualsdk.ActionUpdate, wirtualsdk.ActionViewInsights},
+				wirtualsdk.ResourceFile:      {wirtualsdk.ActionCreate, wirtualsdk.ActionRead},
+				wirtualsdk.ResourceWorkspace: {wirtualsdk.ActionRead},
 			}),
 			UserPermissions: nil,
 		}
@@ -44,7 +44,7 @@ func TestCustomOrganizationRole(t *testing.T) {
 		owner, first := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureCustomRoles: 1,
+					wirtualsdk.FeatureCustomRoles: 1,
 				},
 			},
 		})
@@ -62,7 +62,7 @@ func TestCustomOrganizationRole(t *testing.T) {
 		// TODO: At present user roles are not returned by the user endpoints.
 		// 	Changing this might mess up the UI in how it renders the roles on the
 		//	users page. When the users endpoint is updated, this should be uncommented.
-		// roleNamesF := func(role codersdk.SlimRole) string { return role.Name }
+		// roleNamesF := func(role wirtualsdk.SlimRole) string { return role.Name }
 		// require.Contains(t, db2sdk.List(user.Roles, roleNamesF), role.Name)
 
 		// Try to create a template version
@@ -72,8 +72,8 @@ func TestCustomOrganizationRole(t *testing.T) {
 		allRoles, err := tmplAdmin.ListOrganizationRoles(ctx, first.OrganizationID)
 		require.NoError(t, err)
 
-		var foundRole codersdk.AssignableRoles
-		require.True(t, slices.ContainsFunc(allRoles, func(selected codersdk.AssignableRoles) bool {
+		var foundRole wirtualsdk.AssignableRoles
+		require.True(t, slices.ContainsFunc(allRoles, func(selected wirtualsdk.AssignableRoles) bool {
 			if selected.Name == role.Name {
 				foundRole = selected
 				return true
@@ -93,7 +93,7 @@ func TestCustomOrganizationRole(t *testing.T) {
 		owner, first := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureCustomRoles: 1,
+					wirtualsdk.FeatureCustomRoles: 1,
 				},
 			},
 		})
@@ -130,7 +130,7 @@ func TestCustomOrganizationRole(t *testing.T) {
 		owner, first := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureCustomRoles: 1,
+					wirtualsdk.FeatureCustomRoles: 1,
 				},
 			},
 		})
@@ -160,12 +160,12 @@ func TestCustomOrganizationRole(t *testing.T) {
 		// The role should no longer have template perms
 		data, err := echo.TarWithOptions(ctx, tmplAdmin.Logger(), nil)
 		require.NoError(t, err)
-		file, err := tmplAdmin.Upload(ctx, codersdk.ContentTypeTar, bytes.NewReader(data))
+		file, err := tmplAdmin.Upload(ctx, wirtualsdk.ContentTypeTar, bytes.NewReader(data))
 		require.NoError(t, err)
-		_, err = tmplAdmin.CreateTemplateVersion(ctx, first.OrganizationID, codersdk.CreateTemplateVersionRequest{
+		_, err = tmplAdmin.CreateTemplateVersion(ctx, first.OrganizationID, wirtualsdk.CreateTemplateVersionRequest{
 			FileID:        file.ID,
-			StorageMethod: codersdk.ProvisionerStorageMethodFile,
-			Provisioner:   codersdk.ProvisionerTypeEcho,
+			StorageMethod: wirtualsdk.ProvisionerStorageMethodFile,
+			Provisioner:   wirtualsdk.ProvisionerTypeEcho,
 		})
 		require.ErrorContains(t, err, "forbidden")
 	})
@@ -175,7 +175,7 @@ func TestCustomOrganizationRole(t *testing.T) {
 		owner, first := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureCustomRoles: 1,
+					wirtualsdk.FeatureCustomRoles: 1,
 				},
 			},
 		})
@@ -183,7 +183,7 @@ func TestCustomOrganizationRole(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitMedium)
 
 		//nolint:gocritic // owner is required for this
-		_, err := owner.CreateOrganizationRole(ctx, codersdk.Role{
+		_, err := owner.CreateOrganizationRole(ctx, wirtualsdk.Role{
 			Name:                    "Bad_Name", // No underscores allowed
 			DisplayName:             "Testing Purposes",
 			OrganizationID:          first.OrganizationID.String(),
@@ -199,7 +199,7 @@ func TestCustomOrganizationRole(t *testing.T) {
 		owner, first := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureCustomRoles: 1,
+					wirtualsdk.FeatureCustomRoles: 1,
 				},
 			},
 		})
@@ -207,7 +207,7 @@ func TestCustomOrganizationRole(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitMedium)
 
 		//nolint:gocritic // owner is required for this
-		_, err := owner.CreateOrganizationRole(ctx, codersdk.Role{
+		_, err := owner.CreateOrganizationRole(ctx, wirtualsdk.Role{
 			Name:                    "owner", // Reserved
 			DisplayName:             "Testing Purposes",
 			OrganizationID:          first.OrganizationID.String(),
@@ -224,7 +224,7 @@ func TestCustomOrganizationRole(t *testing.T) {
 		owner, first := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureCustomRoles: 1,
+					wirtualsdk.FeatureCustomRoles: 1,
 				},
 			},
 		})
@@ -232,10 +232,10 @@ func TestCustomOrganizationRole(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitMedium)
 
 		siteRole := templateAdminCustom(first.OrganizationID)
-		siteRole.SitePermissions = []codersdk.Permission{
+		siteRole.SitePermissions = []wirtualsdk.Permission{
 			{
-				ResourceType: codersdk.ResourceWorkspace,
-				Action:       codersdk.ActionRead,
+				ResourceType: wirtualsdk.ResourceWorkspace,
+				Action:       wirtualsdk.ActionRead,
 			},
 		}
 
@@ -244,10 +244,10 @@ func TestCustomOrganizationRole(t *testing.T) {
 		require.ErrorContains(t, err, "site wide permissions")
 
 		userRole := templateAdminCustom(first.OrganizationID)
-		userRole.UserPermissions = []codersdk.Permission{
+		userRole.UserPermissions = []wirtualsdk.Permission{
 			{
-				ResourceType: codersdk.ResourceWorkspace,
-				Action:       codersdk.ActionRead,
+				ResourceType: wirtualsdk.ResourceWorkspace,
+				Action:       wirtualsdk.ActionRead,
 			},
 		}
 
@@ -261,7 +261,7 @@ func TestCustomOrganizationRole(t *testing.T) {
 		owner, first := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureCustomRoles: 1,
+					wirtualsdk.FeatureCustomRoles: 1,
 				},
 			},
 		})
@@ -281,7 +281,7 @@ func TestCustomOrganizationRole(t *testing.T) {
 		owner, first := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureCustomRoles: 1,
+					wirtualsdk.FeatureCustomRoles: 1,
 				},
 			},
 		})
@@ -293,7 +293,7 @@ func TestCustomOrganizationRole(t *testing.T) {
 		require.NoError(t, err, "upsert role")
 
 		//nolint:gocritic // org_admin cannot assign to themselves
-		_, err = owner.UpdateOrganizationMemberRoles(ctx, first.OrganizationID, orgAdminUser.ID.String(), codersdk.UpdateRoles{
+		_, err = owner.UpdateOrganizationMemberRoles(ctx, first.OrganizationID, orgAdminUser.ID.String(), wirtualsdk.UpdateRoles{
 			// Give the user this custom role, to ensure when it is deleted, the user
 			// is ok to be used.
 			Roles: []string{createdRole.Name, rbac.ScopedRoleOrgAdmin(first.OrganizationID).Name},
@@ -303,7 +303,7 @@ func TestCustomOrganizationRole(t *testing.T) {
 		existingRoles, err := orgAdmin.ListOrganizationRoles(ctx, first.OrganizationID)
 		require.NoError(t, err)
 
-		exists := slices.ContainsFunc(existingRoles, func(role codersdk.AssignableRoles) bool {
+		exists := slices.ContainsFunc(existingRoles, func(role wirtualsdk.AssignableRoles) bool {
 			return role.Name == createdRole.Name
 		})
 		require.True(t, exists, "custom role should exist")
@@ -315,7 +315,7 @@ func TestCustomOrganizationRole(t *testing.T) {
 		existingRoles, err = orgAdmin.ListOrganizationRoles(ctx, first.OrganizationID)
 		require.NoError(t, err)
 
-		exists = slices.ContainsFunc(existingRoles, func(role codersdk.AssignableRoles) bool {
+		exists = slices.ContainsFunc(existingRoles, func(role wirtualsdk.AssignableRoles) bool {
 			return role.Name == createdRole.Name
 		})
 		require.False(t, exists, "custom role should be deleted")
@@ -324,7 +324,7 @@ func TestCustomOrganizationRole(t *testing.T) {
 		// There used to be a bug that if a member had a delete role, they
 		// could not be assigned roles anymore.
 		//nolint:gocritic // org_admin cannot assign to themselves
-		_, err = owner.UpdateOrganizationMemberRoles(ctx, first.OrganizationID, orgAdminUser.ID.String(), codersdk.UpdateRoles{
+		_, err = owner.UpdateOrganizationMemberRoles(ctx, first.OrganizationID, orgAdminUser.ID.String(), wirtualsdk.UpdateRoles{
 			Roles: []string{rbac.ScopedRoleOrgAdmin(first.OrganizationID).Name},
 		})
 		require.NoError(t, err)
@@ -336,7 +336,7 @@ func TestCustomOrganizationRole(t *testing.T) {
 		owner, first := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureCustomRoles: 1,
+					wirtualsdk.FeatureCustomRoles: 1,
 				},
 			},
 		})
@@ -366,7 +366,7 @@ func TestCustomOrganizationRole(t *testing.T) {
 				continue
 			}
 
-			require.True(t, slices.ContainsFunc(member.Roles, func(role codersdk.SlimRole) bool {
+			require.True(t, slices.ContainsFunc(member.Roles, func(role wirtualsdk.SlimRole) bool {
 				return role.Name == customRoleIdentifier.Name
 			}), "member should have custom role")
 		}
@@ -379,15 +379,15 @@ func TestCustomOrganizationRole(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, members, 5) // 3 members + org admin + owner
 		for _, member := range members {
-			require.False(t, slices.ContainsFunc(member.Roles, func(role codersdk.SlimRole) bool {
+			require.False(t, slices.ContainsFunc(member.Roles, func(role wirtualsdk.SlimRole) bool {
 				return role.Name == customRoleIdentifier.Name
 			}), "role should be removed from all users")
 
 			// Verify the rest of the member's roles are unchanged
-			original := originalMembers[slices.IndexFunc(originalMembers, func(haystack codersdk.OrganizationMemberWithUserData) bool {
+			original := originalMembers[slices.IndexFunc(originalMembers, func(haystack wirtualsdk.OrganizationMemberWithUserData) bool {
 				return haystack.UserID == member.UserID
 			})]
-			originalWithoutCustom := slices.DeleteFunc(original.Roles, func(role codersdk.SlimRole) bool {
+			originalWithoutCustom := slices.DeleteFunc(original.Roles, func(role wirtualsdk.SlimRole) bool {
 				return role.Name == customRoleIdentifier.Name
 			})
 			require.ElementsMatch(t, originalWithoutCustom, member.Roles, "original roles are unchanged")
@@ -401,8 +401,8 @@ func TestListRoles(t *testing.T) {
 	client, owner := coderdenttest.New(t, &coderdenttest.Options{
 		LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureExternalProvisionerDaemons: 1,
-				codersdk.FeatureMultipleOrganizations:      1,
+				wirtualsdk.FeatureExternalProvisionerDaemons: 1,
+				wirtualsdk.FeatureMultipleOrganizations:      1,
 			},
 		},
 	})
@@ -416,40 +416,40 @@ func TestListRoles(t *testing.T) {
 	const notFound = "Resource not found"
 	testCases := []struct {
 		Name            string
-		Client          *codersdk.Client
-		APICall         func(context.Context) ([]codersdk.AssignableRoles, error)
-		ExpectedRoles   []codersdk.AssignableRoles
+		Client          *wirtualsdk.Client
+		APICall         func(context.Context) ([]wirtualsdk.AssignableRoles, error)
+		ExpectedRoles   []wirtualsdk.AssignableRoles
 		AuthorizedError string
 	}{
 		{
 			// Members cannot assign any roles
 			Name: "MemberListSite",
-			APICall: func(ctx context.Context) ([]codersdk.AssignableRoles, error) {
+			APICall: func(ctx context.Context) ([]wirtualsdk.AssignableRoles, error) {
 				x, err := member.ListSiteRoles(ctx)
 				return x, err
 			},
 			ExpectedRoles: convertRoles(map[rbac.RoleIdentifier]bool{
-				{Name: codersdk.RoleOwner}:         false,
-				{Name: codersdk.RoleAuditor}:       false,
-				{Name: codersdk.RoleTemplateAdmin}: false,
-				{Name: codersdk.RoleUserAdmin}:     false,
+				{Name: wirtualsdk.RoleOwner}:         false,
+				{Name: wirtualsdk.RoleAuditor}:       false,
+				{Name: wirtualsdk.RoleTemplateAdmin}: false,
+				{Name: wirtualsdk.RoleUserAdmin}:     false,
 			}),
 		},
 		{
 			Name: "OrgMemberListOrg",
-			APICall: func(ctx context.Context) ([]codersdk.AssignableRoles, error) {
+			APICall: func(ctx context.Context) ([]wirtualsdk.AssignableRoles, error) {
 				return member.ListOrganizationRoles(ctx, owner.OrganizationID)
 			},
 			ExpectedRoles: convertRoles(map[rbac.RoleIdentifier]bool{
-				{Name: codersdk.RoleOrganizationAdmin, OrganizationID: owner.OrganizationID}:         false,
-				{Name: codersdk.RoleOrganizationAuditor, OrganizationID: owner.OrganizationID}:       false,
-				{Name: codersdk.RoleOrganizationTemplateAdmin, OrganizationID: owner.OrganizationID}: false,
-				{Name: codersdk.RoleOrganizationUserAdmin, OrganizationID: owner.OrganizationID}:     false,
+				{Name: wirtualsdk.RoleOrganizationAdmin, OrganizationID: owner.OrganizationID}:         false,
+				{Name: wirtualsdk.RoleOrganizationAuditor, OrganizationID: owner.OrganizationID}:       false,
+				{Name: wirtualsdk.RoleOrganizationTemplateAdmin, OrganizationID: owner.OrganizationID}: false,
+				{Name: wirtualsdk.RoleOrganizationUserAdmin, OrganizationID: owner.OrganizationID}:     false,
 			}),
 		},
 		{
 			Name: "NonOrgMemberListOrg",
-			APICall: func(ctx context.Context) ([]codersdk.AssignableRoles, error) {
+			APICall: func(ctx context.Context) ([]wirtualsdk.AssignableRoles, error) {
 				return member.ListOrganizationRoles(ctx, otherOrg.ID)
 			},
 			AuthorizedError: notFound,
@@ -457,31 +457,31 @@ func TestListRoles(t *testing.T) {
 		// Org admin
 		{
 			Name: "OrgAdminListSite",
-			APICall: func(ctx context.Context) ([]codersdk.AssignableRoles, error) {
+			APICall: func(ctx context.Context) ([]wirtualsdk.AssignableRoles, error) {
 				return orgAdmin.ListSiteRoles(ctx)
 			},
 			ExpectedRoles: convertRoles(map[rbac.RoleIdentifier]bool{
-				{Name: codersdk.RoleOwner}:         false,
-				{Name: codersdk.RoleAuditor}:       false,
-				{Name: codersdk.RoleTemplateAdmin}: false,
-				{Name: codersdk.RoleUserAdmin}:     false,
+				{Name: wirtualsdk.RoleOwner}:         false,
+				{Name: wirtualsdk.RoleAuditor}:       false,
+				{Name: wirtualsdk.RoleTemplateAdmin}: false,
+				{Name: wirtualsdk.RoleUserAdmin}:     false,
 			}),
 		},
 		{
 			Name: "OrgAdminListOrg",
-			APICall: func(ctx context.Context) ([]codersdk.AssignableRoles, error) {
+			APICall: func(ctx context.Context) ([]wirtualsdk.AssignableRoles, error) {
 				return orgAdmin.ListOrganizationRoles(ctx, owner.OrganizationID)
 			},
 			ExpectedRoles: convertRoles(map[rbac.RoleIdentifier]bool{
-				{Name: codersdk.RoleOrganizationAdmin, OrganizationID: owner.OrganizationID}:         true,
-				{Name: codersdk.RoleOrganizationAuditor, OrganizationID: owner.OrganizationID}:       true,
-				{Name: codersdk.RoleOrganizationTemplateAdmin, OrganizationID: owner.OrganizationID}: true,
-				{Name: codersdk.RoleOrganizationUserAdmin, OrganizationID: owner.OrganizationID}:     true,
+				{Name: wirtualsdk.RoleOrganizationAdmin, OrganizationID: owner.OrganizationID}:         true,
+				{Name: wirtualsdk.RoleOrganizationAuditor, OrganizationID: owner.OrganizationID}:       true,
+				{Name: wirtualsdk.RoleOrganizationTemplateAdmin, OrganizationID: owner.OrganizationID}: true,
+				{Name: wirtualsdk.RoleOrganizationUserAdmin, OrganizationID: owner.OrganizationID}:     true,
 			}),
 		},
 		{
 			Name: "OrgAdminListOtherOrg",
-			APICall: func(ctx context.Context) ([]codersdk.AssignableRoles, error) {
+			APICall: func(ctx context.Context) ([]wirtualsdk.AssignableRoles, error) {
 				return orgAdmin.ListOrganizationRoles(ctx, otherOrg.ID)
 			},
 			AuthorizedError: notFound,
@@ -489,26 +489,26 @@ func TestListRoles(t *testing.T) {
 		// Admin
 		{
 			Name: "AdminListSite",
-			APICall: func(ctx context.Context) ([]codersdk.AssignableRoles, error) {
+			APICall: func(ctx context.Context) ([]wirtualsdk.AssignableRoles, error) {
 				return client.ListSiteRoles(ctx)
 			},
 			ExpectedRoles: convertRoles(map[rbac.RoleIdentifier]bool{
-				{Name: codersdk.RoleOwner}:         true,
-				{Name: codersdk.RoleAuditor}:       true,
-				{Name: codersdk.RoleTemplateAdmin}: true,
-				{Name: codersdk.RoleUserAdmin}:     true,
+				{Name: wirtualsdk.RoleOwner}:         true,
+				{Name: wirtualsdk.RoleAuditor}:       true,
+				{Name: wirtualsdk.RoleTemplateAdmin}: true,
+				{Name: wirtualsdk.RoleUserAdmin}:     true,
 			}),
 		},
 		{
 			Name: "AdminListOrg",
-			APICall: func(ctx context.Context) ([]codersdk.AssignableRoles, error) {
+			APICall: func(ctx context.Context) ([]wirtualsdk.AssignableRoles, error) {
 				return client.ListOrganizationRoles(ctx, owner.OrganizationID)
 			},
 			ExpectedRoles: convertRoles(map[rbac.RoleIdentifier]bool{
-				{Name: codersdk.RoleOrganizationAdmin, OrganizationID: owner.OrganizationID}:         true,
-				{Name: codersdk.RoleOrganizationAuditor, OrganizationID: owner.OrganizationID}:       true,
-				{Name: codersdk.RoleOrganizationTemplateAdmin, OrganizationID: owner.OrganizationID}: true,
-				{Name: codersdk.RoleOrganizationUserAdmin, OrganizationID: owner.OrganizationID}:     true,
+				{Name: wirtualsdk.RoleOrganizationAdmin, OrganizationID: owner.OrganizationID}:         true,
+				{Name: wirtualsdk.RoleOrganizationAuditor, OrganizationID: owner.OrganizationID}:       true,
+				{Name: wirtualsdk.RoleOrganizationTemplateAdmin, OrganizationID: owner.OrganizationID}: true,
+				{Name: wirtualsdk.RoleOrganizationUserAdmin, OrganizationID: owner.OrganizationID}:     true,
 			}),
 		},
 	}
@@ -523,15 +523,15 @@ func TestListRoles(t *testing.T) {
 
 			roles, err := c.APICall(ctx)
 			if c.AuthorizedError != "" {
-				var apiErr *codersdk.Error
+				var apiErr *wirtualsdk.Error
 				require.ErrorAs(t, err, &apiErr)
 				require.Equal(t, http.StatusNotFound, apiErr.StatusCode())
 				require.Contains(t, apiErr.Message, c.AuthorizedError)
 			} else {
 				require.NoError(t, err)
-				ignorePerms := func(f codersdk.AssignableRoles) codersdk.AssignableRoles {
-					return codersdk.AssignableRoles{
-						Role: codersdk.Role{
+				ignorePerms := func(f wirtualsdk.AssignableRoles) wirtualsdk.AssignableRoles {
+					return wirtualsdk.AssignableRoles{
+						Role: wirtualsdk.Role{
 							Name:        f.Name,
 							DisplayName: f.DisplayName,
 						},
@@ -547,16 +547,16 @@ func TestListRoles(t *testing.T) {
 	}
 }
 
-func convertRole(roleName rbac.RoleIdentifier) codersdk.Role {
+func convertRole(roleName rbac.RoleIdentifier) wirtualsdk.Role {
 	role, _ := rbac.RoleByName(roleName)
 	return db2sdk.RBACRole(role)
 }
 
-func convertRoles(assignableRoles map[rbac.RoleIdentifier]bool) []codersdk.AssignableRoles {
-	converted := make([]codersdk.AssignableRoles, 0, len(assignableRoles))
+func convertRoles(assignableRoles map[rbac.RoleIdentifier]bool) []wirtualsdk.AssignableRoles {
+	converted := make([]wirtualsdk.AssignableRoles, 0, len(assignableRoles))
 	for roleName, assignable := range assignableRoles {
 		role := convertRole(roleName)
-		converted = append(converted, codersdk.AssignableRoles{
+		converted = append(converted, wirtualsdk.AssignableRoles{
 			Role:       role,
 			Assignable: assignable,
 		})

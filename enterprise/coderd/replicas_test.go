@@ -95,7 +95,7 @@ func TestReplicas(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureHighAvailability: 1,
+					wirtualsdk.FeatureHighAvailability: 1,
 				},
 			},
 		})
@@ -141,7 +141,7 @@ func TestReplicas(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureHighAvailability: 1,
+					wirtualsdk.FeatureHighAvailability: 1,
 				},
 			},
 		})

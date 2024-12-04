@@ -65,7 +65,7 @@ func (r *RootCmd) newCreateAdminUserCommand() *serpent.Command {
 			}
 
 			sqlDriver := "postgres"
-			if codersdk.PostgresAuth(newUserPgAuth) == codersdk.PostgresAuthAWSIAMRDS {
+			if wirtualsdk.PostgresAuth(newUserPgAuth) == wirtualsdk.PostgresAuthAWSIAMRDS {
 				sqlDriver, err = awsiamrds.Register(inv.Context(), sqlDriver)
 				if err != nil {
 					return xerrors.Errorf("register aws rds iam auth: %w", err)
@@ -83,7 +83,7 @@ func (r *RootCmd) newCreateAdminUserCommand() *serpent.Command {
 
 			validateInputs := func(username, email, password string) error {
 				// Use the validator tags so we match the API's validation.
-				req := codersdk.CreateUserRequestWithOrgs{
+				req := wirtualsdk.CreateUserRequestWithOrgs{
 					Username:        "username",
 					Name:            "Admin User",
 					Email:           "email@coder.com",
@@ -263,7 +263,7 @@ func (r *RootCmd) newCreateAdminUserCommand() *serpent.Command {
 			Flag:        "postgres-connection-auth",
 			Env:         "WIRTUAL_PG_CONNECTION_AUTH",
 			Default:     "password",
-			Value:       serpent.EnumOf(&newUserPgAuth, codersdk.PostgresAuthDrivers...),
+			Value:       serpent.EnumOf(&newUserPgAuth, wirtualsdk.PostgresAuthDrivers...),
 		},
 		serpent.Option{
 			Env:         "WIRTUAL_SSH_KEYGEN_ALGORITHM",

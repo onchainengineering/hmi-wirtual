@@ -129,7 +129,7 @@ func TestOpenVSCode(t *testing.T) {
 				return
 			}
 
-			me, err := client.User(ctx, codersdk.Me)
+			me, err := client.User(ctx, wirtualsdk.Me)
 			require.NoError(t, err)
 
 			line := pty.ReadLine(ctx)
@@ -256,7 +256,7 @@ func TestOpenVSCode_NoAgentDirectory(t *testing.T) {
 				return
 			}
 
-			me, err := client.User(ctx, codersdk.Me)
+			me, err := client.User(ctx, wirtualsdk.Me)
 			require.NoError(t, err)
 
 			line := pty.ReadLine(ctx)

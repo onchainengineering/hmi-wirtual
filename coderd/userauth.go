@@ -55,10 +55,10 @@ const (
 type OAuthConvertStateClaims struct {
 	jwtutils.RegisteredClaims
 
-	UserID        uuid.UUID          `json:"user_id"`
-	State         string             `json:"state"`
-	FromLoginType codersdk.LoginType `json:"from_login_type"`
-	ToLoginType   codersdk.LoginType `json:"to_login_type"`
+	UserID        uuid.UUID            `json:"user_id"`
+	State         string               `json:"state"`
+	FromLoginType wirtualsdk.LoginType `json:"from_login_type"`
+	ToLoginType   wirtualsdk.LoginType `json:"to_login_type"`
 }
 
 func (o *OAuthConvertStateClaims) Validate(e jwt.Expected) error {
@@ -93,29 +93,29 @@ func (api *API) postConvertLoginType(rw http.ResponseWriter, r *http.Request) {
 	aReq.Old = database.AuditOAuthConvertState{}
 	defer commitAudit()
 
-	var req codersdk.ConvertLoginRequest
+	var req wirtualsdk.ConvertLoginRequest
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
 
 	switch req.ToType {
-	case codersdk.LoginTypeGithub, codersdk.LoginTypeOIDC:
+	case wirtualsdk.LoginTypeGithub, wirtualsdk.LoginTypeOIDC:
 		// Allowed!
-	case codersdk.LoginTypeNone, codersdk.LoginTypePassword, codersdk.LoginTypeToken:
+	case wirtualsdk.LoginTypeNone, wirtualsdk.LoginTypePassword, wirtualsdk.LoginTypeToken:
 		// These login types are not allowed to be converted to at this time.
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: fmt.Sprintf("Cannot convert to login type %q.", req.ToType),
 		})
 		return
 	default:
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: fmt.Sprintf("Unknown login type %q.", req.ToType),
 		})
 		return
 	}
 
 	// This handles the email/pass checking.
-	user, _, ok := api.loginRequest(ctx, rw, codersdk.LoginWithPasswordRequest{
+	user, _, ok := api.loginRequest(ctx, rw, wirtualsdk.LoginWithPasswordRequest{
 		Email:    user.Email,
 		Password: req.Password,
 	})
@@ -129,7 +129,7 @@ func (api *API) postConvertLoginType(rw http.ResponseWriter, r *http.Request) {
 		// function changes its checks. Just some defensive programming.
 		// This login type is **required** to be password based to prevent
 		// users from converting other login types to OIDC.
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "User account must have password based authentication.",
 		})
 		return
@@ -137,7 +137,7 @@ func (api *API) postConvertLoginType(rw http.ResponseWriter, r *http.Request) {
 
 	stateString, err := cryptorand.String(32)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error generating state string.",
 			Detail:  err.Error(),
 		})
@@ -168,13 +168,13 @@ func (api *API) postConvertLoginType(rw http.ResponseWriter, r *http.Request) {
 		},
 		UserID:        user.ID,
 		State:         stateString,
-		FromLoginType: codersdk.LoginType(user.LoginType),
+		FromLoginType: wirtualsdk.LoginType(user.LoginType),
 		ToLoginType:   req.ToType,
 	}
 
 	token, err := jwtutils.Sign(ctx, api.OIDCConvertKeyCache, claims)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error signing state jwt.",
 			Detail:  err.Error(),
 		})
@@ -200,7 +200,7 @@ func (api *API) postConvertLoginType(rw http.ResponseWriter, r *http.Request) {
 		// oauth provider.
 		SameSite: http.SameSiteLaxMode,
 	})
-	httpapi.Write(ctx, rw, http.StatusCreated, codersdk.OAuthConversionResponse{
+	httpapi.Write(ctx, rw, http.StatusCreated, wirtualsdk.OAuthConversionResponse{
 		StateString: stateString,
 		ExpiresAt:   claims.Expiry.Time(),
 		ToType:      claims.ToLoginType,
@@ -232,13 +232,13 @@ func (api *API) postRequestOneTimePasscode(rw http.ResponseWriter, r *http.Reque
 	defer commitAudit()
 
 	if api.DeploymentValues.DisablePasswordAuth {
-		httpapi.Write(ctx, rw, http.StatusForbidden, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusForbidden, wirtualsdk.Response{
 			Message: "Password authentication is disabled.",
 		})
 		return
 	}
 
-	var req codersdk.RequestOneTimePasscodeRequest
+	var req wirtualsdk.RequestOneTimePasscodeRequest
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
@@ -339,21 +339,21 @@ func (api *API) postChangePasswordWithOneTimePasscode(rw http.ResponseWriter, r 
 	defer commitAudit()
 
 	if api.DeploymentValues.DisablePasswordAuth {
-		httpapi.Write(ctx, rw, http.StatusForbidden, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusForbidden, wirtualsdk.Response{
 			Message: "Password authentication is disabled.",
 		})
 		return
 	}
 
-	var req codersdk.ChangePasswordWithOneTimePasscodeRequest
+	var req wirtualsdk.ChangePasswordWithOneTimePasscodeRequest
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
 
 	if err := userpassword.Validate(req.Password); err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Invalid password.",
-			Validations: []codersdk.ValidationError{
+			Validations: []wirtualsdk.ValidationError{
 				{
 					Field:  "password",
 					Detail: err.Error(),
@@ -385,7 +385,7 @@ func (api *API) postChangePasswordWithOneTimePasscode(rw http.ResponseWriter, r 
 		now := dbtime.Now()
 		if !equal || now.After(user.OneTimePasscodeExpiresAt.Time) {
 			logger.Warn(ctx, "password reset attempted with invalid or expired one-time passcode", slog.F("email", req.Email))
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Incorrect email or one-time passcode.",
 			})
 			return nil
@@ -398,7 +398,7 @@ func (api *API) postChangePasswordWithOneTimePasscode(rw http.ResponseWriter, r 
 		}
 
 		if equal {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "New password cannot match old password.",
 			})
 			return nil
@@ -438,7 +438,7 @@ func (api *API) postChangePasswordWithOneTimePasscode(rw http.ResponseWriter, r 
 		return nil
 	}, nil)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error.",
 			Detail:  err.Error(),
 		})
@@ -464,7 +464,7 @@ func (*API) validateUserPassword(rw http.ResponseWriter, r *http.Request) {
 		details = ""
 	)
 
-	var req codersdk.ValidateUserPasswordRequest
+	var req wirtualsdk.ValidateUserPasswordRequest
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
@@ -475,7 +475,7 @@ func (*API) validateUserPassword(rw http.ResponseWriter, r *http.Request) {
 		details = err.Error()
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.ValidateUserPasswordResponse{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.ValidateUserPasswordResponse{
 		Valid:   valid,
 		Details: details,
 	})
@@ -506,7 +506,7 @@ func (api *API) postLogin(rw http.ResponseWriter, r *http.Request) {
 	aReq.Old = database.APIKey{}
 	defer commitAudit()
 
-	var loginWithPassword codersdk.LoginWithPasswordRequest
+	var loginWithPassword wirtualsdk.LoginWithPasswordRequest
 	if !httpapi.Read(ctx, rw, r, &loginWithPassword) {
 		return
 	}
@@ -529,7 +529,7 @@ func (api *API) postLogin(rw http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		logger.Error(ctx, "unable to create API key", slog.Error(err))
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to create API key.",
 			Detail:  err.Error(),
 		})
@@ -540,7 +540,7 @@ func (api *API) postLogin(rw http.ResponseWriter, r *http.Request) {
 
 	http.SetCookie(rw, cookie)
 
-	httpapi.Write(ctx, rw, http.StatusCreated, codersdk.LoginWithPasswordResponse{
+	httpapi.Write(ctx, rw, http.StatusCreated, wirtualsdk.LoginWithPasswordResponse{
 		SessionToken: cookie.Value,
 	})
 }
@@ -551,7 +551,7 @@ func (api *API) postLogin(rw http.ResponseWriter, r *http.Request) {
 //
 // The user struct is always returned, even if authentication failed. This is
 // to support knowing what user attempted to login.
-func (api *API) loginRequest(ctx context.Context, rw http.ResponseWriter, req codersdk.LoginWithPasswordRequest) (database.User, rbac.Subject, bool) {
+func (api *API) loginRequest(ctx context.Context, rw http.ResponseWriter, req wirtualsdk.LoginWithPasswordRequest) (database.User, rbac.Subject, bool) {
 	logger := api.Logger.Named(userAuthLoggerName)
 
 	//nolint:gocritic // In order to login, we need to get the user first!
@@ -560,7 +560,7 @@ func (api *API) loginRequest(ctx context.Context, rw http.ResponseWriter, req co
 	})
 	if err != nil && !xerrors.Is(err, sql.ErrNoRows) {
 		logger.Error(ctx, "unable to fetch user by email", slog.Error(err))
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error.",
 		})
 		return user, rbac.Subject{}, false
@@ -570,7 +570,7 @@ func (api *API) loginRequest(ctx context.Context, rw http.ResponseWriter, req co
 	equal, err := userpassword.Compare(string(user.HashedPassword), req.Password)
 	if err != nil {
 		logger.Error(ctx, "unable to compare passwords", slog.Error(err))
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error.",
 		})
 		return user, rbac.Subject{}, false
@@ -579,7 +579,7 @@ func (api *API) loginRequest(ctx context.Context, rw http.ResponseWriter, req co
 	if !equal {
 		// This message is the same as above to remove ease in detecting whether
 		// users are registered or not. Attackers still could with a timing attack.
-		httpapi.Write(ctx, rw, http.StatusUnauthorized, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusUnauthorized, wirtualsdk.Response{
 			Message: "Incorrect email or password.",
 		})
 		return user, rbac.Subject{}, false
@@ -588,14 +588,14 @@ func (api *API) loginRequest(ctx context.Context, rw http.ResponseWriter, req co
 	// If password authentication is disabled and the user does not have the
 	// owner role, block the request.
 	if api.DeploymentValues.DisablePasswordAuth {
-		httpapi.Write(ctx, rw, http.StatusForbidden, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusForbidden, wirtualsdk.Response{
 			Message: "Password authentication is disabled.",
 		})
 		return user, rbac.Subject{}, false
 	}
 
 	if user.LoginType != database.LoginTypePassword {
-		httpapi.Write(ctx, rw, http.StatusForbidden, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusForbidden, wirtualsdk.Response{
 			Message: fmt.Sprintf("Incorrect login type, attempting to use %q but user is of login type %q", database.LoginTypePassword, user.LoginType),
 		})
 		return user, rbac.Subject{}, false
@@ -603,7 +603,7 @@ func (api *API) loginRequest(ctx context.Context, rw http.ResponseWriter, req co
 
 	user, err = ActivateDormantUser(api.Logger, &api.Auditor, api.Database)(ctx, user)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error.",
 			Detail:  err.Error(),
 		})
@@ -613,7 +613,7 @@ func (api *API) loginRequest(ctx context.Context, rw http.ResponseWriter, req co
 	subject, userStatus, err := httpmw.UserRBACSubject(ctx, api.Database, user.ID, rbac.ScopeAll)
 	if err != nil {
 		logger.Error(ctx, "unable to fetch authorization user roles", slog.Error(err))
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error.",
 		})
 		return user, rbac.Subject{}, false
@@ -621,7 +621,7 @@ func (api *API) loginRequest(ctx context.Context, rw http.ResponseWriter, req co
 
 	// If the user logged into a suspended account, reject the login request.
 	if userStatus != database.UserStatusActive {
-		httpapi.Write(ctx, rw, http.StatusUnauthorized, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusUnauthorized, wirtualsdk.Response{
 			Message: fmt.Sprintf("Your account is %s. Contact an admin to reactivate your account.", userStatus),
 		})
 		return user, rbac.Subject{}, false
@@ -692,7 +692,7 @@ func (api *API) postLogout(rw http.ResponseWriter, r *http.Request) {
 	cookie := &http.Cookie{
 		// MaxAge < 0 means to delete the cookie now.
 		MaxAge: -1,
-		Name:   codersdk.SessionTokenCookie,
+		Name:   wirtualsdk.SessionTokenCookie,
 		Path:   "/",
 	}
 	http.SetCookie(rw, cookie)
@@ -706,7 +706,7 @@ func (api *API) postLogout(rw http.ResponseWriter, r *http.Request) {
 	err := api.Database.DeleteAPIKeyByID(ctx, apiKey.ID)
 	if err != nil {
 		logger.Error(ctx, "unable to delete API key", slog.F("api_key", apiKey.ID), slog.Error(err))
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error deleting API key.",
 			Detail:  err.Error(),
 		})
@@ -720,7 +720,7 @@ func (api *API) postLogout(rw http.ResponseWriter, r *http.Request) {
 	err = api.Database.DeleteApplicationConnectAPIKeysByUserID(ctx, apiKey.UserID)
 	if err != nil {
 		logger.Error(ctx, "unable to invalidate subdomain app tokens", slog.F("user_id", apiKey.UserID), slog.Error(err))
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error deleting app tokens.",
 			Detail:  err.Error(),
 		})
@@ -729,7 +729,7 @@ func (api *API) postLogout(rw http.ResponseWriter, r *http.Request) {
 
 	aReq.New = database.APIKey{}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.Response{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.Response{
 		Message: "Logged out!",
 	})
 }
@@ -772,14 +772,14 @@ func (api *API) userAuthMethods(rw http.ResponseWriter, r *http.Request) {
 		iconURL = api.OIDCConfig.IconURL
 	}
 
-	httpapi.Write(r.Context(), rw, http.StatusOK, codersdk.AuthMethods{
+	httpapi.Write(r.Context(), rw, http.StatusOK, wirtualsdk.AuthMethods{
 		TermsOfServiceURL: api.DeploymentValues.TermsOfServiceURL.Value(),
-		Password: codersdk.AuthMethod{
+		Password: wirtualsdk.AuthMethod{
 			Enabled: !api.DeploymentValues.DisablePasswordAuth.Value(),
 		},
-		Github: codersdk.AuthMethod{Enabled: api.GithubOAuth2Config != nil},
-		OIDC: codersdk.OIDCAuthMethod{
-			AuthMethod: codersdk.AuthMethod{Enabled: api.OIDCConfig != nil},
+		Github: wirtualsdk.AuthMethod{Enabled: api.GithubOAuth2Config != nil},
+		OIDC: wirtualsdk.OIDCAuthMethod{
+			AuthMethod: wirtualsdk.AuthMethod{Enabled: api.OIDCConfig != nil},
 			SignInText: signInText,
 			IconURL:    iconURL,
 		},
@@ -820,7 +820,7 @@ func (api *API) userOAuth2Github(rw http.ResponseWriter, r *http.Request) {
 		memberships, err := api.GithubOAuth2Config.ListOrganizationMemberships(ctx, oauthClient)
 		if err != nil {
 			logger.Error(ctx, "unable to list organization members", slog.Error(err))
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Internal error fetching authenticated Github user organizations.",
 				Detail:  err.Error(),
 			})
@@ -849,7 +849,7 @@ func (api *API) userOAuth2Github(rw http.ResponseWriter, r *http.Request) {
 	ghUser, err := api.GithubOAuth2Config.AuthenticatedUser(ctx, oauthClient)
 	if err != nil {
 		logger.Error(ctx, "oauth2: unable to fetch authenticated user", slog.Error(err))
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching authenticated Github user.",
 			Detail:  err.Error(),
 		})
@@ -886,7 +886,7 @@ func (api *API) userOAuth2Github(rw http.ResponseWriter, r *http.Request) {
 	emails, err := api.GithubOAuth2Config.ListEmails(ctx, oauthClient)
 	if err != nil {
 		logger.Error(ctx, "oauth2: unable to list emails", slog.Error(err))
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching personal Github user.",
 			Detail:  err.Error(),
 		})
@@ -902,14 +902,14 @@ func (api *API) userOAuth2Github(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if verifiedEmail == nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Your primary email must be verified on GitHub!",
 		})
 		return
 	}
 
 	ghName := ghUser.GetName()
-	normName := codersdk.NormalizeRealUsername(ghName)
+	normName := wirtualsdk.NormalizeRealUsername(ghName)
 
 	// If we have a nil GitHub ID, that is a big problem. That would mean we link
 	// this user and all other users with this bug to the same uuid.
@@ -917,7 +917,7 @@ func (api *API) userOAuth2Github(rw http.ResponseWriter, r *http.Request) {
 	//
 	// Verified that the lowest ID on GitHub is "1", so 0 should never occur.
 	if ghUser.GetID() == 0 {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "The GitHub user ID is missing, this should never happen. Please report this error.",
 			// If this happens, the User could either be:
 			//  - Empty, in which case all these fields would also be empty.
@@ -933,7 +933,7 @@ func (api *API) userOAuth2Github(rw http.ResponseWriter, r *http.Request) {
 	user, link, err := findLinkedUser(ctx, api.Database, githubLinkedID(ghUser), verifiedEmail.GetEmail())
 	if err != nil {
 		logger.Error(ctx, "oauth2: unable to find linked user", slog.F("gh_user", ghUser.Name), slog.Error(err))
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to find linked user.",
 			Detail:  err.Error(),
 		})
@@ -983,7 +983,7 @@ func (api *API) userOAuth2Github(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 		logger.Error(ctx, "oauth2: login failed", slog.F("user", user.Username), slog.Error(err))
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to process OAuth login.",
 			Detail:  err.Error(),
 		})
@@ -1001,7 +1001,7 @@ func (api *API) userOAuth2Github(rw http.ResponseWriter, r *http.Request) {
 		})
 		if err != nil {
 			logger.Error(ctx, "oauth2: unable to update user github id", slog.F("user", user.Username), slog.Error(err))
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Failed to update user GitHub ID.",
 				Detail:  err.Error(),
 			})
@@ -1081,7 +1081,7 @@ func (api *API) userOIDC(rw http.ResponseWriter, r *http.Request) {
 	// See the example here: https://github.com/coreos/go-oidc
 	rawIDToken, ok := state.Token.Extra("id_token").(string)
 	if !ok {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "id_token not found in response payload. Ensure your OIDC callback is configured correctly!",
 		})
 		return
@@ -1089,7 +1089,7 @@ func (api *API) userOIDC(rw http.ResponseWriter, r *http.Request) {
 
 	idToken, err := api.OIDCConfig.Verifier.Verify(ctx, rawIDToken)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Failed to verify OIDC token.",
 			Detail:  err.Error(),
 		})
@@ -1105,7 +1105,7 @@ func (api *API) userOIDC(rw http.ResponseWriter, r *http.Request) {
 	err = idToken.Claims(&idtokenClaims)
 	if err != nil {
 		logger.Error(ctx, "oauth2: unable to extract OIDC claims", slog.Error(err))
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to extract OIDC claims.",
 			Detail:  err.Error(),
 		})
@@ -1137,7 +1137,7 @@ func (api *API) userOIDC(rw http.ResponseWriter, r *http.Request) {
 			err = userInfo.Claims(&userInfoClaims)
 			if err != nil {
 				logger.Error(ctx, "oauth2: unable to unmarshal user info claims", slog.Error(err))
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Failed to unmarshal user info claims.",
 					Detail:  err.Error(),
 				})
@@ -1161,7 +1161,7 @@ func (api *API) userOIDC(rw http.ResponseWriter, r *http.Request) {
 			)
 		} else if !strings.Contains(err.Error(), "user info endpoint is not supported by this provider") {
 			logger.Error(ctx, "oauth2: unable to obtain user information claims", slog.Error(err))
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Failed to obtain user information claims.",
 				Detail:  "The attempt to fetch claims via the UserInfo endpoint failed: " + err.Error(),
 			})
@@ -1188,7 +1188,7 @@ func (api *API) userOIDC(rw http.ResponseWriter, r *http.Request) {
 		// https://github.com/coder/coder/issues/4472
 		_, err = mail.ParseAddress(username)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "No email found in OIDC payload!",
 			})
 			return
@@ -1198,7 +1198,7 @@ func (api *API) userOIDC(rw http.ResponseWriter, r *http.Request) {
 
 	email, ok := emailRaw.(string)
 	if !ok {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: fmt.Sprintf("Email in OIDC payload isn't a string. Got: %t", emailRaw),
 		})
 		return
@@ -1209,7 +1209,7 @@ func (api *API) userOIDC(rw http.ResponseWriter, r *http.Request) {
 		verified, ok := verifiedRaw.(bool)
 		if ok && !verified {
 			if !api.OIDCConfig.IgnoreEmailVerified {
-				httpapi.Write(ctx, rw, http.StatusForbidden, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusForbidden, wirtualsdk.Response{
 					Message: fmt.Sprintf("Verify the %q email address on your OIDC provider to authenticate!", email),
 				})
 				return
@@ -1221,7 +1221,7 @@ func (api *API) userOIDC(rw http.ResponseWriter, r *http.Request) {
 	// The username is a required property in Coder. We make a best-effort
 	// attempt at using what the claims provide, but if that fails we will
 	// generate a random username.
-	usernameValid := codersdk.NameValid(username)
+	usernameValid := wirtualsdk.NameValid(username)
 	if usernameValid != nil {
 		// If no username is provided, we can default to use the email address.
 		// This will be converted in the from function below, so it's safe
@@ -1229,14 +1229,14 @@ func (api *API) userOIDC(rw http.ResponseWriter, r *http.Request) {
 		if username == "" {
 			username = email
 		}
-		username = codersdk.UsernameFrom(username)
+		username = wirtualsdk.UsernameFrom(username)
 	}
 
 	if len(api.OIDCConfig.EmailDomain) > 0 {
 		ok = false
 		emailSp := strings.Split(email, "@")
 		if len(emailSp) == 1 {
-			httpapi.Write(ctx, rw, http.StatusForbidden, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusForbidden, wirtualsdk.Response{
 				Message: fmt.Sprintf("Your email %q is not in domains %q!", email, api.OIDCConfig.EmailDomain),
 			})
 			return
@@ -1251,7 +1251,7 @@ func (api *API) userOIDC(rw http.ResponseWriter, r *http.Request) {
 			}
 		}
 		if !ok {
-			httpapi.Write(ctx, rw, http.StatusForbidden, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusForbidden, wirtualsdk.Response{
 				Message: fmt.Sprintf("Your email %q is not in domains %q!", email, api.OIDCConfig.EmailDomain),
 			})
 			return
@@ -1264,7 +1264,7 @@ func (api *API) userOIDC(rw http.ResponseWriter, r *http.Request) {
 	nameRaw, ok := mergedClaims[api.OIDCConfig.NameField]
 	if ok {
 		name, _ = nameRaw.(string)
-		name = codersdk.NormalizeRealUsername(name)
+		name = wirtualsdk.NormalizeRealUsername(name)
 	}
 
 	var picture string
@@ -1278,7 +1278,7 @@ func (api *API) userOIDC(rw http.ResponseWriter, r *http.Request) {
 	user, link, err := findLinkedUser(ctx, api.Database, oidcLinkedID(idToken), email)
 	if err != nil {
 		logger.Error(ctx, "oauth2: unable to find linked user", slog.F("email", email), slog.Error(err))
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to find linked user.",
 			Detail:  err.Error(),
 		})
@@ -1339,7 +1339,7 @@ func (api *API) userOIDC(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 		logger.Error(ctx, "oauth2: login failed", slog.F("user", user.Username), slog.Error(err))
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to process OAuth login.",
 			Detail:  err.Error(),
 		})
@@ -1518,7 +1518,7 @@ func (api *API) oauthLogin(r *http.Request, params *oauthLoginParams) ([]*http.C
 				for i := 0; i < 10; i++ {
 					alternate := fmt.Sprintf("%s-%s", original, namesgenerator.GetRandomName(1))
 
-					params.Username = codersdk.UsernameFrom(alternate)
+					params.Username = wirtualsdk.UsernameFrom(alternate)
 
 					//nolint:gocritic
 					_, err := tx.GetUserByEmailOrUsername(dbauthz.AsSystemRestricted(ctx), database.GetUserByEmailOrUsernameParams{
@@ -1548,7 +1548,7 @@ func (api *API) oauthLogin(r *http.Request, params *oauthLoginParams) ([]*http.C
 
 			//nolint:gocritic
 			user, err = api.CreateUser(dbauthz.AsSystemRestricted(ctx), tx, CreateUserRequest{
-				CreateUserRequestWithOrgs: codersdk.CreateUserRequestWithOrgs{
+				CreateUserRequestWithOrgs: wirtualsdk.CreateUserRequestWithOrgs{
 					Email:    params.Email,
 					Username: params.Username,
 					// This is a kludge, but all users are defaulted into the default
@@ -1556,7 +1556,7 @@ func (api *API) oauthLogin(r *http.Request, params *oauthLoginParams) ([]*http.C
 					// If org sync is enabled and configured, the user's groups
 					// will change based on the org sync settings.
 					OrganizationIDs: []uuid.UUID{defaultOrganization.ID},
-					UserStatus:      ptr.Ref(codersdk.UserStatusActive),
+					UserStatus:      ptr.Ref(wirtualsdk.UserStatusActive),
 				},
 				LoginType:          params.LoginType,
 				accountCreatorName: "oauth",
@@ -1703,7 +1703,7 @@ func (api *API) oauthLogin(r *http.Request, params *oauthLoginParams) ([]*http.C
 			)
 		}
 		cookies = append(cookies, &http.Cookie{
-			Name:     codersdk.SessionTokenCookie,
+			Name:     wirtualsdk.SessionTokenCookie,
 			Path:     "/",
 			MaxAge:   -1,
 			Secure:   api.SecureAuthCookie,
@@ -1802,8 +1802,8 @@ func (api *API) convertUserToOauth(ctx context.Context, r *http.Request, db data
 	// It needs to have the correct login type information for this
 	// user.
 	if user.ID != claims.UserID ||
-		codersdk.LoginType(user.LoginType) != claims.FromLoginType ||
-		codersdk.LoginType(params.LoginType) != claims.ToLoginType {
+		wirtualsdk.LoginType(user.LoginType) != claims.FromLoginType ||
+		wirtualsdk.LoginType(params.LoginType) != claims.ToLoginType {
 		return database.User{}, idpsync.HTTPError{
 			Code: http.StatusForbidden,
 			Msg:  fmt.Sprintf("Request to convert login type from %s to %s failed", user.LoginType, params.LoginType),

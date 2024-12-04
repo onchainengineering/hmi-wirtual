@@ -31,7 +31,7 @@ func (r *RootCmd) organizationMembers(orgContext *OrganizationContext) *serpent.
 }
 
 func (r *RootCmd) removeOrganizationMember(orgContext *OrganizationContext) *serpent.Command {
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 
 	cmd := &serpent.Command{
 		Use:   "remove <username | user_id>",
@@ -62,7 +62,7 @@ func (r *RootCmd) removeOrganizationMember(orgContext *OrganizationContext) *ser
 }
 
 func (r *RootCmd) addOrganizationMember(orgContext *OrganizationContext) *serpent.Command {
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 
 	cmd := &serpent.Command{
 		Use:   "add <username | user_id>",
@@ -93,7 +93,7 @@ func (r *RootCmd) addOrganizationMember(orgContext *OrganizationContext) *serpen
 }
 
 func (r *RootCmd) assignOrganizationRoles(orgContext *OrganizationContext) *serpent.Command {
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 
 	cmd := &serpent.Command{
 		Use:     "edit-roles <username | user_id> [roles...]",
@@ -115,7 +115,7 @@ func (r *RootCmd) assignOrganizationRoles(orgContext *OrganizationContext) *serp
 			userIdentifier := inv.Args[0]
 			roles := inv.Args[1:]
 
-			member, err := client.UpdateOrganizationMemberRoles(ctx, organization.ID, userIdentifier, codersdk.UpdateRoles{
+			member, err := client.UpdateOrganizationMemberRoles(ctx, organization.ID, userIdentifier, wirtualsdk.UpdateRoles{
 				Roles: roles,
 			})
 			if err != nil {
@@ -137,11 +137,11 @@ func (r *RootCmd) assignOrganizationRoles(orgContext *OrganizationContext) *serp
 
 func (r *RootCmd) listOrganizationMembers(orgContext *OrganizationContext) *serpent.Command {
 	formatter := cliui.NewOutputFormatter(
-		cliui.TableFormat([]codersdk.OrganizationMemberWithUserData{}, []string{"username", "organization roles"}),
+		cliui.TableFormat([]wirtualsdk.OrganizationMemberWithUserData{}, []string{"username", "organization roles"}),
 		cliui.JSONFormat(),
 	)
 
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "list",
 		Short: "List all organization members",

@@ -33,7 +33,7 @@ func TestWorkspaceParam(t *testing.T) {
 			hashed     = sha256.Sum256([]byte(secret))
 		)
 		r := httptest.NewRequest("GET", "/", nil)
-		r.Header.Set(codersdk.SessionTokenHeader, fmt.Sprintf("%s-%s", id, secret))
+		r.Header.Set(wirtualsdk.SessionTokenHeader, fmt.Sprintf("%s-%s", id, secret))
 
 		userID := uuid.New()
 		username, err := cryptorand.String(8)
@@ -329,7 +329,7 @@ func TestWorkspaceAgentByNameParam(t *testing.T) {
 			rw := httptest.NewRecorder()
 			rtr.ServeHTTP(rw, r)
 			res := rw.Result()
-			var coderResp codersdk.Response
+			var coderResp wirtualsdk.Response
 			_ = json.NewDecoder(res.Body).Decode(&coderResp)
 			res.Body.Close()
 			require.Equal(t, c.ExpectedStatusCode, res.StatusCode)
@@ -373,7 +373,7 @@ func setupWorkspaceWithAgents(t testing.TB, cfg setupConfig) (database.Store, *h
 	)
 
 	r := httptest.NewRequest("GET", "/", nil)
-	r.Header.Set(codersdk.SessionTokenHeader, token)
+	r.Header.Set(wirtualsdk.SessionTokenHeader, token)
 
 	for resourceName, agentNames := range cfg.Agents {
 		resource := dbgen.WorkspaceResource(t, db, database.WorkspaceResource{
@@ -391,7 +391,7 @@ func setupWorkspaceWithAgents(t testing.TB, cfg setupConfig) (database.Store, *h
 	}
 
 	ctx := chi.NewRouteContext()
-	ctx.URLParams.Add("user", codersdk.Me)
+	ctx.URLParams.Add("user", wirtualsdk.Me)
 	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, ctx))
 
 	return db, r

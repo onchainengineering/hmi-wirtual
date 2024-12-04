@@ -59,14 +59,14 @@ type SelectOptions struct {
 }
 
 type RichSelectOptions struct {
-	Options    []codersdk.TemplateVersionParameterOption
+	Options    []wirtualsdk.TemplateVersionParameterOption
 	Default    string
 	Size       int
 	HideSearch bool
 }
 
 // RichSelect displays a list of user options including name and description.
-func RichSelect(inv *serpent.Invocation, richOptions RichSelectOptions) (*codersdk.TemplateVersionParameterOption, error) {
+func RichSelect(inv *serpent.Invocation, richOptions RichSelectOptions) (*wirtualsdk.TemplateVersionParameterOption, error) {
 	opts := make([]string, len(richOptions.Options))
 	var defaultOpt string
 	for i, option := range richOptions.Options {

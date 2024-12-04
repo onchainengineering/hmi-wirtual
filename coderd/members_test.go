@@ -69,6 +69,6 @@ func TestListMembers(t *testing.T) {
 	})
 }
 
-func onlyIDs(u codersdk.OrganizationMemberWithUserData) uuid.UUID {
+func onlyIDs(u wirtualsdk.OrganizationMemberWithUserData) uuid.UUID {
 	return u.UserID
 }

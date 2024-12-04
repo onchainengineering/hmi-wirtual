@@ -273,7 +273,7 @@ func (s *Server) workspaceAppsProxyPath(rw http.ResponseWriter, r *http.Request)
 
 	// We don't support @me in path apps since it requires the database to
 	// lookup the username from token. We used to redirect by doing this lookup.
-	if chi.URLParam(r, "user") == codersdk.Me {
+	if chi.URLParam(r, "user") == wirtualsdk.Me {
 		site.RenderStaticErrorPage(rw, r, site.ErrorPageData{
 			Status:       http.StatusNotFound,
 			Title:        "Application Not Found",
@@ -383,7 +383,7 @@ func (s *Server) HandleSubdomain(middlewares ...func(http.Handler) http.Handler)
 					return
 				}
 
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "Could not determine request Host.",
 				})
 				return
@@ -509,12 +509,12 @@ func (s *Server) proxyWorkspaceApp(rw http.ResponseWriter, r *http.Request, appT
 	}
 
 	// Verify that the port is allowed. See the docs above
-	// `codersdk.MinimumListeningPort` for more details.
+	// `wirtualsdk.MinimumListeningPort` for more details.
 	port := appURL.Port()
 	if port != "" {
 		portInt, err := strconv.Atoi(port)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: fmt.Sprintf("App URL %q has an invalid port %q.", appToken.AppURL, port),
 				Detail:  err.Error(),
 			})
@@ -522,7 +522,7 @@ func (s *Server) proxyWorkspaceApp(rw http.ResponseWriter, r *http.Request, appT
 		}
 
 		if portInt < workspacesdk.AgentMinimumListeningPort {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: fmt.Sprintf("Application port %d is not permitted. Coder reserves ports less than %d for internal use.",
 					portInt, workspacesdk.AgentMinimumListeningPort,
 				),
@@ -654,7 +654,7 @@ func (s *Server) workspaceAgentPTY(rw http.ResponseWriter, r *http.Request) {
 	height := parser.UInt(values, 80, "height")
 	width := parser.UInt(values, 80, "width")
 	if len(parser.Errors) > 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message:     "Invalid query parameters.",
 			Validations: parser.Errors,
 		})
@@ -671,7 +671,7 @@ func (s *Server) workspaceAgentPTY(rw http.ResponseWriter, r *http.Request) {
 		},
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Failed to accept websocket.",
 			Detail:  err.Error(),
 		})

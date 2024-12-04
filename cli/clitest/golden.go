@@ -136,7 +136,7 @@ func normalizeGoldenFile(t *testing.T, byt []byte) []byte {
 	configDir := config.DefaultDir()
 	byt = bytes.ReplaceAll(byt, []byte(configDir), []byte("~/.config/coderv2"))
 
-	byt = bytes.ReplaceAll(byt, []byte(codersdk.DefaultCacheDir()), []byte("[cache dir]"))
+	byt = bytes.ReplaceAll(byt, []byte(wirtualsdk.DefaultCacheDir()), []byte("[cache dir]"))
 
 	// The home directory changes depending on the test environment.
 	byt = bytes.ReplaceAll(byt, []byte(homeDir), []byte("~"))
@@ -167,7 +167,7 @@ func extractVisibleCommandPaths(cmdPath []string, cmds []*serpent.Command) [][]s
 	return cmdPaths
 }
 
-func prepareTestData(t *testing.T) (*codersdk.Client, map[string]string) {
+func prepareTestData(t *testing.T) (*wirtualsdk.Client, map[string]string) {
 	t.Helper()
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
@@ -184,7 +184,7 @@ func prepareTestData(t *testing.T) (*codersdk.Client, map[string]string) {
 		IncludeProvisionerDaemon: true,
 	})
 	firstUser := coderdtest.CreateFirstUser(t, rootClient)
-	secondUser, err := rootClient.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+	secondUser, err := rootClient.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 		Email:           "testuser2@coder.com",
 		Username:        "testuser2",
 		Password:        coderdtest.FirstUserParams.Password,
@@ -193,10 +193,10 @@ func prepareTestData(t *testing.T) (*codersdk.Client, map[string]string) {
 	require.NoError(t, err)
 	version := coderdtest.CreateTemplateVersion(t, rootClient, firstUser.OrganizationID, nil)
 	version = coderdtest.AwaitTemplateVersionJobCompleted(t, rootClient, version.ID)
-	template := coderdtest.CreateTemplate(t, rootClient, firstUser.OrganizationID, version.ID, func(req *codersdk.CreateTemplateRequest) {
+	template := coderdtest.CreateTemplate(t, rootClient, firstUser.OrganizationID, version.ID, func(req *wirtualsdk.CreateTemplateRequest) {
 		req.Name = "test-template"
 	})
-	workspace := coderdtest.CreateWorkspace(t, rootClient, template.ID, func(req *codersdk.CreateWorkspaceRequest) {
+	workspace := coderdtest.CreateWorkspace(t, rootClient, template.ID, func(req *wirtualsdk.CreateWorkspaceRequest) {
 		req.Name = "test-workspace"
 	})
 	workspaceBuild := coderdtest.AwaitWorkspaceBuildJobCompleted(t, rootClient, workspace.LatestBuild.ID)

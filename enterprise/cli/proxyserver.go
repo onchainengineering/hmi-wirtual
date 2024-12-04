@@ -48,9 +48,9 @@ func (c *closers) Add(f func()) {
 
 func (r *RootCmd) proxyServer() *serpent.Command {
 	var (
-		cfg = new(codersdk.DeploymentValues)
+		cfg = new(wirtualsdk.DeploymentValues)
 		// Filter options for only relevant ones.
-		opts = cfg.Options().Filter(codersdk.IsWorkspaceProxies)
+		opts = cfg.Options().Filter(wirtualsdk.IsWorkspaceProxies)
 
 		externalProxyOptionGroup = serpent.Group{
 			Name: "External Workspace Proxy",

@@ -131,11 +131,11 @@ func (*RootCmd) templateInit() *serpent.Command {
 	return cmd
 }
 
-func templateByID(templateID string, tes []codersdk.TemplateExample) (codersdk.TemplateExample, bool) {
+func templateByID(templateID string, tes []wirtualsdk.TemplateExample) (wirtualsdk.TemplateExample, bool) {
 	for _, te := range tes {
 		if te.ID == templateID {
 			return te, true
 		}
 	}
-	return codersdk.TemplateExample{}, false
+	return wirtualsdk.TemplateExample{}, false
 }

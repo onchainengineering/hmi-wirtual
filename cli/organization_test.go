@@ -27,9 +27,9 @@ func TestCurrentOrganization(t *testing.T) {
 
 		orgID := uuid.New()
 		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			json.NewEncoder(w).Encode([]codersdk.Organization{
+			json.NewEncoder(w).Encode([]wirtualsdk.Organization{
 				{
-					MinimalOrganization: codersdk.MinimalOrganization{
+					MinimalOrganization: wirtualsdk.MinimalOrganization{
 						ID:   orgID,
 						Name: "not-default",
 					},
@@ -41,7 +41,7 @@ func TestCurrentOrganization(t *testing.T) {
 		}))
 		defer srv.Close()
 
-		client := codersdk.New(must(url.Parse(srv.URL)))
+		client := wirtualsdk.New(must(url.Parse(srv.URL)))
 		inv, root := clitest.New(t, "organizations", "show", "selected")
 		clitest.SetupConfig(t, client, root)
 		pty := ptytest.New(t).Attach(inv)

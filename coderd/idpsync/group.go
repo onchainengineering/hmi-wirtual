@@ -58,7 +58,7 @@ func (s AGPLIDPSync) GroupSyncSettings(ctx context.Context, orgID uuid.UUID, db 
 				return nil, xerrors.Errorf("get default organization: %w", err)
 			}
 			if defaultOrganization.ID == orgID {
-				settings = ptr.Ref(GroupSyncSettings(codersdk.GroupSyncSettings{
+				settings = ptr.Ref(GroupSyncSettings(wirtualsdk.GroupSyncSettings{
 					Field:             s.Legacy.GroupField,
 					LegacyNameMapping: s.Legacy.GroupMapping,
 					RegexFilter:       s.Legacy.GroupFilter,
@@ -261,7 +261,7 @@ func (s AGPLIDPSync) ApplyGroupDifference(ctx context.Context, tx database.Store
 	return nil
 }
 
-type GroupSyncSettings codersdk.GroupSyncSettings
+type GroupSyncSettings wirtualsdk.GroupSyncSettings
 
 func (s *GroupSyncSettings) Set(v string) error {
 	return json.Unmarshal([]byte(v), s)

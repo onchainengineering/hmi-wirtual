@@ -110,7 +110,7 @@ import (
 	"github.com/coder/coder/v2/wirtualsdk/drpc"
 )
 
-func createOIDCConfig(ctx context.Context, logger slog.Logger, vals *codersdk.DeploymentValues) (*coderd.OIDCConfig, error) {
+func createOIDCConfig(ctx context.Context, logger slog.Logger, vals *wirtualsdk.DeploymentValues) (*coderd.OIDCConfig, error) {
 	if vals.OIDC.ClientID == "" {
 		return nil, xerrors.Errorf("OIDC client ID must be set!")
 	}
@@ -205,7 +205,7 @@ func afterCtx(ctx context.Context, fn func()) {
 func enablePrometheus(
 	ctx context.Context,
 	logger slog.Logger,
-	vals *codersdk.DeploymentValues,
+	vals *wirtualsdk.DeploymentValues,
 	options *coderd.Options,
 ) (closeFn func(), err error) {
 	options.PrometheusRegistry.MustRegister(collectors.NewGoCollector())
@@ -246,7 +246,7 @@ func enablePrometheus(
 
 	if vals.Prometheus.CollectAgentStats {
 		experiments := coderd.ReadExperiments(options.Logger, options.DeploymentValues.Experiments.Value())
-		closeAgentStatsFunc, err := prometheusmetrics.AgentStats(ctx, logger, options.PrometheusRegistry, options.Database, time.Now(), 0, options.DeploymentValues.Prometheus.AggregateAgentStatsBy.Value(), experiments.Enabled(codersdk.ExperimentWorkspaceUsage))
+		closeAgentStatsFunc, err := prometheusmetrics.AgentStats(ctx, logger, options.PrometheusRegistry, options.Database, time.Now(), 0, options.DeploymentValues.Prometheus.AggregateAgentStatsBy.Value(), experiments.Enabled(wirtualsdk.ExperimentWorkspaceUsage))
 		if err != nil {
 			return nil, xerrors.Errorf("register agent stats prometheus metric: %w", err)
 		}
@@ -285,7 +285,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 	}
 
 	var (
-		vals = new(codersdk.DeploymentValues)
+		vals = new(wirtualsdk.DeploymentValues)
 		opts = vals.Options()
 	)
 	serverCmd := &serpent.Command{
@@ -605,7 +605,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				// Do not pass secret values to DeploymentOptions. All values should be read from
 				// the DeploymentValues instead, this just serves to indicate the source of each
 				// option. This is just defensive to prevent accidentally leaking.
-				DeploymentOptions:           codersdk.DeploymentOptionsWithoutSecrets(opts),
+				DeploymentOptions:           wirtualsdk.DeploymentOptionsWithoutSecrets(opts),
 				PrometheusRegistry:          promRegistry,
 				APIRateLimit:                int(vals.RateLimit.API.Value()),
 				LoginRateLimit:              loginRateLimit,
@@ -613,7 +613,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				HTTPClient:                  httpClient,
 				TemplateScheduleStore:       &atomic.Pointer[schedule.TemplateScheduleStore]{},
 				UserQuietHoursScheduleStore: &atomic.Pointer[schedule.UserQuietHoursScheduleStore]{},
-				SSHConfig: codersdk.SSHConfigResponse{
+				SSHConfig: wirtualsdk.SSHConfigResponse{
 					HostnamePrefix:   vals.SSHConfig.DeploymentName.String(),
 					SSHConfigOptions: configSSHOptions,
 				},
@@ -697,7 +697,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				options.Database = dbmem.New()
 				options.Pubsub = pubsub.NewInMemory()
 			} else {
-				sqlDB, dbURL, err := getPostgresDB(ctx, logger, vals.PostgresURL.String(), codersdk.PostgresAuth(vals.PostgresAuth), sqlDriver)
+				sqlDB, dbURL, err := getPostgresDB(ctx, logger, vals.PostgresURL.String(), wirtualsdk.PostgresAuth(vals.PostgresAuth), sqlDriver)
 				if err != nil {
 					return xerrors.Errorf("connect to postgres: %w", err)
 				}
@@ -844,9 +844,9 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				}
 				defer closeAgentsFunc()
 
-				var active codersdk.Experiments
+				var active wirtualsdk.Experiments
 				for _, exp := range options.DeploymentValues.Experiments.Value() {
-					active = append(active, codersdk.Experiment(exp))
+					active = append(active, wirtualsdk.Experiment(exp))
 				}
 
 				if err = prometheusmetrics.Experiments(options.PrometheusRegistry, active); err != nil {
@@ -854,7 +854,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				}
 			}
 
-			client := codersdk.New(localURL)
+			client := wirtualsdk.New(localURL)
 			if localURL.Scheme == "https" && IsLocalhost(localURL.Hostname()) {
 				// The certificate will likely be self-signed or for a different
 				// hostname, so we need to skip verification.
@@ -931,9 +931,9 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 
 			// Built in provisioner daemons will support the same types.
 			// By default, this is the slice {"terraform"}
-			provisionerTypes := make([]codersdk.ProvisionerType, 0)
+			provisionerTypes := make([]wirtualsdk.ProvisionerType, 0)
 			for _, pt := range vals.Provisioner.DaemonTypes {
-				provisionerTypes = append(provisionerTypes, codersdk.ProvisionerType(pt))
+				provisionerTypes = append(provisionerTypes, wirtualsdk.ProvisionerType(pt))
 			}
 			for i := int64(0); i < vals.Provisioner.Daemons.Value(); i++ {
 				suffix := fmt.Sprintf("%d", i)
@@ -1252,7 +1252,7 @@ func templateHelpers(options *coderd.Options) map[string]any {
 // writeConfigMW will prevent the main command from running if the write-config
 // flag is set. Instead, it will marshal the command options to YAML and write
 // them to stdout.
-func WriteConfigMW(cfg *codersdk.DeploymentValues) serpent.MiddlewareFunc {
+func WriteConfigMW(cfg *wirtualsdk.DeploymentValues) serpent.MiddlewareFunc {
 	return func(next serpent.HandlerFunc) serpent.HandlerFunc {
 		return func(inv *serpent.Invocation) error {
 			if !cfg.WriteConfig {
@@ -1316,12 +1316,12 @@ func newProvisionerDaemon(
 	coderAPI *coderd.API,
 	metrics provisionerd.Metrics,
 	logger slog.Logger,
-	cfg *codersdk.DeploymentValues,
+	cfg *wirtualsdk.DeploymentValues,
 	cacheDir string,
 	errCh chan error,
 	wg *sync.WaitGroup,
 	name string,
-	provisionerTypes []codersdk.ProvisionerType,
+	provisionerTypes []wirtualsdk.ProvisionerType,
 ) (srv *provisionerd.Server, err error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer func() {
@@ -1349,7 +1349,7 @@ func newProvisionerDaemon(
 	connector := provisionerd.LocalProvisioners{}
 	for _, provisionerType := range provisionerTypes {
 		switch provisionerType {
-		case codersdk.ProvisionerTypeEcho:
+		case wirtualsdk.ProvisionerTypeEcho:
 			echoClient, echoServer := drpc.MemTransportPipe()
 			wg.Add(1)
 			go func() {
@@ -1376,7 +1376,7 @@ func newProvisionerDaemon(
 				}
 			}()
 			connector[string(database.ProvisionerTypeEcho)] = sdkproto.NewDRPCProvisionerClient(echoClient)
-		case codersdk.ProvisionerTypeTerraform:
+		case wirtualsdk.ProvisionerTypeTerraform:
 			tfDir := filepath.Join(cacheDir, "tf")
 			err = os.MkdirAll(tfDir, 0o700)
 			if err != nil {
@@ -2227,7 +2227,7 @@ func (s *HTTPServers) Close() {
 func ConfigureTraceProvider(
 	ctx context.Context,
 	logger slog.Logger,
-	cfg *codersdk.DeploymentValues,
+	cfg *wirtualsdk.DeploymentValues,
 ) (trace.TracerProvider, string, func(context.Context) error) {
 	var (
 		tracerProvider = trace.NewNoopTracerProvider()
@@ -2265,7 +2265,7 @@ func ConfigureTraceProvider(
 	return tracerProvider, sqlDriver, closeTracing
 }
 
-func ConfigureHTTPServers(logger slog.Logger, inv *serpent.Invocation, cfg *codersdk.DeploymentValues) (_ *HTTPServers, err error) {
+func ConfigureHTTPServers(logger slog.Logger, inv *serpent.Invocation, cfg *wirtualsdk.DeploymentValues) (_ *HTTPServers, err error) {
 	ctx := inv.Context()
 	httpServers := &HTTPServers{}
 	defer func() {
@@ -2398,7 +2398,7 @@ func ConfigureHTTPServers(logger slog.Logger, inv *serpent.Invocation, cfg *code
 // Also, for a while we have been accepting the environment variable (but not the
 // corresponding flag!) "WIRTUAL_TLS_REDIRECT_HTTP", and it appeared in a configuration
 // example, so we keep accepting it to not break backward compat.
-func redirectHTTPToHTTPSDeprecation(ctx context.Context, logger slog.Logger, inv *serpent.Invocation, cfg *codersdk.DeploymentValues) {
+func redirectHTTPToHTTPSDeprecation(ctx context.Context, logger slog.Logger, inv *serpent.Invocation, cfg *wirtualsdk.DeploymentValues) {
 	truthy := func(s string) bool {
 		b, err := strconv.ParseBool(s)
 		if err != nil {
@@ -2416,7 +2416,7 @@ func redirectHTTPToHTTPSDeprecation(ctx context.Context, logger slog.Logger, inv
 
 // ReadExternalAuthProvidersFromEnv is provided for compatibility purposes with
 // the viper CLI.
-func ReadExternalAuthProvidersFromEnv(environ []string) ([]codersdk.ExternalAuthConfig, error) {
+func ReadExternalAuthProvidersFromEnv(environ []string) ([]wirtualsdk.ExternalAuthConfig, error) {
 	providers, err := parseExternalAuthProvidersFromEnv("WIRTUAL_EXTERNAL_AUTH_", environ)
 	if err != nil {
 		return nil, err
@@ -2432,11 +2432,11 @@ func ReadExternalAuthProvidersFromEnv(environ []string) ([]codersdk.ExternalAuth
 // parseExternalAuthProvidersFromEnv consumes environment variables to parse
 // external auth providers. A prefix is provided to support the legacy
 // parsing of `GITAUTH` environment variables.
-func parseExternalAuthProvidersFromEnv(prefix string, environ []string) ([]codersdk.ExternalAuthConfig, error) {
+func parseExternalAuthProvidersFromEnv(prefix string, environ []string) ([]wirtualsdk.ExternalAuthConfig, error) {
 	// The index numbers must be in-order.
 	sort.Strings(environ)
 
-	var providers []codersdk.ExternalAuthConfig
+	var providers []wirtualsdk.ExternalAuthConfig
 	for _, v := range serpent.ParseEnviron(environ, prefix) {
 		tokens := strings.SplitN(v.Name, "_", 2)
 		if len(tokens) != 2 {
@@ -2448,7 +2448,7 @@ func parseExternalAuthProvidersFromEnv(prefix string, environ []string) ([]coder
 			return nil, xerrors.Errorf("parse number: %s", v.Name)
 		}
 
-		var provider codersdk.ExternalAuthConfig
+		var provider wirtualsdk.ExternalAuthConfig
 		switch {
 		case len(providers) < providerNum:
 			return nil, xerrors.Errorf(
@@ -2561,13 +2561,13 @@ func signalNotifyContext(ctx context.Context, inv *serpent.Invocation, sig ...os
 	return inv.SignalNotifyContext(ctx, sig...)
 }
 
-func getPostgresDB(ctx context.Context, logger slog.Logger, postgresURL string, auth codersdk.PostgresAuth, sqlDriver string) (*sql.DB, string, error) {
+func getPostgresDB(ctx context.Context, logger slog.Logger, postgresURL string, auth wirtualsdk.PostgresAuth, sqlDriver string) (*sql.DB, string, error) {
 	dbURL, err := escapePostgresURLUserInfo(postgresURL)
 	if err != nil {
 		return nil, "", xerrors.Errorf("escaping postgres URL: %w", err)
 	}
 
-	if auth == codersdk.PostgresAuthAWSIAMRDS {
+	if auth == wirtualsdk.PostgresAuthAWSIAMRDS {
 		sqlDriver, err = awsiamrds.Register(ctx, sqlDriver)
 		if err != nil {
 			return nil, "", xerrors.Errorf("register aws rds iam auth: %w", err)

@@ -144,11 +144,11 @@ func TestStart(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 		defer cancel()
 
-		workspace, err := client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, codersdk.WorkspaceOptions{})
+		workspace, err := client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, wirtualsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		actualParameters, err := client.WorkspaceBuildParameters(ctx, workspace.LatestBuild.ID)
 		require.NoError(t, err)
-		require.Contains(t, actualParameters, codersdk.WorkspaceBuildParameter{
+		require.Contains(t, actualParameters, wirtualsdk.WorkspaceBuildParameter{
 			Name:  ephemeralParameterName,
 			Value: ephemeralParameterValue,
 		})
@@ -187,11 +187,11 @@ func TestStart(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 		defer cancel()
 
-		workspace, err := client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, codersdk.WorkspaceOptions{})
+		workspace, err := client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, wirtualsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		actualParameters, err := client.WorkspaceBuildParameters(ctx, workspace.LatestBuild.ID)
 		require.NoError(t, err)
-		require.Contains(t, actualParameters, codersdk.WorkspaceBuildParameter{
+		require.Contains(t, actualParameters, wirtualsdk.WorkspaceBuildParameter{
 			Name:  ephemeralParameterName,
 			Value: ephemeralParameterValue,
 		})
@@ -211,8 +211,8 @@ func TestStartWithParameters(t *testing.T) {
 		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, immutableParamsResponse)
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, member, template.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
-			cwr.RichParameterValues = []codersdk.WorkspaceBuildParameter{
+		workspace := coderdtest.CreateWorkspace(t, member, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+			cwr.RichParameterValues = []wirtualsdk.WorkspaceBuildParameter{
 				{
 					Name:  immutableParameterName,
 					Value: immutableParameterValue,
@@ -243,11 +243,11 @@ func TestStartWithParameters(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 		defer cancel()
 
-		workspace, err := client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, codersdk.WorkspaceOptions{})
+		workspace, err := client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, wirtualsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		actualParameters, err := client.WorkspaceBuildParameters(ctx, workspace.LatestBuild.ID)
 		require.NoError(t, err)
-		require.Contains(t, actualParameters, codersdk.WorkspaceBuildParameter{
+		require.Contains(t, actualParameters, wirtualsdk.WorkspaceBuildParameter{
 			Name:  immutableParameterName,
 			Value: immutableParameterValue,
 		})
@@ -263,8 +263,8 @@ func TestStartWithParameters(t *testing.T) {
 		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, mutableParamsResponse)
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, member, template.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
-			cwr.RichParameterValues = []codersdk.WorkspaceBuildParameter{
+		workspace := coderdtest.CreateWorkspace(t, member, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+			cwr.RichParameterValues = []wirtualsdk.WorkspaceBuildParameter{
 				{
 					Name:  mutableParameterName,
 					Value: mutableParameterValue,
@@ -298,11 +298,11 @@ func TestStartWithParameters(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 		defer cancel()
 
-		workspace, err := client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, codersdk.WorkspaceOptions{})
+		workspace, err := client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, wirtualsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		actualParameters, err := client.WorkspaceBuildParameters(ctx, workspace.LatestBuild.ID)
 		require.NoError(t, err)
-		require.Contains(t, actualParameters, codersdk.WorkspaceBuildParameter{
+		require.Contains(t, actualParameters, wirtualsdk.WorkspaceBuildParameter{
 			Name:  mutableParameterName,
 			Value: newValue,
 		})
@@ -349,15 +349,15 @@ func TestStartAutoUpdate(t *testing.T) {
 			version1 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
 			coderdtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
 			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
-			workspace := coderdtest.CreateWorkspace(t, member, template.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
-				cwr.AutomaticUpdates = codersdk.AutomaticUpdatesAlways
+			workspace := coderdtest.CreateWorkspace(t, member, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+				cwr.AutomaticUpdates = wirtualsdk.AutomaticUpdatesAlways
 			})
 			coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 			if c.Cmd == "start" {
 				coderdtest.MustTransitionWorkspace(t, member, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
 			}
-			version2 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(stringRichParameters), func(ctvr *codersdk.CreateTemplateVersionRequest) {
+			version2 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(stringRichParameters), func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
 				ctvr.TemplateID = template.ID
 			})
 			coderdtest.AwaitTemplateVersionJobCompleted(t, client, version2.ID)

@@ -129,33 +129,33 @@ func main() {
 	root.Children = append(root.Children, &serpent.Command{
 		Use: "job",
 		Handler: func(inv *serpent.Invocation) error {
-			job := codersdk.ProvisionerJob{
-				Status:    codersdk.ProvisionerJobPending,
+			job := wirtualsdk.ProvisionerJob{
+				Status:    wirtualsdk.ProvisionerJobPending,
 				CreatedAt: dbtime.Now(),
 			}
 			go func() {
 				time.Sleep(time.Second)
-				if job.Status != codersdk.ProvisionerJobPending {
+				if job.Status != wirtualsdk.ProvisionerJobPending {
 					return
 				}
 				started := dbtime.Now()
 				job.StartedAt = &started
-				job.Status = codersdk.ProvisionerJobRunning
+				job.Status = wirtualsdk.ProvisionerJobRunning
 				time.Sleep(3 * time.Second)
-				if job.Status != codersdk.ProvisionerJobRunning {
+				if job.Status != wirtualsdk.ProvisionerJobRunning {
 					return
 				}
 				completed := dbtime.Now()
 				job.CompletedAt = &completed
-				job.Status = codersdk.ProvisionerJobSucceeded
+				job.Status = wirtualsdk.ProvisionerJobSucceeded
 			}()
 
 			err := cliui.ProvisionerJob(inv.Context(), inv.Stdout, cliui.ProvisionerJobOptions{
-				Fetch: func() (codersdk.ProvisionerJob, error) {
+				Fetch: func() (wirtualsdk.ProvisionerJob, error) {
 					return job, nil
 				},
-				Logs: func() (<-chan codersdk.ProvisionerJobLog, io.Closer, error) {
-					logs := make(chan codersdk.ProvisionerJobLog)
+				Logs: func() (<-chan wirtualsdk.ProvisionerJobLog, io.Closer, error) {
+					logs := make(chan wirtualsdk.ProvisionerJobLog)
 					go func() {
 						defer close(logs)
 						ticker := time.NewTicker(100 * time.Millisecond)
@@ -166,13 +166,13 @@ func main() {
 							case <-inv.Context().Done():
 								return
 							case <-ticker.C:
-								if job.Status == codersdk.ProvisionerJobSucceeded || job.Status == codersdk.ProvisionerJobCanceled {
+								if job.Status == wirtualsdk.ProvisionerJobSucceeded || job.Status == wirtualsdk.ProvisionerJobCanceled {
 									return
 								}
-								log := codersdk.ProvisionerJobLog{
+								log := wirtualsdk.ProvisionerJobLog{
 									CreatedAt: time.Now(),
 									Output:    fmt.Sprintf("Some log %d", count),
-									Level:     codersdk.LogLevelInfo,
+									Level:     wirtualsdk.LogLevelInfo,
 								}
 								switch {
 								case count == 10:
@@ -187,7 +187,7 @@ func main() {
 									log.Stage = "Cleaning Up"
 								}
 								if count%5 == 0 {
-									log.Level = codersdk.LogLevelWarn
+									log.Level = wirtualsdk.LogLevelWarn
 								}
 								count++
 								if log.Output == "" && log.Stage == "" {
@@ -200,9 +200,9 @@ func main() {
 					return logs, io.NopCloser(strings.NewReader("")), nil
 				},
 				Cancel: func() error {
-					job.Status = codersdk.ProvisionerJobCanceling
+					job.Status = wirtualsdk.ProvisionerJobCanceling
 					time.Sleep(time.Second)
-					job.Status = codersdk.ProvisionerJobCanceled
+					job.Status = wirtualsdk.ProvisionerJobCanceled
 					completed := dbtime.Now()
 					job.CompletedAt = &completed
 					return nil
@@ -215,32 +215,32 @@ func main() {
 	root.Children = append(root.Children, &serpent.Command{
 		Use: "agent",
 		Handler: func(inv *serpent.Invocation) error {
-			var agent codersdk.WorkspaceAgent
-			var logs []codersdk.WorkspaceAgentLog
+			var agent wirtualsdk.WorkspaceAgent
+			var logs []wirtualsdk.WorkspaceAgentLog
 
 			fetchSteps := []func(){
 				func() {
 					createdAt := time.Now().Add(-time.Minute)
-					agent = codersdk.WorkspaceAgent{
+					agent = wirtualsdk.WorkspaceAgent{
 						CreatedAt:      createdAt,
-						Status:         codersdk.WorkspaceAgentConnecting,
-						LifecycleState: codersdk.WorkspaceAgentLifecycleCreated,
+						Status:         wirtualsdk.WorkspaceAgentConnecting,
+						LifecycleState: wirtualsdk.WorkspaceAgentLifecycleCreated,
 					}
 				},
 				func() {
 					time.Sleep(time.Second)
-					agent.Status = codersdk.WorkspaceAgentTimeout
+					agent.Status = wirtualsdk.WorkspaceAgentTimeout
 				},
 				func() {
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleStarting
+					agent.LifecycleState = wirtualsdk.WorkspaceAgentLifecycleStarting
 					startingAt := time.Now()
 					agent.StartedAt = &startingAt
 					for i := 0; i < 10; i++ {
-						level := codersdk.LogLevelInfo
+						level := wirtualsdk.LogLevelInfo
 						if rand.Float64() > 0.75 { //nolint:gosec
-							level = codersdk.LogLevelError
+							level = wirtualsdk.LogLevelError
 						}
-						logs = append(logs, codersdk.WorkspaceAgentLog{
+						logs = append(logs, wirtualsdk.WorkspaceAgentLog{
 							CreatedAt: time.Now().Add(-time.Duration(10-i) * 144 * time.Millisecond),
 							Output:    fmt.Sprintf("Some log %d", i),
 							Level:     level,
@@ -253,12 +253,12 @@ func main() {
 					agent.FirstConnectedAt = &firstConnectedAt
 					lastConnectedAt := firstConnectedAt.Add(0)
 					agent.LastConnectedAt = &lastConnectedAt
-					agent.Status = codersdk.WorkspaceAgentConnected
+					agent.Status = wirtualsdk.WorkspaceAgentConnected
 				},
 				func() {},
 				func() {
 					time.Sleep(5 * time.Second)
-					agent.Status = codersdk.WorkspaceAgentConnected
+					agent.Status = wirtualsdk.WorkspaceAgentConnected
 					lastConnectedAt := time.Now()
 					agent.LastConnectedAt = &lastConnectedAt
 				},
@@ -266,7 +266,7 @@ func main() {
 			err := cliui.Agent(inv.Context(), inv.Stdout, uuid.Nil, cliui.AgentOptions{
 				FetchInterval: 100 * time.Millisecond,
 				Wait:          true,
-				Fetch: func(_ context.Context, _ uuid.UUID) (codersdk.WorkspaceAgent, error) {
+				Fetch: func(_ context.Context, _ uuid.UUID) (wirtualsdk.WorkspaceAgent, error) {
 					if len(fetchSteps) == 0 {
 						return agent, nil
 					}
@@ -275,16 +275,16 @@ func main() {
 					step()
 					return agent, nil
 				},
-				FetchLogs: func(_ context.Context, _ uuid.UUID, _ int64, follow bool) (<-chan []codersdk.WorkspaceAgentLog, io.Closer, error) {
-					logsC := make(chan []codersdk.WorkspaceAgentLog, len(logs))
+				FetchLogs: func(_ context.Context, _ uuid.UUID, _ int64, follow bool) (<-chan []wirtualsdk.WorkspaceAgentLog, io.Closer, error) {
+					logsC := make(chan []wirtualsdk.WorkspaceAgentLog, len(logs))
 					if follow {
 						go func() {
 							defer close(logsC)
 							for _, log := range logs {
-								logsC <- []codersdk.WorkspaceAgentLog{log}
+								logsC <- []wirtualsdk.WorkspaceAgentLog{log}
 								time.Sleep(144 * time.Millisecond)
 							}
-							agent.LifecycleState = codersdk.WorkspaceAgentLifecycleReady
+							agent.LifecycleState = wirtualsdk.WorkspaceAgentLifecycleReady
 							readyAt := dbtime.Now()
 							agent.ReadyAt = &readyAt
 						}()
@@ -308,40 +308,40 @@ func main() {
 		Use: "resources",
 		Handler: func(inv *serpent.Invocation) error {
 			disconnected := dbtime.Now().Add(-4 * time.Second)
-			return cliui.WorkspaceResources(inv.Stdout, []codersdk.WorkspaceResource{{
-				Transition: codersdk.WorkspaceTransitionStart,
+			return cliui.WorkspaceResources(inv.Stdout, []wirtualsdk.WorkspaceResource{{
+				Transition: wirtualsdk.WorkspaceTransitionStart,
 				Type:       "google_compute_disk",
 				Name:       "root",
 			}, {
-				Transition: codersdk.WorkspaceTransitionStop,
+				Transition: wirtualsdk.WorkspaceTransitionStop,
 				Type:       "google_compute_disk",
 				Name:       "root",
 			}, {
-				Transition: codersdk.WorkspaceTransitionStart,
+				Transition: wirtualsdk.WorkspaceTransitionStart,
 				Type:       "google_compute_instance",
 				Name:       "dev",
-				Agents: []codersdk.WorkspaceAgent{{
+				Agents: []wirtualsdk.WorkspaceAgent{{
 					CreatedAt:       dbtime.Now().Add(-10 * time.Second),
-					Status:          codersdk.WorkspaceAgentConnecting,
-					LifecycleState:  codersdk.WorkspaceAgentLifecycleCreated,
+					Status:          wirtualsdk.WorkspaceAgentConnecting,
+					LifecycleState:  wirtualsdk.WorkspaceAgentLifecycleCreated,
 					Name:            "dev",
 					OperatingSystem: "linux",
 					Architecture:    "amd64",
 				}},
 			}, {
-				Transition: codersdk.WorkspaceTransitionStart,
+				Transition: wirtualsdk.WorkspaceTransitionStart,
 				Type:       "kubernetes_pod",
 				Name:       "dev",
-				Agents: []codersdk.WorkspaceAgent{{
-					Status:          codersdk.WorkspaceAgentConnected,
-					LifecycleState:  codersdk.WorkspaceAgentLifecycleReady,
+				Agents: []wirtualsdk.WorkspaceAgent{{
+					Status:          wirtualsdk.WorkspaceAgentConnected,
+					LifecycleState:  wirtualsdk.WorkspaceAgentLifecycleReady,
 					Name:            "go",
 					Architecture:    "amd64",
 					OperatingSystem: "linux",
 				}, {
 					DisconnectedAt:  &disconnected,
-					Status:          codersdk.WorkspaceAgentDisconnected,
-					LifecycleState:  codersdk.WorkspaceAgentLifecycleReady,
+					Status:          wirtualsdk.WorkspaceAgentDisconnected,
+					LifecycleState:  wirtualsdk.WorkspaceAgentLifecycleReady,
 					Name:            "postgres",
 					Architecture:    "amd64",
 					OperatingSystem: "linux",
@@ -371,16 +371,16 @@ func main() {
 				gitlabAuthed.Store(true)
 			}()
 			return cliui.ExternalAuth(inv.Context(), inv.Stdout, cliui.ExternalAuthOptions{
-				Fetch: func(ctx context.Context) ([]codersdk.TemplateVersionExternalAuth, error) {
+				Fetch: func(ctx context.Context) ([]wirtualsdk.TemplateVersionExternalAuth, error) {
 					count.Add(1)
-					return []codersdk.TemplateVersionExternalAuth{{
+					return []wirtualsdk.TemplateVersionExternalAuth{{
 						ID:              "github",
-						Type:            codersdk.EnhancedExternalAuthProviderGitHub.String(),
+						Type:            wirtualsdk.EnhancedExternalAuthProviderGitHub.String(),
 						Authenticated:   githubAuthed.Load(),
 						AuthenticateURL: "https://example.com/gitauth/github?redirect=" + url.QueryEscape("/gitauth?notify"),
 					}, {
 						ID:              "gitlab",
-						Type:            codersdk.EnhancedExternalAuthProviderGitLab.String(),
+						Type:            wirtualsdk.EnhancedExternalAuthProviderGitLab.String(),
 						Authenticated:   gitlabAuthed.Load(),
 						AuthenticateURL: "https://example.com/gitauth/gitlab?redirect=" + url.QueryEscape("/gitauth?notify"),
 					}}, nil

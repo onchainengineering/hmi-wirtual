@@ -78,7 +78,7 @@ type Options struct {
 	SiteFS            fs.FS
 	OAuth2Configs     *httpmw.OAuth2Configs
 	DocsURL           string
-	BuildInfo         codersdk.BuildInfoResponse
+	BuildInfo         wirtualsdk.BuildInfoResponse
 	AppearanceFetcher *atomic.Pointer[appearance.Fetcher]
 	Entitlements      *entitlements.Set
 }
@@ -177,7 +177,7 @@ type Handler struct {
 	RegionsFetcher func(ctx context.Context) (any, error)
 
 	Entitlements *entitlements.Set
-	Experiments  atomic.Pointer[codersdk.Experiments]
+	Experiments  atomic.Pointer[wirtualsdk.Experiments]
 }
 
 func (h *Handler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
@@ -353,7 +353,7 @@ func (h *Handler) renderHTMLWithState(r *http.Request, filePath string, state ht
 		SessionTokenFunc:            nil,
 	})
 	if !ok || apiKey == nil || actor == nil {
-		var cfg codersdk.AppearanceConfig
+		var cfg wirtualsdk.AppearanceConfig
 		// nolint:gocritic // User is not expected to be signed in.
 		ctx := dbauthz.AsSystemRestricted(r.Context())
 		cfg, _ = af.Fetch(ctx)
@@ -825,7 +825,7 @@ func RenderStaticErrorPage(rw http.ResponseWriter, r *http.Request, data ErrorPa
 		ErrorDescriptionHTML: htmltemplate.HTML(data.Description), //nolint:gosec // gosec thinks this is user-input, but it is from Coder deployment configuration.
 	})
 	if err != nil {
-		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to render error page: " + err.Error(),
 			Detail:  fmt.Sprintf("Original error was: %d %s, %s", data.Status, data.Title, data.Description),
 		})
@@ -897,7 +897,7 @@ func (b *binHashCache) getHash(name string) (string, error) {
 	return strings.ToLower(v.(string)), nil
 }
 
-func applicationNameOrDefault(cfg codersdk.AppearanceConfig) string {
+func applicationNameOrDefault(cfg wirtualsdk.AppearanceConfig) string {
 	if cfg.ApplicationName != "" {
 		return cfg.ApplicationName
 	}
@@ -957,7 +957,7 @@ func RenderOAuthAllowPage(rw http.ResponseWriter, r *http.Request, data RenderOA
 
 	err := oauthTemplate.Execute(rw, data)
 	if err != nil {
-		httpapi.Write(r.Context(), rw, http.StatusOK, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusOK, wirtualsdk.Response{
 			Message: "Failed to render oauth page: " + err.Error(),
 		})
 		return

@@ -32,7 +32,7 @@ func (r *RootCmd) setArchiveTemplateVersion(archive bool) *serpent.Command {
 	}
 
 	orgContext := NewOrganizationContext()
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   presentVerb + " <template-name> [template-version-names...] ",
 		Short: strings.ToUpper(string(presentVerb[0])) + presentVerb[1:] + " a template version(s).",
@@ -45,7 +45,7 @@ func (r *RootCmd) setArchiveTemplateVersion(archive bool) *serpent.Command {
 		Handler: func(inv *serpent.Invocation) error {
 			var (
 				ctx      = inv.Context()
-				versions []codersdk.TemplateVersion
+				versions []wirtualsdk.TemplateVersion
 			)
 
 			organization, err := orgContext.Selected(inv, client)
@@ -100,7 +100,7 @@ func (r *RootCmd) setArchiveTemplateVersion(archive bool) *serpent.Command {
 
 func (r *RootCmd) archiveTemplateVersions() *serpent.Command {
 	var all serpent.Bool
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	orgContext := NewOrganizationContext()
 	cmd := &serpent.Command{
 		Use:   "archive [template-name...] ",
@@ -121,7 +121,7 @@ func (r *RootCmd) archiveTemplateVersions() *serpent.Command {
 			var (
 				ctx           = inv.Context()
 				templateNames = []string{}
-				templates     = []codersdk.Template{}
+				templates     = []wirtualsdk.Template{}
 			)
 
 			organization, err := orgContext.Selected(inv, client)

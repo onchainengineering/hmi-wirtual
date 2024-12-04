@@ -61,7 +61,7 @@ func (api *API) postOrganizationMember(rw http.ResponseWriter, r *http.Request) 
 		return
 	}
 	if database.IsUniqueViolation(err, database.UniqueOrganizationMembersPkey) {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Organization member already exists in this organization",
 		})
 		return
@@ -121,7 +121,7 @@ func (api *API) deleteOrganizationMember(rw http.ResponseWriter, r *http.Request
 	// member removal when organization sync is enabled, and use force logout instead.
 
 	if member.UserID == apiKey.UserID {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{Message: "cannot remove self from an organization"})
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{Message: "cannot remove self from an organization"})
 		return
 	}
 
@@ -213,14 +213,14 @@ func (api *API) putMemberRoles(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if apiKey.UserID == member.OrganizationMember.UserID {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "You cannot change your own organization roles.",
 			Detail:  "Another user with the appropriate permissions must change your roles.",
 		})
 		return
 	}
 
-	var params codersdk.UpdateRoles
+	var params wirtualsdk.UpdateRoles
 	if !httpapi.Read(ctx, rw, r, &params) {
 		return
 	}
@@ -235,7 +235,7 @@ func (api *API) putMemberRoles(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: err.Error(),
 		})
 		return
@@ -275,7 +275,7 @@ func (api *API) allowChangingMemberRoles(ctx context.Context, rw http.ResponseWr
 			return false
 		}
 		if orgSync {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Cannot modify roles for OIDC users when role sync is enabled. This organization member's roles are managed by the identity provider. Have the user re-login to refresh their roles.",
 				Detail:  "'User Role Field' is set in the organization settings. Ask an administrator to adjust or disable these settings.",
 			})
@@ -288,17 +288,17 @@ func (api *API) allowChangingMemberRoles(ctx context.Context, rw http.ResponseWr
 
 // convertOrganizationMembers batches the role lookup to make only 1 sql call
 // We
-func convertOrganizationMembers(ctx context.Context, db database.Store, mems []database.OrganizationMember) ([]codersdk.OrganizationMember, error) {
-	converted := make([]codersdk.OrganizationMember, 0, len(mems))
+func convertOrganizationMembers(ctx context.Context, db database.Store, mems []database.OrganizationMember) ([]wirtualsdk.OrganizationMember, error) {
+	converted := make([]wirtualsdk.OrganizationMember, 0, len(mems))
 	roleLookup := make([]database.NameOrganizationPair, 0)
 
 	for _, m := range mems {
-		converted = append(converted, codersdk.OrganizationMember{
+		converted = append(converted, wirtualsdk.OrganizationMember{
 			UserID:         m.UserID,
 			OrganizationID: m.OrganizationID,
 			CreatedAt:      m.CreatedAt,
 			UpdatedAt:      m.UpdatedAt,
-			Roles: db2sdk.List(m.Roles, func(r string) codersdk.SlimRole {
+			Roles: db2sdk.List(m.Roles, func(r string) wirtualsdk.SlimRole {
 				// If it is a built-in role, no lookups are needed.
 				rbacRole, err := rbac.RoleByName(rbac.RoleIdentifier{Name: r, OrganizationID: m.OrganizationID})
 				if err == nil {
@@ -311,7 +311,7 @@ func convertOrganizationMembers(ctx context.Context, db database.Store, mems []d
 					Name:           r,
 					OrganizationID: m.OrganizationID,
 				})
-				return codersdk.SlimRole{
+				return wirtualsdk.SlimRole{
 					Name:           r,
 					DisplayName:    "",
 					OrganizationID: m.OrganizationID.String(),
@@ -348,7 +348,7 @@ func convertOrganizationMembers(ctx context.Context, db database.Store, mems []d
 	return converted, nil
 }
 
-func convertOrganizationMembersWithUserData(ctx context.Context, db database.Store, rows []database.OrganizationMembersRow) ([]codersdk.OrganizationMemberWithUserData, error) {
+func convertOrganizationMembersWithUserData(ctx context.Context, db database.Store, rows []database.OrganizationMembersRow) ([]wirtualsdk.OrganizationMemberWithUserData, error) {
 	members := make([]database.OrganizationMember, 0)
 	for _, row := range rows {
 		members = append(members, row.OrganizationMember)
@@ -362,9 +362,9 @@ func convertOrganizationMembersWithUserData(ctx context.Context, db database.Sto
 		return nil, xerrors.Errorf("conversion failed, mismatch slice lengths")
 	}
 
-	converted := make([]codersdk.OrganizationMemberWithUserData, 0)
+	converted := make([]wirtualsdk.OrganizationMemberWithUserData, 0)
 	for i := range convertedMembers {
-		converted = append(converted, codersdk.OrganizationMemberWithUserData{
+		converted = append(converted, wirtualsdk.OrganizationMemberWithUserData{
 			Username:           rows[i].Username,
 			AvatarURL:          rows[i].AvatarURL,
 			Name:               rows[i].Name,
@@ -382,7 +382,7 @@ func convertOrganizationMembersWithUserData(ctx context.Context, db database.Sto
 // since all organization membership is controlled by the external IDP.
 func (api *API) manualOrganizationMembership(ctx context.Context, rw http.ResponseWriter, user database.User) bool {
 	if user.LoginType == database.LoginTypeOIDC && api.IDPSync.OrganizationSyncEnabled(ctx, api.Database) {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Organization sync is enabled for OIDC users, meaning manual organization assignment is not allowed for this user. Have the user re-login to refresh their organizations.",
 			Detail:  fmt.Sprintf("User %s is an OIDC user and organization sync is enabled. Ask an administrator to resolve the membership in your external IDP.", user.Username),
 		})

@@ -441,7 +441,7 @@ func (f *FakeIDP) GenerateAuthenticatedToken(claims jwt.MapClaims) (*oauth2.Toke
 //
 // The client passed in is just to get the url of the Coder instance.
 // The actual client that is used is 100% unauthenticated and fresh.
-func (f *FakeIDP) Login(t testing.TB, client *codersdk.Client, idTokenClaims jwt.MapClaims, opts ...func(r *http.Request)) (*codersdk.Client, *http.Response) {
+func (f *FakeIDP) Login(t testing.TB, client *wirtualsdk.Client, idTokenClaims jwt.MapClaims, opts ...func(r *http.Request)) (*wirtualsdk.Client, *http.Response) {
 	t.Helper()
 
 	client, resp := f.AttemptLogin(t, client, idTokenClaims, opts...)
@@ -455,7 +455,7 @@ func (f *FakeIDP) Login(t testing.TB, client *codersdk.Client, idTokenClaims jwt
 	return client, resp
 }
 
-func (f *FakeIDP) AttemptLogin(t testing.TB, client *codersdk.Client, idTokenClaims jwt.MapClaims, opts ...func(r *http.Request)) (*codersdk.Client, *http.Response) {
+func (f *FakeIDP) AttemptLogin(t testing.TB, client *wirtualsdk.Client, idTokenClaims jwt.MapClaims, opts ...func(r *http.Request)) (*wirtualsdk.Client, *http.Response) {
 	t.Helper()
 	var err error
 
@@ -467,7 +467,7 @@ func (f *FakeIDP) AttemptLogin(t testing.TB, client *codersdk.Client, idTokenCla
 		require.NoError(t, err, "failed to create cookie jar")
 	}
 
-	unauthenticated := codersdk.New(client.URL)
+	unauthenticated := wirtualsdk.New(client.URL)
 	unauthenticated.HTTPClient = &shallowCpyCli
 
 	return f.LoginWithClient(t, unauthenticated, idTokenClaims, opts...)
@@ -477,7 +477,7 @@ func (f *FakeIDP) AttemptLogin(t testing.TB, client *codersdk.Client, idTokenCla
 // cookies will be used. This should be an unauthenticated client in most cases.
 //
 // This is a niche case, but it is needed for testing ConvertLoginType.
-func (f *FakeIDP) LoginWithClient(t testing.TB, client *codersdk.Client, idTokenClaims jwt.MapClaims, opts ...func(r *http.Request)) (*codersdk.Client, *http.Response) {
+func (f *FakeIDP) LoginWithClient(t testing.TB, client *wirtualsdk.Client, idTokenClaims jwt.MapClaims, opts ...func(r *http.Request)) (*wirtualsdk.Client, *http.Response) {
 	t.Helper()
 	path := "/api/v2/users/oidc/callback"
 	if f.callbackPath != "" {
@@ -521,11 +521,11 @@ func (f *FakeIDP) LoginWithClient(t testing.TB, client *codersdk.Client, idToken
 	require.NoError(t, err)
 
 	// If the coder session token exists, return the new authed client!
-	var user *codersdk.Client
+	var user *wirtualsdk.Client
 	cookies := cli.Jar.Cookies(client.URL)
 	for _, cookie := range cookies {
-		if cookie.Name == codersdk.SessionTokenCookie {
-			user = codersdk.New(client.URL)
+		if cookie.Name == wirtualsdk.SessionTokenCookie {
+			user = wirtualsdk.New(client.URL)
 			user.SetSessionToken(cookie.Value)
 		}
 	}
@@ -541,7 +541,7 @@ func (f *FakeIDP) LoginWithClient(t testing.TB, client *codersdk.Client, idToken
 
 // ExternalLogin does the oauth2 flow for external auth providers. This requires
 // an authenticated coder client.
-func (f *FakeIDP) ExternalLogin(t testing.TB, client *codersdk.Client, opts ...func(r *http.Request)) {
+func (f *FakeIDP) ExternalLogin(t testing.TB, client *wirtualsdk.Client, opts ...func(r *http.Request)) {
 	coderOauthURL, err := client.URL.Parse(fmt.Sprintf("/external-auth/%s/callback", f.externalProviderID))
 	require.NoError(t, err)
 	f.SetRedirect(t, coderOauthURL.String())
@@ -562,7 +562,7 @@ func (f *FakeIDP) ExternalLogin(t testing.TB, client *codersdk.Client, opts ...f
 	// External auth flow requires the user be authenticated.
 	headerName := client.SessionTokenHeader
 	if headerName == "" {
-		headerName = codersdk.SessionTokenHeader
+		headerName = wirtualsdk.SessionTokenHeader
 	}
 	req.Header.Set(headerName, client.SessionToken())
 	if cli.Jar == nil {
@@ -581,7 +581,7 @@ func (f *FakeIDP) ExternalLogin(t testing.TB, client *codersdk.Client, opts ...f
 }
 
 // DeviceLogin does the oauth2 device flow for external auth providers.
-func (*FakeIDP) DeviceLogin(t testing.TB, client *codersdk.Client, externalAuthID string) {
+func (*FakeIDP) DeviceLogin(t testing.TB, client *wirtualsdk.Client, externalAuthID string) {
 	// First we need to initiate the device flow. This will have Coder hit the
 	// fake IDP and get a device code.
 	device, err := client.ExternalAuthDeviceByID(context.Background(), externalAuthID)
@@ -599,7 +599,7 @@ func (*FakeIDP) DeviceLogin(t testing.TB, client *codersdk.Client, externalAuthI
 	// Now we need to exchange the device code for an access token. We do this
 	// in this method because it is the user that does the polling for the device
 	// auth flow, not the backend.
-	err = client.ExternalAuthDeviceExchange(context.Background(), externalAuthID, codersdk.ExternalAuthDeviceExchange{
+	err = client.ExternalAuthDeviceExchange(context.Background(), externalAuthID, wirtualsdk.ExternalAuthDeviceExchange{
 		DeviceCode: device.DeviceCode,
 	})
 	require.NoError(t, err)
@@ -995,7 +995,7 @@ func (f *FakeIDP) httpHandler(t testing.TB) http.Handler {
 		}
 
 		// If we get something we don't support, throw an error.
-		httpapi.Write(r.Context(), rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "'Accept' header contains unsupported media type",
 			Detail:  fmt.Sprintf("Found %q", mediaType),
 		})
@@ -1086,7 +1086,7 @@ func (f *FakeIDP) httpHandler(t testing.TB) http.Handler {
 		inputParam := "user_input"
 		userInput := r.URL.Query().Get(inputParam)
 		if userInput == "" {
-			httpapi.Write(r.Context(), rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(r.Context(), rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Invalid user input",
 				Detail:  fmt.Sprintf("Hit this url again with ?%s=<user_code>", inputParam),
 			})
@@ -1095,7 +1095,7 @@ func (f *FakeIDP) httpHandler(t testing.TB) http.Handler {
 
 		deviceCode := r.URL.Query().Get("device_code")
 		if deviceCode == "" {
-			httpapi.Write(r.Context(), rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(r.Context(), rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Invalid device code",
 				Detail:  "Hit this url again with ?device_code=<device_code>",
 			})
@@ -1104,7 +1104,7 @@ func (f *FakeIDP) httpHandler(t testing.TB) http.Handler {
 
 		flow, ok := f.deviceCode.Load(deviceCode)
 		if !ok {
-			httpapi.Write(r.Context(), rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(r.Context(), rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Invalid device code",
 				Detail:  "Device code not found.",
 			})
@@ -1112,7 +1112,7 @@ func (f *FakeIDP) httpHandler(t testing.TB) http.Handler {
 		}
 
 		if time.Now().After(flow.exp) {
-			httpapi.Write(r.Context(), rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(r.Context(), rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Invalid device code",
 				Detail:  "Device code expired.",
 			})
@@ -1120,7 +1120,7 @@ func (f *FakeIDP) httpHandler(t testing.TB) http.Handler {
 		}
 
 		if strings.TrimSpace(flow.userInput) != strings.TrimSpace(userInput) {
-			httpapi.Write(r.Context(), rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(r.Context(), rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Invalid device code",
 				Detail:  "user code does not match",
 			})
@@ -1132,7 +1132,7 @@ func (f *FakeIDP) httpHandler(t testing.TB) http.Handler {
 			exp:       flow.exp,
 			granted:   true,
 		})
-		httpapi.Write(r.Context(), rw, http.StatusOK, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusOK, wirtualsdk.Response{
 			Message: "Device authenticated!",
 		})
 	}))
@@ -1145,7 +1145,7 @@ func (f *FakeIDP) httpHandler(t testing.TB) http.Handler {
 		clientID := p.String(r.URL.Query(), "", "client_id")
 		_ = p.String(r.URL.Query(), "", "scopes")
 		if len(p.Errors) > 0 {
-			httpapi.Write(r.Context(), rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(r.Context(), rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message:     "Invalid query params",
 				Validations: p.Errors,
 			})
@@ -1153,7 +1153,7 @@ func (f *FakeIDP) httpHandler(t testing.TB) http.Handler {
 		}
 
 		if clientID != f.clientID {
-			httpapi.Write(r.Context(), rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(r.Context(), rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Invalid client id",
 			})
 			return

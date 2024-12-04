@@ -26,7 +26,7 @@ func TestUpdateGroupSync(t *testing.T) {
 		owner, first := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -36,7 +36,7 @@ func TestUpdateGroupSync(t *testing.T) {
 		//nolint:gocritic // Using the owner, testing the cli not perms
 		clitest.SetupConfig(t, owner, root)
 
-		expectedSettings := codersdk.GroupSyncSettings{
+		expectedSettings := wirtualsdk.GroupSyncSettings{
 			Field: "groups",
 			Mapping: map[string][]uuid.UUID{
 				"test": {first.OrganizationID},
@@ -77,7 +77,7 @@ func TestUpdateRoleSync(t *testing.T) {
 		owner, _ := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -87,7 +87,7 @@ func TestUpdateRoleSync(t *testing.T) {
 		//nolint:gocritic // Using the owner, testing the cli not perms
 		clitest.SetupConfig(t, owner, root)
 
-		expectedSettings := codersdk.RoleSyncSettings{
+		expectedSettings := wirtualsdk.RoleSyncSettings{
 			Field: "roles",
 			Mapping: map[string][]string{
 				"test": {rbac.RoleOrgAdmin()},
@@ -125,7 +125,7 @@ func TestUpdateOrganizationSync(t *testing.T) {
 		owner, _ := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -135,7 +135,7 @@ func TestUpdateOrganizationSync(t *testing.T) {
 		//nolint:gocritic // Using the owner, testing the cli not perms
 		clitest.SetupConfig(t, owner, root)
 
-		expectedSettings := codersdk.OrganizationSyncSettings{
+		expectedSettings := wirtualsdk.OrganizationSyncSettings{
 			Field: "organizations",
 			Mapping: map[string][]uuid.UUID{
 				"test": {uuid.New()},

@@ -82,14 +82,14 @@ func (api *API) deleteTemplate(rw http.ResponseWriter, r *http.Request) {
 		TemplateIDs: []uuid.UUID{template.ID},
 	})
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching workspaces by template id.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 	if len(workspaces) > 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "All workspaces must be deleted before a template can be removed.",
 		})
 		return
@@ -100,7 +100,7 @@ func (api *API) deleteTemplate(rw http.ResponseWriter, r *http.Request) {
 		UpdatedAt: dbtime.Now(),
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error deleting template.",
 			Detail:  err.Error(),
 		})
@@ -109,7 +109,7 @@ func (api *API) deleteTemplate(rw http.ResponseWriter, r *http.Request) {
 
 	admins, err := findTemplateAdmins(ctx, api.Database)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching template admins.",
 			Detail:  err.Error(),
 		})
@@ -123,7 +123,7 @@ func (api *API) deleteTemplate(rw http.ResponseWriter, r *http.Request) {
 		api.notifyTemplateDeleted(ctx, template, apiKey.UserID, admin.ID)
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.Response{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.Response{
 		Message: "Template has been deleted!",
 	})
 }
@@ -170,7 +170,7 @@ func (api *API) postTemplateByOrganization(rw http.ResponseWriter, r *http.Reque
 	var (
 		ctx                                = r.Context()
 		portSharer                         = *api.PortSharer.Load()
-		createTemplate                     codersdk.CreateTemplateRequest
+		createTemplate                     wirtualsdk.CreateTemplateRequest
 		organization                       = httpmw.OrganizationParam(r)
 		apiKey                             = httpmw.APIKey(r)
 		auditor                            = *api.Auditor.Load()
@@ -213,9 +213,9 @@ func (api *API) postTemplateByOrganization(rw http.ResponseWriter, r *http.Reque
 		Name:           createTemplate.Name,
 	})
 	if err == nil {
-		httpapi.Write(ctx, rw, http.StatusConflict, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusConflict, wirtualsdk.Response{
 			Message: fmt.Sprintf("Template with name %q already exists.", createTemplate.Name),
-			Validations: []codersdk.ValidationError{{
+			Validations: []wirtualsdk.ValidationError{{
 				Field:  "name",
 				Detail: "This value is already in use and should be unique.",
 			}},
@@ -223,7 +223,7 @@ func (api *API) postTemplateByOrganization(rw http.ResponseWriter, r *http.Reque
 		return
 	}
 	if !errors.Is(err, sql.ErrNoRows) {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching template by name.",
 			Detail:  err.Error(),
 		})
@@ -232,25 +232,25 @@ func (api *API) postTemplateByOrganization(rw http.ResponseWriter, r *http.Reque
 
 	templateVersion, err := api.Database.GetTemplateVersionByID(ctx, createTemplate.VersionID)
 	if errors.Is(err, sql.ErrNoRows) {
-		httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 			Message: fmt.Sprintf("Template version %q does not exist.", createTemplate.VersionID),
-			Validations: []codersdk.ValidationError{
+			Validations: []wirtualsdk.ValidationError{
 				{Field: "template_version_id", Detail: "Template version does not exist"},
 			},
 		})
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching template version.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 	if templateVersion.Archived {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: fmt.Sprintf("Template version %s is archived.", createTemplate.VersionID),
-			Validations: []codersdk.ValidationError{
+			Validations: []wirtualsdk.ValidationError{
 				{Field: "template_version_id", Detail: "Template version is archived"},
 			},
 		})
@@ -258,9 +258,9 @@ func (api *API) postTemplateByOrganization(rw http.ResponseWriter, r *http.Reque
 	}
 	templateVersionAudit.Old = templateVersion
 	if templateVersion.TemplateID.Valid {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: fmt.Sprintf("Template version %s is already part of a template", createTemplate.VersionID),
-			Validations: []codersdk.ValidationError{
+			Validations: []wirtualsdk.ValidationError{
 				{Field: "template_version_id", Detail: "Template version is already part of a template"},
 			},
 		})
@@ -269,7 +269,7 @@ func (api *API) postTemplateByOrganization(rw http.ResponseWriter, r *http.Reque
 
 	importJob, err := api.Database.GetProvisionerJobByID(ctx, templateVersion.JobID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching provisioner job.",
 			Detail:  err.Error(),
 		})
@@ -300,7 +300,7 @@ func (api *API) postTemplateByOrganization(rw http.ResponseWriter, r *http.Reque
 		autostartRequirementDaysOfWeek = createTemplate.AutostartRequirement.DaysOfWeek
 	} else {
 		// By default, we want to allow all days of the week to be autostarted.
-		autostartRequirementDaysOfWeek = codersdk.BitmapToWeekdays(0b01111111)
+		autostartRequirementDaysOfWeek = wirtualsdk.BitmapToWeekdays(0b01111111)
 	}
 	if createTemplate.FailureTTLMillis != nil {
 		failureTTL = time.Duration(*createTemplate.FailureTTLMillis) * time.Millisecond
@@ -313,57 +313,57 @@ func (api *API) postTemplateByOrganization(rw http.ResponseWriter, r *http.Reque
 	}
 
 	var (
-		validErrs                            []codersdk.ValidationError
+		validErrs                            []wirtualsdk.ValidationError
 		autostopRequirementDaysOfWeekParsed  uint8
 		autostartRequirementDaysOfWeekParsed uint8
 		maxPortShareLevel                    = database.AppSharingLevelOwner // default
 	)
 	if defaultTTL < 0 {
-		validErrs = append(validErrs, codersdk.ValidationError{Field: "default_ttl_ms", Detail: "Must be a positive integer."})
+		validErrs = append(validErrs, wirtualsdk.ValidationError{Field: "default_ttl_ms", Detail: "Must be a positive integer."})
 	}
 	if activityBump < 0 {
-		validErrs = append(validErrs, codersdk.ValidationError{Field: "activity_bump_ms", Detail: "Must be a positive integer."})
+		validErrs = append(validErrs, wirtualsdk.ValidationError{Field: "activity_bump_ms", Detail: "Must be a positive integer."})
 	}
 
 	if len(autostopRequirementDaysOfWeek) > 0 {
-		autostopRequirementDaysOfWeekParsed, err = codersdk.WeekdaysToBitmap(autostopRequirementDaysOfWeek)
+		autostopRequirementDaysOfWeekParsed, err = wirtualsdk.WeekdaysToBitmap(autostopRequirementDaysOfWeek)
 		if err != nil {
-			validErrs = append(validErrs, codersdk.ValidationError{Field: "autostop_requirement.days_of_week", Detail: err.Error()})
+			validErrs = append(validErrs, wirtualsdk.ValidationError{Field: "autostop_requirement.days_of_week", Detail: err.Error()})
 		}
 	}
 	if len(autostartRequirementDaysOfWeek) > 0 {
-		autostartRequirementDaysOfWeekParsed, err = codersdk.WeekdaysToBitmap(autostartRequirementDaysOfWeek)
+		autostartRequirementDaysOfWeekParsed, err = wirtualsdk.WeekdaysToBitmap(autostartRequirementDaysOfWeek)
 		if err != nil {
-			validErrs = append(validErrs, codersdk.ValidationError{Field: "autostart_requirement.days_of_week", Detail: err.Error()})
+			validErrs = append(validErrs, wirtualsdk.ValidationError{Field: "autostart_requirement.days_of_week", Detail: err.Error()})
 		}
 	}
 	if createTemplate.MaxPortShareLevel != nil {
 		err = portSharer.ValidateTemplateMaxLevel(*createTemplate.MaxPortShareLevel)
 		if err != nil {
-			validErrs = append(validErrs, codersdk.ValidationError{Field: "max_port_share_level", Detail: err.Error()})
+			validErrs = append(validErrs, wirtualsdk.ValidationError{Field: "max_port_share_level", Detail: err.Error()})
 		} else {
 			maxPortShareLevel = database.AppSharingLevel(*createTemplate.MaxPortShareLevel)
 		}
 	}
 
 	if autostopRequirementWeeks < 0 {
-		validErrs = append(validErrs, codersdk.ValidationError{Field: "autostop_requirement.weeks", Detail: "Must be a positive integer."})
+		validErrs = append(validErrs, wirtualsdk.ValidationError{Field: "autostop_requirement.weeks", Detail: "Must be a positive integer."})
 	}
 	if autostopRequirementWeeks > schedule.MaxTemplateAutostopRequirementWeeks {
-		validErrs = append(validErrs, codersdk.ValidationError{Field: "autostop_requirement.weeks", Detail: fmt.Sprintf("Must be less than %d.", schedule.MaxTemplateAutostopRequirementWeeks)})
+		validErrs = append(validErrs, wirtualsdk.ValidationError{Field: "autostop_requirement.weeks", Detail: fmt.Sprintf("Must be less than %d.", schedule.MaxTemplateAutostopRequirementWeeks)})
 	}
 	if failureTTL < 0 {
-		validErrs = append(validErrs, codersdk.ValidationError{Field: "failure_ttl_ms", Detail: "Must be a positive integer."})
+		validErrs = append(validErrs, wirtualsdk.ValidationError{Field: "failure_ttl_ms", Detail: "Must be a positive integer."})
 	}
 	if dormantTTL < 0 {
-		validErrs = append(validErrs, codersdk.ValidationError{Field: "time_til_dormant_autodeletion_ms", Detail: "Must be a positive integer."})
+		validErrs = append(validErrs, wirtualsdk.ValidationError{Field: "time_til_dormant_autodeletion_ms", Detail: "Must be a positive integer."})
 	}
 	if dormantAutoDeletionTTL < 0 {
-		validErrs = append(validErrs, codersdk.ValidationError{Field: "time_til_dormant_autodeletion_ms", Detail: "Must be a positive integer."})
+		validErrs = append(validErrs, wirtualsdk.ValidationError{Field: "time_til_dormant_autodeletion_ms", Detail: "Must be a positive integer."})
 	}
 
 	if len(validErrs) > 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message:     "Invalid create template request.",
 			Validations: validErrs,
 		})
@@ -470,7 +470,7 @@ func (api *API) postTemplateByOrganization(rw http.ResponseWriter, r *http.Reque
 		return nil
 	}, database.DefaultTXOptions().WithID("postTemplate"))
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error inserting template.",
 			Detail:  err.Error(),
 		})
@@ -518,7 +518,7 @@ func (api *API) fetchTemplates(mutate func(r *http.Request, arg *database.GetTem
 		queryStr := r.URL.Query().Get("q")
 		filter, errs := searchquery.Templates(ctx, api.Database, queryStr)
 		if len(errs) > 0 {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message:     "Invalid template search query.",
 				Validations: errs,
 			})
@@ -527,7 +527,7 @@ func (api *API) fetchTemplates(mutate func(r *http.Request, arg *database.GetTem
 
 		prepared, err := api.HTTPAuth.AuthorizeSQLFilter(r, policy.ActionRead, rbac.ResourceTemplate.Type)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Internal error preparing sql filter.",
 				Detail:  err.Error(),
 			})
@@ -546,7 +546,7 @@ func (api *API) fetchTemplates(mutate func(r *http.Request, arg *database.GetTem
 		}
 
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Internal error fetching templates in organization.",
 				Detail:  err.Error(),
 			})
@@ -580,7 +580,7 @@ func (api *API) templateByOrganizationAndName(rw http.ResponseWriter, r *http.Re
 			return
 		}
 
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching template.",
 			Detail:  err.Error(),
 		})
@@ -617,55 +617,55 @@ func (api *API) patchTemplateMeta(rw http.ResponseWriter, r *http.Request) {
 
 	scheduleOpts, err := (*api.TemplateScheduleStore.Load()).Get(ctx, api.Database, template.ID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching template schedule options.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 
-	var req codersdk.UpdateTemplateMeta
+	var req wirtualsdk.UpdateTemplateMeta
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
 
 	var (
-		validErrs                            []codersdk.ValidationError
+		validErrs                            []wirtualsdk.ValidationError
 		autostopRequirementDaysOfWeekParsed  uint8
 		autostartRequirementDaysOfWeekParsed uint8
 	)
 	if req.DefaultTTLMillis < 0 {
-		validErrs = append(validErrs, codersdk.ValidationError{Field: "default_ttl_ms", Detail: "Must be a positive integer."})
+		validErrs = append(validErrs, wirtualsdk.ValidationError{Field: "default_ttl_ms", Detail: "Must be a positive integer."})
 	}
 	if req.ActivityBumpMillis < 0 {
-		validErrs = append(validErrs, codersdk.ValidationError{Field: "activity_bump_ms", Detail: "Must be a positive integer."})
+		validErrs = append(validErrs, wirtualsdk.ValidationError{Field: "activity_bump_ms", Detail: "Must be a positive integer."})
 	}
 
 	if req.AutostopRequirement == nil {
-		req.AutostopRequirement = &codersdk.TemplateAutostopRequirement{
-			DaysOfWeek: codersdk.BitmapToWeekdays(scheduleOpts.AutostopRequirement.DaysOfWeek),
+		req.AutostopRequirement = &wirtualsdk.TemplateAutostopRequirement{
+			DaysOfWeek: wirtualsdk.BitmapToWeekdays(scheduleOpts.AutostopRequirement.DaysOfWeek),
 			Weeks:      scheduleOpts.AutostopRequirement.Weeks,
 		}
 	}
 	if len(req.AutostopRequirement.DaysOfWeek) > 0 {
-		autostopRequirementDaysOfWeekParsed, err = codersdk.WeekdaysToBitmap(req.AutostopRequirement.DaysOfWeek)
+		autostopRequirementDaysOfWeekParsed, err = wirtualsdk.WeekdaysToBitmap(req.AutostopRequirement.DaysOfWeek)
 		if err != nil {
-			validErrs = append(validErrs, codersdk.ValidationError{Field: "autostop_requirement.days_of_week", Detail: err.Error()})
+			validErrs = append(validErrs, wirtualsdk.ValidationError{Field: "autostop_requirement.days_of_week", Detail: err.Error()})
 		}
 	}
 	if req.AutostartRequirement == nil {
-		req.AutostartRequirement = &codersdk.TemplateAutostartRequirement{
-			DaysOfWeek: codersdk.BitmapToWeekdays(scheduleOpts.AutostartRequirement.DaysOfWeek),
+		req.AutostartRequirement = &wirtualsdk.TemplateAutostartRequirement{
+			DaysOfWeek: wirtualsdk.BitmapToWeekdays(scheduleOpts.AutostartRequirement.DaysOfWeek),
 		}
 	}
 	if len(req.AutostartRequirement.DaysOfWeek) > 0 {
-		autostartRequirementDaysOfWeekParsed, err = codersdk.WeekdaysToBitmap(req.AutostartRequirement.DaysOfWeek)
+		autostartRequirementDaysOfWeekParsed, err = wirtualsdk.WeekdaysToBitmap(req.AutostartRequirement.DaysOfWeek)
 		if err != nil {
-			validErrs = append(validErrs, codersdk.ValidationError{Field: "autostart_requirement.days_of_week", Detail: err.Error()})
+			validErrs = append(validErrs, wirtualsdk.ValidationError{Field: "autostart_requirement.days_of_week", Detail: err.Error()})
 		}
 	}
 	if req.AutostopRequirement.Weeks < 0 {
-		validErrs = append(validErrs, codersdk.ValidationError{Field: "autostop_requirement.weeks", Detail: "Must be a positive integer."})
+		validErrs = append(validErrs, wirtualsdk.ValidationError{Field: "autostop_requirement.weeks", Detail: "Must be a positive integer."})
 	}
 	if req.AutostopRequirement.Weeks == 0 {
 		req.AutostopRequirement.Weeks = 1
@@ -674,7 +674,7 @@ func (api *API) patchTemplateMeta(rw http.ResponseWriter, r *http.Request) {
 		template.AutostopRequirementWeeks = 1
 	}
 	if req.AutostopRequirement.Weeks > schedule.MaxTemplateAutostopRequirementWeeks {
-		validErrs = append(validErrs, codersdk.ValidationError{Field: "autostop_requirement.weeks", Detail: fmt.Sprintf("Must be less than %d.", schedule.MaxTemplateAutostopRequirementWeeks)})
+		validErrs = append(validErrs, wirtualsdk.ValidationError{Field: "autostop_requirement.weeks", Detail: fmt.Sprintf("Must be less than %d.", schedule.MaxTemplateAutostopRequirementWeeks)})
 	}
 	// Defaults to the existing.
 	deprecationMessage := template.Deprecated
@@ -687,26 +687,26 @@ func (api *API) patchTemplateMeta(rw http.ResponseWriter, r *http.Request) {
 	// small number resulting in potentially catastrophic consequences.
 	const minTTL = 1000 * 60
 	if req.FailureTTLMillis < 0 || (req.FailureTTLMillis > 0 && req.FailureTTLMillis < minTTL) {
-		validErrs = append(validErrs, codersdk.ValidationError{Field: "failure_ttl_ms", Detail: "Value must be at least one minute."})
+		validErrs = append(validErrs, wirtualsdk.ValidationError{Field: "failure_ttl_ms", Detail: "Value must be at least one minute."})
 	}
 	if req.TimeTilDormantMillis < 0 || (req.TimeTilDormantMillis > 0 && req.TimeTilDormantMillis < minTTL) {
-		validErrs = append(validErrs, codersdk.ValidationError{Field: "time_til_dormant_ms", Detail: "Value must be at least one minute."})
+		validErrs = append(validErrs, wirtualsdk.ValidationError{Field: "time_til_dormant_ms", Detail: "Value must be at least one minute."})
 	}
 	if req.TimeTilDormantAutoDeleteMillis < 0 || (req.TimeTilDormantAutoDeleteMillis > 0 && req.TimeTilDormantAutoDeleteMillis < minTTL) {
-		validErrs = append(validErrs, codersdk.ValidationError{Field: "time_til_dormant_autodelete_ms", Detail: "Value must be at least one minute."})
+		validErrs = append(validErrs, wirtualsdk.ValidationError{Field: "time_til_dormant_autodelete_ms", Detail: "Value must be at least one minute."})
 	}
 	maxPortShareLevel := template.MaxPortSharingLevel
 	if req.MaxPortShareLevel != nil && *req.MaxPortShareLevel != portSharer.ConvertMaxLevel(template.MaxPortSharingLevel) {
 		err := portSharer.ValidateTemplateMaxLevel(*req.MaxPortShareLevel)
 		if err != nil {
-			validErrs = append(validErrs, codersdk.ValidationError{Field: "max_port_sharing_level", Detail: err.Error()})
+			validErrs = append(validErrs, wirtualsdk.ValidationError{Field: "max_port_sharing_level", Detail: err.Error()})
 		} else {
 			maxPortShareLevel = database.AppSharingLevel(*req.MaxPortShareLevel)
 		}
 	}
 
 	if len(validErrs) > 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message:     "Invalid request to update template metadata!",
 			Validations: validErrs,
 		})
@@ -843,9 +843,9 @@ func (api *API) patchTemplateMeta(rw http.ResponseWriter, r *http.Request) {
 	}, nil)
 	if err != nil {
 		if database.IsUniqueViolation(err, database.UniqueTemplatesOrganizationIDNameIndex) {
-			httpapi.Write(ctx, rw, http.StatusConflict, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusConflict, wirtualsdk.Response{
 				Message: fmt.Sprintf("Template with name %q already exists.", req.Name),
-				Validations: []codersdk.ValidationError{{
+				Validations: []wirtualsdk.ValidationError{{
 					Field:  "name",
 					Detail: "This value is already in use and should be unique.",
 				}},
@@ -944,7 +944,7 @@ func (api *API) templateExamplesByOrganization(rw http.ResponseWriter, r *http.R
 
 	ex, err := examples.List()
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching examples.",
 			Detail:  err.Error(),
 		})
@@ -971,7 +971,7 @@ func (api *API) templateExamples(rw http.ResponseWriter, r *http.Request) {
 
 	ex, err := examples.List()
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching examples.",
 			Detail:  err.Error(),
 		})
@@ -981,8 +981,8 @@ func (api *API) templateExamples(rw http.ResponseWriter, r *http.Request) {
 	httpapi.Write(ctx, rw, http.StatusOK, ex)
 }
 
-func (api *API) convertTemplates(templates []database.Template) []codersdk.Template {
-	apiTemplates := make([]codersdk.Template, 0, len(templates))
+func (api *API) convertTemplates(templates []database.Template) []wirtualsdk.Template {
+	apiTemplates := make([]wirtualsdk.Template, 0, len(templates))
 
 	for _, template := range templates {
 		apiTemplates = append(apiTemplates, api.convertTemplate(template))
@@ -998,7 +998,7 @@ func (api *API) convertTemplates(templates []database.Template) []codersdk.Templ
 
 func (api *API) convertTemplate(
 	template database.Template,
-) codersdk.Template {
+) wirtualsdk.Template {
 	templateAccessControl := (*(api.Options.AccessControlStore.Load())).GetTemplateAccessControl(template)
 
 	owners := 0
@@ -1017,7 +1017,7 @@ func (api *API) convertTemplate(
 	portSharer := *(api.PortSharer.Load())
 	maxPortShareLevel := portSharer.ConvertMaxLevel(template.MaxPortSharingLevel)
 
-	return codersdk.Template{
+	return wirtualsdk.Template{
 		ID:                             template.ID,
 		CreatedAt:                      template.CreatedAt,
 		UpdatedAt:                      template.UpdatedAt,
@@ -1027,7 +1027,7 @@ func (api *API) convertTemplate(
 		OrganizationIcon:               template.OrganizationIcon,
 		Name:                           template.Name,
 		DisplayName:                    template.DisplayName,
-		Provisioner:                    codersdk.ProvisionerType(template.Provisioner),
+		Provisioner:                    wirtualsdk.ProvisionerType(template.Provisioner),
 		ActiveVersionID:                template.ActiveVersionID,
 		ActiveUserCount:                owners,
 		BuildTimeStats:                 buildTimeStats,
@@ -1043,12 +1043,12 @@ func (api *API) convertTemplate(
 		FailureTTLMillis:               time.Duration(template.FailureTTL).Milliseconds(),
 		TimeTilDormantMillis:           time.Duration(template.TimeTilDormant).Milliseconds(),
 		TimeTilDormantAutoDeleteMillis: time.Duration(template.TimeTilDormantAutoDelete).Milliseconds(),
-		AutostopRequirement: codersdk.TemplateAutostopRequirement{
-			DaysOfWeek: codersdk.BitmapToWeekdays(uint8(template.AutostopRequirementDaysOfWeek)),
+		AutostopRequirement: wirtualsdk.TemplateAutostopRequirement{
+			DaysOfWeek: wirtualsdk.BitmapToWeekdays(uint8(template.AutostopRequirementDaysOfWeek)),
 			Weeks:      autostopRequirementWeeks,
 		},
-		AutostartRequirement: codersdk.TemplateAutostartRequirement{
-			DaysOfWeek: codersdk.BitmapToWeekdays(template.AutostartAllowedDays()),
+		AutostartRequirement: wirtualsdk.TemplateAutostartRequirement{
+			DaysOfWeek: wirtualsdk.BitmapToWeekdays(template.AutostartAllowedDays()),
 		},
 		// These values depend on entitlements and come from the templateAccessControl
 		RequireActiveVersion: templateAccessControl.RequireActiveVersion,
@@ -1063,13 +1063,13 @@ func findTemplateAdmins(ctx context.Context, store database.Store) ([]database.G
 	// Notice: we can't scrape the user information in parallel as pq
 	// fails with: unexpected describe rows response: 'D'
 	owners, err := store.GetUsers(ctx, database.GetUsersParams{
-		RbacRole: []string{codersdk.RoleOwner},
+		RbacRole: []string{wirtualsdk.RoleOwner},
 	})
 	if err != nil {
 		return nil, xerrors.Errorf("get owners: %w", err)
 	}
 	templateAdmins, err := store.GetUsers(ctx, database.GetUsersParams{
-		RbacRole: []string{codersdk.RoleTemplateAdmin},
+		RbacRole: []string{wirtualsdk.RoleTemplateAdmin},
 	})
 	if err != nil {
 		return nil, xerrors.Errorf("get template admins: %w", err)

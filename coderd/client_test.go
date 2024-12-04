@@ -14,7 +14,7 @@ import (
 // While running tests in parallel, the web server seems to be overloaded and responds with HTTP 502.
 // require.Eventually expects correct HTTP responses.
 
-func requestWithRetries(ctx context.Context, t require.TestingT, client *codersdk.Client, method, path string, body interface{}, opts ...codersdk.RequestOption) (*http.Response, error) {
+func requestWithRetries(ctx context.Context, t require.TestingT, client *wirtualsdk.Client, method, path string, body interface{}, opts ...wirtualsdk.RequestOption) (*http.Response, error) {
 	var resp *http.Response
 	var err error
 	require.Eventually(t, func() bool {

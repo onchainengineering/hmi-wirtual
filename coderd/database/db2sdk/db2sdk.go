@@ -1,4 +1,4 @@
-// Package db2sdk provides common conversion routines from database types to codersdk types
+// Package db2sdk provides common conversion routines from database types to wirtualsdk types
 package db2sdk
 
 import (
@@ -25,7 +25,7 @@ import (
 )
 
 // List is a helper function to reduce boilerplate when converting slices of
-// database types to slices of codersdk types.
+// database types to slices of wirtualsdk types.
 // Only works if the function takes a single argument.
 func List[F any, T any](list []F, convert func(F) T) []T {
 	return ListLazy(convert)(list)
@@ -56,16 +56,16 @@ type ExternalAuthMeta struct {
 	ValidateError string
 }
 
-func ExternalAuths(auths []database.ExternalAuthLink, meta map[string]ExternalAuthMeta) []codersdk.ExternalAuthLink {
-	out := make([]codersdk.ExternalAuthLink, 0, len(auths))
+func ExternalAuths(auths []database.ExternalAuthLink, meta map[string]ExternalAuthMeta) []wirtualsdk.ExternalAuthLink {
+	out := make([]wirtualsdk.ExternalAuthLink, 0, len(auths))
 	for _, auth := range auths {
 		out = append(out, ExternalAuth(auth, meta[auth.ProviderID]))
 	}
 	return out
 }
 
-func ExternalAuth(auth database.ExternalAuthLink, meta ExternalAuthMeta) codersdk.ExternalAuthLink {
-	return codersdk.ExternalAuthLink{
+func ExternalAuth(auth database.ExternalAuthLink, meta ExternalAuthMeta) wirtualsdk.ExternalAuthLink {
+	return wirtualsdk.ExternalAuthLink{
 		ProviderID:      auth.ProviderID,
 		CreatedAt:       auth.CreatedAt,
 		UpdatedAt:       auth.UpdatedAt,
@@ -76,19 +76,19 @@ func ExternalAuth(auth database.ExternalAuthLink, meta ExternalAuthMeta) codersd
 	}
 }
 
-func WorkspaceBuildParameter(p database.WorkspaceBuildParameter) codersdk.WorkspaceBuildParameter {
-	return codersdk.WorkspaceBuildParameter{
+func WorkspaceBuildParameter(p database.WorkspaceBuildParameter) wirtualsdk.WorkspaceBuildParameter {
+	return wirtualsdk.WorkspaceBuildParameter{
 		Name:  p.Name,
 		Value: p.Value,
 	}
 }
 
-func WorkspaceBuildParameters(params []database.WorkspaceBuildParameter) []codersdk.WorkspaceBuildParameter {
+func WorkspaceBuildParameters(params []database.WorkspaceBuildParameter) []wirtualsdk.WorkspaceBuildParameter {
 	return List(params, WorkspaceBuildParameter)
 }
 
-func TemplateVersionParameters(params []database.TemplateVersionParameter) ([]codersdk.TemplateVersionParameter, error) {
-	out := make([]codersdk.TemplateVersionParameter, len(params))
+func TemplateVersionParameters(params []database.TemplateVersionParameter) ([]wirtualsdk.TemplateVersionParameter, error) {
+	out := make([]wirtualsdk.TemplateVersionParameter, len(params))
 	var err error
 	for i, p := range params {
 		out[i], err = TemplateVersionParameter(p)
@@ -100,15 +100,15 @@ func TemplateVersionParameters(params []database.TemplateVersionParameter) ([]co
 	return out, nil
 }
 
-func TemplateVersionParameter(param database.TemplateVersionParameter) (codersdk.TemplateVersionParameter, error) {
+func TemplateVersionParameter(param database.TemplateVersionParameter) (wirtualsdk.TemplateVersionParameter, error) {
 	options, err := templateVersionParameterOptions(param.Options)
 	if err != nil {
-		return codersdk.TemplateVersionParameter{}, err
+		return wirtualsdk.TemplateVersionParameter{}, err
 	}
 
 	descriptionPlaintext, err := render.PlaintextFromMarkdown(param.Description)
 	if err != nil {
-		return codersdk.TemplateVersionParameter{}, err
+		return wirtualsdk.TemplateVersionParameter{}, err
 	}
 
 	var validationMin *int32
@@ -121,7 +121,7 @@ func TemplateVersionParameter(param database.TemplateVersionParameter) (codersdk
 		validationMax = &param.ValidationMax.Int32
 	}
 
-	return codersdk.TemplateVersionParameter{
+	return wirtualsdk.TemplateVersionParameter{
 		Name:                 param.Name,
 		DisplayName:          param.DisplayName,
 		Description:          param.Description,
@@ -135,15 +135,15 @@ func TemplateVersionParameter(param database.TemplateVersionParameter) (codersdk
 		ValidationMin:        validationMin,
 		ValidationMax:        validationMax,
 		ValidationError:      param.ValidationError,
-		ValidationMonotonic:  codersdk.ValidationMonotonicOrder(param.ValidationMonotonic),
+		ValidationMonotonic:  wirtualsdk.ValidationMonotonicOrder(param.ValidationMonotonic),
 		Required:             param.Required,
 		Ephemeral:            param.Ephemeral,
 	}, nil
 }
 
-func ReducedUser(user database.User) codersdk.ReducedUser {
-	return codersdk.ReducedUser{
-		MinimalUser: codersdk.MinimalUser{
+func ReducedUser(user database.User) wirtualsdk.ReducedUser {
+	return wirtualsdk.ReducedUser{
+		MinimalUser: wirtualsdk.MinimalUser{
 			ID:        user.ID,
 			Username:  user.Username,
 			AvatarURL: user.AvatarURL,
@@ -153,8 +153,8 @@ func ReducedUser(user database.User) codersdk.ReducedUser {
 		CreatedAt:       user.CreatedAt,
 		UpdatedAt:       user.UpdatedAt,
 		LastSeenAt:      user.LastSeenAt,
-		Status:          codersdk.UserStatus(user.Status),
-		LoginType:       codersdk.LoginType(user.LoginType),
+		Status:          wirtualsdk.UserStatus(user.Status),
+		LoginType:       wirtualsdk.LoginType(user.LoginType),
 		ThemePreference: user.ThemePreference,
 	}
 }
@@ -180,20 +180,20 @@ func UserFromGroupMember(member database.GroupMember) database.User {
 	}
 }
 
-func ReducedUserFromGroupMember(member database.GroupMember) codersdk.ReducedUser {
+func ReducedUserFromGroupMember(member database.GroupMember) wirtualsdk.ReducedUser {
 	return ReducedUser(UserFromGroupMember(member))
 }
 
-func ReducedUsersFromGroupMembers(members []database.GroupMember) []codersdk.ReducedUser {
+func ReducedUsersFromGroupMembers(members []database.GroupMember) []wirtualsdk.ReducedUser {
 	return List(members, ReducedUserFromGroupMember)
 }
 
-func ReducedUsers(users []database.User) []codersdk.ReducedUser {
+func ReducedUsers(users []database.User) []wirtualsdk.ReducedUser {
 	return List(users, ReducedUser)
 }
 
-func User(user database.User, organizationIDs []uuid.UUID) codersdk.User {
-	convertedUser := codersdk.User{
+func User(user database.User, organizationIDs []uuid.UUID) wirtualsdk.User {
+	convertedUser := wirtualsdk.User{
 		ReducedUser:     ReducedUser(user),
 		OrganizationIDs: organizationIDs,
 		Roles:           SlimRolesFromNames(user.RBACRoles),
@@ -202,14 +202,14 @@ func User(user database.User, organizationIDs []uuid.UUID) codersdk.User {
 	return convertedUser
 }
 
-func Users(users []database.User, organizationIDs map[uuid.UUID][]uuid.UUID) []codersdk.User {
-	return List(users, func(user database.User) codersdk.User {
+func Users(users []database.User, organizationIDs map[uuid.UUID][]uuid.UUID) []wirtualsdk.User {
+	return List(users, func(user database.User) wirtualsdk.User {
 		return User(user, organizationIDs[user.ID])
 	})
 }
 
-func Group(row database.GetGroupsRow, members []database.GroupMember, totalMemberCount int) codersdk.Group {
-	return codersdk.Group{
+func Group(row database.GetGroupsRow, members []database.GroupMember, totalMemberCount int) wirtualsdk.Group {
+	return wirtualsdk.Group{
 		ID:                      row.Group.ID,
 		Name:                    row.Group.Name,
 		DisplayName:             row.Group.DisplayName,
@@ -218,13 +218,13 @@ func Group(row database.GetGroupsRow, members []database.GroupMember, totalMembe
 		Members:                 ReducedUsersFromGroupMembers(members),
 		TotalMemberCount:        totalMemberCount,
 		QuotaAllowance:          int(row.Group.QuotaAllowance),
-		Source:                  codersdk.GroupSource(row.Group.Source),
+		Source:                  wirtualsdk.GroupSource(row.Group.Source),
 		OrganizationName:        row.OrganizationName,
 		OrganizationDisplayName: row.OrganizationDisplayName,
 	}
 }
 
-func TemplateInsightsParameters(parameterRows []database.GetTemplateParameterInsightsRow) ([]codersdk.TemplateParameterUsage, error) {
+func TemplateInsightsParameters(parameterRows []database.GetTemplateParameterInsightsRow) ([]wirtualsdk.TemplateParameterUsage, error) {
 	// Use a stable sort, similarly to how we would sort in the query, note that
 	// we don't sort in the query because order varies depending on the table
 	// collation.
@@ -249,11 +249,11 @@ func TemplateInsightsParameters(parameterRows []database.GetTemplateParameterIns
 		return strings.Compare(a.Value, b.Value)
 	})
 
-	parametersUsage := []codersdk.TemplateParameterUsage{}
+	parametersUsage := []wirtualsdk.TemplateParameterUsage{}
 	indexByNum := make(map[int64]int)
 	for _, param := range parameterRows {
 		if _, ok := indexByNum[param.Num]; !ok {
-			var opts []codersdk.TemplateVersionParameterOption
+			var opts []wirtualsdk.TemplateVersionParameterOption
 			err := json.Unmarshal(param.Options, &opts)
 			if err != nil {
 				return nil, err
@@ -264,7 +264,7 @@ func TemplateInsightsParameters(parameterRows []database.GetTemplateParameterIns
 				return nil, err
 			}
 
-			parametersUsage = append(parametersUsage, codersdk.TemplateParameterUsage{
+			parametersUsage = append(parametersUsage, wirtualsdk.TemplateParameterUsage{
 				TemplateIDs: param.TemplateIDs,
 				Name:        param.Name,
 				Type:        param.Type,
@@ -276,7 +276,7 @@ func TemplateInsightsParameters(parameterRows []database.GetTemplateParameterIns
 		}
 
 		i := indexByNum[param.Num]
-		parametersUsage[i].Values = append(parametersUsage[i].Values, codersdk.TemplateParameterValue{
+		parametersUsage[i].Values = append(parametersUsage[i].Values, wirtualsdk.TemplateParameterValue{
 			Value: param.Value,
 			Count: param.Count,
 		})
@@ -285,15 +285,15 @@ func TemplateInsightsParameters(parameterRows []database.GetTemplateParameterIns
 	return parametersUsage, nil
 }
 
-func templateVersionParameterOptions(rawOptions json.RawMessage) ([]codersdk.TemplateVersionParameterOption, error) {
+func templateVersionParameterOptions(rawOptions json.RawMessage) ([]wirtualsdk.TemplateVersionParameterOption, error) {
 	var protoOptions []*proto.RichParameterOption
 	err := json.Unmarshal(rawOptions, &protoOptions)
 	if err != nil {
 		return nil, err
 	}
-	var options []codersdk.TemplateVersionParameterOption
+	var options []wirtualsdk.TemplateVersionParameterOption
 	for _, option := range protoOptions {
-		options = append(options, codersdk.TemplateVersionParameterOption{
+		options = append(options, wirtualsdk.TemplateVersionParameterOption{
 			Name:        option.Name,
 			Description: option.Description,
 			Value:       option.Value,
@@ -303,13 +303,13 @@ func templateVersionParameterOptions(rawOptions json.RawMessage) ([]codersdk.Tem
 	return options, nil
 }
 
-func OAuth2ProviderApp(accessURL *url.URL, dbApp database.OAuth2ProviderApp) codersdk.OAuth2ProviderApp {
-	return codersdk.OAuth2ProviderApp{
+func OAuth2ProviderApp(accessURL *url.URL, dbApp database.OAuth2ProviderApp) wirtualsdk.OAuth2ProviderApp {
+	return wirtualsdk.OAuth2ProviderApp{
 		ID:          dbApp.ID,
 		Name:        dbApp.Name,
 		CallbackURL: dbApp.CallbackURL,
 		Icon:        dbApp.Icon,
-		Endpoints: codersdk.OAuth2AppEndpoints{
+		Endpoints: wirtualsdk.OAuth2AppEndpoints{
 			Authorization: accessURL.ResolveReference(&url.URL{
 				Path: "/oauth2/authorize",
 			}).String(),
@@ -322,18 +322,18 @@ func OAuth2ProviderApp(accessURL *url.URL, dbApp database.OAuth2ProviderApp) cod
 	}
 }
 
-func OAuth2ProviderApps(accessURL *url.URL, dbApps []database.OAuth2ProviderApp) []codersdk.OAuth2ProviderApp {
-	return List(dbApps, func(dbApp database.OAuth2ProviderApp) codersdk.OAuth2ProviderApp {
+func OAuth2ProviderApps(accessURL *url.URL, dbApps []database.OAuth2ProviderApp) []wirtualsdk.OAuth2ProviderApp {
+	return List(dbApps, func(dbApp database.OAuth2ProviderApp) wirtualsdk.OAuth2ProviderApp {
 		return OAuth2ProviderApp(accessURL, dbApp)
 	})
 }
 
-func convertDisplayApps(apps []database.DisplayApp) []codersdk.DisplayApp {
-	dapps := make([]codersdk.DisplayApp, 0, len(apps))
+func convertDisplayApps(apps []database.DisplayApp) []wirtualsdk.DisplayApp {
+	dapps := make([]wirtualsdk.DisplayApp, 0, len(apps))
 	for _, app := range apps {
-		switch codersdk.DisplayApp(app) {
-		case codersdk.DisplayAppVSCodeDesktop, codersdk.DisplayAppVSCodeInsiders, codersdk.DisplayAppPortForward, codersdk.DisplayAppWebTerminal, codersdk.DisplayAppSSH:
-			dapps = append(dapps, codersdk.DisplayApp(app))
+		switch wirtualsdk.DisplayApp(app) {
+		case wirtualsdk.DisplayAppVSCodeDesktop, wirtualsdk.DisplayAppVSCodeInsiders, wirtualsdk.DisplayAppPortForward, wirtualsdk.DisplayAppWebTerminal, wirtualsdk.DisplayAppSSH:
+			dapps = append(dapps, wirtualsdk.DisplayApp(app))
 		}
 	}
 
@@ -353,23 +353,23 @@ func WorkspaceAgentEnvironment(workspaceAgent database.WorkspaceAgent) (map[stri
 }
 
 func WorkspaceAgent(derpMap *tailcfg.DERPMap, coordinator tailnet.Coordinator,
-	dbAgent database.WorkspaceAgent, apps []codersdk.WorkspaceApp, scripts []codersdk.WorkspaceAgentScript, logSources []codersdk.WorkspaceAgentLogSource,
+	dbAgent database.WorkspaceAgent, apps []wirtualsdk.WorkspaceApp, scripts []wirtualsdk.WorkspaceAgentScript, logSources []wirtualsdk.WorkspaceAgentLogSource,
 	agentInactiveDisconnectTimeout time.Duration, agentFallbackTroubleshootingURL string,
-) (codersdk.WorkspaceAgent, error) {
+) (wirtualsdk.WorkspaceAgent, error) {
 	envs, err := WorkspaceAgentEnvironment(dbAgent)
 	if err != nil {
-		return codersdk.WorkspaceAgent{}, err
+		return wirtualsdk.WorkspaceAgent{}, err
 	}
 	troubleshootingURL := agentFallbackTroubleshootingURL
 	if dbAgent.TroubleshootingURL != "" {
 		troubleshootingURL = dbAgent.TroubleshootingURL
 	}
-	subsystems := make([]codersdk.AgentSubsystem, len(dbAgent.Subsystems))
+	subsystems := make([]wirtualsdk.AgentSubsystem, len(dbAgent.Subsystems))
 	for i, subsystem := range dbAgent.Subsystems {
-		subsystems[i] = codersdk.AgentSubsystem(subsystem)
+		subsystems[i] = wirtualsdk.AgentSubsystem(subsystem)
 	}
 
-	legacyStartupScriptBehavior := codersdk.WorkspaceAgentStartupScriptBehaviorNonBlocking
+	legacyStartupScriptBehavior := wirtualsdk.WorkspaceAgentStartupScriptBehaviorNonBlocking
 	for _, script := range scripts {
 		if !script.RunOnStart {
 			continue
@@ -377,10 +377,10 @@ func WorkspaceAgent(derpMap *tailcfg.DERPMap, coordinator tailnet.Coordinator,
 		if !script.StartBlocksLogin {
 			continue
 		}
-		legacyStartupScriptBehavior = codersdk.WorkspaceAgentStartupScriptBehaviorBlocking
+		legacyStartupScriptBehavior = wirtualsdk.WorkspaceAgentStartupScriptBehaviorBlocking
 	}
 
-	workspaceAgent := codersdk.WorkspaceAgent{
+	workspaceAgent := wirtualsdk.WorkspaceAgent{
 		ID:                       dbAgent.ID,
 		CreatedAt:                dbAgent.CreatedAt,
 		UpdatedAt:                dbAgent.UpdatedAt,
@@ -402,18 +402,18 @@ func WorkspaceAgent(derpMap *tailcfg.DERPMap, coordinator tailnet.Coordinator,
 		Apps:                     apps,
 		ConnectionTimeoutSeconds: dbAgent.ConnectionTimeoutSeconds,
 		TroubleshootingURL:       troubleshootingURL,
-		LifecycleState:           codersdk.WorkspaceAgentLifecycle(dbAgent.LifecycleState),
+		LifecycleState:           wirtualsdk.WorkspaceAgentLifecycle(dbAgent.LifecycleState),
 		Subsystems:               subsystems,
 		DisplayApps:              convertDisplayApps(dbAgent.DisplayApps),
 	}
 	node := coordinator.Node(dbAgent.ID)
 	if node != nil {
-		workspaceAgent.DERPLatency = map[string]codersdk.DERPRegion{}
+		workspaceAgent.DERPLatency = map[string]wirtualsdk.DERPRegion{}
 		for rawRegion, latency := range node.DERPLatency {
 			regionParts := strings.SplitN(rawRegion, "-", 2)
 			regionID, err := strconv.Atoi(regionParts[0])
 			if err != nil {
-				return codersdk.WorkspaceAgent{}, xerrors.Errorf("convert derp region id %q: %w", rawRegion, err)
+				return wirtualsdk.WorkspaceAgent{}, xerrors.Errorf("convert derp region id %q: %w", rawRegion, err)
 			}
 			region, found := derpMap.Regions[regionID]
 			if !found {
@@ -425,7 +425,7 @@ func WorkspaceAgent(derpMap *tailcfg.DERPMap, coordinator tailnet.Coordinator,
 					RegionName: fmt.Sprintf("Unnamed %d", regionID),
 				}
 			}
-			workspaceAgent.DERPLatency[region.RegionName] = codersdk.DERPRegion{
+			workspaceAgent.DERPLatency[region.RegionName] = wirtualsdk.DERPRegion{
 				Preferred:           node.PreferredDERP == regionID,
 				LatencyMilliseconds: latency * 1000,
 			}
@@ -433,7 +433,7 @@ func WorkspaceAgent(derpMap *tailcfg.DERPMap, coordinator tailnet.Coordinator,
 	}
 
 	status := dbAgent.Status(agentInactiveDisconnectTimeout)
-	workspaceAgent.Status = codersdk.WorkspaceAgentStatus(status.Status)
+	workspaceAgent.Status = wirtualsdk.WorkspaceAgentStatus(status.Status)
 	workspaceAgent.FirstConnectedAt = status.FirstConnectedAt
 	workspaceAgent.LastConnectedAt = status.LastConnectedAt
 	workspaceAgent.DisconnectedAt = status.DisconnectedAt
@@ -446,16 +446,16 @@ func WorkspaceAgent(derpMap *tailcfg.DERPMap, coordinator tailnet.Coordinator,
 	}
 
 	switch {
-	case workspaceAgent.Status != codersdk.WorkspaceAgentConnected && workspaceAgent.LifecycleState == codersdk.WorkspaceAgentLifecycleOff:
+	case workspaceAgent.Status != wirtualsdk.WorkspaceAgentConnected && workspaceAgent.LifecycleState == wirtualsdk.WorkspaceAgentLifecycleOff:
 		workspaceAgent.Health.Reason = "agent is not running"
-	case workspaceAgent.Status == codersdk.WorkspaceAgentTimeout:
+	case workspaceAgent.Status == wirtualsdk.WorkspaceAgentTimeout:
 		workspaceAgent.Health.Reason = "agent is taking too long to connect"
-	case workspaceAgent.Status == codersdk.WorkspaceAgentDisconnected:
+	case workspaceAgent.Status == wirtualsdk.WorkspaceAgentDisconnected:
 		workspaceAgent.Health.Reason = "agent has lost connection"
-	// Note: We could also handle codersdk.WorkspaceAgentLifecycleStartTimeout
+	// Note: We could also handle wirtualsdk.WorkspaceAgentLifecycleStartTimeout
 	// here, but it's more of a soft issue, so we don't want to mark the agent
 	// as unhealthy.
-	case workspaceAgent.LifecycleState == codersdk.WorkspaceAgentLifecycleStartError:
+	case workspaceAgent.LifecycleState == wirtualsdk.WorkspaceAgentLifecycleStartError:
 		workspaceAgent.Health.Reason = "agent startup script exited with an error"
 	case workspaceAgent.LifecycleState.ShuttingDown():
 		workspaceAgent.Health.Reason = "agent is shutting down"
@@ -487,7 +487,7 @@ func AppSubdomain(dbApp database.WorkspaceApp, agentName, workspaceName, ownerNa
 	}.String()
 }
 
-func Apps(dbApps []database.WorkspaceApp, agent database.WorkspaceAgent, ownerName string, workspace database.Workspace) []codersdk.WorkspaceApp {
+func Apps(dbApps []database.WorkspaceApp, agent database.WorkspaceAgent, ownerName string, workspace database.Workspace) []wirtualsdk.WorkspaceApp {
 	sort.Slice(dbApps, func(i, j int) bool {
 		if dbApps[i].DisplayOrder != dbApps[j].DisplayOrder {
 			return dbApps[i].DisplayOrder < dbApps[j].DisplayOrder
@@ -498,9 +498,9 @@ func Apps(dbApps []database.WorkspaceApp, agent database.WorkspaceAgent, ownerNa
 		return dbApps[i].Slug < dbApps[j].Slug
 	})
 
-	apps := make([]codersdk.WorkspaceApp, 0)
+	apps := make([]wirtualsdk.WorkspaceApp, 0)
 	for _, dbApp := range dbApps {
-		apps = append(apps, codersdk.WorkspaceApp{
+		apps = append(apps, wirtualsdk.WorkspaceApp{
 			ID:            dbApp.ID,
 			URL:           dbApp.Url.String,
 			External:      dbApp.External,
@@ -510,25 +510,25 @@ func Apps(dbApps []database.WorkspaceApp, agent database.WorkspaceAgent, ownerNa
 			Icon:          dbApp.Icon,
 			Subdomain:     dbApp.Subdomain,
 			SubdomainName: AppSubdomain(dbApp, agent.Name, workspace.Name, ownerName),
-			SharingLevel:  codersdk.WorkspaceAppSharingLevel(dbApp.SharingLevel),
-			Healthcheck: codersdk.Healthcheck{
+			SharingLevel:  wirtualsdk.WorkspaceAppSharingLevel(dbApp.SharingLevel),
+			Healthcheck: wirtualsdk.Healthcheck{
 				URL:       dbApp.HealthcheckUrl,
 				Interval:  dbApp.HealthcheckInterval,
 				Threshold: dbApp.HealthcheckThreshold,
 			},
-			Health: codersdk.WorkspaceAppHealth(dbApp.Health),
+			Health: wirtualsdk.WorkspaceAppHealth(dbApp.Health),
 			Hidden: dbApp.Hidden,
 		})
 	}
 	return apps
 }
 
-func ProvisionerDaemon(dbDaemon database.ProvisionerDaemon) codersdk.ProvisionerDaemon {
-	result := codersdk.ProvisionerDaemon{
+func ProvisionerDaemon(dbDaemon database.ProvisionerDaemon) wirtualsdk.ProvisionerDaemon {
+	result := wirtualsdk.ProvisionerDaemon{
 		ID:             dbDaemon.ID,
 		OrganizationID: dbDaemon.OrganizationID,
 		CreatedAt:      dbDaemon.CreatedAt,
-		LastSeenAt:     codersdk.NullTime{NullTime: dbDaemon.LastSeenAt},
+		LastSeenAt:     wirtualsdk.NullTime{NullTime: dbDaemon.LastSeenAt},
 		Name:           dbDaemon.Name,
 		Tags:           dbDaemon.Tags,
 		Version:        dbDaemon.Version,
@@ -536,13 +536,13 @@ func ProvisionerDaemon(dbDaemon database.ProvisionerDaemon) codersdk.Provisioner
 		KeyID:          dbDaemon.KeyID,
 	}
 	for _, provisionerType := range dbDaemon.Provisioners {
-		result.Provisioners = append(result.Provisioners, codersdk.ProvisionerType(provisionerType))
+		result.Provisioners = append(result.Provisioners, wirtualsdk.ProvisionerType(provisionerType))
 	}
 	return result
 }
 
-func RecentProvisionerDaemons(now time.Time, staleInterval time.Duration, daemons []database.ProvisionerDaemon) []codersdk.ProvisionerDaemon {
-	results := []codersdk.ProvisionerDaemon{}
+func RecentProvisionerDaemons(now time.Time, staleInterval time.Duration, daemons []database.ProvisionerDaemon) []wirtualsdk.ProvisionerDaemon {
+	results := []wirtualsdk.ProvisionerDaemon{}
 
 	for _, daemon := range daemons {
 		// Daemon never connected, skip.
@@ -565,21 +565,21 @@ func RecentProvisionerDaemons(now time.Time, staleInterval time.Duration, daemon
 	return results
 }
 
-func SlimRole(role rbac.Role) codersdk.SlimRole {
+func SlimRole(role rbac.Role) wirtualsdk.SlimRole {
 	orgID := ""
 	if role.Identifier.OrganizationID != uuid.Nil {
 		orgID = role.Identifier.OrganizationID.String()
 	}
 
-	return codersdk.SlimRole{
+	return wirtualsdk.SlimRole{
 		DisplayName:    role.DisplayName,
 		Name:           role.Identifier.Name,
 		OrganizationID: orgID,
 	}
 }
 
-func SlimRolesFromNames(names []string) []codersdk.SlimRole {
-	convertedRoles := make([]codersdk.SlimRole, 0, len(names))
+func SlimRolesFromNames(names []string) []wirtualsdk.SlimRole {
+	convertedRoles := make([]wirtualsdk.SlimRole, 0, len(names))
 
 	for _, name := range names {
 		convertedRoles = append(convertedRoles, SlimRoleFromName(name))
@@ -588,22 +588,22 @@ func SlimRolesFromNames(names []string) []codersdk.SlimRole {
 	return convertedRoles
 }
 
-func SlimRoleFromName(name string) codersdk.SlimRole {
+func SlimRoleFromName(name string) wirtualsdk.SlimRole {
 	rbacRole, err := rbac.RoleByName(rbac.RoleIdentifier{Name: name})
-	var convertedRole codersdk.SlimRole
+	var convertedRole wirtualsdk.SlimRole
 	if err == nil {
 		convertedRole = SlimRole(rbacRole)
 	} else {
-		convertedRole = codersdk.SlimRole{Name: name}
+		convertedRole = wirtualsdk.SlimRole{Name: name}
 	}
 	return convertedRole
 }
 
-func RBACRole(role rbac.Role) codersdk.Role {
+func RBACRole(role rbac.Role) wirtualsdk.Role {
 	slim := SlimRole(role)
 
 	orgPerms := role.Org[slim.OrganizationID]
-	return codersdk.Role{
+	return wirtualsdk.Role{
 		Name:                    slim.Name,
 		OrganizationID:          slim.OrganizationID,
 		DisplayName:             slim.DisplayName,
@@ -613,13 +613,13 @@ func RBACRole(role rbac.Role) codersdk.Role {
 	}
 }
 
-func Role(role database.CustomRole) codersdk.Role {
+func Role(role database.CustomRole) wirtualsdk.Role {
 	orgID := ""
 	if role.OrganizationID.UUID != uuid.Nil {
 		orgID = role.OrganizationID.UUID.String()
 	}
 
-	return codersdk.Role{
+	return wirtualsdk.Role{
 		Name:                    role.Name,
 		OrganizationID:          orgID,
 		DisplayName:             role.DisplayName,
@@ -629,25 +629,25 @@ func Role(role database.CustomRole) codersdk.Role {
 	}
 }
 
-func Permission(permission database.CustomRolePermission) codersdk.Permission {
-	return codersdk.Permission{
+func Permission(permission database.CustomRolePermission) wirtualsdk.Permission {
+	return wirtualsdk.Permission{
 		Negate:       permission.Negate,
-		ResourceType: codersdk.RBACResource(permission.ResourceType),
-		Action:       codersdk.RBACAction(permission.Action),
+		ResourceType: wirtualsdk.RBACResource(permission.ResourceType),
+		Action:       wirtualsdk.RBACAction(permission.Action),
 	}
 }
 
-func RBACPermission(permission rbac.Permission) codersdk.Permission {
-	return codersdk.Permission{
+func RBACPermission(permission rbac.Permission) wirtualsdk.Permission {
+	return wirtualsdk.Permission{
 		Negate:       permission.Negate,
-		ResourceType: codersdk.RBACResource(permission.ResourceType),
-		Action:       codersdk.RBACAction(permission.Action),
+		ResourceType: wirtualsdk.RBACResource(permission.ResourceType),
+		Action:       wirtualsdk.RBACAction(permission.Action),
 	}
 }
 
-func Organization(organization database.Organization) codersdk.Organization {
-	return codersdk.Organization{
-		MinimalOrganization: codersdk.MinimalOrganization{
+func Organization(organization database.Organization) wirtualsdk.Organization {
+	return wirtualsdk.Organization{
+		MinimalOrganization: wirtualsdk.MinimalOrganization{
 			ID:          organization.ID,
 			Name:        organization.Name,
 			DisplayName: organization.DisplayName,
@@ -660,13 +660,13 @@ func Organization(organization database.Organization) codersdk.Organization {
 	}
 }
 
-func CryptoKeys(keys []database.CryptoKey) []codersdk.CryptoKey {
+func CryptoKeys(keys []database.CryptoKey) []wirtualsdk.CryptoKey {
 	return List(keys, CryptoKey)
 }
 
-func CryptoKey(key database.CryptoKey) codersdk.CryptoKey {
-	return codersdk.CryptoKey{
-		Feature:   codersdk.CryptoKeyFeature(key.Feature),
+func CryptoKey(key database.CryptoKey) wirtualsdk.CryptoKey {
+	return wirtualsdk.CryptoKey{
+		Feature:   wirtualsdk.CryptoKeyFeature(key.Feature),
 		Sequence:  key.Sequence,
 		StartsAt:  key.StartsAt,
 		DeletesAt: key.DeletesAt.Time,

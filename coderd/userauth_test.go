@@ -92,7 +92,7 @@ func TestUserLogin(t *testing.T) {
 		client := coderdtest.New(t, nil)
 		user := coderdtest.CreateFirstUser(t, client)
 		anotherClient, anotherUser := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
-		_, err := anotherClient.LoginWithPassword(context.Background(), codersdk.LoginWithPasswordRequest{
+		_, err := anotherClient.LoginWithPassword(context.Background(), wirtualsdk.LoginWithPasswordRequest{
 			Email:    anotherUser.Email,
 			Password: "SomeSecurePassword!",
 		})
@@ -104,12 +104,12 @@ func TestUserLogin(t *testing.T) {
 		user := coderdtest.CreateFirstUser(t, client)
 		anotherClient, anotherUser := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
 		client.DeleteUser(context.Background(), anotherUser.ID)
-		_, err := anotherClient.LoginWithPassword(context.Background(), codersdk.LoginWithPasswordRequest{
+		_, err := anotherClient.LoginWithPassword(context.Background(), wirtualsdk.LoginWithPasswordRequest{
 			Email:    anotherUser.Email,
 			Password: "SomeSecurePassword!",
 		})
 		require.Error(t, err)
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusUnauthorized, apiErr.StatusCode())
 	})
@@ -118,12 +118,12 @@ func TestUserLogin(t *testing.T) {
 		t.Parallel()
 		client := coderdtest.New(t, nil)
 		user := coderdtest.CreateFirstUser(t, client)
-		anotherClient, anotherUser := coderdtest.CreateAnotherUserMutators(t, client, user.OrganizationID, nil, func(r *codersdk.CreateUserRequestWithOrgs) {
+		anotherClient, anotherUser := coderdtest.CreateAnotherUserMutators(t, client, user.OrganizationID, nil, func(r *wirtualsdk.CreateUserRequestWithOrgs) {
 			r.Password = ""
-			r.UserLoginType = codersdk.LoginTypeNone
+			r.UserLoginType = wirtualsdk.LoginTypeNone
 		})
 
-		_, err := anotherClient.LoginWithPassword(context.Background(), codersdk.LoginWithPasswordRequest{
+		_, err := anotherClient.LoginWithPassword(context.Background(), wirtualsdk.LoginWithPasswordRequest{
 			Email:    anotherUser.Email,
 			Password: "SomeSecurePassword!",
 		})
@@ -368,7 +368,7 @@ func TestUserOAuth2Github(t *testing.T) {
 		resp := oauth2Callback(t, client, func(req *http.Request) {
 			// Add the cookie to bypass the parsing in httpmw/oauth2.go
 			req.AddCookie(&http.Cookie{
-				Name:  codersdk.OAuth2RedirectCookie,
+				Name:  wirtualsdk.OAuth2RedirectCookie,
 				Value: maliciousHost + expectedPath,
 			})
 		})
@@ -821,7 +821,7 @@ func TestUserOAuth2Github(t *testing.T) {
 
 		// Create the user, then delete the user, then create again.
 		// This causes the email change to fail.
-		client := codersdk.New(owner.URL)
+		client := wirtualsdk.New(owner.URL)
 
 		client, _ = fake.Login(t, client, jwt.MapClaims{})
 		deleted, err := client.User(ctx, "me")
@@ -893,7 +893,7 @@ func TestUserOIDC(t *testing.T) {
 		UserInfoClaims      jwt.MapClaims
 		AllowSignups        bool
 		EmailDomain         []string
-		AssertUser          func(t testing.TB, u codersdk.User)
+		AssertUser          func(t testing.TB, u wirtualsdk.User)
 		StatusCode          int
 		AssertResponse      func(t testing.TB, resp *http.Response)
 		IgnoreEmailVerified bool
@@ -906,7 +906,7 @@ func TestUserOIDC(t *testing.T) {
 			},
 			AllowSignups: true,
 			StatusCode:   http.StatusOK,
-			AssertUser: func(t testing.TB, u codersdk.User) {
+			AssertUser: func(t testing.TB, u wirtualsdk.User) {
 				assert.Equal(t, "kyle", u.Username)
 			},
 		},
@@ -936,7 +936,7 @@ func TestUserOIDC(t *testing.T) {
 			},
 			AllowSignups: true,
 			StatusCode:   http.StatusOK,
-			AssertUser: func(t testing.TB, u codersdk.User) {
+			AssertUser: func(t testing.TB, u wirtualsdk.User) {
 				assert.Equal(t, u.Username, "kyle")
 			},
 			IgnoreEmailVerified: true,
@@ -984,7 +984,7 @@ func TestUserOIDC(t *testing.T) {
 				"email_verified": true,
 			},
 			AllowSignups: true,
-			AssertUser: func(t testing.TB, u codersdk.User) {
+			AssertUser: func(t testing.TB, u wirtualsdk.User) {
 				assert.Equal(t, u.Username, "kyle")
 			},
 			EmailDomain: []string{
@@ -1024,7 +1024,7 @@ func TestUserOIDC(t *testing.T) {
 				"email":          "kyle@kwc.io",
 				"email_verified": true,
 			},
-			AssertUser: func(t testing.TB, u codersdk.User) {
+			AssertUser: func(t testing.TB, u wirtualsdk.User) {
 				assert.Equal(t, "kyle", u.Username)
 			},
 			AllowSignups: true,
@@ -1037,7 +1037,7 @@ func TestUserOIDC(t *testing.T) {
 				"email_verified":     true,
 				"preferred_username": "hotdog",
 			},
-			AssertUser: func(t testing.TB, u codersdk.User) {
+			AssertUser: func(t testing.TB, u wirtualsdk.User) {
 				assert.Equal(t, "hotdog", u.Username)
 			},
 			AllowSignups: true,
@@ -1050,7 +1050,7 @@ func TestUserOIDC(t *testing.T) {
 				"email_verified": true,
 				"name":           "Hot Dog",
 			},
-			AssertUser: func(t testing.TB, u codersdk.User) {
+			AssertUser: func(t testing.TB, u wirtualsdk.User) {
 				assert.Equal(t, "Hot Dog", u.Name)
 			},
 			AllowSignups: true,
@@ -1068,7 +1068,7 @@ func TestUserOIDC(t *testing.T) {
 			},
 			AllowSignups: true,
 			StatusCode:   http.StatusOK,
-			AssertUser: func(t testing.TB, u codersdk.User) {
+			AssertUser: func(t testing.TB, u wirtualsdk.User) {
 				assert.Equal(t, strings.Repeat("a", 128), u.Name)
 			},
 		},
@@ -1083,7 +1083,7 @@ func TestUserOIDC(t *testing.T) {
 			},
 			AllowSignups: true,
 			StatusCode:   http.StatusOK,
-			AssertUser: func(t testing.TB, u codersdk.User) {
+			AssertUser: func(t testing.TB, u wirtualsdk.User) {
 				assert.Equal(t, "Bobby  Whitespace", u.Name)
 			},
 		},
@@ -1097,7 +1097,7 @@ func TestUserOIDC(t *testing.T) {
 				"name":               "Kylium Carbonate",
 				"preferred_username": "kyle@kwc.io",
 			},
-			AssertUser: func(t testing.TB, u codersdk.User) {
+			AssertUser: func(t testing.TB, u wirtualsdk.User) {
 				assert.Equal(t, "kyle", u.Username)
 			},
 			AllowSignups: true,
@@ -1109,7 +1109,7 @@ func TestUserOIDC(t *testing.T) {
 			IDTokenClaims: jwt.MapClaims{
 				"preferred_username": "kyle@kwc.io",
 			},
-			AssertUser: func(t testing.TB, u codersdk.User) {
+			AssertUser: func(t testing.TB, u wirtualsdk.User) {
 				assert.Equal(t, "kyle", u.Username)
 				assert.Empty(t, u.Name)
 			},
@@ -1124,7 +1124,7 @@ func TestUserOIDC(t *testing.T) {
 				"preferred_username": "kyle",
 				"picture":            "/example.png",
 			},
-			AssertUser: func(t testing.TB, u codersdk.User) {
+			AssertUser: func(t testing.TB, u wirtualsdk.User) {
 				assert.Equal(t, "/example.png", u.AvatarURL)
 				assert.Equal(t, "kyle", u.Username)
 			},
@@ -1142,7 +1142,7 @@ func TestUserOIDC(t *testing.T) {
 				"picture":            "/example.png",
 				"name":               "Kylium Carbonate",
 			},
-			AssertUser: func(t testing.TB, u codersdk.User) {
+			AssertUser: func(t testing.TB, u wirtualsdk.User) {
 				assert.Equal(t, "/example.png", u.AvatarURL)
 				assert.Equal(t, "Kylium Carbonate", u.Name)
 				assert.Equal(t, "potato", u.Username)
@@ -1170,7 +1170,7 @@ func TestUserOIDC(t *testing.T) {
 				"email_verified":     true,
 				"preferred_username": "user",
 			},
-			AssertUser: func(t testing.TB, u codersdk.User) {
+			AssertUser: func(t testing.TB, u wirtualsdk.User) {
 				assert.Equal(t, "user", u.Username)
 			},
 			AllowSignups:        true,
@@ -1203,7 +1203,7 @@ func TestUserOIDC(t *testing.T) {
 				"name":               "Mr. User McName",
 				"preferred_username": "Mr. User McName",
 			},
-			AssertUser: func(t testing.TB, u codersdk.User) {
+			AssertUser: func(t testing.TB, u wirtualsdk.User) {
 				assert.Equal(t, "user", u.Username)
 				assert.Equal(t, "User McName", u.Name)
 			},
@@ -1217,7 +1217,7 @@ func TestUserOIDC(t *testing.T) {
 				"email":          "user@domain.tld",
 				"email_verified": true,
 			}, 65536),
-			AssertUser: func(t testing.TB, u codersdk.User) {
+			AssertUser: func(t testing.TB, u wirtualsdk.User) {
 				assert.Equal(t, "user", u.Username)
 			},
 			AllowSignups: true,
@@ -1230,7 +1230,7 @@ func TestUserOIDC(t *testing.T) {
 				"email_verified": true,
 			},
 			UserInfoClaims: inflateClaims(t, jwt.MapClaims{}, 65536),
-			AssertUser: func(t testing.TB, u codersdk.User) {
+			AssertUser: func(t testing.TB, u wirtualsdk.User) {
 				assert.Equal(t, "user", u.Username)
 			},
 			AllowSignups: true,
@@ -1341,7 +1341,7 @@ func TestUserOIDC(t *testing.T) {
 		me, err := client.User(ctx, "me")
 		require.NoError(t, err)
 
-		require.Equal(t, codersdk.UserStatusActive, me.Status)
+		require.Equal(t, wirtualsdk.UserStatusActive, me.Status)
 	})
 
 	t.Run("OIDCConvert", func(t *testing.T) {
@@ -1365,7 +1365,7 @@ func TestUserOIDC(t *testing.T) {
 
 		owner := coderdtest.CreateFirstUser(t, client)
 		user, userData := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		require.Equal(t, codersdk.LoginTypePassword, userData.LoginType)
+		require.Equal(t, wirtualsdk.LoginTypePassword, userData.LoginType)
 
 		claims := jwt.MapClaims{
 			"email": userData.Email,
@@ -1377,8 +1377,8 @@ func TestUserOIDC(t *testing.T) {
 
 		ctx := testutil.Context(t, testutil.WaitShort)
 
-		convertResponse, err := user.ConvertLoginType(ctx, codersdk.ConvertLoginRequest{
-			ToType:   codersdk.LoginTypeOIDC,
+		convertResponse, err := user.ConvertLoginType(ctx, wirtualsdk.ConvertLoginRequest{
+			ToType:   wirtualsdk.LoginTypeOIDC,
 			Password: "SomeSecurePassword!",
 		})
 		require.NoError(t, err)
@@ -1387,7 +1387,7 @@ func TestUserOIDC(t *testing.T) {
 			r.URL.RawQuery = url.Values{
 				"oidc_merge_state": {convertResponse.StateString},
 			}.Encode()
-			r.Header.Set(codersdk.SessionTokenHeader, user.SessionToken())
+			r.Header.Set(wirtualsdk.SessionTokenHeader, user.SessionToken())
 			cookies := user.HTTPClient.Jar.Cookies(r.URL)
 			for _, cookie := range cookies {
 				r.AddCookie(cookie)
@@ -1396,7 +1396,7 @@ func TestUserOIDC(t *testing.T) {
 
 		info, err := client.User(ctx, userData.ID.String())
 		require.NoError(t, err)
-		require.Equal(t, codersdk.LoginTypeOIDC, info.LoginType)
+		require.Equal(t, wirtualsdk.LoginTypeOIDC, info.LoginType)
 	})
 
 	t.Run("BadJWT", func(t *testing.T) {
@@ -1423,7 +1423,7 @@ func TestUserOIDC(t *testing.T) {
 			DB: db,
 		}
 
-		kc, err := cryptokeys.NewSigningCache(ctx, logger, fetcher, codersdk.CryptoKeyFeatureOIDCConvert)
+		kc, err := cryptokeys.NewSigningCache(ctx, logger, fetcher, wirtualsdk.CryptoKeyFeatureOIDCConvert)
 		require.NoError(t, err)
 
 		client := coderdtest.New(t, &coderdtest.Options{
@@ -1444,8 +1444,8 @@ func TestUserOIDC(t *testing.T) {
 		require.NoError(t, err)
 		user.HTTPClient.Transport = http.DefaultTransport.(*http.Transport).Clone()
 
-		convertResponse, err := user.ConvertLoginType(ctx, codersdk.ConvertLoginRequest{
-			ToType:   codersdk.LoginTypeOIDC,
+		convertResponse, err := user.ConvertLoginType(ctx, wirtualsdk.ConvertLoginRequest{
+			ToType:   wirtualsdk.LoginTypeOIDC,
 			Password: "SomeSecurePassword!",
 		})
 		require.NoError(t, err)
@@ -1456,7 +1456,7 @@ func TestUserOIDC(t *testing.T) {
 			r.URL.RawQuery = url.Values{
 				"oidc_merge_state": {convertResponse.StateString},
 			}.Encode()
-			r.Header.Set(codersdk.SessionTokenHeader, user.SessionToken())
+			r.Header.Set(wirtualsdk.SessionTokenHeader, user.SessionToken())
 
 			cookies := user.HTTPClient.Jar.Cookies(user.URL)
 			for i, cookie := range cookies {
@@ -1482,7 +1482,7 @@ func TestUserOIDC(t *testing.T) {
 		})
 		defer resp.Body.Close()
 		require.Equal(t, http.StatusBadRequest, resp.StatusCode)
-		var respErr codersdk.Response
+		var respErr wirtualsdk.Response
 		err = json.NewDecoder(resp.Body).Decode(&respErr)
 		require.NoError(t, err)
 		require.Contains(t, respErr.Message, "Using an invalid jwt to authorize this action.")
@@ -1673,7 +1673,7 @@ func TestUserLogout(t *testing.T) {
 		//nolint:gosec
 		password = "SomeSecurePassword123!"
 	)
-	newUser, err := client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+	newUser, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 		Email:           email,
 		Username:        username,
 		Password:        password,
@@ -1682,15 +1682,15 @@ func TestUserLogout(t *testing.T) {
 	require.NoError(t, err)
 
 	// Log in with basic auth and keep the the session token (but don't use it).
-	userClient := codersdk.New(client.URL)
-	loginRes1, err := userClient.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+	userClient := wirtualsdk.New(client.URL)
+	loginRes1, err := userClient.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 		Email:    email,
 		Password: password,
 	})
 	require.NoError(t, err)
 
 	// Log in again but actually set the token this time.
-	loginRes2, err := userClient.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+	loginRes2, err := userClient.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 		Email:    email,
 		Password: password,
 	})
@@ -1734,9 +1734,9 @@ func TestUserLogout(t *testing.T) {
 	require.NoError(t, err)
 
 	// Ensure the new user's session token is no longer valid.
-	_, err = userClient.User(ctx, codersdk.Me)
+	_, err = userClient.User(ctx, wirtualsdk.Me)
 	require.Error(t, err)
-	var sdkErr *codersdk.Error
+	var sdkErr *wirtualsdk.Error
 	require.ErrorAs(t, err, &sdkErr)
 	require.Equal(t, http.StatusUnauthorized, sdkErr.StatusCode())
 
@@ -1797,7 +1797,7 @@ func TestOIDCSkipIssuer(t *testing.T) {
 	})
 	found, err := userClient.User(ctx, "me")
 	require.NoError(t, err)
-	require.Equal(t, found.LoginType, codersdk.LoginTypeOIDC)
+	require.Equal(t, found.LoginType, wirtualsdk.LoginTypeOIDC)
 }
 
 func TestUserForgotPassword(t *testing.T) {
@@ -1813,28 +1813,28 @@ func TestUserForgotPassword(t *testing.T) {
 		require.Equal(t, userID, notif.Targets[0])
 	}
 
-	requireCanLogin := func(t *testing.T, ctx context.Context, client *codersdk.Client, email string, password string) {
-		_, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+	requireCanLogin := func(t *testing.T, ctx context.Context, client *wirtualsdk.Client, email string, password string) {
+		_, err := client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 			Email:    email,
 			Password: password,
 		})
 		require.NoError(t, err)
 	}
 
-	requireCannotLogin := func(t *testing.T, ctx context.Context, client *codersdk.Client, email string, password string) {
-		_, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+	requireCannotLogin := func(t *testing.T, ctx context.Context, client *wirtualsdk.Client, email string, password string) {
+		_, err := client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
 			Email:    email,
 			Password: password,
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusUnauthorized, apiErr.StatusCode())
 		require.Contains(t, apiErr.Message, "Incorrect email or password.")
 	}
 
-	requireRequestOneTimePasscode := func(t *testing.T, ctx context.Context, client *codersdk.Client, notifyEnq *notificationstest.FakeEnqueuer, email string, userID uuid.UUID) string {
+	requireRequestOneTimePasscode := func(t *testing.T, ctx context.Context, client *wirtualsdk.Client, notifyEnq *notificationstest.FakeEnqueuer, email string, userID uuid.UUID) string {
 		notifyEnq.Clear()
-		err := client.RequestOneTimePasscode(ctx, codersdk.RequestOneTimePasscodeRequest{Email: email})
+		err := client.RequestOneTimePasscode(ctx, wirtualsdk.RequestOneTimePasscodeRequest{Email: email})
 		require.NoError(t, err)
 		sent := notifyEnq.Sent()
 		require.Len(t, sent, 1)
@@ -1843,8 +1843,8 @@ func TestUserForgotPassword(t *testing.T) {
 		return sent[0].Labels["one_time_passcode"]
 	}
 
-	requireChangePasswordWithOneTimePasscode := func(t *testing.T, ctx context.Context, client *codersdk.Client, email string, passcode string, password string) {
-		err := client.ChangePasswordWithOneTimePasscode(ctx, codersdk.ChangePasswordWithOneTimePasscodeRequest{
+	requireChangePasswordWithOneTimePasscode := func(t *testing.T, ctx context.Context, client *wirtualsdk.Client, email string, passcode string, password string) {
+		err := client.ChangePasswordWithOneTimePasscode(ctx, wirtualsdk.ChangePasswordWithOneTimePasscodeRequest{
 			Email:           email,
 			OneTimePasscode: passcode,
 			Password:        password,
@@ -1877,12 +1877,12 @@ func TestUserForgotPassword(t *testing.T) {
 		requireCanLogin(t, ctx, anotherClient, anotherUser.Email, newPassword)
 
 		// We now need to check that the one-time passcode isn't valid.
-		err := anotherClient.ChangePasswordWithOneTimePasscode(ctx, codersdk.ChangePasswordWithOneTimePasscodeRequest{
+		err := anotherClient.ChangePasswordWithOneTimePasscode(ctx, wirtualsdk.ChangePasswordWithOneTimePasscodeRequest{
 			Email:           anotherUser.Email,
 			OneTimePasscode: oneTimePasscode,
 			Password:        newPassword + "!",
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 		require.Contains(t, apiErr.Message, "Incorrect email or one-time passcode.")
@@ -1915,12 +1915,12 @@ func TestUserForgotPassword(t *testing.T) {
 		time.Sleep(oneTimePasscodeValidityPeriod + 1*time.Millisecond)
 
 		// Try to change password with an expired one time passcode.
-		err := anotherClient.ChangePasswordWithOneTimePasscode(ctx, codersdk.ChangePasswordWithOneTimePasscodeRequest{
+		err := anotherClient.ChangePasswordWithOneTimePasscode(ctx, wirtualsdk.ChangePasswordWithOneTimePasscodeRequest{
 			Email:           anotherUser.Email,
 			OneTimePasscode: oneTimePasscode,
 			Password:        newPassword,
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 		require.Contains(t, apiErr.Message, "Incorrect email or one-time passcode.")
@@ -1945,12 +1945,12 @@ func TestUserForgotPassword(t *testing.T) {
 
 		anotherClient, anotherUser := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
-		err := anotherClient.ChangePasswordWithOneTimePasscode(ctx, codersdk.ChangePasswordWithOneTimePasscodeRequest{
+		err := anotherClient.ChangePasswordWithOneTimePasscode(ctx, wirtualsdk.ChangePasswordWithOneTimePasscodeRequest{
 			Email:           anotherUser.Email,
 			OneTimePasscode: uuid.New().String(),
 			Password:        newPassword,
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 		require.Contains(t, apiErr.Message, "Incorrect email or one-time passcode")
@@ -1976,12 +1976,12 @@ func TestUserForgotPassword(t *testing.T) {
 
 		_ = requireRequestOneTimePasscode(t, ctx, anotherClient, notifyEnq, anotherUser.Email, anotherUser.ID)
 
-		err := anotherClient.ChangePasswordWithOneTimePasscode(ctx, codersdk.ChangePasswordWithOneTimePasscodeRequest{
+		err := anotherClient.ChangePasswordWithOneTimePasscode(ctx, wirtualsdk.ChangePasswordWithOneTimePasscodeRequest{
 			Email:           anotherUser.Email,
 			OneTimePasscode: uuid.New().String(), // Use a different UUID to the one expected
 			Password:        newPassword,
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 		require.Contains(t, apiErr.Message, "Incorrect email or one-time passcode")
@@ -2007,12 +2007,12 @@ func TestUserForgotPassword(t *testing.T) {
 
 		_ = requireRequestOneTimePasscode(t, ctx, anotherClient, notifyEnq, anotherUser.Email, anotherUser.ID)
 
-		err := anotherClient.ChangePasswordWithOneTimePasscode(ctx, codersdk.ChangePasswordWithOneTimePasscodeRequest{
+		err := anotherClient.ChangePasswordWithOneTimePasscode(ctx, wirtualsdk.ChangePasswordWithOneTimePasscodeRequest{
 			Email:           anotherUser.Email,
 			OneTimePasscode: "",
 			Password:        newPassword,
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 		require.Contains(t, apiErr.Message, "Validation failed.")
@@ -2040,12 +2040,12 @@ func TestUserForgotPassword(t *testing.T) {
 
 		oneTimePasscode := requireRequestOneTimePasscode(t, ctx, anotherClient, notifyEnq, anotherUser.Email, anotherUser.ID)
 
-		err := anotherClient.ChangePasswordWithOneTimePasscode(ctx, codersdk.ChangePasswordWithOneTimePasscodeRequest{
+		err := anotherClient.ChangePasswordWithOneTimePasscode(ctx, wirtualsdk.ChangePasswordWithOneTimePasscodeRequest{
 			Email:           anotherUser.Email,
 			OneTimePasscode: oneTimePasscode,
 			Password:        "notstrong",
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 		require.Contains(t, apiErr.Message, "Invalid password.")
@@ -2076,12 +2076,12 @@ func TestUserForgotPassword(t *testing.T) {
 		oneTimePasscode := requireRequestOneTimePasscode(t, ctx, anotherClient, notifyEnq, anotherUser.Email, anotherUser.ID)
 
 		// Ensure we cannot change the password for `thirdUser` with `anotherUser`'s One-Time Passcode.
-		err := thirdClient.ChangePasswordWithOneTimePasscode(ctx, codersdk.ChangePasswordWithOneTimePasscodeRequest{
+		err := thirdClient.ChangePasswordWithOneTimePasscode(ctx, wirtualsdk.ChangePasswordWithOneTimePasscodeRequest{
 			Email:           thirdUser.Email,
 			OneTimePasscode: oneTimePasscode,
 			Password:        newPassword,
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusBadRequest, apiErr.StatusCode())
 		require.Contains(t, apiErr.Message, "Incorrect email or one-time passcode")
@@ -2106,7 +2106,7 @@ func TestUserForgotPassword(t *testing.T) {
 
 		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
-		err := anotherClient.RequestOneTimePasscode(ctx, codersdk.RequestOneTimePasscodeRequest{
+		err := anotherClient.RequestOneTimePasscode(ctx, wirtualsdk.RequestOneTimePasscodeRequest{
 			Email: "not-a-member@coder.com",
 		})
 		require.NoError(t, err)
@@ -2117,7 +2117,7 @@ func TestUserForgotPassword(t *testing.T) {
 	})
 }
 
-func oauth2Callback(t *testing.T, client *codersdk.Client, opts ...func(*http.Request)) *http.Response {
+func oauth2Callback(t *testing.T, client *wirtualsdk.Client, opts ...func(*http.Request)) *http.Response {
 	client.HTTPClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 		return http.ErrUseLastResponse
 	}
@@ -2131,7 +2131,7 @@ func oauth2Callback(t *testing.T, client *codersdk.Client, opts ...func(*http.Re
 		opt(req)
 	}
 	req.AddCookie(&http.Cookie{
-		Name:  codersdk.OAuth2StateCookie,
+		Name:  wirtualsdk.OAuth2StateCookie,
 		Value: state,
 	})
 	res, err := client.HTTPClient.Do(req)
@@ -2148,7 +2148,7 @@ func i64ptr(i int64) *int64 {
 
 func authCookieValue(cookies []*http.Cookie) string {
 	for _, cookie := range cookies {
-		if cookie.Name == codersdk.SessionTokenCookie {
+		if cookie.Name == wirtualsdk.SessionTokenCookie {
 			return cookie.Value
 		}
 	}

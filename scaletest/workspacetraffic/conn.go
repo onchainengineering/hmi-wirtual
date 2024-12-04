@@ -37,7 +37,7 @@ const (
 	rptyJSONMaxDataSize = 1024
 )
 
-func connectRPTY(ctx context.Context, client *codersdk.Client, agentID, reconnect uuid.UUID, cmd string) (*countReadWriteCloser, error) {
+func connectRPTY(ctx context.Context, client *wirtualsdk.Client, agentID, reconnect uuid.UUID, cmd string) (*countReadWriteCloser, error) {
 	width, height := 80, 25
 	conn, err := workspacesdk.New(client).AgentReconnectingPTY(ctx, workspacesdk.WorkspaceAgentReconnectingPTYOpts{
 		AgentID:   agentID,
@@ -145,7 +145,7 @@ func (c *rptyConn) Close() (err error) {
 }
 
 //nolint:revive // Ignore requestPTY control flag.
-func connectSSH(ctx context.Context, client *codersdk.Client, agentID uuid.UUID, cmd string, requestPTY bool) (rwc *countReadWriteCloser, err error) {
+func connectSSH(ctx context.Context, client *wirtualsdk.Client, agentID uuid.UUID, cmd string, requestPTY bool) (rwc *countReadWriteCloser, err error) {
 	var closers []func() error
 	defer func() {
 		if err != nil {
@@ -266,9 +266,9 @@ func (w *wrappedSSHConn) Write(p []byte) (n int, err error) {
 	return w.stdin.Write(p)
 }
 
-func appClientConn(ctx context.Context, client *codersdk.Client, url string) (*countReadWriteCloser, error) {
+func appClientConn(ctx context.Context, client *wirtualsdk.Client, url string) (*countReadWriteCloser, error) {
 	headers := http.Header{}
-	tokenHeader := codersdk.SessionTokenHeader
+	tokenHeader := wirtualsdk.SessionTokenHeader
 	if client.SessionTokenHeader != "" {
 		tokenHeader = client.SessionTokenHeader
 	}

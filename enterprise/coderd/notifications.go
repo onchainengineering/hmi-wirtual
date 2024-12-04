@@ -36,7 +36,7 @@ func (api *API) updateNotificationTemplateMethod(rw http.ResponseWriter, r *http
 		})
 	)
 
-	var req codersdk.UpdateNotificationTemplateMethod
+	var req wirtualsdk.UpdateNotificationTemplateMethod
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
@@ -49,9 +49,9 @@ func (api *API) updateNotificationTemplateMethod(rw http.ResponseWriter, r *http
 			acceptable[i] = string(v)
 		}
 
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Invalid request to update notification template method",
-			Validations: []codersdk.ValidationError{
+			Validations: []wirtualsdk.ValidationError{
 				{
 					Field: "method",
 					Detail: fmt.Sprintf("%q is not a valid method; %s are the available options",
@@ -64,7 +64,7 @@ func (api *API) updateNotificationTemplateMethod(rw http.ResponseWriter, r *http
 	}
 
 	if template.Method == nm {
-		httpapi.Write(ctx, rw, http.StatusNotModified, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusNotModified, wirtualsdk.Response{
 			Message: "Notification template method unchanged.",
 		})
 		return
@@ -92,7 +92,7 @@ func (api *API) updateNotificationTemplateMethod(rw http.ResponseWriter, r *http
 
 	aReq.New = template
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.Response{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.Response{
 		Message: "Successfully updated notification template method.",
 	})
 }

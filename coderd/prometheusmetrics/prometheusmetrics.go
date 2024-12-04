@@ -196,7 +196,7 @@ func Workspaces(ctx context.Context, logger slog.Logger, registerer prometheus.R
 
 		workspaceLatestBuildTotals.Reset()
 		for _, job := range jobs {
-			status := codersdk.ProvisionerJobStatus(job.JobStatus)
+			status := wirtualsdk.ProvisionerJobStatus(job.JobStatus)
 			workspaceLatestBuildTotals.WithLabelValues(string(status)).Add(1)
 			// TODO: deprecated: remove in the future
 			workspaceLatestBuildTotalsDeprecated.WithLabelValues(string(status)).Add(1)
@@ -645,7 +645,7 @@ func AgentStats(ctx context.Context, logger slog.Logger, registerer prometheus.R
 }
 
 // Experiments registers a metric which indicates whether each experiment is enabled or not.
-func Experiments(registerer prometheus.Registerer, active codersdk.Experiments) error {
+func Experiments(registerer prometheus.Registerer, active wirtualsdk.Experiments) error {
 	experimentsGauge := prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Namespace: "coderd",
 		Name:      "experiments",
@@ -655,7 +655,7 @@ func Experiments(registerer prometheus.Registerer, active codersdk.Experiments) 
 		return err
 	}
 
-	for _, exp := range codersdk.ExperimentsAll {
+	for _, exp := range wirtualsdk.ExperimentsAll {
 		var val float64
 		for _, enabled := range active {
 			if exp == enabled {

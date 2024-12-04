@@ -49,7 +49,7 @@ func (decorateHelpersError) Is(other error) bool {
 // through a pipeline of fetch -> prepare -> render -> acquire handler -> deliver.
 type notifier struct {
 	id    uuid.UUID
-	cfg   codersdk.NotificationsConfig
+	cfg   wirtualsdk.NotificationsConfig
 	log   slog.Logger
 	store Store
 
@@ -67,7 +67,7 @@ type notifier struct {
 	clock quartz.Clock
 }
 
-func newNotifier(outerCtx context.Context, cfg codersdk.NotificationsConfig, id uuid.UUID, log slog.Logger, db Store,
+func newNotifier(outerCtx context.Context, cfg wirtualsdk.NotificationsConfig, id uuid.UUID, log slog.Logger, db Store,
 	hr map[database.NotificationMethod]Handler, helpers template.FuncMap, metrics *Metrics, clock quartz.Clock,
 ) *notifier {
 	gracefulCtx, gracefulCancel := context.WithCancel(outerCtx)
@@ -135,7 +135,7 @@ func (n *notifier) ensureRunning(ctx context.Context) (bool, error) {
 		return false, xerrors.Errorf("get notifications settings: %w", err)
 	}
 
-	var settings codersdk.NotificationsSettings
+	var settings wirtualsdk.NotificationsSettings
 	if len(settingsJSON) == 0 {
 		return true, nil // settings.NotifierPaused is false by default
 	}

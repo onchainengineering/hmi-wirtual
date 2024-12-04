@@ -11,7 +11,7 @@ import (
 )
 
 func (e EnterpriseIDPSync) OrganizationSyncEntitled() bool {
-	return e.entitlements.Enabled(codersdk.FeatureMultipleOrganizations)
+	return e.entitlements.Enabled(wirtualsdk.FeatureMultipleOrganizations)
 }
 
 func (e EnterpriseIDPSync) OrganizationSyncEnabled(ctx context.Context, db database.Store) bool {

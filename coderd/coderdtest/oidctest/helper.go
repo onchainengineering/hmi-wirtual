@@ -24,10 +24,10 @@ import (
 // some database manipulation.
 type LoginHelper struct {
 	fake   *FakeIDP
-	client *codersdk.Client
+	client *wirtualsdk.Client
 }
 
-func NewLoginHelper(client *codersdk.Client, fake *FakeIDP) *LoginHelper {
+func NewLoginHelper(client *wirtualsdk.Client, fake *FakeIDP) *LoginHelper {
 	if client == nil {
 		panic("client must not be nil")
 	}
@@ -43,23 +43,23 @@ func NewLoginHelper(client *codersdk.Client, fake *FakeIDP) *LoginHelper {
 // Login just helps by making an unauthenticated client and logging in with
 // the given claims. All Logins should be unauthenticated, so this is a
 // convenience method.
-func (h *LoginHelper) Login(t *testing.T, idTokenClaims jwt.MapClaims) (*codersdk.Client, *http.Response) {
+func (h *LoginHelper) Login(t *testing.T, idTokenClaims jwt.MapClaims) (*wirtualsdk.Client, *http.Response) {
 	t.Helper()
-	unauthenticatedClient := codersdk.New(h.client.URL)
+	unauthenticatedClient := wirtualsdk.New(h.client.URL)
 
 	return h.fake.Login(t, unauthenticatedClient, idTokenClaims)
 }
 
 // AttemptLogin does not assert a successful login.
-func (h *LoginHelper) AttemptLogin(t *testing.T, idTokenClaims jwt.MapClaims) (*codersdk.Client, *http.Response) {
+func (h *LoginHelper) AttemptLogin(t *testing.T, idTokenClaims jwt.MapClaims) (*wirtualsdk.Client, *http.Response) {
 	t.Helper()
-	unauthenticatedClient := codersdk.New(h.client.URL)
+	unauthenticatedClient := wirtualsdk.New(h.client.URL)
 
 	return h.fake.AttemptLogin(t, unauthenticatedClient, idTokenClaims)
 }
 
 // ExpireOauthToken expires the oauth token for the given user.
-func (*LoginHelper) ExpireOauthToken(t *testing.T, db database.Store, user *codersdk.Client) database.UserLink {
+func (*LoginHelper) ExpireOauthToken(t *testing.T, db database.Store, user *wirtualsdk.Client) database.UserLink {
 	t.Helper()
 
 	//nolint:gocritic // Testing
@@ -100,7 +100,7 @@ func (*LoginHelper) ExpireOauthToken(t *testing.T, db database.Store, user *code
 // the API Key middleware to refresh the oauth token.
 //
 // A unit test assertion makes sure the refresh token is used.
-func (h *LoginHelper) ForceRefresh(t *testing.T, db database.Store, user *codersdk.Client, idToken jwt.MapClaims) {
+func (h *LoginHelper) ForceRefresh(t *testing.T, db database.Store, user *wirtualsdk.Client, idToken jwt.MapClaims) {
 	t.Helper()
 
 	link := h.ExpireOauthToken(t, db, user)
@@ -140,7 +140,7 @@ func OAuth2GetCode(rawAuthURL string, doRequest func(req *http.Request) (*http.R
 	defer resp.Body.Close()
 
 	if resp.StatusCode != expCode {
-		return "", codersdk.ReadBodyAsError(resp)
+		return "", wirtualsdk.ReadBodyAsError(resp)
 	}
 
 	to := resp.Header.Get("Location")

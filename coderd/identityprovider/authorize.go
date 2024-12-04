@@ -20,12 +20,12 @@ import (
 type authorizeParams struct {
 	clientID     string
 	redirectURL  *url.URL
-	responseType codersdk.OAuth2ProviderResponseType
+	responseType wirtualsdk.OAuth2ProviderResponseType
 	scope        []string
 	state        string
 }
 
-func extractAuthorizeParams(r *http.Request, callbackURL *url.URL) (authorizeParams, []codersdk.ValidationError, error) {
+func extractAuthorizeParams(r *http.Request, callbackURL *url.URL) (authorizeParams, []wirtualsdk.ValidationError, error) {
 	p := httpapi.NewQueryParamParser()
 	vals := r.URL.Query()
 
@@ -34,7 +34,7 @@ func extractAuthorizeParams(r *http.Request, callbackURL *url.URL) (authorizePar
 	params := authorizeParams{
 		clientID:     p.String(vals, "", "client_id"),
 		redirectURL:  p.RedirectURL(vals, callbackURL, "redirect_uri"),
-		responseType: httpapi.ParseCustom(p, vals, "", "response_type", httpapi.ParseEnum[codersdk.OAuth2ProviderResponseType]),
+		responseType: httpapi.ParseCustom(p, vals, "", "response_type", httpapi.ParseEnum[wirtualsdk.OAuth2ProviderResponseType]),
 		scope:        p.Strings(vals, []string{}, "scope"),
 		state:        p.String(vals, "", "state"),
 	}
@@ -61,7 +61,7 @@ func Authorize(db database.Store, accessURL *url.URL) http.HandlerFunc {
 
 		callbackURL, err := url.Parse(app.CallbackURL)
 		if err != nil {
-			httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(r.Context(), rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Failed to validate query parameters.",
 				Detail:  err.Error(),
 			})
@@ -70,7 +70,7 @@ func Authorize(db database.Store, accessURL *url.URL) http.HandlerFunc {
 
 		params, validationErrs, err := extractAuthorizeParams(r, callbackURL)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message:     "Invalid query params.",
 				Detail:      err.Error(),
 				Validations: validationErrs,
@@ -81,7 +81,7 @@ func Authorize(db database.Store, accessURL *url.URL) http.HandlerFunc {
 		// TODO: Ignoring scope for now, but should look into implementing.
 		code, err := GenerateSecret()
 		if err != nil {
-			httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(r.Context(), rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Failed to generate OAuth2 app authorization code.",
 			})
 			return
@@ -120,7 +120,7 @@ func Authorize(db database.Store, accessURL *url.URL) http.HandlerFunc {
 			return nil
 		}, nil)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Failed to generate OAuth2 authorization code.",
 				Detail:  err.Error(),
 			})

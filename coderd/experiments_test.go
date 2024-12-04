@@ -48,7 +48,7 @@ func Test_Experiments(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, experiments)
 		// Should be lower-cased.
-		require.ElementsMatch(t, []codersdk.Experiment{"foo", "bar"}, experiments)
+		require.ElementsMatch(t, []wirtualsdk.Experiment{"foo", "bar"}, experiments)
 		require.True(t, experiments.Enabled("foo"))
 		require.True(t, experiments.Enabled("bar"))
 		require.False(t, experiments.Enabled("baz"))
@@ -69,8 +69,8 @@ func Test_Experiments(t *testing.T) {
 		experiments, err := client.Experiments(ctx)
 		require.NoError(t, err)
 		require.NotNil(t, experiments)
-		require.ElementsMatch(t, codersdk.ExperimentsAll, experiments)
-		for _, ex := range codersdk.ExperimentsAll {
+		require.ElementsMatch(t, wirtualsdk.ExperimentsAll, experiments)
+		for _, ex := range wirtualsdk.ExperimentsAll {
 			require.True(t, experiments.Enabled(ex))
 		}
 		require.False(t, experiments.Enabled("danger"))
@@ -91,8 +91,8 @@ func Test_Experiments(t *testing.T) {
 		experiments, err := client.Experiments(ctx)
 		require.NoError(t, err)
 		require.NotNil(t, experiments)
-		require.ElementsMatch(t, append(codersdk.ExperimentsAll, "danger"), experiments)
-		for _, ex := range codersdk.ExperimentsAll {
+		require.ElementsMatch(t, append(wirtualsdk.ExperimentsAll, "danger"), experiments)
+		for _, ex := range wirtualsdk.ExperimentsAll {
 			require.True(t, experiments.Enabled(ex))
 		}
 		require.True(t, experiments.Enabled("danger"))
@@ -131,6 +131,6 @@ func Test_Experiments(t *testing.T) {
 		experiments, err := client.SafeExperiments(ctx)
 		require.NoError(t, err)
 		require.NotNil(t, experiments)
-		require.ElementsMatch(t, codersdk.ExperimentsAll, experiments.Safe)
+		require.ElementsMatch(t, wirtualsdk.ExperimentsAll, experiments.Safe)
 	})
 }

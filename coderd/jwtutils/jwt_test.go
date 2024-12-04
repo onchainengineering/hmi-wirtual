@@ -241,7 +241,7 @@ func TestJWS(t *testing.T) {
 			fetcher = &cryptokeys.DBFetcher{DB: db}
 		)
 
-		cache, err := cryptokeys.NewSigningCache(ctx, log, fetcher, codersdk.CryptoKeyFeatureOIDCConvert)
+		cache, err := cryptokeys.NewSigningCache(ctx, log, fetcher, wirtualsdk.CryptoKeyFeatureOIDCConvert)
 		require.NoError(t, err)
 
 		claims := testClaims{
@@ -332,7 +332,7 @@ func TestJWE(t *testing.T) {
 			fetcher = &cryptokeys.DBFetcher{DB: db}
 		)
 
-		cache, err := cryptokeys.NewEncryptionCache(ctx, log, fetcher, codersdk.CryptoKeyFeatureWorkspaceAppsAPIKey)
+		cache, err := cryptokeys.NewEncryptionCache(ctx, log, fetcher, wirtualsdk.CryptoKeyFeatureWorkspaceAppsAPIKey)
 		require.NoError(t, err)
 
 		claims := testClaims{

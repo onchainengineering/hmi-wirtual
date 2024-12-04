@@ -72,7 +72,7 @@ func TestConfigSSH(t *testing.T) {
 	const expectedKey = "ConnectionAttempts"
 	const removeKey = "ConnectTimeout"
 	client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
-		ConfigSSH: codersdk.SSHConfigResponse{
+		ConfigSSH: wirtualsdk.SSHConfigResponse{
 			HostnamePrefix: hostname,
 			SSHConfigOptions: map[string]string{
 				// Something we can test for

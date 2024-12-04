@@ -124,14 +124,14 @@ func xerrors(m dsl.Matcher) {
 		Report("Use xerrors to provide additional stacktrace information!")
 }
 
-// databaseImport enforces not importing any database types into /codersdk.
+// databaseImport enforces not importing any database types into /wirtualsdk.
 //
 //nolint:unused,deadcode,varnamelen
 func databaseImport(m dsl.Matcher) {
 	m.Import("github.com/coder/coder/v2/coderd/database")
 	m.Match("database.$_").
-		Report("Do not import any database types into codersdk").
-		Where(m.File().PkgPath.Matches("github.com/coder/coder/v2/codersdk"))
+		Report("Do not import any database types into wirtualsdk").
+		Where(m.File().PkgPath.Matches("github.com/coder/coder/v2/wirtualsdk"))
 }
 
 // doNotCallTFailNowInsideGoroutine enforces not calling t.FailNow or

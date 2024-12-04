@@ -25,8 +25,8 @@ import (
 //go:embed rbacobject.gotmpl
 var rbacObjectTemplate string
 
-//go:embed codersdk.gotmpl
-var codersdkTemplate string
+//go:embed wirtualsdk.gotmpl
+var wirtualsdkTemplate string
 
 //go:embed typescript.tstmpl
 var typescriptTemplate string
@@ -37,7 +37,7 @@ var countriesTemplate string
 func usage() {
 	_, _ = fmt.Println("Usage: typegen <type> [template]")
 	_, _ = fmt.Println("Types:")
-	_, _ = fmt.Println("  rbac <object|codersdk|typescript> - Generate RBAC related files")
+	_, _ = fmt.Println("  rbac <object|wirtualsdk|typescript> - Generate RBAC related files")
 	_, _ = fmt.Println("  countries              - Generate countries TypeScript")
 }
 
@@ -86,8 +86,8 @@ func generateRBAC(tmpl string) ([]byte, error) {
 	formatSource := format.Source
 	var source string
 	switch strings.ToLower(tmpl) {
-	case "codersdk":
-		source = codersdkTemplate
+	case "wirtualsdk":
+		source = wirtualsdkTemplate
 	case "object":
 		source = rbacObjectTemplate
 	case "typescript":
@@ -114,7 +114,7 @@ func generateCountries() ([]byte, error) {
 	}
 
 	var out bytes.Buffer
-	err = tmpl.Execute(&out, codersdk.Countries)
+	err = tmpl.Execute(&out, wirtualsdk.Countries)
 	if err != nil {
 		return nil, xerrors.Errorf("execute template: %w", err)
 	}

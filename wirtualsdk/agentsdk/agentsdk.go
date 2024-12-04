@@ -38,14 +38,14 @@ var ExternalLogSourceID = uuid.MustParse("3b579bf4-1ed8-4b99-87a8-e9a1e3410410")
 // Coder API from a workspace agent.
 func New(serverURL *url.URL) *Client {
 	return &Client{
-		SDK: codersdk.New(serverURL),
+		SDK: wirtualsdk.New(serverURL),
 	}
 }
 
 // Client wraps `wirtualsdk.Client` with specific functions
 // scoped to a workspace agent.
 type Client struct {
-	SDK *codersdk.Client
+	SDK *wirtualsdk.Client
 }
 
 func (c *Client) SetSessionToken(token string) {
@@ -66,7 +66,7 @@ func (c *Client) GitSSHKey(ctx context.Context) (GitSSHKey, error) {
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		return GitSSHKey{}, codersdk.ReadBodyAsError(res)
+		return GitSSHKey{}, wirtualsdk.ReadBodyAsError(res)
 	}
 
 	var gitSSHKey GitSSHKey
@@ -75,7 +75,7 @@ func (c *Client) GitSSHKey(ctx context.Context) (GitSSHKey, error) {
 
 type Metadata struct {
 	Key string `json:"key"`
-	codersdk.WorkspaceAgentMetadataResult
+	wirtualsdk.WorkspaceAgentMetadataResult
 }
 
 type PostMetadataRequest struct {
@@ -84,7 +84,7 @@ type PostMetadataRequest struct {
 
 // In the future, we may want to support sending back multiple values for
 // performance.
-type PostMetadataRequestDeprecated = codersdk.WorkspaceAgentMetadataResult
+type PostMetadataRequestDeprecated = wirtualsdk.WorkspaceAgentMetadataResult
 
 type Manifest struct {
 	AgentID   uuid.UUID `json:"agent_id"`
@@ -98,17 +98,17 @@ type Manifest struct {
 	// GitAuthConfigs stores the number of Git configurations
 	// the Coder deployment has. If this number is >0, we
 	// set up special configuration in the workspace.
-	GitAuthConfigs           int                                          `json:"git_auth_configs"`
-	VSCodePortProxyURI       string                                       `json:"vscode_port_proxy_uri"`
-	Apps                     []codersdk.WorkspaceApp                      `json:"apps"`
-	DERPMap                  *tailcfg.DERPMap                             `json:"derpmap"`
-	DERPForceWebSockets      bool                                         `json:"derp_force_websockets"`
-	EnvironmentVariables     map[string]string                            `json:"environment_variables"`
-	Directory                string                                       `json:"directory"`
-	MOTDFile                 string                                       `json:"motd_file"`
-	DisableDirectConnections bool                                         `json:"disable_direct_connections"`
-	Metadata                 []codersdk.WorkspaceAgentMetadataDescription `json:"metadata"`
-	Scripts                  []codersdk.WorkspaceAgentScript              `json:"scripts"`
+	GitAuthConfigs           int                                            `json:"git_auth_configs"`
+	VSCodePortProxyURI       string                                         `json:"vscode_port_proxy_uri"`
+	Apps                     []wirtualsdk.WorkspaceApp                      `json:"apps"`
+	DERPMap                  *tailcfg.DERPMap                               `json:"derpmap"`
+	DERPForceWebSockets      bool                                           `json:"derp_force_websockets"`
+	EnvironmentVariables     map[string]string                              `json:"environment_variables"`
+	Directory                string                                         `json:"directory"`
+	MOTDFile                 string                                         `json:"motd_file"`
+	DisableDirectConnections bool                                           `json:"disable_direct_connections"`
+	Metadata                 []wirtualsdk.WorkspaceAgentMetadataDescription `json:"metadata"`
+	Scripts                  []wirtualsdk.WorkspaceAgentScript              `json:"scripts"`
 }
 
 type LogSource struct {
@@ -248,7 +248,7 @@ func (c *Client) connectRPCVersion(ctx context.Context, version *apiversion.APIV
 		return nil, xerrors.Errorf("create cookie jar: %w", err)
 	}
 	jar.SetCookies(rpcURL, []*http.Cookie{{
-		Name:  codersdk.SessionTokenCookie,
+		Name:  wirtualsdk.SessionTokenCookie,
 		Value: c.SDK.SessionToken(),
 	}})
 	httpClient := &http.Client{
@@ -263,7 +263,7 @@ func (c *Client) connectRPCVersion(ctx context.Context, version *apiversion.APIV
 		if res == nil {
 			return nil, err
 		}
-		return nil, codersdk.ReadBodyAsError(res)
+		return nil, wirtualsdk.ReadBodyAsError(res)
 	}
 
 	// Set the read limit to 4 MiB -- about the limit for protobufs.  This needs to be larger than
@@ -283,7 +283,7 @@ func (c *Client) connectRPCVersion(ctx context.Context, version *apiversion.APIV
 
 type PostAppHealthsRequest struct {
 	// Healths is a map of the workspace app name and the health of the app.
-	Healths map[uuid.UUID]codersdk.WorkspaceAppHealth
+	Healths map[uuid.UUID]wirtualsdk.WorkspaceAppHealth
 }
 
 // BatchUpdateAppHealthsClient is a partial interface of proto.DRPCAgentClient.
@@ -341,7 +341,7 @@ func (c *Client) AuthGoogleInstanceIdentity(ctx context.Context, serviceAccount 
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		return AuthenticateResponse{}, codersdk.ReadBodyAsError(res)
+		return AuthenticateResponse{}, wirtualsdk.ReadBodyAsError(res)
 	}
 	var resp AuthenticateResponse
 	return resp, json.NewDecoder(res.Body).Decode(&resp)
@@ -411,7 +411,7 @@ func (c *Client) AuthAWSInstanceIdentity(ctx context.Context) (AuthenticateRespo
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		return AuthenticateResponse{}, codersdk.ReadBodyAsError(res)
+		return AuthenticateResponse{}, wirtualsdk.ReadBodyAsError(res)
 	}
 	var resp AuthenticateResponse
 	return resp, json.NewDecoder(res.Body).Decode(&resp)
@@ -448,7 +448,7 @@ func (c *Client) AuthAzureInstanceIdentity(ctx context.Context) (AuthenticateRes
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		return AuthenticateResponse{}, codersdk.ReadBodyAsError(res)
+		return AuthenticateResponse{}, wirtualsdk.ReadBodyAsError(res)
 	}
 	var resp AuthenticateResponse
 	return resp, json.NewDecoder(res.Body).Decode(&resp)
@@ -519,20 +519,20 @@ type StatsResponse struct {
 }
 
 type PostLifecycleRequest struct {
-	State     codersdk.WorkspaceAgentLifecycle `json:"state"`
-	ChangedAt time.Time                        `json:"changed_at"`
+	State     wirtualsdk.WorkspaceAgentLifecycle `json:"state"`
+	ChangedAt time.Time                          `json:"changed_at"`
 }
 
 type PostStartupRequest struct {
-	Version           string                    `json:"version"`
-	ExpandedDirectory string                    `json:"expanded_directory"`
-	Subsystems        []codersdk.AgentSubsystem `json:"subsystems"`
+	Version           string                      `json:"version"`
+	ExpandedDirectory string                      `json:"expanded_directory"`
+	Subsystems        []wirtualsdk.AgentSubsystem `json:"subsystems"`
 }
 
 type Log struct {
-	CreatedAt time.Time         `json:"created_at"`
-	Output    string            `json:"output"`
-	Level     codersdk.LogLevel `json:"level"`
+	CreatedAt time.Time           `json:"created_at"`
+	Output    string              `json:"output"`
+	Level     wirtualsdk.LogLevel `json:"level"`
 }
 
 type PatchLogs struct {
@@ -551,7 +551,7 @@ func (c *Client) PatchLogs(ctx context.Context, req PatchLogs) error {
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		return codersdk.ReadBodyAsError(res)
+		return wirtualsdk.ReadBodyAsError(res)
 	}
 	return nil
 }
@@ -566,16 +566,16 @@ type PostLogSourceRequest struct {
 	Icon        string    `json:"icon"`
 }
 
-func (c *Client) PostLogSource(ctx context.Context, req PostLogSourceRequest) (codersdk.WorkspaceAgentLogSource, error) {
+func (c *Client) PostLogSource(ctx context.Context, req PostLogSourceRequest) (wirtualsdk.WorkspaceAgentLogSource, error) {
 	res, err := c.SDK.Request(ctx, http.MethodPost, "/api/v2/workspaceagents/me/log-source", req)
 	if err != nil {
-		return codersdk.WorkspaceAgentLogSource{}, err
+		return wirtualsdk.WorkspaceAgentLogSource{}, err
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusCreated {
-		return codersdk.WorkspaceAgentLogSource{}, codersdk.ReadBodyAsError(res)
+		return wirtualsdk.WorkspaceAgentLogSource{}, wirtualsdk.ReadBodyAsError(res)
 	}
-	var logSource codersdk.WorkspaceAgentLogSource
+	var logSource wirtualsdk.WorkspaceAgentLogSource
 	return logSource, json.NewDecoder(res.Body).Decode(&logSource)
 }
 
@@ -621,7 +621,7 @@ func (c *Client) ExternalAuth(ctx context.Context, req ExternalAuthRequest) (Ext
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		return ExternalAuthResponse{}, codersdk.ReadBodyAsError(res)
+		return ExternalAuthResponse{}, wirtualsdk.ReadBodyAsError(res)
 	}
 
 	var authResp ExternalAuthResponse

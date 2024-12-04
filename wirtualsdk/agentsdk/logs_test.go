@@ -26,8 +26,8 @@ func TestStartupLogsWriter_Write(t *testing.T) {
 	tests := []struct {
 		name       string
 		ctx        context.Context
-		level      codersdk.LogLevel
-		source     codersdk.WorkspaceAgentLogSource
+		level      wirtualsdk.LogLevel
+		source     wirtualsdk.WorkspaceAgentLogSource
 		writes     []string
 		want       []agentsdk.Log
 		wantErr    bool
@@ -36,11 +36,11 @@ func TestStartupLogsWriter_Write(t *testing.T) {
 		{
 			name:   "single line",
 			ctx:    context.Background(),
-			level:  codersdk.LogLevelInfo,
+			level:  wirtualsdk.LogLevelInfo,
 			writes: []string{"hello world\n"},
 			want: []agentsdk.Log{
 				{
-					Level:  codersdk.LogLevelInfo,
+					Level:  wirtualsdk.LogLevelInfo,
 					Output: "hello world",
 				},
 			},
@@ -48,15 +48,15 @@ func TestStartupLogsWriter_Write(t *testing.T) {
 		{
 			name:   "multiple lines",
 			ctx:    context.Background(),
-			level:  codersdk.LogLevelInfo,
+			level:  wirtualsdk.LogLevelInfo,
 			writes: []string{"hello world\n", "goodbye world\n"},
 			want: []agentsdk.Log{
 				{
-					Level:  codersdk.LogLevelInfo,
+					Level:  wirtualsdk.LogLevelInfo,
 					Output: "hello world",
 				},
 				{
-					Level:  codersdk.LogLevelInfo,
+					Level:  wirtualsdk.LogLevelInfo,
 					Output: "goodbye world",
 				},
 			},
@@ -64,31 +64,31 @@ func TestStartupLogsWriter_Write(t *testing.T) {
 		{
 			name:   "multiple newlines",
 			ctx:    context.Background(),
-			level:  codersdk.LogLevelInfo,
+			level:  wirtualsdk.LogLevelInfo,
 			writes: []string{"\n\n", "hello world\n\n\n", "goodbye world\n"},
 			want: []agentsdk.Log{
 				{
-					Level:  codersdk.LogLevelInfo,
+					Level:  wirtualsdk.LogLevelInfo,
 					Output: "",
 				},
 				{
-					Level:  codersdk.LogLevelInfo,
+					Level:  wirtualsdk.LogLevelInfo,
 					Output: "",
 				},
 				{
-					Level:  codersdk.LogLevelInfo,
+					Level:  wirtualsdk.LogLevelInfo,
 					Output: "hello world",
 				},
 				{
-					Level:  codersdk.LogLevelInfo,
+					Level:  wirtualsdk.LogLevelInfo,
 					Output: "",
 				},
 				{
-					Level:  codersdk.LogLevelInfo,
+					Level:  wirtualsdk.LogLevelInfo,
 					Output: "",
 				},
 				{
-					Level:  codersdk.LogLevelInfo,
+					Level:  wirtualsdk.LogLevelInfo,
 					Output: "goodbye world",
 				},
 			},
@@ -96,11 +96,11 @@ func TestStartupLogsWriter_Write(t *testing.T) {
 		{
 			name:   "multiple lines with partial",
 			ctx:    context.Background(),
-			level:  codersdk.LogLevelInfo,
+			level:  wirtualsdk.LogLevelInfo,
 			writes: []string{"hello world\n", "goodbye world"},
 			want: []agentsdk.Log{
 				{
-					Level:  codersdk.LogLevelInfo,
+					Level:  wirtualsdk.LogLevelInfo,
 					Output: "hello world",
 				},
 			},
@@ -108,16 +108,16 @@ func TestStartupLogsWriter_Write(t *testing.T) {
 		{
 			name:       "multiple lines with partial, close flushes",
 			ctx:        context.Background(),
-			level:      codersdk.LogLevelInfo,
+			level:      wirtualsdk.LogLevelInfo,
 			writes:     []string{"hello world\n", "goodbye world"},
 			closeFirst: true,
 			want: []agentsdk.Log{
 				{
-					Level:  codersdk.LogLevelInfo,
+					Level:  wirtualsdk.LogLevelInfo,
 					Output: "hello world",
 				},
 				{
-					Level:  codersdk.LogLevelInfo,
+					Level:  wirtualsdk.LogLevelInfo,
 					Output: "goodbye world",
 				},
 			},
@@ -125,15 +125,15 @@ func TestStartupLogsWriter_Write(t *testing.T) {
 		{
 			name:   "multiple lines with partial in middle",
 			ctx:    context.Background(),
-			level:  codersdk.LogLevelInfo,
+			level:  wirtualsdk.LogLevelInfo,
 			writes: []string{"hello world\n", "goodbye", " world\n"},
 			want: []agentsdk.Log{
 				{
-					Level:  codersdk.LogLevelInfo,
+					Level:  wirtualsdk.LogLevelInfo,
 					Output: "hello world",
 				},
 				{
-					Level:  codersdk.LogLevelInfo,
+					Level:  wirtualsdk.LogLevelInfo,
 					Output: "goodbye world",
 				},
 			},
@@ -141,19 +141,19 @@ func TestStartupLogsWriter_Write(t *testing.T) {
 		{
 			name:   "removes carriage return when grouped with newline",
 			ctx:    context.Background(),
-			level:  codersdk.LogLevelInfo,
+			level:  wirtualsdk.LogLevelInfo,
 			writes: []string{"hello world\r\n", "\r\r\n", "goodbye world\n"},
 			want: []agentsdk.Log{
 				{
-					Level:  codersdk.LogLevelInfo,
+					Level:  wirtualsdk.LogLevelInfo,
 					Output: "hello world",
 				},
 				{
-					Level:  codersdk.LogLevelInfo,
+					Level:  wirtualsdk.LogLevelInfo,
 					Output: "\r",
 				},
 				{
-					Level:  codersdk.LogLevelInfo,
+					Level:  wirtualsdk.LogLevelInfo,
 					Output: "goodbye world",
 				},
 			},
@@ -282,7 +282,7 @@ func TestStartupLogsSender(t *testing.T) {
 			for i := 0; i < tt.sendCount; i++ {
 				want = append(want, agentsdk.Log{
 					CreatedAt: time.Now(),
-					Level:     codersdk.LogLevelInfo,
+					Level:     wirtualsdk.LogLevelInfo,
 					Output:    fmt.Sprintf("hello world %d", i),
 				})
 				err := sendLog(ctx, want[len(want)-1])
@@ -319,7 +319,7 @@ func TestStartupLogsSender(t *testing.T) {
 		cancel()
 		err := sendLog(ctx, agentsdk.Log{
 			CreatedAt: time.Now(),
-			Level:     codersdk.LogLevelInfo,
+			Level:     wirtualsdk.LogLevelInfo,
 			Output:    "hello world",
 		})
 		require.Error(t, err)
@@ -354,7 +354,7 @@ func TestStartupLogsSender(t *testing.T) {
 
 		err := sendLog(ctx, agentsdk.Log{
 			CreatedAt: time.Now(),
-			Level:     codersdk.LogLevelInfo,
+			Level:     wirtualsdk.LogLevelInfo,
 			Output:    "hello world",
 		})
 		require.NoError(t, err)

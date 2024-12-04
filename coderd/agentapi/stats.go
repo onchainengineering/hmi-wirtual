@@ -21,7 +21,7 @@ type StatsAPI struct {
 	Log                       slog.Logger
 	StatsReporter             *workspacestats.Reporter
 	AgentStatsRefreshInterval time.Duration
-	Experiments               codersdk.Experiments
+	Experiments               wirtualsdk.Experiments
 
 	TimeNowFn func() time.Time // defaults to dbtime.Now()
 }
@@ -57,7 +57,7 @@ func (a *StatsAPI) UpdateStats(ctx context.Context, req *agentproto.UpdateStatsR
 		slog.F("payload", req),
 	)
 
-	if a.Experiments.Enabled(codersdk.ExperimentWorkspaceUsage) {
+	if a.Experiments.Enabled(wirtualsdk.ExperimentWorkspaceUsage) {
 		// while the experiment is enabled we will not report
 		// session stats from the agent. This is because it is
 		// being handled by the CLI and the postWorkspaceUsage route.

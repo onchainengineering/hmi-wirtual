@@ -1,4 +1,4 @@
-package codersdk
+package wirtualsdk
 
 import (
 	"bytes"
@@ -120,7 +120,7 @@ func Test_Client(t *testing.T) {
 	// Setup tracing.
 	res := resource.NewWithAttributes(
 		semconv.SchemaURL,
-		semconv.ServiceNameKey.String("codersdk_test"),
+		semconv.ServiceNameKey.String("wirtualsdk_test"),
 	)
 	tracerOpts := []sdktrace.TracerProviderOption{
 		sdktrace.WithResource(res),
@@ -139,7 +139,7 @@ func Test_Client(t *testing.T) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
-	ctx, span := tracerProvider.Tracer("codersdk_test").Start(ctx, "codersdk client test 1")
+	ctx, span := tracerProvider.Tracer("wirtualsdk_test").Start(ctx, "wirtualsdk client test 1")
 	defer span.End()
 
 	resp, err := client.Request(ctx, method, path, []byte(reqBody))

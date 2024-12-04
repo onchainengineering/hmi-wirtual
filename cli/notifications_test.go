@@ -69,7 +69,7 @@ func TestNotifications(t *testing.T) {
 			settingsJSON, err := db.GetNotificationsSettings(ctx)
 			require.NoError(t, err)
 
-			var settings codersdk.NotificationsSettings
+			var settings wirtualsdk.NotificationsSettings
 			err = json.Unmarshal([]byte(settingsJSON), &settings)
 			require.NoError(t, err)
 			require.Equal(t, tt.expectPaused, settings.NotifierPaused)
@@ -92,9 +92,9 @@ func TestPauseNotifications_RegularUser(t *testing.T) {
 	var buf bytes.Buffer
 	inv.Stdout = &buf
 	err := inv.Run()
-	var sdkError *codersdk.Error
+	var sdkError *wirtualsdk.Error
 	require.Error(t, err)
-	require.ErrorAsf(t, err, &sdkError, "error should be of type *codersdk.Error")
+	require.ErrorAsf(t, err, &sdkError, "error should be of type *wirtualsdk.Error")
 	assert.Equal(t, http.StatusForbidden, sdkError.StatusCode())
 	assert.Contains(t, sdkError.Message, "Forbidden.")
 
@@ -104,7 +104,7 @@ func TestPauseNotifications_RegularUser(t *testing.T) {
 	settingsJSON, err := db.GetNotificationsSettings(ctx)
 	require.NoError(t, err)
 
-	var settings codersdk.NotificationsSettings
+	var settings wirtualsdk.NotificationsSettings
 	err = json.Unmarshal([]byte(settingsJSON), &settings)
 	require.NoError(t, err)
 	require.False(t, settings.NotifierPaused) // still running

@@ -53,7 +53,7 @@ func TestSMTP(t *testing.T) {
 	logger := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true, IgnoredErrorIs: []error{}}).Leveled(slog.LevelDebug)
 	tests := []struct {
 		name             string
-		cfg              codersdk.NotificationsEmailConfig
+		cfg              wirtualsdk.NotificationsEmailConfig
 		toAddrs          []string
 		authMechs        []string
 		expectedAuthMeth string
@@ -68,11 +68,11 @@ func TestSMTP(t *testing.T) {
 		{
 			name:      "LOGIN auth",
 			authMechs: []string{sasl.Login},
-			cfg: codersdk.NotificationsEmailConfig{
+			cfg: wirtualsdk.NotificationsEmailConfig{
 				Hello: hello,
 				From:  from,
 
-				Auth: codersdk.NotificationsEmailAuthConfig{
+				Auth: wirtualsdk.NotificationsEmailAuthConfig{
 					Username: username,
 					Password: password,
 				},
@@ -83,11 +83,11 @@ func TestSMTP(t *testing.T) {
 		{
 			name:      "invalid LOGIN auth user",
 			authMechs: []string{sasl.Login},
-			cfg: codersdk.NotificationsEmailConfig{
+			cfg: wirtualsdk.NotificationsEmailConfig{
 				Hello: hello,
 				From:  from,
 
-				Auth: codersdk.NotificationsEmailAuthConfig{
+				Auth: wirtualsdk.NotificationsEmailAuthConfig{
 					Username: username + "-wrong",
 					Password: password,
 				},
@@ -100,11 +100,11 @@ func TestSMTP(t *testing.T) {
 		{
 			name:      "invalid LOGIN auth credentials",
 			authMechs: []string{sasl.Login},
-			cfg: codersdk.NotificationsEmailConfig{
+			cfg: wirtualsdk.NotificationsEmailConfig{
 				Hello: hello,
 				From:  from,
 
-				Auth: codersdk.NotificationsEmailAuthConfig{
+				Auth: wirtualsdk.NotificationsEmailAuthConfig{
 					Username: username,
 					Password: password + "-wrong",
 				},
@@ -117,11 +117,11 @@ func TestSMTP(t *testing.T) {
 		{
 			name:      "password from file",
 			authMechs: []string{sasl.Login},
-			cfg: codersdk.NotificationsEmailConfig{
+			cfg: wirtualsdk.NotificationsEmailConfig{
 				Hello: hello,
 				From:  from,
 
-				Auth: codersdk.NotificationsEmailAuthConfig{
+				Auth: wirtualsdk.NotificationsEmailAuthConfig{
 					Username:     username,
 					PasswordFile: "smtptest/fixtures/password.txt",
 				},
@@ -135,11 +135,11 @@ func TestSMTP(t *testing.T) {
 		{
 			name:      "PLAIN auth",
 			authMechs: []string{sasl.Plain},
-			cfg: codersdk.NotificationsEmailConfig{
+			cfg: wirtualsdk.NotificationsEmailConfig{
 				Hello: hello,
 				From:  from,
 
-				Auth: codersdk.NotificationsEmailAuthConfig{
+				Auth: wirtualsdk.NotificationsEmailAuthConfig{
 					Identity: identity,
 					Username: username,
 					Password: password,
@@ -151,11 +151,11 @@ func TestSMTP(t *testing.T) {
 		{
 			name:      "PLAIN auth without identity",
 			authMechs: []string{sasl.Plain},
-			cfg: codersdk.NotificationsEmailConfig{
+			cfg: wirtualsdk.NotificationsEmailConfig{
 				Hello: hello,
 				From:  from,
 
-				Auth: codersdk.NotificationsEmailAuthConfig{
+				Auth: wirtualsdk.NotificationsEmailAuthConfig{
 					Identity: "",
 					Username: username,
 					Password: password,
@@ -167,11 +167,11 @@ func TestSMTP(t *testing.T) {
 		{
 			name:      "PLAIN+LOGIN, choose PLAIN",
 			authMechs: []string{sasl.Login, sasl.Plain},
-			cfg: codersdk.NotificationsEmailConfig{
+			cfg: wirtualsdk.NotificationsEmailConfig{
 				Hello: hello,
 				From:  from,
 
-				Auth: codersdk.NotificationsEmailAuthConfig{
+				Auth: wirtualsdk.NotificationsEmailAuthConfig{
 					Identity: identity,
 					Username: username,
 					Password: password,
@@ -186,11 +186,11 @@ func TestSMTP(t *testing.T) {
 		{
 			name:      "No auth mechanisms supported",
 			authMechs: []string{},
-			cfg: codersdk.NotificationsEmailConfig{
+			cfg: wirtualsdk.NotificationsEmailConfig{
 				Hello: hello,
 				From:  from,
 
-				Auth: codersdk.NotificationsEmailAuthConfig{
+				Auth: wirtualsdk.NotificationsEmailAuthConfig{
 					Username: username,
 					Password: password,
 				},
@@ -203,7 +203,7 @@ func TestSMTP(t *testing.T) {
 		{
 			name:      "No auth mechanisms supported, none configured",
 			authMechs: []string{},
-			cfg: codersdk.NotificationsEmailConfig{
+			cfg: wirtualsdk.NotificationsEmailConfig{
 				Hello: hello,
 				From:  from,
 			},
@@ -213,7 +213,7 @@ func TestSMTP(t *testing.T) {
 		{
 			name:      "Auth mechanisms supported optionally, none configured",
 			authMechs: []string{sasl.Login, sasl.Plain},
-			cfg: codersdk.NotificationsEmailConfig{
+			cfg: wirtualsdk.NotificationsEmailConfig{
 				Hello: hello,
 				From:  from,
 			},
@@ -234,11 +234,11 @@ func TestSMTP(t *testing.T) {
 			// TLS is forced and self-signed certificate used by mock server is not verified.
 			name:   "TLS: x509 untrusted ignored",
 			useTLS: true,
-			cfg: codersdk.NotificationsEmailConfig{
+			cfg: wirtualsdk.NotificationsEmailConfig{
 				Hello:    hello,
 				From:     from,
 				ForceTLS: true,
-				TLS: codersdk.NotificationsEmailTLSConfig{
+				TLS: wirtualsdk.NotificationsEmailTLSConfig{
 					InsecureSkipVerify: true,
 				},
 			},
@@ -249,10 +249,10 @@ func TestSMTP(t *testing.T) {
 			// STARTTLS should be disabled and connection should succeed.
 			name:   "TLS: STARTTLS is ignored",
 			useTLS: true,
-			cfg: codersdk.NotificationsEmailConfig{
+			cfg: wirtualsdk.NotificationsEmailConfig{
 				Hello: hello,
 				From:  from,
-				TLS: codersdk.NotificationsEmailTLSConfig{
+				TLS: wirtualsdk.NotificationsEmailTLSConfig{
 					InsecureSkipVerify: true,
 					StartTLS:           true,
 				},
@@ -263,8 +263,8 @@ func TestSMTP(t *testing.T) {
 			// Plain connection is established and upgraded via STARTTLS, but certificate is untrusted.
 			name:   "TLS: STARTTLS untrusted",
 			useTLS: false,
-			cfg: codersdk.NotificationsEmailConfig{
-				TLS: codersdk.NotificationsEmailTLSConfig{
+			cfg: wirtualsdk.NotificationsEmailConfig{
+				TLS: wirtualsdk.NotificationsEmailTLSConfig{
 					InsecureSkipVerify: false,
 					StartTLS:           true,
 				},
@@ -277,10 +277,10 @@ func TestSMTP(t *testing.T) {
 			// Plain connection is established and upgraded via STARTTLS, certificate is not verified.
 			name:   "TLS: STARTTLS",
 			useTLS: false,
-			cfg: codersdk.NotificationsEmailConfig{
+			cfg: wirtualsdk.NotificationsEmailConfig{
 				Hello: hello,
 				From:  from,
-				TLS: codersdk.NotificationsEmailTLSConfig{
+				TLS: wirtualsdk.NotificationsEmailTLSConfig{
 					InsecureSkipVerify: true,
 					StartTLS:           true,
 				},
@@ -292,10 +292,10 @@ func TestSMTP(t *testing.T) {
 			// TLS connection using self-signed certificate.
 			name:   "TLS: self-signed",
 			useTLS: true,
-			cfg: codersdk.NotificationsEmailConfig{
+			cfg: wirtualsdk.NotificationsEmailConfig{
 				Hello: hello,
 				From:  from,
-				TLS: codersdk.NotificationsEmailTLSConfig{
+				TLS: wirtualsdk.NotificationsEmailTLSConfig{
 					CAFile:   caFile,
 					CertFile: certFile,
 					KeyFile:  keyFile,
@@ -307,10 +307,10 @@ func TestSMTP(t *testing.T) {
 			// TLS connection using self-signed certificate & specifying the DNS name configured in the certificate.
 			name:   "TLS: self-signed + SNI",
 			useTLS: true,
-			cfg: codersdk.NotificationsEmailConfig{
+			cfg: wirtualsdk.NotificationsEmailConfig{
 				Hello: hello,
 				From:  from,
-				TLS: codersdk.NotificationsEmailTLSConfig{
+				TLS: wirtualsdk.NotificationsEmailTLSConfig{
 					ServerName: "myserver.local",
 					CAFile:     caFile,
 					CertFile:   certFile,
@@ -322,8 +322,8 @@ func TestSMTP(t *testing.T) {
 		{
 			name:   "TLS: load CA",
 			useTLS: true,
-			cfg: codersdk.NotificationsEmailConfig{
-				TLS: codersdk.NotificationsEmailTLSConfig{
+			cfg: wirtualsdk.NotificationsEmailConfig{
+				TLS: wirtualsdk.NotificationsEmailTLSConfig{
 					CAFile: "nope.crt",
 				},
 			},
@@ -336,8 +336,8 @@ func TestSMTP(t *testing.T) {
 		{
 			name:   "TLS: load cert",
 			useTLS: true,
-			cfg: codersdk.NotificationsEmailConfig{
-				TLS: codersdk.NotificationsEmailTLSConfig{
+			cfg: wirtualsdk.NotificationsEmailConfig{
+				TLS: wirtualsdk.NotificationsEmailTLSConfig{
 					CAFile:   caFile,
 					CertFile: "smtptest/fixtures/nope.cert",
 					KeyFile:  keyFile,
@@ -352,8 +352,8 @@ func TestSMTP(t *testing.T) {
 		{
 			name:   "TLS: load cert key",
 			useTLS: true,
-			cfg: codersdk.NotificationsEmailConfig{
-				TLS: codersdk.NotificationsEmailTLSConfig{
+			cfg: wirtualsdk.NotificationsEmailConfig{
+				TLS: wirtualsdk.NotificationsEmailTLSConfig{
 					CAFile:   caFile,
 					CertFile: certFile,
 					KeyFile:  "smtptest/fixtures/nope.key",
@@ -372,15 +372,15 @@ func TestSMTP(t *testing.T) {
 			name:      "PLAIN auth and TLS",
 			useTLS:    true,
 			authMechs: []string{sasl.Plain},
-			cfg: codersdk.NotificationsEmailConfig{
+			cfg: wirtualsdk.NotificationsEmailConfig{
 				Hello: hello,
 				From:  from,
-				Auth: codersdk.NotificationsEmailAuthConfig{
+				Auth: wirtualsdk.NotificationsEmailAuthConfig{
 					Identity: identity,
 					Username: username,
 					Password: password,
 				},
-				TLS: codersdk.NotificationsEmailTLSConfig{
+				TLS: wirtualsdk.NotificationsEmailTLSConfig{
 					CAFile:   caFile,
 					CertFile: certFile,
 					KeyFile:  keyFile,
@@ -394,7 +394,7 @@ func TestSMTP(t *testing.T) {
 		 */
 		{
 			name: "Rejected on DATA",
-			cfg: codersdk.NotificationsEmailConfig{
+			cfg: wirtualsdk.NotificationsEmailConfig{
 				Hello: hello,
 				From:  from,
 			},

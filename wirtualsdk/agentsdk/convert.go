@@ -76,15 +76,15 @@ func ProtoFromManifest(manifest Manifest) (*proto.Manifest, error) {
 	}, nil
 }
 
-func MetadataDescriptionsFromProto(descriptions []*proto.WorkspaceAgentMetadata_Description) []codersdk.WorkspaceAgentMetadataDescription {
-	ret := make([]codersdk.WorkspaceAgentMetadataDescription, len(descriptions))
+func MetadataDescriptionsFromProto(descriptions []*proto.WorkspaceAgentMetadata_Description) []wirtualsdk.WorkspaceAgentMetadataDescription {
+	ret := make([]wirtualsdk.WorkspaceAgentMetadataDescription, len(descriptions))
 	for i, description := range descriptions {
 		ret[i] = MetadataDescriptionFromProto(description)
 	}
 	return ret
 }
 
-func ProtoFromMetadataDescriptions(descriptions []codersdk.WorkspaceAgentMetadataDescription) []*proto.WorkspaceAgentMetadata_Description {
+func ProtoFromMetadataDescriptions(descriptions []wirtualsdk.WorkspaceAgentMetadataDescription) []*proto.WorkspaceAgentMetadata_Description {
 	ret := make([]*proto.WorkspaceAgentMetadata_Description, len(descriptions))
 	for i, d := range descriptions {
 		ret[i] = ProtoFromMetadataDescription(d)
@@ -92,8 +92,8 @@ func ProtoFromMetadataDescriptions(descriptions []codersdk.WorkspaceAgentMetadat
 	return ret
 }
 
-func MetadataDescriptionFromProto(description *proto.WorkspaceAgentMetadata_Description) codersdk.WorkspaceAgentMetadataDescription {
-	return codersdk.WorkspaceAgentMetadataDescription{
+func MetadataDescriptionFromProto(description *proto.WorkspaceAgentMetadata_Description) wirtualsdk.WorkspaceAgentMetadataDescription {
+	return wirtualsdk.WorkspaceAgentMetadataDescription{
 		DisplayName: description.DisplayName,
 		Key:         description.Key,
 		Script:      description.Script,
@@ -102,7 +102,7 @@ func MetadataDescriptionFromProto(description *proto.WorkspaceAgentMetadata_Desc
 	}
 }
 
-func ProtoFromMetadataDescription(d codersdk.WorkspaceAgentMetadataDescription) *proto.WorkspaceAgentMetadata_Description {
+func ProtoFromMetadataDescription(d wirtualsdk.WorkspaceAgentMetadataDescription) *proto.WorkspaceAgentMetadata_Description {
 	return &proto.WorkspaceAgentMetadata_Description{
 		DisplayName: d.DisplayName,
 		Key:         d.Key,
@@ -112,7 +112,7 @@ func ProtoFromMetadataDescription(d codersdk.WorkspaceAgentMetadataDescription) 
 	}
 }
 
-func ProtoFromMetadataResult(r codersdk.WorkspaceAgentMetadataResult) *proto.WorkspaceAgentMetadata_Result {
+func ProtoFromMetadataResult(r wirtualsdk.WorkspaceAgentMetadataResult) *proto.WorkspaceAgentMetadata_Result {
 	return &proto.WorkspaceAgentMetadata_Result{
 		CollectedAt: timestamppb.New(r.CollectedAt),
 		Age:         r.Age,
@@ -121,8 +121,8 @@ func ProtoFromMetadataResult(r codersdk.WorkspaceAgentMetadataResult) *proto.Wor
 	}
 }
 
-func MetadataResultFromProto(r *proto.WorkspaceAgentMetadata_Result) codersdk.WorkspaceAgentMetadataResult {
-	return codersdk.WorkspaceAgentMetadataResult{
+func MetadataResultFromProto(r *proto.WorkspaceAgentMetadata_Result) wirtualsdk.WorkspaceAgentMetadataResult {
+	return wirtualsdk.WorkspaceAgentMetadataResult{
 		CollectedAt: r.GetCollectedAt().AsTime(),
 		Age:         r.GetAge(),
 		Value:       r.GetValue(),
@@ -137,8 +137,8 @@ func MetadataFromProto(m *proto.Metadata) Metadata {
 	}
 }
 
-func AgentScriptsFromProto(protoScripts []*proto.WorkspaceAgentScript) ([]codersdk.WorkspaceAgentScript, error) {
-	ret := make([]codersdk.WorkspaceAgentScript, len(protoScripts))
+func AgentScriptsFromProto(protoScripts []*proto.WorkspaceAgentScript) ([]wirtualsdk.WorkspaceAgentScript, error) {
+	ret := make([]wirtualsdk.WorkspaceAgentScript, len(protoScripts))
 	for i, protoScript := range protoScripts {
 		app, err := AgentScriptFromProto(protoScript)
 		if err != nil {
@@ -149,7 +149,7 @@ func AgentScriptsFromProto(protoScripts []*proto.WorkspaceAgentScript) ([]coders
 	return ret, nil
 }
 
-func ProtoFromScripts(scripts []codersdk.WorkspaceAgentScript) []*proto.WorkspaceAgentScript {
+func ProtoFromScripts(scripts []wirtualsdk.WorkspaceAgentScript) []*proto.WorkspaceAgentScript {
 	ret := make([]*proto.WorkspaceAgentScript, len(scripts))
 	for i, script := range scripts {
 		ret[i] = ProtoFromScript(script)
@@ -157,18 +157,18 @@ func ProtoFromScripts(scripts []codersdk.WorkspaceAgentScript) []*proto.Workspac
 	return ret
 }
 
-func AgentScriptFromProto(protoScript *proto.WorkspaceAgentScript) (codersdk.WorkspaceAgentScript, error) {
+func AgentScriptFromProto(protoScript *proto.WorkspaceAgentScript) (wirtualsdk.WorkspaceAgentScript, error) {
 	id, err := uuid.FromBytes(protoScript.Id)
 	if err != nil {
-		return codersdk.WorkspaceAgentScript{}, xerrors.Errorf("parse id: %w", err)
+		return wirtualsdk.WorkspaceAgentScript{}, xerrors.Errorf("parse id: %w", err)
 	}
 
 	logSourceID, err := uuid.FromBytes(protoScript.LogSourceId)
 	if err != nil {
-		return codersdk.WorkspaceAgentScript{}, xerrors.Errorf("parse log source id: %w", err)
+		return wirtualsdk.WorkspaceAgentScript{}, xerrors.Errorf("parse log source id: %w", err)
 	}
 
-	return codersdk.WorkspaceAgentScript{
+	return wirtualsdk.WorkspaceAgentScript{
 		ID:               id,
 		LogSourceID:      logSourceID,
 		LogPath:          protoScript.LogPath,
@@ -182,7 +182,7 @@ func AgentScriptFromProto(protoScript *proto.WorkspaceAgentScript) (codersdk.Wor
 	}, nil
 }
 
-func ProtoFromScript(s codersdk.WorkspaceAgentScript) *proto.WorkspaceAgentScript {
+func ProtoFromScript(s wirtualsdk.WorkspaceAgentScript) *proto.WorkspaceAgentScript {
 	return &proto.WorkspaceAgentScript{
 		Id:               s.ID[:],
 		LogSourceId:      s.LogSourceID[:],
@@ -197,8 +197,8 @@ func ProtoFromScript(s codersdk.WorkspaceAgentScript) *proto.WorkspaceAgentScrip
 	}
 }
 
-func AppsFromProto(protoApps []*proto.WorkspaceApp) ([]codersdk.WorkspaceApp, error) {
-	ret := make([]codersdk.WorkspaceApp, len(protoApps))
+func AppsFromProto(protoApps []*proto.WorkspaceApp) ([]wirtualsdk.WorkspaceApp, error) {
+	ret := make([]wirtualsdk.WorkspaceApp, len(protoApps))
 	for i, protoApp := range protoApps {
 		app, err := AppFromProto(protoApp)
 		if err != nil {
@@ -209,7 +209,7 @@ func AppsFromProto(protoApps []*proto.WorkspaceApp) ([]codersdk.WorkspaceApp, er
 	return ret, nil
 }
 
-func ProtoFromApps(apps []codersdk.WorkspaceApp) ([]*proto.WorkspaceApp, error) {
+func ProtoFromApps(apps []wirtualsdk.WorkspaceApp) ([]*proto.WorkspaceApp, error) {
 	ret := make([]*proto.WorkspaceApp, len(apps))
 	var err error
 	for i, a := range apps {
@@ -221,23 +221,23 @@ func ProtoFromApps(apps []codersdk.WorkspaceApp) ([]*proto.WorkspaceApp, error) 
 	return ret, nil
 }
 
-func AppFromProto(protoApp *proto.WorkspaceApp) (codersdk.WorkspaceApp, error) {
+func AppFromProto(protoApp *proto.WorkspaceApp) (wirtualsdk.WorkspaceApp, error) {
 	id, err := uuid.FromBytes(protoApp.Id)
 	if err != nil {
-		return codersdk.WorkspaceApp{}, xerrors.Errorf("parse id: %w", err)
+		return wirtualsdk.WorkspaceApp{}, xerrors.Errorf("parse id: %w", err)
 	}
 
-	sharingLevel := codersdk.WorkspaceAppSharingLevel(strings.ToLower(protoApp.SharingLevel.String()))
-	if _, ok := codersdk.MapWorkspaceAppSharingLevels[sharingLevel]; !ok {
-		return codersdk.WorkspaceApp{}, xerrors.Errorf("unknown app sharing level: %v (%q)", protoApp.SharingLevel, protoApp.SharingLevel.String())
+	sharingLevel := wirtualsdk.WorkspaceAppSharingLevel(strings.ToLower(protoApp.SharingLevel.String()))
+	if _, ok := wirtualsdk.MapWorkspaceAppSharingLevels[sharingLevel]; !ok {
+		return wirtualsdk.WorkspaceApp{}, xerrors.Errorf("unknown app sharing level: %v (%q)", protoApp.SharingLevel, protoApp.SharingLevel.String())
 	}
 
-	health := codersdk.WorkspaceAppHealth(strings.ToLower(protoApp.Health.String()))
-	if _, ok := codersdk.MapWorkspaceAppHealths[health]; !ok {
-		return codersdk.WorkspaceApp{}, xerrors.Errorf("unknown app health: %v (%q)", protoApp.Health, protoApp.Health.String())
+	health := wirtualsdk.WorkspaceAppHealth(strings.ToLower(protoApp.Health.String()))
+	if _, ok := wirtualsdk.MapWorkspaceAppHealths[health]; !ok {
+		return wirtualsdk.WorkspaceApp{}, xerrors.Errorf("unknown app health: %v (%q)", protoApp.Health, protoApp.Health.String())
 	}
 
-	return codersdk.WorkspaceApp{
+	return wirtualsdk.WorkspaceApp{
 		ID:            id,
 		URL:           protoApp.Url,
 		External:      protoApp.External,
@@ -248,7 +248,7 @@ func AppFromProto(protoApp *proto.WorkspaceApp) (codersdk.WorkspaceApp, error) {
 		Subdomain:     protoApp.Subdomain,
 		SubdomainName: protoApp.SubdomainName,
 		SharingLevel:  sharingLevel,
-		Healthcheck: codersdk.Healthcheck{
+		Healthcheck: wirtualsdk.Healthcheck{
 			URL:       protoApp.Healthcheck.Url,
 			Interval:  int32(protoApp.Healthcheck.Interval.AsDuration().Seconds()),
 			Threshold: protoApp.Healthcheck.Threshold,
@@ -258,7 +258,7 @@ func AppFromProto(protoApp *proto.WorkspaceApp) (codersdk.WorkspaceApp, error) {
 	}, nil
 }
 
-func ProtoFromApp(a codersdk.WorkspaceApp) (*proto.WorkspaceApp, error) {
+func ProtoFromApp(a wirtualsdk.WorkspaceApp) (*proto.WorkspaceApp, error) {
 	sharingLevel, ok := proto.WorkspaceApp_SharingLevel_value[strings.ToUpper(string(a.SharingLevel))]
 	if !ok {
 		return nil, xerrors.Errorf("unknown sharing level %s", a.SharingLevel)
@@ -288,15 +288,15 @@ func ProtoFromApp(a codersdk.WorkspaceApp) (*proto.WorkspaceApp, error) {
 	}, nil
 }
 
-func ServiceBannerFromProto(sbp *proto.ServiceBanner) codersdk.BannerConfig {
-	return codersdk.BannerConfig{
+func ServiceBannerFromProto(sbp *proto.ServiceBanner) wirtualsdk.BannerConfig {
+	return wirtualsdk.BannerConfig{
 		Enabled:         sbp.GetEnabled(),
 		Message:         sbp.GetMessage(),
 		BackgroundColor: sbp.GetBackgroundColor(),
 	}
 }
 
-func ProtoFromServiceBanner(sb codersdk.BannerConfig) *proto.ServiceBanner {
+func ProtoFromServiceBanner(sb wirtualsdk.BannerConfig) *proto.ServiceBanner {
 	return &proto.ServiceBanner{
 		Enabled:         sb.Enabled,
 		Message:         sb.Message,
@@ -304,15 +304,15 @@ func ProtoFromServiceBanner(sb codersdk.BannerConfig) *proto.ServiceBanner {
 	}
 }
 
-func BannerConfigFromProto(sbp *proto.BannerConfig) codersdk.BannerConfig {
-	return codersdk.BannerConfig{
+func BannerConfigFromProto(sbp *proto.BannerConfig) wirtualsdk.BannerConfig {
+	return wirtualsdk.BannerConfig{
 		Enabled:         sbp.GetEnabled(),
 		Message:         sbp.GetMessage(),
 		BackgroundColor: sbp.GetBackgroundColor(),
 	}
 }
 
-func ProtoFromBannerConfig(sb codersdk.BannerConfig) *proto.BannerConfig {
+func ProtoFromBannerConfig(sb wirtualsdk.BannerConfig) *proto.BannerConfig {
 	return &proto.BannerConfig{
 		Enabled:         sb.Enabled,
 		Message:         sb.Message,
@@ -320,7 +320,7 @@ func ProtoFromBannerConfig(sb codersdk.BannerConfig) *proto.BannerConfig {
 	}
 }
 
-func ProtoFromSubsystems(ss []codersdk.AgentSubsystem) ([]proto.Startup_Subsystem, error) {
+func ProtoFromSubsystems(ss []wirtualsdk.AgentSubsystem) ([]proto.Startup_Subsystem, error) {
 	ret := make([]proto.Startup_Subsystem, len(ss))
 	for i, s := range ss {
 		pi, ok := proto.Startup_Subsystem_value[strings.ToUpper(string(s))]
@@ -375,15 +375,15 @@ func ProtoFromLifecycle(req PostLifecycleRequest) (*proto.Lifecycle, error) {
 	}, nil
 }
 
-func LifecycleStateFromProto(s proto.Lifecycle_State) (codersdk.WorkspaceAgentLifecycle, error) {
+func LifecycleStateFromProto(s proto.Lifecycle_State) (wirtualsdk.WorkspaceAgentLifecycle, error) {
 	caps, ok := proto.Lifecycle_State_name[int32(s)]
 	if !ok {
 		return "", xerrors.Errorf("unknown lifecycle state: %d", s)
 	}
-	return codersdk.WorkspaceAgentLifecycle(strings.ToLower(caps)), nil
+	return wirtualsdk.WorkspaceAgentLifecycle(strings.ToLower(caps)), nil
 }
 
-func ProtoFromLifecycleState(s codersdk.WorkspaceAgentLifecycle) (proto.Lifecycle_State, error) {
+func ProtoFromLifecycleState(s wirtualsdk.WorkspaceAgentLifecycle) (proto.Lifecycle_State, error) {
 	caps, ok := proto.Lifecycle_State_value[strings.ToUpper(string(s))]
 	if !ok {
 		return 0, xerrors.Errorf("unknown lifecycle state: %s", s)

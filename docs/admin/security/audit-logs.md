@@ -44,13 +44,13 @@ The supported filters are:
 
 - `resource_type` - The type of the resource. It can be a workspace, template,
   user, etc. You can
-  [find here](https://pkg.go.dev/github.com/coder/coder/v2/codersdk#ResourceType)
+  [find here](https://pkg.go.dev/github.com/coder/coder/v2/wirtualsdk#ResourceType)
   all the resource types that are supported.
 - `resource_id` - The ID of the resource.
 - `resource_target` - The name of the resource. Can be used instead of
   `resource_id`.
 - `action`- The action applied to a resource. You can
-  [find here](https://pkg.go.dev/github.com/coder/coder/v2/codersdk#AuditAction)
+  [find here](https://pkg.go.dev/github.com/coder/coder/v2/wirtualsdk#AuditAction)
   all the actions that are supported.
 - `username` - The username of the user who triggered the action. You can also
   use `me` as a convenient alias for the logged-in user.
@@ -58,7 +58,7 @@ The supported filters are:
 - `date_from` - The inclusive start date with format `YYYY-MM-DD`.
 - `date_to` - The inclusive end date with format `YYYY-MM-DD`.
 - `build_reason` - To be used with `resource_type:workspace_build`, the
-  [initiator](https://pkg.go.dev/github.com/coder/coder/v2/codersdk#BuildReason)
+  [initiator](https://pkg.go.dev/github.com/coder/coder/v2/wirtualsdk#BuildReason)
   behind the build start or stop.
 
 ## Capturing/Exporting Audit Logs

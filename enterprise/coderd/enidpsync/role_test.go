@@ -20,9 +20,9 @@ func TestEnterpriseParseRoleClaims(t *testing.T) {
 	t.Parallel()
 
 	entitled := entitlements.New()
-	entitled.Modify(func(en *codersdk.Entitlements) {
-		en.Features[codersdk.FeatureUserRoleManagement] = codersdk.Feature{
-			Entitlement: codersdk.EntitlementEntitled,
+	entitled.Modify(func(en *wirtualsdk.Entitlements) {
+		en.Features[wirtualsdk.FeatureUserRoleManagement] = wirtualsdk.Feature{
+			Entitlement: wirtualsdk.EntitlementEntitled,
 			Enabled:     true,
 		}
 	})

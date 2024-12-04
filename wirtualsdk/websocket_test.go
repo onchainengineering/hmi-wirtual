@@ -1,4 +1,4 @@
-package codersdk_test
+package wirtualsdk_test
 
 import (
 	"crypto/rand"
@@ -27,7 +27,7 @@ func TestWebsocketNetConn_LargeWrites(t *testing.T) {
 		if !assert.NoError(t, err) {
 			return
 		}
-		_, nc := codersdk.WebsocketNetConn(r.Context(), sws, websocket.MessageBinary)
+		_, nc := wirtualsdk.WebsocketNetConn(r.Context(), sws, websocket.MessageBinary)
 		defer nc.Close()
 
 		// Although the writes are all in one go, the reads get broken up by
@@ -59,7 +59,7 @@ func TestWebsocketNetConn_LargeWrites(t *testing.T) {
 	// nolint: bodyclose
 	cws, _, err := websocket.Dial(ctx, svr.URL, nil)
 	require.NoError(t, err)
-	_, cnc := codersdk.WebsocketNetConn(ctx, cws, websocket.MessageBinary)
+	_, cnc := wirtualsdk.WebsocketNetConn(ctx, cws, websocket.MessageBinary)
 	ck, err := cnc.Write(cb)
 	require.NoError(t, err)
 	require.Equal(t, n, ck)

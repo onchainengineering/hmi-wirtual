@@ -52,7 +52,7 @@ func TestUpdate(t *testing.T) {
 		err := inv.Run()
 		require.NoError(t, err)
 
-		ws, err := client.WorkspaceByOwnerAndName(context.Background(), memberUser.Username, "my-workspace", codersdk.WorkspaceOptions{})
+		ws, err := client.WorkspaceByOwnerAndName(context.Background(), memberUser.Username, "my-workspace", wirtualsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		require.Equal(t, version1.ID.String(), ws.LatestBuild.TemplateVersionID.String())
 
@@ -63,7 +63,7 @@ func TestUpdate(t *testing.T) {
 		}, template.ID)
 		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version2.ID)
 
-		err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, codersdk.UpdateActiveTemplateVersion{
+		err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, wirtualsdk.UpdateActiveTemplateVersion{
 			ID: version2.ID,
 		})
 		require.NoError(t, err)
@@ -74,7 +74,7 @@ func TestUpdate(t *testing.T) {
 		err = inv.Run()
 		require.NoError(t, err)
 
-		ws, err = member.WorkspaceByOwnerAndName(context.Background(), memberUser.Username, "my-workspace", codersdk.WorkspaceOptions{})
+		ws, err = member.WorkspaceByOwnerAndName(context.Background(), memberUser.Username, "my-workspace", wirtualsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		require.Equal(t, version2.ID.String(), ws.LatestBuild.TemplateVersionID.String())
 	})
@@ -215,11 +215,11 @@ func TestUpdateWithRichParameters(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 		defer cancel()
 
-		workspace, err := client.WorkspaceByOwnerAndName(ctx, memberUser.ID.String(), workspaceName, codersdk.WorkspaceOptions{})
+		workspace, err := client.WorkspaceByOwnerAndName(ctx, memberUser.ID.String(), workspaceName, wirtualsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		actualParameters, err := client.WorkspaceBuildParameters(ctx, workspace.LatestBuild.ID)
 		require.NoError(t, err)
-		require.Contains(t, actualParameters, codersdk.WorkspaceBuildParameter{
+		require.Contains(t, actualParameters, wirtualsdk.WorkspaceBuildParameter{
 			Name:  ephemeralParameterName,
 			Value: ephemeralParameterValue,
 		})
@@ -265,11 +265,11 @@ func TestUpdateWithRichParameters(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 		defer cancel()
 
-		workspace, err := client.WorkspaceByOwnerAndName(ctx, memberUser.ID.String(), workspaceName, codersdk.WorkspaceOptions{})
+		workspace, err := client.WorkspaceByOwnerAndName(ctx, memberUser.ID.String(), workspaceName, wirtualsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		actualParameters, err := client.WorkspaceBuildParameters(ctx, workspace.LatestBuild.ID)
 		require.NoError(t, err)
-		require.Contains(t, actualParameters, codersdk.WorkspaceBuildParameter{
+		require.Contains(t, actualParameters, wirtualsdk.WorkspaceBuildParameter{
 			Name:  ephemeralParameterName,
 			Value: ephemeralParameterValue,
 		})
@@ -476,7 +476,7 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 		})
 		version = coderdtest.UpdateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(modifiedParameters), template.ID)
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, codersdk.UpdateActiveTemplateVersion{
+		err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, wirtualsdk.UpdateActiveTemplateVersion{
 			ID: version.ID,
 		})
 		require.NoError(t, err)
@@ -548,7 +548,7 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 		})
 		version = coderdtest.UpdateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(modifiedParameters), template.ID)
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, codersdk.UpdateActiveTemplateVersion{
+		err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, wirtualsdk.UpdateActiveTemplateVersion{
 			ID: version.ID,
 		})
 		require.NoError(t, err)
@@ -607,7 +607,7 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 
 		updatedVersion := coderdtest.UpdateTemplateVersion(t, client, user.OrganizationID, prepareEchoResponses(updatedTemplateParameters), template.ID)
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion.ID)
-		err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, codersdk.UpdateActiveTemplateVersion{
+		err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, wirtualsdk.UpdateActiveTemplateVersion{
 			ID: updatedVersion.ID,
 		})
 		require.NoError(t, err)
@@ -680,7 +680,7 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 
 		updatedVersion := coderdtest.UpdateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(updatedTemplateParameters), template.ID)
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion.ID)
-		err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, codersdk.UpdateActiveTemplateVersion{
+		err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, wirtualsdk.UpdateActiveTemplateVersion{
 			ID: updatedVersion.ID,
 		})
 		require.NoError(t, err)
@@ -730,7 +730,7 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 				{Name: "First option", Description: "This is first option", Value: "1"},
 				{Name: "Second option", Description: "This is second option", Value: tempVal},
 				{Name: "Third option", Description: "This is third option", Value: "3"},
-			}, ValidationMonotonic: string(codersdk.MonotonicOrderIncreasing)},
+			}, ValidationMonotonic: string(wirtualsdk.MonotonicOrderIncreasing)},
 		}
 		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(templateParameters))
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
@@ -805,7 +805,7 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 
 		updatedVersion := coderdtest.UpdateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(updatedTemplateParameters), template.ID)
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion.ID)
-		err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, codersdk.UpdateActiveTemplateVersion{
+		err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, wirtualsdk.UpdateActiveTemplateVersion{
 			ID: updatedVersion.ID,
 		})
 		require.NoError(t, err)
@@ -877,7 +877,7 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 
 		updatedVersion := coderdtest.UpdateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(updatedTemplateParameters), template.ID)
 		coderdtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion.ID)
-		err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, codersdk.UpdateActiveTemplateVersion{
+		err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, wirtualsdk.UpdateActiveTemplateVersion{
 			ID: updatedVersion.ID,
 		})
 		require.NoError(t, err)

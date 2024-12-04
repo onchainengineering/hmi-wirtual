@@ -19,7 +19,7 @@ import (
 
 // AuditLogs requires the database to fetch an organization by name
 // to convert to organization uuid.
-func AuditLogs(ctx context.Context, db database.Store, query string) (database.GetAuditLogsOffsetParams, []codersdk.ValidationError) {
+func AuditLogs(ctx context.Context, db database.Store, query string) (database.GetAuditLogsOffsetParams, []wirtualsdk.ValidationError) {
 	// Always lowercase for all searches.
 	query = strings.ToLower(query)
 	values, errors := searchTerms(query, func(term string, values url.Values) error {
@@ -52,7 +52,7 @@ func AuditLogs(ctx context.Context, db database.Store, query string) (database.G
 	return filter, parser.Errors
 }
 
-func Users(query string) (database.GetUsersParams, []codersdk.ValidationError) {
+func Users(query string) (database.GetUsersParams, []wirtualsdk.ValidationError) {
 	// Always lowercase for all searches.
 	query = strings.ToLower(query)
 	values, errors := searchTerms(query, func(term string, values url.Values) error {
@@ -75,7 +75,7 @@ func Users(query string) (database.GetUsersParams, []codersdk.ValidationError) {
 	return filter, parser.Errors
 }
 
-func Workspaces(ctx context.Context, db database.Store, query string, page codersdk.Pagination, agentInactiveDisconnectTimeout time.Duration) (database.GetWorkspacesParams, []codersdk.ValidationError) {
+func Workspaces(ctx context.Context, db database.Store, query string, page wirtualsdk.Pagination, agentInactiveDisconnectTimeout time.Duration) (database.GetWorkspacesParams, []wirtualsdk.ValidationError) {
 	filter := database.GetWorkspacesParams{
 		AgentInactiveDisconnectTimeoutSeconds: int64(agentInactiveDisconnectTimeout.Seconds()),
 
@@ -165,7 +165,7 @@ func Workspaces(ctx context.Context, db database.Store, query string, page coder
 	return filter, parser.Errors
 }
 
-func Templates(ctx context.Context, db database.Store, query string) (database.GetTemplatesWithFilterParams, []codersdk.ValidationError) {
+func Templates(ctx context.Context, db database.Store, query string) (database.GetTemplatesWithFilterParams, []wirtualsdk.ValidationError) {
 	// Always lowercase for all searches.
 	query = strings.ToLower(query)
 	values, errors := searchTerms(query, func(term string, values url.Values) error {
@@ -191,7 +191,7 @@ func Templates(ctx context.Context, db database.Store, query string) (database.G
 	return filter, parser.Errors
 }
 
-func searchTerms(query string, defaultKey func(term string, values url.Values) error) (url.Values, []codersdk.ValidationError) {
+func searchTerms(query string, defaultKey func(term string, values url.Values) error) (url.Values, []wirtualsdk.ValidationError) {
 	searchValues := make(url.Values)
 
 	// Because we do this in 2 passes, we want to maintain quotes on the first
@@ -200,7 +200,7 @@ func searchTerms(query string, defaultKey func(term string, values url.Values) e
 	elements := splitQueryParameterByDelimiter(query, ' ', true)
 	for _, element := range elements {
 		if strings.HasPrefix(element, ":") || strings.HasSuffix(element, ":") {
-			return nil, []codersdk.ValidationError{
+			return nil, []wirtualsdk.ValidationError{
 				{
 					Field:  "q",
 					Detail: fmt.Sprintf("Query element %q cannot start or end with ':'", element),
@@ -213,14 +213,14 @@ func searchTerms(query string, defaultKey func(term string, values url.Values) e
 			// No key:value pair. Use default behavior.
 			err := defaultKey(element, searchValues)
 			if err != nil {
-				return nil, []codersdk.ValidationError{
+				return nil, []wirtualsdk.ValidationError{
 					{Field: "q", Detail: err.Error()},
 				}
 			}
 		case 2:
 			searchValues.Add(strings.ToLower(parts[0]), parts[1])
 		default:
-			return nil, []codersdk.ValidationError{
+			return nil, []wirtualsdk.ValidationError{
 				{
 					Field:  "q",
 					Detail: fmt.Sprintf("Query element %q can only contain 1 ':'", element),

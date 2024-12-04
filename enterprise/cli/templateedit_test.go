@@ -28,7 +28,7 @@ func TestTemplateEdit(t *testing.T) {
 		ownerClient, owner := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAccessControl: 1,
+					wirtualsdk.FeatureAccessControl: 1,
 				},
 			},
 			Options: &coderdtest.Options{
@@ -96,7 +96,7 @@ func TestTemplateEdit(t *testing.T) {
 		ownerClient, owner := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAdvancedTemplateScheduling: 1,
+					wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
 			},
 			Options: &coderdtest.Options{
@@ -163,9 +163,9 @@ func TestTemplateEdit(t *testing.T) {
 		ownerClient, db, owner := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAdvancedTemplateScheduling: 1,
-					codersdk.FeatureAccessControl:              1,
-					codersdk.FeatureTemplateRBAC:               1,
+					wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
+					wirtualsdk.FeatureAccessControl:              1,
+					wirtualsdk.FeatureTemplateRBAC:               1,
 				},
 			},
 		})
@@ -195,7 +195,7 @@ func TestTemplateEdit(t *testing.T) {
 			expectedAutoStopWeeks        = 1
 		)
 
-		assertFieldsFn := func(t *testing.T, tpl codersdk.Template, acl codersdk.TemplateACL) {
+		assertFieldsFn := func(t *testing.T, tpl wirtualsdk.Template, acl wirtualsdk.TemplateACL) {
 			t.Helper()
 
 			assert.Equal(t, expectedName, tpl.Name)
@@ -217,7 +217,7 @@ func TestTemplateEdit(t *testing.T) {
 			assert.Equal(t, int64(expectedAutoStopWeeks), tpl.AutostopRequirement.Weeks)
 		}
 
-		template, err := ownerClient.UpdateTemplateMeta(ctx, dbtemplate.ID, codersdk.UpdateTemplateMeta{
+		template, err := ownerClient.UpdateTemplateMeta(ctx, dbtemplate.ID, wirtualsdk.UpdateTemplateMeta{
 			Name:                           expectedName,
 			DisplayName:                    expectedDisplayName,
 			Description:                    expectedDescription,
@@ -232,7 +232,7 @@ func TestTemplateEdit(t *testing.T) {
 			DeprecationMessage:             ptr.Ref(deprecationMessage),
 			DisableEveryoneGroupAccess:     expectedDisableEveryone,
 			AllowUserCancelWorkspaceJobs:   expectedAllowCancelJobs,
-			AutostartRequirement: &codersdk.TemplateAutostartRequirement{
+			AutostartRequirement: &wirtualsdk.TemplateAutostartRequirement{
 				DaysOfWeek: expectedAutostartDaysOfWeek,
 			},
 		})
@@ -265,7 +265,7 @@ func TestTemplateEdit(t *testing.T) {
 		expectedAutoStopDaysOfWeek = []string{"tuesday", "thursday"}
 		expectedAutoStopWeeks = 2
 
-		template, err = ownerClient.UpdateTemplateMeta(ctx, dbtemplate.ID, codersdk.UpdateTemplateMeta{
+		template, err = ownerClient.UpdateTemplateMeta(ctx, dbtemplate.ID, wirtualsdk.UpdateTemplateMeta{
 			Name:                           expectedName,
 			DisplayName:                    expectedDisplayName,
 			Description:                    expectedDescription,
@@ -280,11 +280,11 @@ func TestTemplateEdit(t *testing.T) {
 			DeprecationMessage:             ptr.Ref(deprecationMessage),
 			DisableEveryoneGroupAccess:     expectedDisableEveryone,
 			AllowUserCancelWorkspaceJobs:   expectedAllowCancelJobs,
-			AutostartRequirement: &codersdk.TemplateAutostartRequirement{
+			AutostartRequirement: &wirtualsdk.TemplateAutostartRequirement{
 				DaysOfWeek: expectedAutostartDaysOfWeek,
 			},
 
-			AutostopRequirement: &codersdk.TemplateAutostopRequirement{
+			AutostopRequirement: &wirtualsdk.TemplateAutostopRequirement{
 				DaysOfWeek: expectedAutoStopDaysOfWeek,
 				Weeks:      int64(expectedAutoStopWeeks),
 			},

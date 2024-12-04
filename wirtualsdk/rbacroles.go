@@ -1,4 +1,4 @@
-package codersdk
+package wirtualsdk
 
 // Ideally this roles would be generated from the rbac/roles.go package.
 const (

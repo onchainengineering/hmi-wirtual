@@ -39,7 +39,7 @@ func TestExtractUserRoles(t *testing.T) {
 		{
 			Name: "Owner",
 			AddUser: func(db database.Store) (database.User, []rbac.RoleIdentifier, string) {
-				roles := []string{codersdk.RoleOwner}
+				roles := []string{wirtualsdk.RoleOwner}
 				user, token := addUser(t, db, roles...)
 				return user, []rbac.RoleIdentifier{rbac.RoleOwner(), rbac.RoleMember()}, token
 			},
@@ -88,7 +88,7 @@ func TestExtractUserRoles(t *testing.T) {
 
 					orgRoles := []string{}
 					if i%2 == 0 {
-						orgRoles = append(orgRoles, codersdk.RoleOrganizationAdmin)
+						orgRoles = append(orgRoles, wirtualsdk.RoleOrganizationAdmin)
 						expected = append(expected, rbac.ScopedRoleOrgAdmin(organization.ID))
 					}
 					_, err = db.InsertOrganizationMember(context.Background(), database.InsertOrganizationMemberParams{
@@ -131,7 +131,7 @@ func TestExtractUserRoles(t *testing.T) {
 			})
 
 			req := httptest.NewRequest("GET", "/", nil)
-			req.Header.Set(codersdk.SessionTokenHeader, token)
+			req.Header.Set(wirtualsdk.SessionTokenHeader, token)
 
 			rtr.ServeHTTP(rw, req)
 			resp := rw.Result()

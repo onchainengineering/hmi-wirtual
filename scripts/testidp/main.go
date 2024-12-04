@@ -50,7 +50,7 @@ func main() {
 type withClientSecret struct {
 	// We never unmarshal this in prod, but we need this field for testing.
 	ClientSecret string `json:"client_secret"`
-	codersdk.ExternalAuthConfig
+	wirtualsdk.ExternalAuthConfig
 }
 
 // RunIDP needs the testing.T because our oidctest package requires the
@@ -118,7 +118,7 @@ func RunIDP() func(t *testing.T) {
 
 		cfg := withClientSecret{
 			ClientSecret: sec,
-			ExternalAuthConfig: codersdk.ExternalAuthConfig{
+			ExternalAuthConfig: wirtualsdk.ExternalAuthConfig{
 				Type:                appID,
 				ClientID:            id,
 				ClientSecret:        sec,

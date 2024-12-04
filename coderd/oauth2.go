@@ -20,7 +20,7 @@ import (
 func (*API) oAuth2ProviderMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		if !buildinfo.IsDev() {
-			httpapi.Write(r.Context(), rw, http.StatusForbidden, codersdk.Response{
+			httpapi.Write(r.Context(), rw, http.StatusForbidden, wirtualsdk.Response{
 				Message: "OAuth2 provider is under development.",
 			})
 			return
@@ -54,7 +54,7 @@ func (api *API) oAuth2ProviderApps(rw http.ResponseWriter, r *http.Request) {
 
 	userID, err := uuid.Parse(rawUserID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Invalid user UUID",
 			Detail:  fmt.Sprintf("queried user_id=%q", userID),
 		})
@@ -67,7 +67,7 @@ func (api *API) oAuth2ProviderApps(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var sdkApps []codersdk.OAuth2ProviderApp
+	var sdkApps []wirtualsdk.OAuth2ProviderApp
 	for _, app := range userApps {
 		sdkApps = append(sdkApps, db2sdk.OAuth2ProviderApp(api.AccessURL, app.OAuth2ProviderApp))
 	}
@@ -109,7 +109,7 @@ func (api *API) postOAuth2ProviderApp(rw http.ResponseWriter, r *http.Request) {
 		})
 	)
 	defer commitAudit()
-	var req codersdk.PostOAuth2ProviderAppRequest
+	var req wirtualsdk.PostOAuth2ProviderAppRequest
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
@@ -122,7 +122,7 @@ func (api *API) postOAuth2ProviderApp(rw http.ResponseWriter, r *http.Request) {
 		CallbackURL: req.CallbackURL,
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error creating OAuth2 application.",
 			Detail:  err.Error(),
 		})
@@ -156,7 +156,7 @@ func (api *API) putOAuth2ProviderApp(rw http.ResponseWriter, r *http.Request) {
 	)
 	aReq.Old = app
 	defer commitAudit()
-	var req codersdk.PutOAuth2ProviderAppRequest
+	var req wirtualsdk.PutOAuth2ProviderAppRequest
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
@@ -168,7 +168,7 @@ func (api *API) putOAuth2ProviderApp(rw http.ResponseWriter, r *http.Request) {
 		CallbackURL: req.CallbackURL,
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error updating OAuth2 application.",
 			Detail:  err.Error(),
 		})
@@ -201,7 +201,7 @@ func (api *API) deleteOAuth2ProviderApp(rw http.ResponseWriter, r *http.Request)
 	defer commitAudit()
 	err := api.Database.DeleteOAuth2ProviderAppByID(ctx, app.ID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error deleting OAuth2 application.",
 			Detail:  err.Error(),
 		})
@@ -223,17 +223,17 @@ func (api *API) oAuth2ProviderAppSecrets(rw http.ResponseWriter, r *http.Request
 	app := httpmw.OAuth2ProviderApp(r)
 	dbSecrets, err := api.Database.GetOAuth2ProviderAppSecretsByAppID(ctx, app.ID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error getting OAuth2 client secrets.",
 			Detail:  err.Error(),
 		})
 		return
 	}
-	secrets := []codersdk.OAuth2ProviderAppSecret{}
+	secrets := []wirtualsdk.OAuth2ProviderAppSecret{}
 	for _, secret := range dbSecrets {
-		secrets = append(secrets, codersdk.OAuth2ProviderAppSecret{
+		secrets = append(secrets, wirtualsdk.OAuth2ProviderAppSecret{
 			ID:                    secret.ID,
-			LastUsedAt:            codersdk.NullTime{NullTime: secret.LastUsedAt},
+			LastUsedAt:            wirtualsdk.NullTime{NullTime: secret.LastUsedAt},
 			ClientSecretTruncated: secret.DisplaySecret,
 		})
 	}
@@ -263,7 +263,7 @@ func (api *API) postOAuth2ProviderAppSecret(rw http.ResponseWriter, r *http.Requ
 	defer commitAudit()
 	secret, err := identityprovider.GenerateSecret()
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Failed to generate OAuth2 client secret.",
 			Detail:  err.Error(),
 		})
@@ -281,14 +281,14 @@ func (api *API) postOAuth2ProviderAppSecret(rw http.ResponseWriter, r *http.Requ
 		AppID:         app.ID,
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error creating OAuth2 client secret.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 	aReq.New = dbSecret
-	httpapi.Write(ctx, rw, http.StatusCreated, codersdk.OAuth2ProviderAppSecretFull{
+	httpapi.Write(ctx, rw, http.StatusCreated, wirtualsdk.OAuth2ProviderAppSecretFull{
 		ID:               dbSecret.ID,
 		ClientSecretFull: secret.Formatted,
 	})
@@ -318,7 +318,7 @@ func (api *API) deleteOAuth2ProviderAppSecret(rw http.ResponseWriter, r *http.Re
 	defer commitAudit()
 	err := api.Database.DeleteOAuth2ProviderAppSecretByID(ctx, secret.ID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error deleting OAuth2 client secret.",
 			Detail:  err.Error(),
 		})

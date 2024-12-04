@@ -30,7 +30,7 @@ func (api *API) deploymentValues(rw http.ResponseWriter, r *http.Request) {
 
 	httpapi.Write(
 		r.Context(), rw, http.StatusOK,
-		codersdk.DeploymentConfig{
+		wirtualsdk.DeploymentConfig{
 			Values:  values,
 			Options: api.DeploymentOptions,
 		},
@@ -52,7 +52,7 @@ func (api *API) deploymentStats(rw http.ResponseWriter, r *http.Request) {
 
 	stats, ok := api.metricsCache.DeploymentStats()
 	if !ok {
-		httpapi.Write(r.Context(), rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Deployment stats are still processing!",
 		})
 		return
@@ -67,7 +67,7 @@ func (api *API) deploymentStats(rw http.ResponseWriter, r *http.Request) {
 // @Tags General
 // @Success 200 {object} wirtualsdk.BuildInfoResponse
 // @Router /buildinfo [get]
-func buildInfoHandler(resp codersdk.BuildInfoResponse) http.HandlerFunc {
+func buildInfoHandler(resp wirtualsdk.BuildInfoResponse) http.HandlerFunc {
 	// This is in a handler so that we can generate API docs info.
 	return func(rw http.ResponseWriter, r *http.Request) {
 		httpapi.Write(r.Context(), rw, http.StatusOK, resp)

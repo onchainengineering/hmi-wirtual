@@ -34,8 +34,8 @@ func TestProvisionerDaemon_PSK(t *testing.T) {
 			ProvisionerDaemonPSK: "provisionersftw",
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureMultipleOrganizations:      1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
@@ -49,7 +49,7 @@ func TestProvisionerDaemon_PSK(t *testing.T) {
 		pty.ExpectNoMatchBefore(ctx, "check entitlement", "starting provisioner daemon")
 		pty.ExpectMatchContext(ctx, "matt-daemon")
 
-		var daemons []codersdk.ProvisionerDaemon
+		var daemons []wirtualsdk.ProvisionerDaemon
 		require.Eventually(t, func() bool {
 			daemons, err = client.ProvisionerDaemons(ctx)
 			if err != nil {
@@ -69,8 +69,8 @@ func TestProvisionerDaemon_PSK(t *testing.T) {
 			ProvisionerDaemonPSK: "provisionersftw",
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureMultipleOrganizations:      1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
@@ -91,7 +91,7 @@ func TestProvisionerDaemon_PSK(t *testing.T) {
 			ProvisionerDaemonPSK: "provisionersftw",
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 		})
@@ -113,7 +113,7 @@ func TestProvisionerDaemon_SessionToken(t *testing.T) {
 			ProvisionerDaemonPSK: "provisionersftw",
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 		})
@@ -126,7 +126,7 @@ func TestProvisionerDaemon_SessionToken(t *testing.T) {
 		clitest.Start(t, inv)
 		pty.ExpectMatchContext(ctx, "starting provisioner daemon")
 
-		var daemons []codersdk.ProvisionerDaemon
+		var daemons []wirtualsdk.ProvisionerDaemon
 		var err error
 		require.Eventually(t, func() bool {
 			daemons, err = client.ProvisionerDaemons(ctx)
@@ -148,7 +148,7 @@ func TestProvisionerDaemon_SessionToken(t *testing.T) {
 			ProvisionerDaemonPSK: "provisionersftw",
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 		})
@@ -161,7 +161,7 @@ func TestProvisionerDaemon_SessionToken(t *testing.T) {
 		clitest.Start(t, inv)
 		pty.ExpectMatchContext(ctx, "starting provisioner daemon")
 
-		var daemons []codersdk.ProvisionerDaemon
+		var daemons []wirtualsdk.ProvisionerDaemon
 		var err error
 		require.Eventually(t, func() bool {
 			daemons, err = client.ProvisionerDaemons(ctx)
@@ -184,7 +184,7 @@ func TestProvisionerDaemon_SessionToken(t *testing.T) {
 			ProvisionerDaemonPSK: "provisionersftw",
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 		})
@@ -197,7 +197,7 @@ func TestProvisionerDaemon_SessionToken(t *testing.T) {
 		clitest.Start(t, inv)
 		pty.ExpectMatchContext(ctx, "starting provisioner daemon")
 
-		var daemons []codersdk.ProvisionerDaemon
+		var daemons []wirtualsdk.ProvisionerDaemon
 		var err error
 		require.Eventually(t, func() bool {
 			daemons, err = client.ProvisionerDaemons(ctx)
@@ -218,8 +218,8 @@ func TestProvisionerDaemon_SessionToken(t *testing.T) {
 			ProvisionerDaemonPSK: "provisionersftw",
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureMultipleOrganizations:      1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
@@ -233,7 +233,7 @@ func TestProvisionerDaemon_SessionToken(t *testing.T) {
 		clitest.Start(t, inv)
 		pty.ExpectMatchContext(ctx, "starting provisioner daemon")
 
-		var daemons []codersdk.ProvisionerDaemon
+		var daemons []wirtualsdk.ProvisionerDaemon
 		var err error
 		require.Eventually(t, func() bool {
 			daemons, err = client.OrganizationProvisionerDaemons(ctx, anotherOrg.ID, nil)
@@ -262,13 +262,13 @@ func TestProvisionerDaemon_ProvisionerKey(t *testing.T) {
 			ProvisionerDaemonPSK: "provisionersftw",
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureMultipleOrganizations:      1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
 		// nolint:gocritic // test
-		res, err := client.CreateProvisionerKey(ctx, user.OrganizationID, codersdk.CreateProvisionerKeyRequest{
+		res, err := client.CreateProvisionerKey(ctx, user.OrganizationID, wirtualsdk.CreateProvisionerKeyRequest{
 			Name: "dont-TEST-me",
 		})
 		require.NoError(t, err)
@@ -280,7 +280,7 @@ func TestProvisionerDaemon_ProvisionerKey(t *testing.T) {
 		pty.ExpectNoMatchBefore(ctx, "check entitlement", "starting provisioner daemon")
 		pty.ExpectMatchContext(ctx, "matt-daemon")
 
-		var daemons []codersdk.ProvisionerDaemon
+		var daemons []wirtualsdk.ProvisionerDaemon
 		require.Eventually(t, func() bool {
 			daemons, err = client.OrganizationProvisionerDaemons(ctx, user.OrganizationID, nil)
 			if err != nil {
@@ -303,13 +303,13 @@ func TestProvisionerDaemon_ProvisionerKey(t *testing.T) {
 			ProvisionerDaemonPSK: "provisionersftw",
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureMultipleOrganizations:      1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
 		//nolint:gocritic // ignore This client is operating as the owner user, which has unrestricted permissions
-		res, err := client.CreateProvisionerKey(ctx, user.OrganizationID, codersdk.CreateProvisionerKeyRequest{
+		res, err := client.CreateProvisionerKey(ctx, user.OrganizationID, wirtualsdk.CreateProvisionerKeyRequest{
 			Name: "dont-TEST-me",
 			Tags: map[string]string{
 				"tag1": "value1",
@@ -325,7 +325,7 @@ func TestProvisionerDaemon_ProvisionerKey(t *testing.T) {
 		pty.ExpectNoMatchBefore(ctx, "check entitlement", "starting provisioner daemon")
 		pty.ExpectMatchContext(ctx, `tags={"tag1":"value1","tag2":"value2"}`)
 
-		var daemons []codersdk.ProvisionerDaemon
+		var daemons []wirtualsdk.ProvisionerDaemon
 		require.Eventually(t, func() bool {
 			daemons, err = client.OrganizationProvisionerDaemons(ctx, user.OrganizationID, nil)
 			if err != nil {
@@ -348,8 +348,8 @@ func TestProvisionerDaemon_ProvisionerKey(t *testing.T) {
 			ProvisionerDaemonPSK: "provisionersftw",
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureMultipleOrganizations:      1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
@@ -370,13 +370,13 @@ func TestProvisionerDaemon_ProvisionerKey(t *testing.T) {
 			ProvisionerDaemonPSK: "provisionersftw",
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureMultipleOrganizations:      1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
 		// nolint:gocritic // test
-		res, err := client.CreateProvisionerKey(ctx, user.OrganizationID, codersdk.CreateProvisionerKeyRequest{
+		res, err := client.CreateProvisionerKey(ctx, user.OrganizationID, wirtualsdk.CreateProvisionerKeyRequest{
 			Name: "dont-TEST-me",
 		})
 		require.NoError(t, err)
@@ -396,13 +396,13 @@ func TestProvisionerDaemon_ProvisionerKey(t *testing.T) {
 			ProvisionerDaemonPSK: "provisionersftw",
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureMultipleOrganizations:      1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
 		// nolint:gocritic // test
-		res, err := client.CreateProvisionerKey(ctx, user.OrganizationID, codersdk.CreateProvisionerKeyRequest{
+		res, err := client.CreateProvisionerKey(ctx, user.OrganizationID, wirtualsdk.CreateProvisionerKeyRequest{
 			Name: "dont-TEST-me",
 		})
 		require.NoError(t, err)
@@ -422,14 +422,14 @@ func TestProvisionerDaemon_ProvisionerKey(t *testing.T) {
 			ProvisionerDaemonPSK: "provisionersftw",
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureMultipleOrganizations:      1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
 		anotherOrg := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{})
 		// nolint:gocritic // test
-		res, err := client.CreateProvisionerKey(ctx, anotherOrg.ID, codersdk.CreateProvisionerKeyRequest{
+		res, err := client.CreateProvisionerKey(ctx, anotherOrg.ID, wirtualsdk.CreateProvisionerKeyRequest{
 			Name: "dont-TEST-me",
 		})
 		require.NoError(t, err)
@@ -441,7 +441,7 @@ func TestProvisionerDaemon_ProvisionerKey(t *testing.T) {
 		pty.ExpectNoMatchBefore(ctx, "check entitlement", "starting provisioner daemon")
 		pty.ExpectMatchContext(ctx, "matt-daemon")
 
-		var daemons []codersdk.ProvisionerDaemon
+		var daemons []wirtualsdk.ProvisionerDaemon
 		require.Eventually(t, func() bool {
 			daemons, err = client.OrganizationProvisionerDaemons(ctx, anotherOrg.ID, nil)
 			if err != nil {
@@ -467,7 +467,7 @@ func TestProvisionerDaemon_PrometheusEnabled(t *testing.T) {
 		ProvisionerDaemonPSK: "provisionersftw",
 		LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureExternalProvisionerDaemons: 1,
+				wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 			},
 		},
 	})
@@ -482,7 +482,7 @@ func TestProvisionerDaemon_PrometheusEnabled(t *testing.T) {
 	clitest.Start(t, inv)
 	pty.ExpectMatchContext(ctx, "starting provisioner daemon")
 
-	var daemons []codersdk.ProvisionerDaemon
+	var daemons []wirtualsdk.ProvisionerDaemon
 	var err error
 	require.Eventually(t, func() bool {
 		daemons, err = client.ProvisionerDaemons(ctx)

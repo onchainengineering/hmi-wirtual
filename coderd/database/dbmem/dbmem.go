@@ -113,33 +113,33 @@ func New() database.Store {
 	q.defaultProxyIconURL = "/emojis/1f3e1.png"
 
 	_, err = q.InsertProvisionerKey(context.Background(), database.InsertProvisionerKeyParams{
-		ID:             uuid.MustParse(codersdk.ProvisionerKeyIDBuiltIn),
+		ID:             uuid.MustParse(wirtualsdk.ProvisionerKeyIDBuiltIn),
 		OrganizationID: defaultOrg.ID,
 		CreatedAt:      dbtime.Now(),
 		HashedSecret:   []byte{},
-		Name:           codersdk.ProvisionerKeyNameBuiltIn,
+		Name:           wirtualsdk.ProvisionerKeyNameBuiltIn,
 		Tags:           map[string]string{},
 	})
 	if err != nil {
 		panic(xerrors.Errorf("failed to create built-in provisioner key: %w", err))
 	}
 	_, err = q.InsertProvisionerKey(context.Background(), database.InsertProvisionerKeyParams{
-		ID:             uuid.MustParse(codersdk.ProvisionerKeyIDUserAuth),
+		ID:             uuid.MustParse(wirtualsdk.ProvisionerKeyIDUserAuth),
 		OrganizationID: defaultOrg.ID,
 		CreatedAt:      dbtime.Now(),
 		HashedSecret:   []byte{},
-		Name:           codersdk.ProvisionerKeyNameUserAuth,
+		Name:           wirtualsdk.ProvisionerKeyNameUserAuth,
 		Tags:           map[string]string{},
 	})
 	if err != nil {
 		panic(xerrors.Errorf("failed to create user-auth provisioner key: %w", err))
 	}
 	_, err = q.InsertProvisionerKey(context.Background(), database.InsertProvisionerKeyParams{
-		ID:             uuid.MustParse(codersdk.ProvisionerKeyIDPSK),
+		ID:             uuid.MustParse(wirtualsdk.ProvisionerKeyIDPSK),
 		OrganizationID: defaultOrg.ID,
 		CreatedAt:      dbtime.Now(),
 		HashedSecret:   []byte{},
-		Name:           codersdk.ProvisionerKeyNamePSK,
+		Name:           wirtualsdk.ProvisionerKeyNamePSK,
 		Tags:           map[string]string{},
 	})
 	if err != nil {
@@ -8383,9 +8383,9 @@ func (q *FakeQuerier) ListProvisionerKeysByOrganizationExcludeReserved(_ context
 
 	keys := make([]database.ProvisionerKey, 0)
 	for _, key := range q.provisionerKeys {
-		if key.ID.String() == codersdk.ProvisionerKeyIDBuiltIn ||
-			key.ID.String() == codersdk.ProvisionerKeyIDUserAuth ||
-			key.ID.String() == codersdk.ProvisionerKeyIDPSK {
+		if key.ID.String() == wirtualsdk.ProvisionerKeyIDBuiltIn ||
+			key.ID.String() == wirtualsdk.ProvisionerKeyIDUserAuth ||
+			key.ID.String() == wirtualsdk.ProvisionerKeyIDPSK {
 			continue
 		}
 		if key.OrganizationID == organizationID {

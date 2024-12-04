@@ -218,7 +218,7 @@ func Test_Runner_Timing(t *testing.T) {
 	})
 }
 
-func setupRunnerTest(t *testing.T) (client *codersdk.Client, agentID uuid.UUID) {
+func setupRunnerTest(t *testing.T) (client *wirtualsdk.Client, agentID uuid.UUID) {
 	t.Helper()
 
 	client = coderdtest.New(t, &coderdtest.Options{

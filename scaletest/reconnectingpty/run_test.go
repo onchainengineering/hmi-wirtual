@@ -245,7 +245,7 @@ func Test_Runner(t *testing.T) {
 	})
 }
 
-func setupRunnerTest(t *testing.T) (client *codersdk.Client, agentID uuid.UUID) {
+func setupRunnerTest(t *testing.T) (client *wirtualsdk.Client, agentID uuid.UUID) {
 	t.Helper()
 
 	client, _, api := coderdtest.NewWithAPI(t, &coderdtest.Options{

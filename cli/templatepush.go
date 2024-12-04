@@ -36,7 +36,7 @@ func (r *RootCmd) templatePush() *serpent.Command {
 		activate             bool
 		orgContext           = NewOrganizationContext()
 	)
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "push [template]",
 		Short: "Create or update a template from the current directory or as specified by flag",
@@ -57,13 +57,13 @@ func (r *RootCmd) templatePush() *serpent.Command {
 				return err
 			}
 
-			err = codersdk.NameValid(name)
+			err = wirtualsdk.NameValid(name)
 			if err != nil {
 				return xerrors.Errorf("template name %q is invalid: %w", name, err)
 			}
 
 			if versionName != "" {
-				err = codersdk.TemplateVersionNameValid(versionName)
+				err = wirtualsdk.TemplateVersionNameValid(versionName)
 				if err != nil {
 					return xerrors.Errorf("template version name %q is invalid: %w", versionName, err)
 				}
@@ -72,7 +72,7 @@ func (r *RootCmd) templatePush() *serpent.Command {
 			var createTemplate bool
 			template, err := client.TemplateByName(inv.Context(), organization.ID, name)
 			if err != nil {
-				var apiError *codersdk.Error
+				var apiError *wirtualsdk.Error
 				if errors.As(err, &apiError) && apiError.StatusCode() != http.StatusNotFound {
 					return err
 				}
@@ -89,7 +89,7 @@ func (r *RootCmd) templatePush() *serpent.Command {
 
 			var varsFiles []string
 			if !uploadFlags.stdin(inv) {
-				varsFiles, err = codersdk.DiscoverVarsFiles(uploadFlags.directory)
+				varsFiles, err = wirtualsdk.DiscoverVarsFiles(uploadFlags.directory)
 				if err != nil {
 					return err
 				}
@@ -119,7 +119,7 @@ func (r *RootCmd) templatePush() *serpent.Command {
 				inv.Logger.Info(inv.Context(), "reusing existing provisioner tags", "tags", tags)
 			}
 
-			userVariableValues, err := codersdk.ParseUserVariableValues(
+			userVariableValues, err := wirtualsdk.ParseUserVariableValues(
 				varsFiles,
 				variablesFile,
 				commandLineVariables)
@@ -131,7 +131,7 @@ func (r *RootCmd) templatePush() *serpent.Command {
 				Message:            message,
 				Client:             client,
 				Organization:       organization,
-				Provisioner:        codersdk.ProvisionerType(provisioner),
+				Provisioner:        wirtualsdk.ProvisionerType(provisioner),
 				FileID:             resp.ID,
 				ProvisionerTags:    tags,
 				UserVariableValues: userVariableValues,
@@ -148,12 +148,12 @@ func (r *RootCmd) templatePush() *serpent.Command {
 				return err
 			}
 
-			if job.Job.Status != codersdk.ProvisionerJobSucceeded {
+			if job.Job.Status != wirtualsdk.ProvisionerJobSucceeded {
 				return xerrors.Errorf("job failed: %s", job.Job.Status)
 			}
 
 			if createTemplate {
-				_, err = client.CreateTemplate(inv.Context(), organization.ID, codersdk.CreateTemplateRequest{
+				_, err = client.CreateTemplate(inv.Context(), organization.ID, wirtualsdk.CreateTemplateRequest{
 					Name:      name,
 					VersionID: job.ID,
 				})
@@ -166,7 +166,7 @@ func (r *RootCmd) templatePush() *serpent.Command {
 						"The "+cliui.Keyword(name)+" template has been created at "+cliui.Timestamp(time.Now())+"! "+
 							"Developers can provision a workspace with this template using:")+"\n")
 			} else if activate {
-				err = client.UpdateActiveTemplateVersion(inv.Context(), template.ID, codersdk.UpdateActiveTemplateVersion{
+				err = client.UpdateActiveTemplateVersion(inv.Context(), template.ID, wirtualsdk.UpdateActiveTemplateVersion{
 					ID: job.ID,
 				})
 				if err != nil {
@@ -286,7 +286,7 @@ func (pf *templateUploadFlags) stdin(inv *serpent.Invocation) (out bool) {
 	return pf.directory == "-" || (!isTTYIn(inv) && pf.directory == ".")
 }
 
-func (pf *templateUploadFlags) upload(inv *serpent.Invocation, client *codersdk.Client) (*codersdk.UploadResponse, error) {
+func (pf *templateUploadFlags) upload(inv *serpent.Invocation, client *wirtualsdk.Client) (*wirtualsdk.UploadResponse, error) {
 	var content io.Reader
 	if pf.stdin(inv) {
 		content = inv.Stdin
@@ -316,7 +316,7 @@ func (pf *templateUploadFlags) upload(inv *serpent.Invocation, client *codersdk.
 	spin.Start()
 	defer spin.Stop()
 
-	resp, err := client.Upload(inv.Context(), codersdk.ContentTypeTar, bufio.NewReader(content))
+	resp, err := client.Upload(inv.Context(), wirtualsdk.ContentTypeTar, bufio.NewReader(content))
 	if err != nil {
 		return nil, xerrors.Errorf("upload: %w", err)
 	}
@@ -382,28 +382,28 @@ func (pf *templateUploadFlags) templateName(inv *serpent.Invocation) (string, er
 type createValidTemplateVersionArgs struct {
 	Name         string
 	Message      string
-	Client       *codersdk.Client
-	Organization codersdk.Organization
-	Provisioner  codersdk.ProvisionerType
+	Client       *wirtualsdk.Client
+	Organization wirtualsdk.Organization
+	Provisioner  wirtualsdk.ProvisionerType
 	FileID       uuid.UUID
 
 	// Template is only required if updating a template's active version.
-	Template *codersdk.Template
+	Template *wirtualsdk.Template
 	// ReuseParameters will attempt to reuse params from the Template field
 	// before prompting the user. Set to false to always prompt for param
 	// values.
 	ReuseParameters    bool
 	ProvisionerTags    map[string]string
-	UserVariableValues []codersdk.VariableValue
+	UserVariableValues []wirtualsdk.VariableValue
 }
 
-func createValidTemplateVersion(inv *serpent.Invocation, args createValidTemplateVersionArgs) (*codersdk.TemplateVersion, error) {
+func createValidTemplateVersion(inv *serpent.Invocation, args createValidTemplateVersionArgs) (*wirtualsdk.TemplateVersion, error) {
 	client := args.Client
 
-	req := codersdk.CreateTemplateVersionRequest{
+	req := wirtualsdk.CreateTemplateVersionRequest{
 		Name:               args.Name,
 		Message:            args.Message,
-		StorageMethod:      codersdk.ProvisionerStorageMethodFile,
+		StorageMethod:      wirtualsdk.ProvisionerStorageMethodFile,
 		FileID:             args.FileID,
 		Provisioner:        args.Provisioner,
 		ProvisionerTags:    args.ProvisionerTags,
@@ -418,20 +418,20 @@ func createValidTemplateVersion(inv *serpent.Invocation, args createValidTemplat
 	}
 	WarnMatchedProvisioners(inv, version)
 	err = cliui.ProvisionerJob(inv.Context(), inv.Stdout, cliui.ProvisionerJobOptions{
-		Fetch: func() (codersdk.ProvisionerJob, error) {
+		Fetch: func() (wirtualsdk.ProvisionerJob, error) {
 			version, err := client.TemplateVersion(inv.Context(), version.ID)
 			return version.Job, err
 		},
 		Cancel: func() error {
 			return client.CancelTemplateVersion(inv.Context(), version.ID)
 		},
-		Logs: func() (<-chan codersdk.ProvisionerJobLog, io.Closer, error) {
+		Logs: func() (<-chan wirtualsdk.ProvisionerJobLog, io.Closer, error) {
 			return client.TemplateVersionLogsAfter(inv.Context(), version.ID, 0)
 		},
 	})
 	if err != nil {
 		var jobErr *cliui.ProvisionerJobError
-		if errors.As(err, &jobErr) && !codersdk.JobIsMissingParameterErrorCode(jobErr.Code) {
+		if errors.As(err, &jobErr) && !wirtualsdk.JobIsMissingParameterErrorCode(jobErr.Code) {
 			return nil, err
 		}
 
@@ -442,7 +442,7 @@ func createValidTemplateVersion(inv *serpent.Invocation, args createValidTemplat
 		return nil, err
 	}
 
-	if version.Job.Status != codersdk.ProvisionerJobSucceeded {
+	if version.Job.Status != wirtualsdk.ProvisionerJobSucceeded {
 		return nil, xerrors.New(version.Job.Error)
 	}
 
@@ -452,9 +452,9 @@ func createValidTemplateVersion(inv *serpent.Invocation, args createValidTemplat
 	}
 
 	// Only display the resources on the start transition, to avoid listing them more than once.
-	var startResources []codersdk.WorkspaceResource
+	var startResources []wirtualsdk.WorkspaceResource
 	for _, r := range resources {
-		if r.Transition == codersdk.WorkspaceTransitionStart {
+		if r.Transition == wirtualsdk.WorkspaceTransitionStart {
 			startResources = append(startResources, r)
 		}
 	}
@@ -496,7 +496,7 @@ Details:
 `
 )
 
-func WarnMatchedProvisioners(inv *serpent.Invocation, tv codersdk.TemplateVersion) {
+func WarnMatchedProvisioners(inv *serpent.Invocation, tv wirtualsdk.TemplateVersion) {
 	if tv.MatchedProvisioners == nil {
 		// Nothing in the response, nothing to do here!
 		return

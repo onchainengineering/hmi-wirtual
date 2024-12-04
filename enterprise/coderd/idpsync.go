@@ -62,16 +62,16 @@ func (api *API) patchGroupIDPSyncSettings(rw http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	var req codersdk.GroupSyncSettings
+	var req wirtualsdk.GroupSyncSettings
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
 
 	if len(req.LegacyNameMapping) > 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Unexpected field 'legacy_group_name_mapping'. Field not allowed, set to null or remove it.",
 			Detail:  "legacy_group_name_mapping is deprecated, use mapping instead",
-			Validations: []codersdk.ValidationError{
+			Validations: []wirtualsdk.ValidationError{
 				{
 					Field:  "legacy_group_name_mapping",
 					Detail: "field is not allowed",
@@ -101,7 +101,7 @@ func (api *API) patchGroupIDPSyncSettings(rw http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.GroupSyncSettings{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.GroupSyncSettings{
 		Field:             settings.Field,
 		Mapping:           settings.Mapping,
 		RegexFilter:       settings.RegexFilter,
@@ -157,7 +157,7 @@ func (api *API) patchRoleIDPSyncSettings(rw http.ResponseWriter, r *http.Request
 		return
 	}
 
-	var req codersdk.RoleSyncSettings
+	var req wirtualsdk.RoleSyncSettings
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
@@ -179,7 +179,7 @@ func (api *API) patchRoleIDPSyncSettings(rw http.ResponseWriter, r *http.Request
 		return
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.RoleSyncSettings{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.RoleSyncSettings{
 		Field:   settings.Field,
 		Mapping: settings.Mapping,
 	})
@@ -208,7 +208,7 @@ func (api *API) organizationIDPSyncSettings(rw http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.OrganizationSyncSettings{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.OrganizationSyncSettings{
 		Field:         settings.Field,
 		Mapping:       settings.Mapping,
 		AssignDefault: settings.AssignDefault,
@@ -232,7 +232,7 @@ func (api *API) patchOrganizationIDPSyncSettings(rw http.ResponseWriter, r *http
 		return
 	}
 
-	var req codersdk.OrganizationSyncSettings
+	var req wirtualsdk.OrganizationSyncSettings
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
@@ -256,7 +256,7 @@ func (api *API) patchOrganizationIDPSyncSettings(rw http.ResponseWriter, r *http
 		return
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.OrganizationSyncSettings{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.OrganizationSyncSettings{
 		Field:         settings.Field,
 		Mapping:       settings.Mapping,
 		AssignDefault: settings.AssignDefault,
@@ -296,7 +296,7 @@ func (api *API) idpSyncClaimFields(orgID uuid.UUID, rw http.ResponseWriter, r *h
 	if httpapi.IsUnauthorizedError(err) {
 		// Give a helpful error. The user could read the org, so this does not
 		// leak anything.
-		httpapi.Write(ctx, rw, http.StatusForbidden, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusForbidden, wirtualsdk.Response{
 			Message: "You do not have permission to view the available IDP fields",
 			Detail:  fmt.Sprintf("%s.read permission is required", rbac.ResourceIdpsyncSettings.Type),
 		})

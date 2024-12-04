@@ -42,7 +42,7 @@ func Test_Runner(t *testing.T) {
 			DefaultValue: "baz",
 		},
 	}
-	testParameterValues := []codersdk.WorkspaceBuildParameter{
+	testParameterValues := []wirtualsdk.WorkspaceBuildParameter{
 		{
 			Name:  "foo",
 			Value: "baz",
@@ -123,7 +123,7 @@ func Test_Runner(t *testing.T) {
 			},
 			Workspace: workspacebuild.Config{
 				OrganizationID: user.OrganizationID,
-				Request: codersdk.CreateWorkspaceRequest{
+				Request: wirtualsdk.CreateWorkspaceRequest{
 					TemplateID:          template.ID,
 					RichParameterValues: testParameterValues,
 				},
@@ -153,10 +153,10 @@ func Test_Runner(t *testing.T) {
 		t.Cleanup(func() { _ = closer.Close() })
 
 		// Ensure a user and workspace were created.
-		users, err := client.Users(ctx, codersdk.UsersRequest{})
+		users, err := client.Users(ctx, wirtualsdk.UsersRequest{})
 		require.NoError(t, err)
 		require.Len(t, users.Users, 2) // 1 user already exists
-		workspaces, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{})
+		workspaces, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{})
 		require.NoError(t, err)
 		require.Len(t, workspaces.Workspaces, 1)
 
@@ -188,10 +188,10 @@ func Test_Runner(t *testing.T) {
 		require.Contains(t, cleanupLogsStr, "Build succeeded!")
 
 		// Ensure the user and workspace were deleted.
-		users, err = client.Users(ctx, codersdk.UsersRequest{})
+		users, err = client.Users(ctx, wirtualsdk.UsersRequest{})
 		require.NoError(t, err)
 		require.Len(t, users.Users, 1) // 1 user already exists
-		workspaces, err = client.Workspaces(ctx, codersdk.WorkspaceFilter{})
+		workspaces, err = client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{})
 		require.NoError(t, err)
 		require.Len(t, workspaces.Workspaces, 0)
 	})
@@ -230,7 +230,7 @@ func Test_Runner(t *testing.T) {
 		})
 
 		version = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(request *codersdk.CreateTemplateRequest) {
+		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(request *wirtualsdk.CreateTemplateRequest) {
 			request.AllowUserCancelWorkspaceJobs = ptr.Ref(true)
 		})
 
@@ -246,7 +246,7 @@ func Test_Runner(t *testing.T) {
 			},
 			Workspace: workspacebuild.Config{
 				OrganizationID: user.OrganizationID,
-				Request: codersdk.CreateWorkspaceRequest{
+				Request: wirtualsdk.CreateWorkspaceRequest{
 					TemplateID:          template.ID,
 					RichParameterValues: testParameterValues,
 				},
@@ -266,7 +266,7 @@ func Test_Runner(t *testing.T) {
 
 		// Wait for the workspace build job to be picked up.
 		require.Eventually(t, func() bool {
-			workspaces, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{})
+			workspaces, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{})
 			if err != nil {
 				return false
 			}
@@ -277,11 +277,11 @@ func Test_Runner(t *testing.T) {
 			ws := workspaces.Workspaces[0]
 			t.Logf("checking build: %s | %s", ws.LatestBuild.Transition, ws.LatestBuild.Job.Status)
 			// There should be only one build at present.
-			if ws.LatestBuild.Transition != codersdk.WorkspaceTransitionStart {
-				t.Errorf("expected build transition %s, got %s", codersdk.WorkspaceTransitionStart, ws.LatestBuild.Transition)
+			if ws.LatestBuild.Transition != wirtualsdk.WorkspaceTransitionStart {
+				t.Errorf("expected build transition %s, got %s", wirtualsdk.WorkspaceTransitionStart, ws.LatestBuild.Transition)
 				return false
 			}
-			return ws.LatestBuild.Job.Status == codersdk.ProvisionerJobRunning
+			return ws.LatestBuild.Job.Status == wirtualsdk.ProvisionerJobRunning
 		}, testutil.WaitShort, testutil.IntervalMedium)
 
 		cancelFunc()
@@ -299,7 +299,7 @@ func Test_Runner(t *testing.T) {
 
 		// Ensure the job has been marked as deleted
 		require.Eventually(t, func() bool {
-			workspaces, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{})
+			workspaces, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{})
 			if err != nil {
 				return false
 			}
@@ -309,7 +309,7 @@ func Test_Runner(t *testing.T) {
 			}
 
 			// There should be two builds
-			builds, err := client.WorkspaceBuilds(ctx, codersdk.WorkspaceBuildsRequest{
+			builds, err := client.WorkspaceBuilds(ctx, wirtualsdk.WorkspaceBuildsRequest{
 				WorkspaceID: workspaces.Workspaces[0].ID,
 			})
 			if err != nil {
@@ -318,14 +318,14 @@ func Test_Runner(t *testing.T) {
 			for i, build := range builds {
 				t.Logf("checking build #%d: %s | %s", i, build.Transition, build.Job.Status)
 				// One of the builds should be for creating the workspace,
-				if build.Transition != codersdk.WorkspaceTransitionStart {
+				if build.Transition != wirtualsdk.WorkspaceTransitionStart {
 					continue
 				}
 
 				// And it should be either failed (Echo returns an error when job is canceled), canceling, or canceled.
-				if build.Job.Status == codersdk.ProvisionerJobFailed ||
-					build.Job.Status == codersdk.ProvisionerJobCanceling ||
-					build.Job.Status == codersdk.ProvisionerJobCanceled {
+				if build.Job.Status == wirtualsdk.ProvisionerJobFailed ||
+					build.Job.Status == wirtualsdk.ProvisionerJobCanceling ||
+					build.Job.Status == wirtualsdk.ProvisionerJobCanceled {
 					return true
 				}
 			}
@@ -412,7 +412,7 @@ func Test_Runner(t *testing.T) {
 			},
 			Workspace: workspacebuild.Config{
 				OrganizationID: user.OrganizationID,
-				Request: codersdk.CreateWorkspaceRequest{
+				Request: wirtualsdk.CreateWorkspaceRequest{
 					TemplateID:          template.ID,
 					RichParameterValues: testParameterValues,
 				},
@@ -442,10 +442,10 @@ func Test_Runner(t *testing.T) {
 		t.Cleanup(func() { _ = closer.Close() })
 
 		// Ensure a user and workspace were created.
-		users, err := client.Users(ctx, codersdk.UsersRequest{})
+		users, err := client.Users(ctx, wirtualsdk.UsersRequest{})
 		require.NoError(t, err)
 		require.Len(t, users.Users, 2) // 1 user already exists
-		workspaces, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{})
+		workspaces, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{})
 		require.NoError(t, err)
 		require.Len(t, workspaces.Workspaces, 1)
 
@@ -473,10 +473,10 @@ func Test_Runner(t *testing.T) {
 		require.NoError(t, err)
 
 		// Ensure the user and workspace were not deleted.
-		users, err = client.Users(ctx, codersdk.UsersRequest{})
+		users, err = client.Users(ctx, wirtualsdk.UsersRequest{})
 		require.NoError(t, err)
 		require.Len(t, users.Users, 2)
-		workspaces, err = client.Workspaces(ctx, codersdk.WorkspaceFilter{})
+		workspaces, err = client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{})
 		require.NoError(t, err)
 		require.Len(t, workspaces.Workspaces, 1)
 	})
@@ -527,7 +527,7 @@ func Test_Runner(t *testing.T) {
 			},
 			Workspace: workspacebuild.Config{
 				OrganizationID: user.OrganizationID,
-				Request: codersdk.CreateWorkspaceRequest{
+				Request: wirtualsdk.CreateWorkspaceRequest{
 					TemplateID:          template.ID,
 					RichParameterValues: testParameterValues,
 				},
@@ -547,14 +547,14 @@ func Test_Runner(t *testing.T) {
 // listing workspaces until we find it, then wait for the build to
 // finish, then start the agents. It is the caller's responsibility to
 // call the returned function to stop the agents.
-func goEventuallyStartFakeAgent(ctx context.Context, t *testing.T, client *codersdk.Client, agentToken string) chan io.Closer {
+func goEventuallyStartFakeAgent(ctx context.Context, t *testing.T, client *wirtualsdk.Client, agentToken string) chan io.Closer {
 	t.Helper()
 	ch := make(chan io.Closer, 1) // Don't block.
 	go func() {
 		defer close(ch)
-		var workspace codersdk.Workspace
+		var workspace wirtualsdk.Workspace
 		for {
-			res, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{})
+			res, err := client.Workspaces(ctx, wirtualsdk.WorkspaceFilter{})
 			if !assert.NoError(t, err) {
 				return
 			}

@@ -70,7 +70,7 @@ func TestList(t *testing.T) {
 		err := inv.WithContext(ctx).Run()
 		require.NoError(t, err)
 
-		var workspaces []codersdk.Workspace
+		var workspaces []wirtualsdk.Workspace
 		require.NoError(t, json.Unmarshal(out.Bytes(), &workspaces))
 		require.Len(t, workspaces, 1)
 	})

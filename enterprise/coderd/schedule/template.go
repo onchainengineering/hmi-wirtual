@@ -280,7 +280,7 @@ func (s *EnterpriseTemplateScheduleStore) updateWorkspaceBuild(ctx context.Conte
 	if err != nil {
 		return xerrors.Errorf("get provisioner job %q: %w", build.JobID, err)
 	}
-	if codersdk.ProvisionerJobStatus(job.JobStatus) != codersdk.ProvisionerJobSucceeded {
+	if wirtualsdk.ProvisionerJobStatus(job.JobStatus) != wirtualsdk.ProvisionerJobSucceeded {
 		// Only touch builds that are completed.
 		return nil
 	}

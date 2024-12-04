@@ -24,7 +24,7 @@ func (r *RootCmd) groupEdit() *serpent.Command {
 		rmUsers     []string
 		orgContext  = agpl.NewOrganizationContext()
 	)
-	client := new(codersdk.Client)
+	client := new(wirtualsdk.Client)
 	cmd := &serpent.Command{
 		Use:   "edit <name>",
 		Short: "Edit a user group",
@@ -48,7 +48,7 @@ func (r *RootCmd) groupEdit() *serpent.Command {
 				return xerrors.Errorf("group by org and name: %w", err)
 			}
 
-			req := codersdk.PatchGroupRequest{
+			req := wirtualsdk.PatchGroupRequest{
 				Name: name,
 			}
 
@@ -60,7 +60,7 @@ func (r *RootCmd) groupEdit() *serpent.Command {
 				req.DisplayName = &displayName
 			}
 
-			userRes, err := client.Users(ctx, codersdk.UsersRequest{})
+			userRes, err := client.Users(ctx, wirtualsdk.UsersRequest{})
 			if err != nil {
 				return xerrors.Errorf("get users: %w", err)
 			}
@@ -124,7 +124,7 @@ func (r *RootCmd) groupEdit() *serpent.Command {
 
 // convertToUserIDs accepts a list of users in the form of IDs or email addresses
 // and translates any emails to the matching user ID.
-func convertToUserIDs(userList []string, users []codersdk.User) ([]string, error) {
+func convertToUserIDs(userList []string, users []wirtualsdk.User) ([]string, error) {
 	converted := make([]string, 0, len(userList))
 
 	for _, user := range userList {

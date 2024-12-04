@@ -140,7 +140,7 @@ func ExtractAPIKeyMW(cfg ExtractAPIKeyConfig) func(http.Handler) http.Handler {
 	}
 }
 
-func APIKeyFromRequest(ctx context.Context, db database.Store, sessionTokenFunc func(r *http.Request) string, r *http.Request) (*database.APIKey, codersdk.Response, bool) {
+func APIKeyFromRequest(ctx context.Context, db database.Store, sessionTokenFunc func(r *http.Request) string, r *http.Request) (*database.APIKey, wirtualsdk.Response, bool) {
 	tokenFunc := APITokenFromRequest
 	if sessionTokenFunc != nil {
 		tokenFunc = sessionTokenFunc
@@ -148,15 +148,15 @@ func APIKeyFromRequest(ctx context.Context, db database.Store, sessionTokenFunc 
 
 	token := tokenFunc(r)
 	if token == "" {
-		return nil, codersdk.Response{
+		return nil, wirtualsdk.Response{
 			Message: SignedOutErrorMessage,
-			Detail:  fmt.Sprintf("Cookie %q or query parameter must be provided.", codersdk.SessionTokenCookie),
+			Detail:  fmt.Sprintf("Cookie %q or query parameter must be provided.", wirtualsdk.SessionTokenCookie),
 		}, false
 	}
 
 	keyID, keySecret, err := SplitAPIToken(token)
 	if err != nil {
-		return nil, codersdk.Response{
+		return nil, wirtualsdk.Response{
 			Message: SignedOutErrorMessage,
 			Detail:  "Invalid API key format: " + err.Error(),
 		}, false
@@ -166,13 +166,13 @@ func APIKeyFromRequest(ctx context.Context, db database.Store, sessionTokenFunc 
 	key, err := db.GetAPIKeyByID(dbauthz.AsSystemRestricted(ctx), keyID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, codersdk.Response{
+			return nil, wirtualsdk.Response{
 				Message: SignedOutErrorMessage,
 				Detail:  "API key is invalid.",
 			}, false
 		}
 
-		return nil, codersdk.Response{
+		return nil, wirtualsdk.Response{
 			Message: internalErrorMessage,
 			Detail:  fmt.Sprintf("Internal error fetching API key by id. %s", err.Error()),
 		}, false
@@ -181,13 +181,13 @@ func APIKeyFromRequest(ctx context.Context, db database.Store, sessionTokenFunc 
 	// Checking to see if the secret is valid.
 	hashedSecret := sha256.Sum256([]byte(keySecret))
 	if subtle.ConstantTimeCompare(key.HashedSecret, hashedSecret[:]) != 1 {
-		return nil, codersdk.Response{
+		return nil, wirtualsdk.Response{
 			Message: SignedOutErrorMessage,
 			Detail:  "API key secret is invalid.",
 		}, false
 	}
 
-	return &key, codersdk.Response{}, true
+	return &key, wirtualsdk.Response{}, true
 }
 
 // ExtractAPIKey requires authentication using a valid API key. It handles
@@ -203,7 +203,7 @@ func ExtractAPIKey(rw http.ResponseWriter, r *http.Request, cfg ExtractAPIKeyCon
 	// Write wraps writing a response to redirect if the handler
 	// specified it should. This redirect is used for user-facing pages
 	// like workspace applications.
-	write := func(code int, response codersdk.Response) (*database.APIKey, *rbac.Subject, bool) {
+	write := func(code int, response wirtualsdk.Response) (*database.APIKey, *rbac.Subject, bool) {
 		if cfg.RedirectToLogin {
 			RedirectToLogin(rw, r, nil, response.Message)
 			return nil, nil, false
@@ -218,7 +218,7 @@ func ExtractAPIKey(rw http.ResponseWriter, r *http.Request, cfg ExtractAPIKeyCon
 	//
 	// It should be used when the API key is not provided or is invalid,
 	// but not when there are other errors.
-	optionalWrite := func(code int, response codersdk.Response) (*database.APIKey, *rbac.Subject, bool) {
+	optionalWrite := func(code int, response wirtualsdk.Response) (*database.APIKey, *rbac.Subject, bool) {
 		if cfg.Optional {
 			return nil, nil, true
 		}
@@ -246,13 +246,13 @@ func ExtractAPIKey(rw http.ResponseWriter, r *http.Request, cfg ExtractAPIKeyCon
 			LoginType: key.LoginType,
 		})
 		if errors.Is(err, sql.ErrNoRows) {
-			return optionalWrite(http.StatusUnauthorized, codersdk.Response{
+			return optionalWrite(http.StatusUnauthorized, wirtualsdk.Response{
 				Message: SignedOutErrorMessage,
 				Detail:  "You must re-authenticate with the login provider.",
 			})
 		}
 		if err != nil {
-			return write(http.StatusInternalServerError, codersdk.Response{
+			return write(http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "A database error occurred",
 				Detail:  fmt.Sprintf("get user link by user ID and login type: %s", err.Error()),
 			})
@@ -260,7 +260,7 @@ func ExtractAPIKey(rw http.ResponseWriter, r *http.Request, cfg ExtractAPIKeyCon
 		// Check if the OAuth token is expired
 		if link.OAuthExpiry.Before(now) && !link.OAuthExpiry.IsZero() && link.OAuthRefreshToken != "" {
 			if cfg.OAuth2Configs.IsZero() {
-				return write(http.StatusInternalServerError, codersdk.Response{
+				return write(http.StatusInternalServerError, wirtualsdk.Response{
 					Message: internalErrorMessage,
 					Detail: fmt.Sprintf("Unable to refresh OAuth token for login type %q. "+
 						"No OAuth2Configs provided. Contact an administrator to configure this login type.", key.LoginType),
@@ -274,7 +274,7 @@ func ExtractAPIKey(rw http.ResponseWriter, r *http.Request, cfg ExtractAPIKeyCon
 			case database.LoginTypeOIDC:
 				oauthConfig = cfg.OAuth2Configs.OIDC
 			default:
-				return write(http.StatusInternalServerError, codersdk.Response{
+				return write(http.StatusInternalServerError, wirtualsdk.Response{
 					Message: internalErrorMessage,
 					Detail:  fmt.Sprintf("Unexpected authentication type %q.", key.LoginType),
 				})
@@ -285,7 +285,7 @@ func ExtractAPIKey(rw http.ResponseWriter, r *http.Request, cfg ExtractAPIKeyCon
 			// but the administrator later removed GitHub and replaced it with
 			// OIDC.
 			if oauthConfig == nil {
-				return write(http.StatusInternalServerError, codersdk.Response{
+				return write(http.StatusInternalServerError, wirtualsdk.Response{
 					Message: internalErrorMessage,
 					Detail: fmt.Sprintf("Unable to refresh OAuth token for login type %q. "+
 						"OAuth2Config not provided. Contact an administrator to configure this login type.", key.LoginType),
@@ -299,7 +299,7 @@ func ExtractAPIKey(rw http.ResponseWriter, r *http.Request, cfg ExtractAPIKeyCon
 				Expiry:       link.OAuthExpiry,
 			}).Token()
 			if err != nil {
-				return write(http.StatusUnauthorized, codersdk.Response{
+				return write(http.StatusUnauthorized, wirtualsdk.Response{
 					Message: "Could not refresh expired Oauth token. Try re-authenticating to resolve this issue.",
 					Detail:  err.Error(),
 				})
@@ -317,7 +317,7 @@ func ExtractAPIKey(rw http.ResponseWriter, r *http.Request, cfg ExtractAPIKeyCon
 	// the users token has expired. If you change the text here, make sure to update it
 	// in site/src/components/RequireAuth/RequireAuth.tsx as well.
 	if key.ExpiresAt.Before(now) {
-		return optionalWrite(http.StatusUnauthorized, codersdk.Response{
+		return optionalWrite(http.StatusUnauthorized, wirtualsdk.Response{
 			Message: SignedOutErrorMessage,
 			Detail:  fmt.Sprintf("API key expired at %q.", key.ExpiresAt.String()),
 		})
@@ -358,7 +358,7 @@ func ExtractAPIKey(rw http.ResponseWriter, r *http.Request, cfg ExtractAPIKeyCon
 			IPAddress: key.IPAddress,
 		})
 		if err != nil {
-			return write(http.StatusInternalServerError, codersdk.Response{
+			return write(http.StatusInternalServerError, wirtualsdk.Response{
 				Message: internalErrorMessage,
 				Detail:  fmt.Sprintf("API key couldn't update: %s.", err.Error()),
 			})
@@ -380,7 +380,7 @@ func ExtractAPIKey(rw http.ResponseWriter, r *http.Request, cfg ExtractAPIKeyCon
 				Claims: link.Claims,
 			})
 			if err != nil {
-				return write(http.StatusInternalServerError, codersdk.Response{
+				return write(http.StatusInternalServerError, wirtualsdk.Response{
 					Message: internalErrorMessage,
 					Detail:  fmt.Sprintf("update user_link: %s.", err.Error()),
 				})
@@ -397,7 +397,7 @@ func ExtractAPIKey(rw http.ResponseWriter, r *http.Request, cfg ExtractAPIKeyCon
 			UpdatedAt:  dbtime.Now(),
 		})
 		if err != nil {
-			return write(http.StatusInternalServerError, codersdk.Response{
+			return write(http.StatusInternalServerError, wirtualsdk.Response{
 				Message: internalErrorMessage,
 				Detail:  fmt.Sprintf("update user last_seen_at: %s", err.Error()),
 			})
@@ -409,7 +409,7 @@ func ExtractAPIKey(rw http.ResponseWriter, r *http.Request, cfg ExtractAPIKeyCon
 	// is to block 'suspended' users from accessing the platform.
 	actor, userStatus, err := UserRBACSubject(ctx, cfg.DB, key.UserID, rbac.ScopeName(key.Scope))
 	if err != nil {
-		return write(http.StatusUnauthorized, codersdk.Response{
+		return write(http.StatusUnauthorized, wirtualsdk.Response{
 			Message: internalErrorMessage,
 			Detail:  fmt.Sprintf("Internal error fetching user's roles. %s", err.Error()),
 		})
@@ -423,7 +423,7 @@ func ExtractAPIKey(rw http.ResponseWriter, r *http.Request, cfg ExtractAPIKeyCon
 			Status:   userStatus,
 		})
 		if err != nil {
-			return write(http.StatusInternalServerError, codersdk.Response{
+			return write(http.StatusInternalServerError, wirtualsdk.Response{
 				Message: internalErrorMessage,
 				Detail:  fmt.Sprintf("update user status: %s", err.Error()),
 			})
@@ -432,7 +432,7 @@ func ExtractAPIKey(rw http.ResponseWriter, r *http.Request, cfg ExtractAPIKeyCon
 	}
 
 	if userStatus != database.UserStatusActive {
-		return write(http.StatusUnauthorized, codersdk.Response{
+		return write(http.StatusUnauthorized, wirtualsdk.Response{
 			Message: fmt.Sprintf("User is not active (status = %q). Contact an admin to reactivate your account.", userStatus),
 		})
 	}
@@ -482,17 +482,17 @@ func UserRBACSubject(ctx context.Context, db database.Store, userID uuid.UUID, s
 //
 // API tokens for apps are read from workspaceapps/cookies.go.
 func APITokenFromRequest(r *http.Request) string {
-	cookie, err := r.Cookie(codersdk.SessionTokenCookie)
+	cookie, err := r.Cookie(wirtualsdk.SessionTokenCookie)
 	if err == nil && cookie.Value != "" {
 		return cookie.Value
 	}
 
-	urlValue := r.URL.Query().Get(codersdk.SessionTokenCookie)
+	urlValue := r.URL.Query().Get(wirtualsdk.SessionTokenCookie)
 	if urlValue != "" {
 		return urlValue
 	}
 
-	headerValue := r.Header.Get(codersdk.SessionTokenHeader)
+	headerValue := r.Header.Get(wirtualsdk.SessionTokenHeader)
 	if headerValue != "" {
 		return headerValue
 	}

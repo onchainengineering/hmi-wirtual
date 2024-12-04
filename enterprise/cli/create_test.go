@@ -23,10 +23,10 @@ func TestEnterpriseCreate(t *testing.T) {
 	t.Parallel()
 
 	type setupData struct {
-		firstResponse codersdk.CreateFirstUserResponse
-		second        codersdk.Organization
-		owner         *codersdk.Client
-		member        *codersdk.Client
+		firstResponse wirtualsdk.CreateFirstUserResponse
+		second        wirtualsdk.Organization
+		owner         *wirtualsdk.Client
+		member        *wirtualsdk.Client
 	}
 
 	type setupArgs struct {
@@ -44,8 +44,8 @@ func TestEnterpriseCreate(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureMultipleOrganizations:      1,
+					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
+					wirtualsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
@@ -65,7 +65,7 @@ func TestEnterpriseCreate(t *testing.T) {
 				wg.Done()
 			}()
 
-			coderdtest.CreateTemplate(t, ownerClient, orgID, version.ID, func(request *codersdk.CreateTemplateRequest) {
+			coderdtest.CreateTemplate(t, ownerClient, orgID, version.ID, func(request *wirtualsdk.CreateTemplateRequest) {
 				request.Name = tplName
 			})
 		}
@@ -111,7 +111,7 @@ func TestEnterpriseCreate(t *testing.T) {
 		err := inv.Run()
 		require.NoError(t, err)
 
-		ws, err := member.WorkspaceByOwnerAndName(context.Background(), codersdk.Me, "my-workspace", codersdk.WorkspaceOptions{})
+		ws, err := member.WorkspaceByOwnerAndName(context.Background(), wirtualsdk.Me, "my-workspace", wirtualsdk.WorkspaceOptions{})
 		if assert.NoError(t, err, "expected workspace to be created") {
 			assert.Equal(t, ws.TemplateName, templateName)
 			assert.Equal(t, ws.OrganizationName, setup.second.Name, "workspace in second organization")
@@ -168,7 +168,7 @@ func TestEnterpriseCreate(t *testing.T) {
 		err := inv.Run()
 		require.NoError(t, err)
 
-		ws, err := member.WorkspaceByOwnerAndName(context.Background(), codersdk.Me, "my-workspace", codersdk.WorkspaceOptions{})
+		ws, err := member.WorkspaceByOwnerAndName(context.Background(), wirtualsdk.Me, "my-workspace", wirtualsdk.WorkspaceOptions{})
 		if assert.NoError(t, err, "expected workspace to be created") {
 			assert.Equal(t, ws.TemplateName, templateName)
 			assert.Equal(t, ws.OrganizationName, setup.second.Name, "workspace in second organization")

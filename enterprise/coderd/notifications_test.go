@@ -81,9 +81,9 @@ func TestUpdateNotificationTemplateMethod(t *testing.T) {
 		err := anotherClient.UpdateNotificationTemplateMethod(ctx, notifications.TemplateWorkspaceDeleted, string(database.NotificationMethodWebhook))
 
 		// Then: the request is denied because of insufficient permissions.
-		var sdkError *codersdk.Error
+		var sdkError *wirtualsdk.Error
 		require.Error(t, err)
-		require.ErrorAsf(t, err, &sdkError, "error should be of type *codersdk.Error")
+		require.ErrorAsf(t, err, &sdkError, "error should be of type *wirtualsdk.Error")
 		require.Equal(t, http.StatusNotFound, sdkError.StatusCode())
 		require.Equal(t, "Resource not found or you do not have access to this resource", sdkError.Response.Message)
 	})
@@ -107,9 +107,9 @@ func TestUpdateNotificationTemplateMethod(t *testing.T) {
 		err := api.UpdateNotificationTemplateMethod(ctx, notifications.TemplateWorkspaceDeleted, method)
 
 		// Then: the request is invalid because of the unacceptable method.
-		var sdkError *codersdk.Error
+		var sdkError *wirtualsdk.Error
 		require.Error(t, err)
-		require.ErrorAsf(t, err, &sdkError, "error should be of type *codersdk.Error")
+		require.ErrorAsf(t, err, &sdkError, "error should be of type *wirtualsdk.Error")
 		require.Equal(t, http.StatusBadRequest, sdkError.StatusCode())
 		require.Equal(t, "Invalid request to update notification template method", sdkError.Response.Message)
 		require.Len(t, sdkError.Response.Validations, 1)
@@ -156,10 +156,10 @@ func TestUpdateNotificationTemplateMethod(t *testing.T) {
 }
 
 // nolint:revive // t takes precedence.
-func getTemplateByID(t *testing.T, ctx context.Context, api *codersdk.Client, id uuid.UUID) (*codersdk.NotificationTemplate, error) {
+func getTemplateByID(t *testing.T, ctx context.Context, api *wirtualsdk.Client, id uuid.UUID) (*wirtualsdk.NotificationTemplate, error) {
 	t.Helper()
 
-	var template codersdk.NotificationTemplate
+	var template wirtualsdk.NotificationTemplate
 	templates, err := api.GetSystemNotificationTemplates(ctx)
 	if err != nil {
 		return nil, err

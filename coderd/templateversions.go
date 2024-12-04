@@ -53,7 +53,7 @@ func (api *API) templateVersion(rw http.ResponseWriter, r *http.Request) {
 
 	jobs, err := api.Database.GetProvisionerJobsByIDsWithQueuePosition(ctx, []uuid.UUID{templateVersion.JobID})
 	if err != nil || len(jobs) == 0 {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching provisioner job.",
 			Detail:  err.Error(),
 		})
@@ -65,16 +65,16 @@ func (api *API) templateVersion(rw http.ResponseWriter, r *http.Request) {
 		err = nil
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error listing parameter schemas.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 
-	var warnings []codersdk.TemplateVersionWarning
+	var warnings []wirtualsdk.TemplateVersionWarning
 	if len(schemas) > 0 {
-		warnings = append(warnings, codersdk.TemplateVersionWarningUnsupportedWorkspaces)
+		warnings = append(warnings, wirtualsdk.TemplateVersionWarningUnsupportedWorkspaces)
 	}
 
 	httpapi.Write(ctx, rw, http.StatusOK, convertTemplateVersion(templateVersion, convertProvisionerJob(jobs[0]), nil, warnings))
@@ -94,7 +94,7 @@ func (api *API) patchTemplateVersion(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	templateVersion := httpmw.TemplateVersionParam(r)
 
-	var params codersdk.PatchTemplateVersionRequest
+	var params wirtualsdk.PatchTemplateVersionRequest
 	if !httpapi.Read(ctx, rw, r, &params) {
 		return
 	}
@@ -149,16 +149,16 @@ func (api *API) patchTemplateVersion(rw http.ResponseWriter, r *http.Request) {
 		return nil
 	}, nil)
 	if errors.Is(err, errTemplateVersionNameConflict) {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: err.Error(),
-			Validations: []codersdk.ValidationError{
+			Validations: []wirtualsdk.ValidationError{
 				{Field: "name", Detail: "Name is already used"},
 			},
 		})
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: err.Error(),
 		})
 		return
@@ -166,7 +166,7 @@ func (api *API) patchTemplateVersion(rw http.ResponseWriter, r *http.Request) {
 
 	jobs, err := api.Database.GetProvisionerJobsByIDsWithQueuePosition(ctx, []uuid.UUID{templateVersion.JobID})
 	if err != nil || len(jobs) == 0 {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching provisioner job.",
 			Detail:  err.Error(),
 		})
@@ -190,20 +190,20 @@ func (api *API) patchCancelTemplateVersion(rw http.ResponseWriter, r *http.Reque
 
 	job, err := api.Database.GetProvisionerJobByID(ctx, templateVersion.JobID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching provisioner job.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 	if job.CompletedAt.Valid {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Job has already completed!",
 		})
 		return
 	}
 	if job.CanceledAt.Valid {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Job has already been marked as canceled!",
 		})
 		return
@@ -221,13 +221,13 @@ func (api *API) patchCancelTemplateVersion(rw http.ResponseWriter, r *http.Reque
 		},
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error updating provisioner job.",
 			Detail:  err.Error(),
 		})
 		return
 	}
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.Response{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.Response{
 		Message: "Job has been marked as canceled...",
 	})
 }
@@ -246,21 +246,21 @@ func (api *API) templateVersionRichParameters(rw http.ResponseWriter, r *http.Re
 
 	job, err := api.Database.GetProvisionerJobByID(ctx, templateVersion.JobID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching provisioner job.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 	if !job.CompletedAt.Valid {
-		httpapi.Write(ctx, rw, http.StatusForbidden, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusForbidden, wirtualsdk.Response{
 			Message: "Job hasn't completed!",
 		})
 		return
 	}
 	dbTemplateVersionParameters, err := api.Database.GetTemplateVersionParameters(ctx, templateVersion.ID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching template version parameters.",
 			Detail:  err.Error(),
 		})
@@ -269,7 +269,7 @@ func (api *API) templateVersionRichParameters(rw http.ResponseWriter, r *http.Re
 
 	templateVersionParameters, err := convertTemplateVersionParameters(dbTemplateVersionParameters)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error converting template version parameter.",
 			Detail:  err.Error(),
 		})
@@ -296,14 +296,14 @@ func (api *API) templateVersionExternalAuth(rw http.ResponseWriter, r *http.Requ
 	var rawProviders []database.ExternalAuthProvider
 	err := json.Unmarshal(templateVersion.ExternalAuthProviders, &rawProviders)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error reading auth config from database",
 			Detail:  err.Error(),
 		})
 		return
 	}
 
-	providers := make([]codersdk.TemplateVersionExternalAuth, 0)
+	providers := make([]wirtualsdk.TemplateVersionExternalAuth, 0)
 	for _, rawProvider := range rawProviders {
 		var config *externalauth.Config
 		for _, provider := range api.ExternalAuthConfigs {
@@ -313,7 +313,7 @@ func (api *API) templateVersionExternalAuth(rw http.ResponseWriter, r *http.Requ
 			}
 		}
 		if config == nil {
-			httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 				Message: fmt.Sprintf("The template version references a Git auth provider %q that no longer exists.", rawProvider.ID),
 				Detail:  "You'll need to update the template version to use a different provider.",
 			})
@@ -323,14 +323,14 @@ func (api *API) templateVersionExternalAuth(rw http.ResponseWriter, r *http.Requ
 		// This is the URL that will redirect the user with a state token.
 		redirectURL, err := api.AccessURL.Parse(fmt.Sprintf("/external-auth/%s", config.ID))
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Failed to parse access URL.",
 				Detail:  err.Error(),
 			})
 			return
 		}
 
-		provider := codersdk.TemplateVersionExternalAuth{
+		provider := wirtualsdk.TemplateVersionExternalAuth{
 			ID:              config.ID,
 			Type:            config.Type,
 			AuthenticateURL: redirectURL.String(),
@@ -349,7 +349,7 @@ func (api *API) templateVersionExternalAuth(rw http.ResponseWriter, r *http.Requ
 			continue
 		}
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Internal error fetching external auth link.",
 				Detail:  err.Error(),
 			})
@@ -358,7 +358,7 @@ func (api *API) templateVersionExternalAuth(rw http.ResponseWriter, r *http.Requ
 
 		_, err = config.RefreshToken(ctx, api.Database, authLink)
 		if err != nil && !externalauth.IsInvalidTokenError(err) {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Failed to refresh external auth token.",
 				Detail:  err.Error(),
 			})
@@ -386,21 +386,21 @@ func (api *API) templateVersionVariables(rw http.ResponseWriter, r *http.Request
 
 	job, err := api.Database.GetProvisionerJobByID(ctx, templateVersion.JobID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching provisioner job.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 	if !job.CompletedAt.Valid {
-		httpapi.Write(ctx, rw, http.StatusForbidden, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusForbidden, wirtualsdk.Response{
 			Message: "Job hasn't completed!",
 		})
 		return
 	}
 	dbTemplateVersionVariables, err := api.Database.GetTemplateVersionVariables(ctx, templateVersion.ID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching template version variables.",
 			Detail:  err.Error(),
 		})
@@ -435,21 +435,21 @@ func (api *API) postTemplateVersionDryRun(rw http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	var req codersdk.CreateTemplateVersionDryRunRequest
+	var req wirtualsdk.CreateTemplateVersionDryRunRequest
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
 
 	job, err := api.Database.GetProvisionerJobByID(ctx, templateVersion.JobID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error updating provisioner job.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 	if !job.CompletedAt.Valid {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Template version import job hasn't completed!",
 		})
 		return
@@ -472,7 +472,7 @@ func (api *API) postTemplateVersionDryRun(rw http.ResponseWriter, r *http.Reques
 		RichParameterValues: richParameterValues,
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error unmarshalling provisioner job.",
 			Detail:  err.Error(),
 		})
@@ -481,7 +481,7 @@ func (api *API) postTemplateVersionDryRun(rw http.ResponseWriter, r *http.Reques
 
 	metadataRaw, err := json.Marshal(tracing.MetadataFromContext(ctx))
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error unmarshalling metadata.",
 			Detail:  err.Error(),
 		})
@@ -509,7 +509,7 @@ func (api *API) postTemplateVersionDryRun(rw http.ResponseWriter, r *http.Reques
 		},
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error inserting provisioner job.",
 			Detail:  err.Error(),
 		})
@@ -609,13 +609,13 @@ func (api *API) patchTemplateVersionDryRunCancel(rw http.ResponseWriter, r *http
 	}
 
 	if job.ProvisionerJob.CompletedAt.Valid {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Job has already completed.",
 		})
 		return
 	}
 	if job.ProvisionerJob.CanceledAt.Valid {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Job has already been marked as canceled.",
 		})
 		return
@@ -634,14 +634,14 @@ func (api *API) patchTemplateVersionDryRunCancel(rw http.ResponseWriter, r *http
 		},
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error updating provisioner job.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.Response{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.Response{
 		Message: "Job has been marked as canceled.",
 	})
 }
@@ -655,7 +655,7 @@ func (api *API) fetchTemplateVersionDryRunJob(rw http.ResponseWriter, r *http.Re
 
 	jobUUID, err := uuid.Parse(jobID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: fmt.Sprintf("Job ID %q must be a valid UUID.", jobID),
 			Detail:  err.Error(),
 		})
@@ -664,13 +664,13 @@ func (api *API) fetchTemplateVersionDryRunJob(rw http.ResponseWriter, r *http.Re
 
 	jobs, err := api.Database.GetProvisionerJobsByIDsWithQueuePosition(ctx, []uuid.UUID{jobUUID})
 	if httpapi.Is404Error(err) {
-		httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 			Message: fmt.Sprintf("Provisioner job %q not found.", jobUUID),
 		})
 		return database.GetProvisionerJobsByIDsWithQueuePositionRow{}, false
 	}
 	if err != nil || len(jobs) == 0 {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching provisioner job.",
 			Detail:  err.Error(),
 		})
@@ -693,7 +693,7 @@ func (api *API) fetchTemplateVersionDryRunJob(rw http.ResponseWriter, r *http.Re
 	var input provisionerdserver.TemplateVersionDryRunJob
 	err = json.Unmarshal(job.ProvisionerJob.Input, &input)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error unmarshalling job metadata.",
 			Detail:  err.Error(),
 		})
@@ -732,7 +732,7 @@ func (api *API) templateVersionsByTemplate(rw http.ResponseWriter, r *http.Reque
 	parser := httpapi.NewQueryParamParser()
 	includeArchived := parser.Boolean(r.URL.Query(), false, "include_archived")
 	if len(parser.Errors) > 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message:     "Invalid query parameters.",
 			Validations: parser.Errors,
 		})
@@ -740,19 +740,19 @@ func (api *API) templateVersionsByTemplate(rw http.ResponseWriter, r *http.Reque
 	}
 
 	var err error
-	apiVersions := []codersdk.TemplateVersion{}
+	apiVersions := []wirtualsdk.TemplateVersion{}
 	err = api.Database.InTx(func(store database.Store) error {
 		if paginationParams.AfterID != uuid.Nil {
 			// See if the record exists first. If the record does not exist, the pagination
 			// query will not work.
 			_, err := store.GetTemplateVersionByID(ctx, paginationParams.AfterID)
 			if err != nil && xerrors.Is(err, sql.ErrNoRows) {
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: fmt.Sprintf("Record at \"after_id\" (%q) does not exists.", paginationParams.AfterID.String()),
 				})
 				return err
 			} else if err != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error fetching template version at after_id.",
 					Detail:  err.Error(),
 				})
@@ -781,7 +781,7 @@ func (api *API) templateVersionsByTemplate(rw http.ResponseWriter, r *http.Reque
 			return err
 		}
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Internal error fetching template versions.",
 				Detail:  err.Error(),
 			})
@@ -794,7 +794,7 @@ func (api *API) templateVersionsByTemplate(rw http.ResponseWriter, r *http.Reque
 		}
 		jobs, err := store.GetProvisionerJobsByIDsWithQueuePosition(ctx, jobIDs)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Internal error fetching provisioner job.",
 				Detail:  err.Error(),
 			})
@@ -808,7 +808,7 @@ func (api *API) templateVersionsByTemplate(rw http.ResponseWriter, r *http.Reque
 		for _, version := range versions {
 			job, exists := jobByID[version.JobID.String()]
 			if !exists {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: fmt.Sprintf("Job %q doesn't exist for version %q.", version.JobID, version.ID),
 				})
 				return err
@@ -848,13 +848,13 @@ func (api *API) templateVersionByName(rw http.ResponseWriter, r *http.Request) {
 		Name: templateVersionName,
 	})
 	if httpapi.Is404Error(err) {
-		httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 			Message: fmt.Sprintf("No template version found by name %q.", templateVersionName),
 		})
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching template version.",
 			Detail:  err.Error(),
 		})
@@ -862,7 +862,7 @@ func (api *API) templateVersionByName(rw http.ResponseWriter, r *http.Request) {
 	}
 	jobs, err := api.Database.GetProvisionerJobsByIDsWithQueuePosition(ctx, []uuid.UUID{templateVersion.JobID})
 	if err != nil || len(jobs) == 0 {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching provisioner job.",
 			Detail:  err.Error(),
 		})
@@ -897,7 +897,7 @@ func (api *API) templateVersionByOrganizationTemplateAndName(rw http.ResponseWri
 			return
 		}
 
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching template.",
 			Detail:  err.Error(),
 		})
@@ -913,13 +913,13 @@ func (api *API) templateVersionByOrganizationTemplateAndName(rw http.ResponseWri
 		Name: templateVersionName,
 	})
 	if httpapi.Is404Error(err) {
-		httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 			Message: fmt.Sprintf("No template version found by name %q.", templateVersionName),
 		})
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching template version.",
 			Detail:  err.Error(),
 		})
@@ -927,7 +927,7 @@ func (api *API) templateVersionByOrganizationTemplateAndName(rw http.ResponseWri
 	}
 	jobs, err := api.Database.GetProvisionerJobsByIDsWithQueuePosition(ctx, []uuid.UUID{templateVersion.JobID})
 	if err != nil || len(jobs) == 0 {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching provisioner job.",
 			Detail:  err.Error(),
 		})
@@ -961,7 +961,7 @@ func (api *API) previousTemplateVersionByOrganizationTemplateAndName(rw http.Res
 			return
 		}
 
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching template.",
 			Detail:  err.Error(),
 		})
@@ -978,13 +978,13 @@ func (api *API) previousTemplateVersionByOrganizationTemplateAndName(rw http.Res
 	})
 	if err != nil {
 		if httpapi.Is404Error(err) {
-			httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 				Message: fmt.Sprintf("No template version found by name %q.", templateVersionName),
 			})
 			return
 		}
 
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching template version.",
 			Detail:  err.Error(),
 		})
@@ -998,13 +998,13 @@ func (api *API) previousTemplateVersionByOrganizationTemplateAndName(rw http.Res
 	})
 	if err != nil {
 		if httpapi.Is404Error(err) {
-			httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 				Message: fmt.Sprintf("No previous template version found for %q.", templateVersionName),
 			})
 			return
 		}
 
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching the previous template version.",
 			Detail:  err.Error(),
 		})
@@ -1013,7 +1013,7 @@ func (api *API) previousTemplateVersionByOrganizationTemplateAndName(rw http.Res
 
 	jobs, err := api.Database.GetProvisionerJobsByIDsWithQueuePosition(ctx, []uuid.UUID{previousTemplateVersion.JobID})
 	if err != nil || len(jobs) == 0 {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching provisioner job.",
 			Detail:  err.Error(),
 		})
@@ -1049,7 +1049,7 @@ func (api *API) postArchiveTemplateVersions(rw http.ResponseWriter, r *http.Requ
 	defer commitAudit()
 	aReq.Old = template
 
-	var req codersdk.ArchiveTemplateVersionsRequest
+	var req wirtualsdk.ArchiveTemplateVersionsRequest
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
@@ -1071,20 +1071,20 @@ func (api *API) postArchiveTemplateVersions(rw http.ResponseWriter, r *http.Requ
 	})
 
 	if httpapi.Is404Error(err) {
-		httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 			Message: "Template or template versions not found.",
 		})
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching template version.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.ArchiveTemplateVersionsResponse{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.ArchiveTemplateVersionsResponse{
 		TemplateID:  template.ID,
 		ArchivedIDs: archived,
 	})
@@ -1137,7 +1137,7 @@ func (api *API) setArchiveTemplateVersion(archive bool) func(rw http.ResponseWri
 			verb = "unarchived"
 		}
 		if templateVersion.Archived == archive {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: fmt.Sprintf("Template version already %s", verb),
 			})
 			return
@@ -1145,7 +1145,7 @@ func (api *API) setArchiveTemplateVersion(archive bool) func(rw http.ResponseWri
 
 		if !templateVersion.TemplateID.Valid {
 			// Maybe we should allow this?
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 				Message: "Cannot archive template versions not associate with a template.",
 			})
 			return
@@ -1175,13 +1175,13 @@ func (api *API) setArchiveTemplateVersion(archive bool) func(rw http.ResponseWri
 		}
 
 		if httpapi.Is404Error(err) {
-			httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 				Message: "Template or template versions not found.",
 			})
 			return
 		}
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Internal error fetching template version.",
 				Detail:  err.Error(),
 			})
@@ -1218,47 +1218,47 @@ func (api *API) patchActiveTemplateVersion(rw http.ResponseWriter, r *http.Reque
 	defer commitAudit()
 	aReq.Old = template
 
-	var req codersdk.UpdateActiveTemplateVersion
+	var req wirtualsdk.UpdateActiveTemplateVersion
 	if !httpapi.Read(ctx, rw, r, &req) {
 		return
 	}
 	version, err := api.Database.GetTemplateVersionByID(ctx, req.ID)
 	if httpapi.Is404Error(err) {
-		httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 			Message: "Template version not found.",
 		})
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching template version.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 	if version.TemplateID.UUID.String() != template.ID.String() {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "The provided template version doesn't belong to the specified template.",
 		})
 		return
 	}
 	job, err := api.Database.GetProvisionerJobByID(ctx, version.JobID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching template version job status.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 	if job.JobStatus != database.ProvisionerJobStatusSucceeded {
-		httpapi.Write(ctx, rw, http.StatusForbidden, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusForbidden, wirtualsdk.Response{
 			Message: "Only versions that have been built successfully can be promoted.",
 			Detail:  fmt.Sprintf("Attempted to promote a version with a %s build", job.JobStatus),
 		})
 		return
 	}
 	if version.Archived {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "The provided template version is archived.",
 		})
 		return
@@ -1276,7 +1276,7 @@ func (api *API) patchActiveTemplateVersion(rw http.ResponseWriter, r *http.Reque
 		return nil
 	}, nil)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error updating active template version.",
 			Detail:  err.Error(),
 		})
@@ -1288,7 +1288,7 @@ func (api *API) patchActiveTemplateVersion(rw http.ResponseWriter, r *http.Reque
 
 	api.publishTemplateUpdate(ctx, template.ID)
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.Response{
+	httpapi.Write(ctx, rw, http.StatusOK, wirtualsdk.Response{
 		Message: "Updated the active template version!",
 	})
 }
@@ -1319,7 +1319,7 @@ func (api *API) postTemplateVersionsByOrganization(rw http.ResponseWriter, r *ht
 			OrganizationID: organization.ID,
 		})
 
-		req codersdk.CreateTemplateVersionRequest
+		req wirtualsdk.CreateTemplateVersionRequest
 	)
 	defer commitAudit()
 
@@ -1330,13 +1330,13 @@ func (api *API) postTemplateVersionsByOrganization(rw http.ResponseWriter, r *ht
 	if req.TemplateID != uuid.Nil {
 		_, err := api.Database.GetTemplateByID(ctx, req.TemplateID)
 		if httpapi.Is404Error(err) {
-			httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 				Message: "Template does not exist.",
 			})
 			return
 		}
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Internal error fetching template.",
 				Detail:  err.Error(),
 			})
@@ -1345,7 +1345,7 @@ func (api *API) postTemplateVersionsByOrganization(rw http.ResponseWriter, r *ht
 	}
 
 	if req.ExampleID != "" && req.FileID != uuid.Nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "You cannot specify both an example_id and a file_id.",
 		})
 		return
@@ -1369,13 +1369,13 @@ func (api *API) postTemplateVersionsByOrganization(rw http.ResponseWriter, r *ht
 		tar, err := examples.Archive(req.ExampleID)
 		if err != nil {
 			if xerrors.Is(err, examples.ErrNotFound) {
-				httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 					Message: "Example not found.",
 					Detail:  err.Error(),
 				})
 				return
 			}
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Internal error fetching example.",
 				Detail:  err.Error(),
 			})
@@ -1392,7 +1392,7 @@ func (api *API) postTemplateVersionsByOrganization(rw http.ResponseWriter, r *ht
 		})
 		if err != nil {
 			if !errors.Is(err, sql.ErrNoRows) {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error fetching file.",
 					Detail:  err.Error(),
 				})
@@ -1409,7 +1409,7 @@ func (api *API) postTemplateVersionsByOrganization(rw http.ResponseWriter, r *ht
 				Data:      tar,
 			})
 			if err != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 					Message: "Internal error creating file.",
 					Detail:  err.Error(),
 				})
@@ -1423,13 +1423,13 @@ func (api *API) postTemplateVersionsByOrganization(rw http.ResponseWriter, r *ht
 	if req.FileID != uuid.Nil {
 		file, err = api.Database.GetFileByID(ctx, req.FileID)
 		if httpapi.Is404Error(err) {
-			httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 				Message: "File not found.",
 			})
 			return
 		}
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Internal error fetching file.",
 				Detail:  err.Error(),
 			})
@@ -1440,7 +1440,7 @@ func (api *API) postTemplateVersionsByOrganization(rw http.ResponseWriter, r *ht
 	// Try to parse template tags from the given file.
 	tempDir, err := os.MkdirTemp(api.Options.CacheDir, "tfparse-*")
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error checking workspace tags",
 			Detail:  "create tempdir: " + err.Error(),
 		})
@@ -1453,7 +1453,7 @@ func (api *API) postTemplateVersionsByOrganization(rw http.ResponseWriter, r *ht
 	}()
 
 	if err := tfparse.WriteArchive(file.Data, file.Mimetype, tempDir); err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error checking workspace tags",
 			Detail:  "extract archive to tempdir: " + err.Error(),
 		})
@@ -1462,7 +1462,7 @@ func (api *API) postTemplateVersionsByOrganization(rw http.ResponseWriter, r *ht
 
 	parser, diags := tfparse.New(tempDir, tfparse.WithLogger(api.Logger.Named("tfparse")))
 	if diags.HasErrors() {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error checking workspace tags",
 			Detail:  "parse module: " + diags.Error(),
 		})
@@ -1471,7 +1471,7 @@ func (api *API) postTemplateVersionsByOrganization(rw http.ResponseWriter, r *ht
 
 	parsedTags, err := parser.WorkspaceTagDefaults(ctx)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error checking workspace tags",
 			Detail:  "evaluate default values of workspace tags: " + err.Error(),
 		})
@@ -1487,8 +1487,8 @@ func (api *API) postTemplateVersionsByOrganization(rw http.ResponseWriter, r *ht
 
 	var templateVersion database.TemplateVersion
 	var provisionerJob database.ProvisionerJob
-	var warnings []codersdk.TemplateVersionWarning
-	var matchedProvisioners codersdk.MatchedProvisioners
+	var warnings []wirtualsdk.TemplateVersionWarning
+	var matchedProvisioners wirtualsdk.MatchedProvisioners
 	err = api.Database.InTx(func(tx database.Store) error {
 		jobID := uuid.New()
 
@@ -1498,7 +1498,7 @@ func (api *API) postTemplateVersionsByOrganization(rw http.ResponseWriter, r *ht
 			UserVariableValues: req.UserVariableValues,
 		})
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Internal error creating template version.",
 				Detail:  xerrors.Errorf("marshal job input: %w", err).Error(),
 			})
@@ -1506,7 +1506,7 @@ func (api *API) postTemplateVersionsByOrganization(rw http.ResponseWriter, r *ht
 		}
 		traceMetadataRaw, err := json.Marshal(tracing.MetadataFromContext(ctx))
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Internal error creating template version.",
 				Detail:  xerrors.Errorf("marshal job metadata: %w", err).Error(),
 			})
@@ -1552,7 +1552,7 @@ func (api *API) postTemplateVersionsByOrganization(rw http.ResponseWriter, r *ht
 			},
 		})
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Internal error creating template version.",
 				Detail:  xerrors.Errorf("insert provisioner job: %w", err).Error(),
 			})
@@ -1589,16 +1589,16 @@ func (api *API) postTemplateVersionsByOrganization(rw http.ResponseWriter, r *ht
 		})
 		if err != nil {
 			if database.IsUniqueViolation(err, database.UniqueTemplateVersionsTemplateIDNameKey) {
-				httpapi.Write(ctx, rw, http.StatusConflict, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusConflict, wirtualsdk.Response{
 					Message: fmt.Sprintf("A template version with name %q already exists for this template.", req.Name),
-					Validations: []codersdk.ValidationError{{
+					Validations: []wirtualsdk.ValidationError{{
 						Field:  "name",
 						Detail: "This value is already in use and should be unique.",
 					}},
 				})
 				return err
 			}
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Internal error creating template version.",
 				Detail:  xerrors.Errorf("insert template version: %w", err).Error(),
 			})
@@ -1607,7 +1607,7 @@ func (api *API) postTemplateVersionsByOrganization(rw http.ResponseWriter, r *ht
 
 		templateVersion, err = tx.GetTemplateVersionByID(ctx, templateVersionID)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 				Message: "Internal error creating template version.",
 				Detail:  xerrors.Errorf("fetched inserted template version: %w", err).Error(),
 			})
@@ -1659,7 +1659,7 @@ func (api *API) templateVersionResources(rw http.ResponseWriter, r *http.Request
 
 	job, err := api.Database.GetProvisionerJobByID(ctx, templateVersion.JobID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching provisioner job.",
 			Detail:  err.Error(),
 		})
@@ -1692,7 +1692,7 @@ func (api *API) templateVersionLogs(rw http.ResponseWriter, r *http.Request) {
 
 	job, err := api.Database.GetProvisionerJobByID(ctx, templateVersion.JobID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching provisioner job.",
 			Detail:  err.Error(),
 		})
@@ -1701,8 +1701,8 @@ func (api *API) templateVersionLogs(rw http.ResponseWriter, r *http.Request) {
 	api.provisionerJobLogs(rw, r, job)
 }
 
-func convertTemplateVersion(version database.TemplateVersion, job codersdk.ProvisionerJob, matchedProvisioners *codersdk.MatchedProvisioners, warnings []codersdk.TemplateVersionWarning) codersdk.TemplateVersion {
-	return codersdk.TemplateVersion{
+func convertTemplateVersion(version database.TemplateVersion, job wirtualsdk.ProvisionerJob, matchedProvisioners *wirtualsdk.MatchedProvisioners, warnings []wirtualsdk.TemplateVersionWarning) wirtualsdk.TemplateVersion {
+	return wirtualsdk.TemplateVersion{
 		ID:             version.ID,
 		TemplateID:     &version.TemplateID.UUID,
 		OrganizationID: version.OrganizationID,
@@ -1712,7 +1712,7 @@ func convertTemplateVersion(version database.TemplateVersion, job codersdk.Provi
 		Message:        version.Message,
 		Job:            job,
 		Readme:         version.Readme,
-		CreatedBy: codersdk.MinimalUser{
+		CreatedBy: wirtualsdk.MinimalUser{
 			ID:        version.CreatedBy,
 			Username:  version.CreatedByUsername,
 			AvatarURL: version.CreatedByAvatarURL,
@@ -1723,8 +1723,8 @@ func convertTemplateVersion(version database.TemplateVersion, job codersdk.Provi
 	}
 }
 
-func convertTemplateVersionParameters(dbParams []database.TemplateVersionParameter) ([]codersdk.TemplateVersionParameter, error) {
-	params := make([]codersdk.TemplateVersionParameter, 0)
+func convertTemplateVersionParameters(dbParams []database.TemplateVersionParameter) ([]wirtualsdk.TemplateVersionParameter, error) {
+	params := make([]wirtualsdk.TemplateVersionParameter, 0)
 	for _, dbParameter := range dbParams {
 		param, err := convertTemplateVersionParameter(dbParameter)
 		if err != nil {
@@ -1735,15 +1735,15 @@ func convertTemplateVersionParameters(dbParams []database.TemplateVersionParamet
 	return params, nil
 }
 
-func convertTemplateVersionParameter(param database.TemplateVersionParameter) (codersdk.TemplateVersionParameter, error) {
+func convertTemplateVersionParameter(param database.TemplateVersionParameter) (wirtualsdk.TemplateVersionParameter, error) {
 	var protoOptions []*sdkproto.RichParameterOption
 	err := json.Unmarshal(param.Options, &protoOptions)
 	if err != nil {
-		return codersdk.TemplateVersionParameter{}, err
+		return wirtualsdk.TemplateVersionParameter{}, err
 	}
-	options := make([]codersdk.TemplateVersionParameterOption, 0)
+	options := make([]wirtualsdk.TemplateVersionParameterOption, 0)
 	for _, option := range protoOptions {
-		options = append(options, codersdk.TemplateVersionParameterOption{
+		options = append(options, wirtualsdk.TemplateVersionParameterOption{
 			Name:        option.Name,
 			Description: option.Description,
 			Value:       option.Value,
@@ -1753,7 +1753,7 @@ func convertTemplateVersionParameter(param database.TemplateVersionParameter) (c
 
 	descriptionPlaintext, err := render.PlaintextFromMarkdown(param.Description)
 	if err != nil {
-		return codersdk.TemplateVersionParameter{}, err
+		return wirtualsdk.TemplateVersionParameter{}, err
 	}
 
 	var validationMin, validationMax *int32
@@ -1764,7 +1764,7 @@ func convertTemplateVersionParameter(param database.TemplateVersionParameter) (c
 		validationMax = &param.ValidationMax.Int32
 	}
 
-	return codersdk.TemplateVersionParameter{
+	return wirtualsdk.TemplateVersionParameter{
 		Name:                 param.Name,
 		DisplayName:          param.DisplayName,
 		Description:          param.Description,
@@ -1778,14 +1778,14 @@ func convertTemplateVersionParameter(param database.TemplateVersionParameter) (c
 		ValidationMin:        validationMin,
 		ValidationMax:        validationMax,
 		ValidationError:      param.ValidationError,
-		ValidationMonotonic:  codersdk.ValidationMonotonicOrder(param.ValidationMonotonic),
+		ValidationMonotonic:  wirtualsdk.ValidationMonotonicOrder(param.ValidationMonotonic),
 		Required:             param.Required,
 		Ephemeral:            param.Ephemeral,
 	}, nil
 }
 
-func convertTemplateVersionVariables(dbVariables []database.TemplateVersionVariable) []codersdk.TemplateVersionVariable {
-	variables := make([]codersdk.TemplateVersionVariable, 0)
+func convertTemplateVersionVariables(dbVariables []database.TemplateVersionVariable) []wirtualsdk.TemplateVersionVariable {
+	variables := make([]wirtualsdk.TemplateVersionVariable, 0)
 	for _, dbVariable := range dbVariables {
 		variables = append(variables, convertTemplateVersionVariable(dbVariable))
 	}
@@ -1794,8 +1794,8 @@ func convertTemplateVersionVariables(dbVariables []database.TemplateVersionVaria
 
 const redacted = "*redacted*"
 
-func convertTemplateVersionVariable(variable database.TemplateVersionVariable) codersdk.TemplateVersionVariable {
-	templateVariable := codersdk.TemplateVersionVariable{
+func convertTemplateVersionVariable(variable database.TemplateVersionVariable) wirtualsdk.TemplateVersionVariable {
+	templateVariable := wirtualsdk.TemplateVersionVariable{
 		Name:         variable.Name,
 		Description:  variable.Description,
 		Type:         variable.Type,
@@ -1823,7 +1823,7 @@ func (api *API) publishTemplateUpdate(ctx context.Context, templateID uuid.UUID)
 	}
 }
 
-func checkProvisioners(ctx context.Context, store database.Store, orgID uuid.UUID, wantTags map[string]string) (codersdk.MatchedProvisioners, error) {
+func checkProvisioners(ctx context.Context, store database.Store, orgID uuid.UUID, wantTags map[string]string) (wirtualsdk.MatchedProvisioners, error) {
 	// Check for eligible provisioners. This allows us to return a warning to the user if they
 	// submit a job for which no provisioner is available.
 	eligibleProvisioners, err := store.GetProvisionerDaemonsByOrganization(ctx, database.GetProvisionerDaemonsByOrganizationParams{
@@ -1832,12 +1832,12 @@ func checkProvisioners(ctx context.Context, store database.Store, orgID uuid.UUI
 	})
 	if err != nil {
 		// Log the error but do not return any warnings. This is purely advisory and we should not block.
-		return codersdk.MatchedProvisioners{}, xerrors.Errorf("provisioner daemons by organization: %w", err)
+		return wirtualsdk.MatchedProvisioners{}, xerrors.Errorf("provisioner daemons by organization: %w", err)
 	}
 
 	staleInterval := time.Now().Add(-provisionerdserver.StaleInterval)
-	mostRecentlySeen := codersdk.NullTime{}
-	var matched codersdk.MatchedProvisioners
+	mostRecentlySeen := wirtualsdk.NullTime{}
+	var matched wirtualsdk.MatchedProvisioners
 	for _, provisioner := range eligibleProvisioners {
 		if !provisioner.LastSeenAt.Valid {
 			continue

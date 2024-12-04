@@ -1,4 +1,4 @@
-package codersdk_test
+package wirtualsdk_test
 
 import (
 	"bytes"
@@ -86,7 +86,7 @@ func TestDeploymentValues_HighlyConfigurable(t *testing.T) {
 		},
 	}
 
-	set := (&codersdk.DeploymentValues{}).Options()
+	set := (&wirtualsdk.DeploymentValues{}).Options()
 	for _, opt := range set {
 		// These are generally for development, so their configurability is
 		// not relevant.
@@ -95,7 +95,7 @@ func TestDeploymentValues_HighlyConfigurable(t *testing.T) {
 			continue
 		}
 
-		if codersdk.IsSecretDeploymentOption(opt) && opt.YAML != "" {
+		if wirtualsdk.IsSecretDeploymentOption(opt) && opt.YAML != "" {
 			// Secrets should not be written to YAML and instead should continue
 			// to be read from the environment.
 			//
@@ -199,7 +199,7 @@ func TestSSHConfig_ParseOptions(t *testing.T) {
 		tt := tt
 		t.Run(tt.Name, func(t *testing.T) {
 			t.Parallel()
-			c := codersdk.SSHConfig{
+			c := wirtualsdk.SSHConfig{
 				SSHConfigOptions: tt.ConfigOptions,
 			}
 			got, err := c.ParseOptions()
@@ -281,7 +281,7 @@ func TestTimezoneOffsets(t *testing.T) {
 		t.Run(c.Name, func(t *testing.T) {
 			t.Parallel()
 
-			offset := codersdk.TimezoneOffsetHourWithTime(c.Now, c.Loc)
+			offset := wirtualsdk.TimezoneOffsetHourWithTime(c.Now, c.Loc)
 			require.Equal(t, c.ExpectedOffset, offset)
 		})
 	}
@@ -297,7 +297,7 @@ func must[T any](value T, err error) T {
 func TestDeploymentValues_DurationFormatNanoseconds(t *testing.T) {
 	t.Parallel()
 
-	set := (&codersdk.DeploymentValues{}).Options()
+	set := (&wirtualsdk.DeploymentValues{}).Options()
 	for _, s := range set {
 		if s.Value.Type() != "duration" {
 			continue
@@ -332,7 +332,7 @@ func TestExternalAuthYAMLConfig(t *testing.T) {
 		require.NoError(t, err, "read testdata file %q", name)
 		return string(data)
 	}
-	githubCfg := codersdk.ExternalAuthConfig{
+	githubCfg := wirtualsdk.ExternalAuthConfig{
 		Type:                "github",
 		ClientID:            "client_id",
 		ClientSecret:        "client_secret",
@@ -360,11 +360,11 @@ func TestExternalAuthYAMLConfig(t *testing.T) {
 		return f + lines[1]
 	}()
 
-	expected := []codersdk.ExternalAuthConfig{
+	expected := []wirtualsdk.ExternalAuthConfig{
 		githubCfg, githubCfg,
 	}
 
-	dv := codersdk.DeploymentValues{}
+	dv := wirtualsdk.DeploymentValues{}
 	opts := dv.Options()
 	// replace any tabs with the proper space indentation
 	inputYAML = strings.ReplaceAll(inputYAML, "\t", "  ")
@@ -395,8 +395,8 @@ func TestFeatureComparison(t *testing.T) {
 
 	testCases := []struct {
 		Name     string
-		A        codersdk.Feature
-		B        codersdk.Feature
+		A        wirtualsdk.Feature
+		B        wirtualsdk.Feature
 		Expected int
 	}{
 		{
@@ -407,54 +407,54 @@ func TestFeatureComparison(t *testing.T) {
 		//		Entitled
 		{
 			Name:     "EntitledVsGracePeriod",
-			A:        codersdk.Feature{Entitlement: codersdk.EntitlementEntitled},
-			B:        codersdk.Feature{Entitlement: codersdk.EntitlementGracePeriod},
+			A:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementEntitled},
+			B:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementGracePeriod},
 			Expected: 1,
 		},
 		{
 			Name: "EntitledVsGracePeriodLimits",
-			A:    codersdk.Feature{Entitlement: codersdk.EntitlementEntitled},
+			A:    wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementEntitled},
 			// Entitled should still win here
-			B:        codersdk.Feature{Entitlement: codersdk.EntitlementGracePeriod, Limit: ptr.Ref[int64](100), Actual: ptr.Ref[int64](50)},
+			B:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementGracePeriod, Limit: ptr.Ref[int64](100), Actual: ptr.Ref[int64](50)},
 			Expected: 1,
 		},
 		{
 			Name:     "EntitledVsNotEntitled",
-			A:        codersdk.Feature{Entitlement: codersdk.EntitlementEntitled},
-			B:        codersdk.Feature{Entitlement: codersdk.EntitlementNotEntitled},
+			A:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementEntitled},
+			B:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementNotEntitled},
 			Expected: 3,
 		},
 		{
 			Name:     "EntitledVsUnknown",
-			A:        codersdk.Feature{Entitlement: codersdk.EntitlementEntitled},
-			B:        codersdk.Feature{Entitlement: ""},
+			A:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementEntitled},
+			B:        wirtualsdk.Feature{Entitlement: ""},
 			Expected: 4,
 		},
 		//		GracePeriod
 		{
 			Name:     "GracefulVsNotEntitled",
-			A:        codersdk.Feature{Entitlement: codersdk.EntitlementGracePeriod},
-			B:        codersdk.Feature{Entitlement: codersdk.EntitlementNotEntitled},
+			A:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementGracePeriod},
+			B:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementNotEntitled},
 			Expected: 2,
 		},
 		{
 			Name:     "GracefulVsUnknown",
-			A:        codersdk.Feature{Entitlement: codersdk.EntitlementGracePeriod},
-			B:        codersdk.Feature{Entitlement: ""},
+			A:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementGracePeriod},
+			B:        wirtualsdk.Feature{Entitlement: ""},
 			Expected: 3,
 		},
 		//		NotEntitled
 		{
 			Name:     "NotEntitledVsUnknown",
-			A:        codersdk.Feature{Entitlement: codersdk.EntitlementNotEntitled},
-			B:        codersdk.Feature{Entitlement: ""},
+			A:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementNotEntitled},
+			B:        wirtualsdk.Feature{Entitlement: ""},
 			Expected: 1,
 		},
 		// --
 		{
 			Name:     "EntitledVsGracePeriodCapable",
-			A:        codersdk.Feature{Entitlement: codersdk.EntitlementEntitled, Limit: ptr.Ref[int64](100), Actual: ptr.Ref[int64](200)},
-			B:        codersdk.Feature{Entitlement: codersdk.EntitlementGracePeriod, Limit: ptr.Ref[int64](300), Actual: ptr.Ref[int64](200)},
+			A:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementEntitled, Limit: ptr.Ref[int64](100), Actual: ptr.Ref[int64](200)},
+			B:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementGracePeriod, Limit: ptr.Ref[int64](300), Actual: ptr.Ref[int64](200)},
 			Expected: -1,
 		},
 		// UserLimits
@@ -463,62 +463,62 @@ func TestFeatureComparison(t *testing.T) {
 			// is not exceeded. This is the edge case that we should use the graceful period
 			// instead of the entitled.
 			Name:     "UserLimitExceeded",
-			A:        codersdk.Feature{Entitlement: codersdk.EntitlementEntitled, Limit: ptr.Ref(int64(100)), Actual: ptr.Ref(int64(200))},
-			B:        codersdk.Feature{Entitlement: codersdk.EntitlementGracePeriod, Limit: ptr.Ref(int64(300)), Actual: ptr.Ref(int64(200))},
+			A:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementEntitled, Limit: ptr.Ref(int64(100)), Actual: ptr.Ref(int64(200))},
+			B:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementGracePeriod, Limit: ptr.Ref(int64(300)), Actual: ptr.Ref(int64(200))},
 			Expected: -1,
 		},
 		{
 			Name:     "UserLimitExceededNoEntitled",
-			A:        codersdk.Feature{Entitlement: codersdk.EntitlementEntitled, Limit: ptr.Ref(int64(100)), Actual: ptr.Ref(int64(200))},
-			B:        codersdk.Feature{Entitlement: codersdk.EntitlementNotEntitled, Limit: ptr.Ref(int64(300)), Actual: ptr.Ref(int64(200))},
+			A:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementEntitled, Limit: ptr.Ref(int64(100)), Actual: ptr.Ref(int64(200))},
+			B:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementNotEntitled, Limit: ptr.Ref(int64(300)), Actual: ptr.Ref(int64(200))},
 			Expected: 3,
 		},
 		{
 			Name:     "HigherLimit",
-			A:        codersdk.Feature{Entitlement: codersdk.EntitlementEntitled, Limit: ptr.Ref(int64(110)), Actual: ptr.Ref(int64(200))},
-			B:        codersdk.Feature{Entitlement: codersdk.EntitlementEntitled, Limit: ptr.Ref(int64(100)), Actual: ptr.Ref(int64(200))},
+			A:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementEntitled, Limit: ptr.Ref(int64(110)), Actual: ptr.Ref(int64(200))},
+			B:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementEntitled, Limit: ptr.Ref(int64(100)), Actual: ptr.Ref(int64(200))},
 			Expected: 10, // Diff in the limit #
 		},
 		{
 			Name:     "HigherActual",
-			A:        codersdk.Feature{Entitlement: codersdk.EntitlementEntitled, Limit: ptr.Ref(int64(100)), Actual: ptr.Ref(int64(300))},
-			B:        codersdk.Feature{Entitlement: codersdk.EntitlementEntitled, Limit: ptr.Ref(int64(100)), Actual: ptr.Ref(int64(200))},
+			A:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementEntitled, Limit: ptr.Ref(int64(100)), Actual: ptr.Ref(int64(300))},
+			B:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementEntitled, Limit: ptr.Ref(int64(100)), Actual: ptr.Ref(int64(200))},
 			Expected: 100, // Diff in the actual #
 		},
 		{
 			Name:     "LimitExists",
-			A:        codersdk.Feature{Entitlement: codersdk.EntitlementEntitled, Limit: ptr.Ref(int64(100)), Actual: ptr.Ref(int64(50))},
-			B:        codersdk.Feature{Entitlement: codersdk.EntitlementEntitled, Limit: nil, Actual: ptr.Ref(int64(200))},
+			A:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementEntitled, Limit: ptr.Ref(int64(100)), Actual: ptr.Ref(int64(50))},
+			B:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementEntitled, Limit: nil, Actual: ptr.Ref(int64(200))},
 			Expected: 1,
 		},
 		{
 			Name:     "LimitExistsGrace",
-			A:        codersdk.Feature{Entitlement: codersdk.EntitlementGracePeriod, Limit: ptr.Ref(int64(100)), Actual: ptr.Ref(int64(50))},
-			B:        codersdk.Feature{Entitlement: codersdk.EntitlementGracePeriod, Limit: nil, Actual: ptr.Ref(int64(200))},
+			A:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementGracePeriod, Limit: ptr.Ref(int64(100)), Actual: ptr.Ref(int64(50))},
+			B:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementGracePeriod, Limit: nil, Actual: ptr.Ref(int64(200))},
 			Expected: 1,
 		},
 		{
 			Name:     "ActualExists",
-			A:        codersdk.Feature{Entitlement: codersdk.EntitlementEntitled, Limit: ptr.Ref(int64(100)), Actual: ptr.Ref(int64(50))},
-			B:        codersdk.Feature{Entitlement: codersdk.EntitlementEntitled, Limit: ptr.Ref(int64(100)), Actual: nil},
+			A:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementEntitled, Limit: ptr.Ref(int64(100)), Actual: ptr.Ref(int64(50))},
+			B:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementEntitled, Limit: ptr.Ref(int64(100)), Actual: nil},
 			Expected: 1,
 		},
 		{
 			Name:     "NotNils",
-			A:        codersdk.Feature{Entitlement: codersdk.EntitlementEntitled, Limit: ptr.Ref(int64(100)), Actual: ptr.Ref(int64(50))},
-			B:        codersdk.Feature{Entitlement: codersdk.EntitlementEntitled, Limit: nil, Actual: nil},
+			A:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementEntitled, Limit: ptr.Ref(int64(100)), Actual: ptr.Ref(int64(50))},
+			B:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementEntitled, Limit: nil, Actual: nil},
 			Expected: 1,
 		},
 		{
 			Name:     "EnabledVsDisabled",
-			A:        codersdk.Feature{Entitlement: codersdk.EntitlementEntitled, Enabled: true, Limit: ptr.Ref(int64(300)), Actual: ptr.Ref(int64(200))},
-			B:        codersdk.Feature{Entitlement: codersdk.EntitlementEntitled, Limit: ptr.Ref(int64(300)), Actual: ptr.Ref(int64(200))},
+			A:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementEntitled, Enabled: true, Limit: ptr.Ref(int64(300)), Actual: ptr.Ref(int64(200))},
+			B:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementEntitled, Limit: ptr.Ref(int64(300)), Actual: ptr.Ref(int64(200))},
 			Expected: 1,
 		},
 		{
 			Name:     "NotNils",
-			A:        codersdk.Feature{Entitlement: codersdk.EntitlementEntitled, Limit: ptr.Ref(int64(100)), Actual: ptr.Ref(int64(50))},
-			B:        codersdk.Feature{Entitlement: codersdk.EntitlementEntitled, Limit: nil, Actual: nil},
+			A:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementEntitled, Limit: ptr.Ref(int64(100)), Actual: ptr.Ref(int64(50))},
+			B:        wirtualsdk.Feature{Entitlement: wirtualsdk.EntitlementEntitled, Limit: nil, Actual: nil},
 			Expected: 1,
 		},
 	}
@@ -549,8 +549,8 @@ func TestFeatureComparison(t *testing.T) {
 func TestPremiumSuperSet(t *testing.T) {
 	t.Parallel()
 
-	enterprise := codersdk.FeatureSetEnterprise
-	premium := codersdk.FeatureSetPremium
+	enterprise := wirtualsdk.FeatureSetEnterprise
+	premium := wirtualsdk.FeatureSetPremium
 
 	// Premium > Enterprise
 	require.Greater(t, len(premium.Features()), len(enterprise.Features()), "premium should have more features than enterprise")
@@ -561,7 +561,7 @@ func TestPremiumSuperSet(t *testing.T) {
 	// Premium = All Features
 	// This is currently true. If this assertion changes, update this test
 	// to reflect the change in feature sets.
-	require.ElementsMatch(t, premium.Features(), codersdk.FeatureNames, "premium should contain all features")
+	require.ElementsMatch(t, premium.Features(), wirtualsdk.FeatureNames, "premium should contain all features")
 
 	// This check exists because if you misuse the slices.Delete, you can end up
 	// with zero'd values.
@@ -624,7 +624,7 @@ func TestNotificationsCanBeDisabled(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			dv := codersdk.DeploymentValues{}
+			dv := wirtualsdk.DeploymentValues{}
 			opts := dv.Options()
 
 			err := opts.ParseEnv(tt.environment)

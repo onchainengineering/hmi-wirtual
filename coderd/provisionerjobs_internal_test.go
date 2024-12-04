@@ -39,15 +39,15 @@ func TestConvertProvisionerJob_Unit(t *testing.T) {
 	testCases := []struct {
 		name     string
 		input    database.ProvisionerJob
-		expected codersdk.ProvisionerJob
+		expected wirtualsdk.ProvisionerJob
 	}{
 		{
 			name: "empty",
 			input: database.ProvisionerJob{
 				JobStatus: database.ProvisionerJobStatusPending,
 			},
-			expected: codersdk.ProvisionerJob{
-				Status: codersdk.ProvisionerJobPending,
+			expected: wirtualsdk.ProvisionerJob{
+				Status: wirtualsdk.ProvisionerJobPending,
 			},
 		},
 		{
@@ -57,9 +57,9 @@ func TestConvertProvisionerJob_Unit(t *testing.T) {
 				CompletedAt: invalidNullTimeMock,
 				JobStatus:   database.ProvisionerJobStatusCanceling,
 			},
-			expected: codersdk.ProvisionerJob{
+			expected: wirtualsdk.ProvisionerJob{
 				CanceledAt: &validNullTimeMock.Time,
-				Status:     codersdk.ProvisionerJobCanceling,
+				Status:     wirtualsdk.ProvisionerJobCanceling,
 			},
 		},
 		{
@@ -70,10 +70,10 @@ func TestConvertProvisionerJob_Unit(t *testing.T) {
 				Error:       errorMock,
 				JobStatus:   database.ProvisionerJobStatusFailed,
 			},
-			expected: codersdk.ProvisionerJob{
+			expected: wirtualsdk.ProvisionerJob{
 				CanceledAt:  &validNullTimeMock.Time,
 				CompletedAt: &validNullTimeMock.Time,
-				Status:      codersdk.ProvisionerJobFailed,
+				Status:      wirtualsdk.ProvisionerJobFailed,
 				Error:       errorMock.String,
 			},
 		},
@@ -84,10 +84,10 @@ func TestConvertProvisionerJob_Unit(t *testing.T) {
 				CompletedAt: validNullTimeMock,
 				JobStatus:   database.ProvisionerJobStatusCanceled,
 			},
-			expected: codersdk.ProvisionerJob{
+			expected: wirtualsdk.ProvisionerJob{
 				CanceledAt:  &validNullTimeMock.Time,
 				CompletedAt: &validNullTimeMock.Time,
-				Status:      codersdk.ProvisionerJobCanceled,
+				Status:      wirtualsdk.ProvisionerJobCanceled,
 			},
 		},
 		{
@@ -96,8 +96,8 @@ func TestConvertProvisionerJob_Unit(t *testing.T) {
 				StartedAt: invalidNullTimeMock,
 				JobStatus: database.ProvisionerJobStatusPending,
 			},
-			expected: codersdk.ProvisionerJob{
-				Status: codersdk.ProvisionerJobPending,
+			expected: wirtualsdk.ProvisionerJob{
+				Status: wirtualsdk.ProvisionerJobPending,
 			},
 		},
 		{
@@ -108,11 +108,11 @@ func TestConvertProvisionerJob_Unit(t *testing.T) {
 				Error:       errorMock,
 				JobStatus:   database.ProvisionerJobStatusFailed,
 			},
-			expected: codersdk.ProvisionerJob{
+			expected: wirtualsdk.ProvisionerJob{
 				CompletedAt: &validNullTimeMock.Time,
 				StartedAt:   &validNullTimeMock.Time,
 				Error:       errorMock.String,
-				Status:      codersdk.ProvisionerJobFailed,
+				Status:      wirtualsdk.ProvisionerJobFailed,
 			},
 		},
 		{
@@ -122,10 +122,10 @@ func TestConvertProvisionerJob_Unit(t *testing.T) {
 				StartedAt:   validNullTimeMock,
 				JobStatus:   database.ProvisionerJobStatusSucceeded,
 			},
-			expected: codersdk.ProvisionerJob{
+			expected: wirtualsdk.ProvisionerJob{
 				CompletedAt: &validNullTimeMock.Time,
 				StartedAt:   &validNullTimeMock.Time,
-				Status:      codersdk.ProvisionerJobSucceeded,
+				Status:      wirtualsdk.ProvisionerJobSucceeded,
 			},
 		},
 	}
@@ -386,7 +386,7 @@ func Test_logFollower_EndOfLogs(t *testing.T) {
 
 func assertLog(t *testing.T, stage, output string, id int64, msg []byte) {
 	t.Helper()
-	var log codersdk.ProvisionerJobLog
+	var log wirtualsdk.ProvisionerJobLog
 	err := json.Unmarshal(msg, &log)
 	require.NoError(t, err)
 	assert.Equal(t, stage, log.Stage)

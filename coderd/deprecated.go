@@ -75,7 +75,7 @@ func (api *API) workspaceBuildResourcesDeprecated(rw http.ResponseWriter, r *htt
 
 	job, err := api.Database.GetProvisionerJobByID(ctx, workspaceBuild.JobID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching provisioner job.",
 			Detail:  err.Error(),
 		})

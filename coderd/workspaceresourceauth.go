@@ -39,7 +39,7 @@ func (api *API) postWorkspaceAuthAzureInstanceIdentity(rw http.ResponseWriter, r
 		VerifyOptions: api.AzureCertificates,
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusUnauthorized, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusUnauthorized, wirtualsdk.Response{
 			Message: "Invalid Azure identity.",
 			Detail:  err.Error(),
 		})
@@ -69,7 +69,7 @@ func (api *API) postWorkspaceAuthAWSInstanceIdentity(rw http.ResponseWriter, r *
 	}
 	identity, err := awsidentity.Validate(req.Signature, req.Document, api.AWSCertificates)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusUnauthorized, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusUnauthorized, wirtualsdk.Response{
 			Message: "Invalid AWS identity.",
 			Detail:  err.Error(),
 		})
@@ -101,7 +101,7 @@ func (api *API) postWorkspaceAuthGoogleInstanceIdentity(rw http.ResponseWriter, 
 	// We leave the audience blank. It's not important we validate who made the token.
 	payload, err := api.GoogleTokenValidator.Validate(ctx, req.JSONWebToken, "")
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusUnauthorized, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusUnauthorized, wirtualsdk.Response{
 			Message: "Invalid GCP identity.",
 			Detail:  err.Error(),
 		})
@@ -116,7 +116,7 @@ func (api *API) postWorkspaceAuthGoogleInstanceIdentity(rw http.ResponseWriter, 
 	}{}
 	err = mapstructure.Decode(payload.Claims, &claims)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: "Error decoding JWT claims.",
 			Detail:  err.Error(),
 		})
@@ -130,13 +130,13 @@ func (api *API) handleAuthInstanceID(rw http.ResponseWriter, r *http.Request, in
 	//nolint:gocritic // needed for auth instance id
 	agent, err := api.Database.GetWorkspaceAgentByInstanceID(dbauthz.AsSystemRestricted(ctx), instanceID)
 	if httpapi.Is404Error(err) {
-		httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusNotFound, wirtualsdk.Response{
 			Message: fmt.Sprintf("Instance with id %q not found.", instanceID),
 		})
 		return
 	}
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching provisioner job agent.",
 			Detail:  err.Error(),
 		})
@@ -145,7 +145,7 @@ func (api *API) handleAuthInstanceID(rw http.ResponseWriter, r *http.Request, in
 	//nolint:gocritic // needed for auth instance id
 	resource, err := api.Database.GetWorkspaceResourceByID(dbauthz.AsSystemRestricted(ctx), agent.ResourceID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching provisioner job resource.",
 			Detail:  err.Error(),
 		})
@@ -154,14 +154,14 @@ func (api *API) handleAuthInstanceID(rw http.ResponseWriter, r *http.Request, in
 	//nolint:gocritic // needed for auth instance id
 	job, err := api.Database.GetProvisionerJobByID(dbauthz.AsSystemRestricted(ctx), resource.JobID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching provisioner job.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 	if job.Type != database.ProvisionerJobTypeWorkspaceBuild {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: fmt.Sprintf("%q jobs cannot be authenticated.", job.Type),
 		})
 		return
@@ -169,7 +169,7 @@ func (api *API) handleAuthInstanceID(rw http.ResponseWriter, r *http.Request, in
 	var jobData provisionerdserver.WorkspaceProvisionJob
 	err = json.Unmarshal(job.Input, &jobData)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error extracting job data.",
 			Detail:  err.Error(),
 		})
@@ -178,7 +178,7 @@ func (api *API) handleAuthInstanceID(rw http.ResponseWriter, r *http.Request, in
 	//nolint:gocritic // needed for auth instance id
 	resourceHistory, err := api.Database.GetWorkspaceBuildByID(dbauthz.AsSystemRestricted(ctx), jobData.WorkspaceBuildID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching workspace build.",
 			Detail:  err.Error(),
 		})
@@ -190,14 +190,14 @@ func (api *API) handleAuthInstanceID(rw http.ResponseWriter, r *http.Request, in
 	//nolint:gocritic // needed for auth instance id
 	latestHistory, err := api.Database.GetLatestWorkspaceBuildByWorkspaceID(dbauthz.AsSystemRestricted(ctx), resourceHistory.WorkspaceID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching the latest workspace build.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 	if latestHistory.ID != resourceHistory.ID {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, wirtualsdk.Response{
 			Message: fmt.Sprintf("Resource found for id %q, but isn't registered on the latest history.", instanceID),
 		})
 		return

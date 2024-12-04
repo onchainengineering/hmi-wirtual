@@ -30,7 +30,7 @@ func TestUserQuietHours(t *testing.T) {
 		adminClient, adminUser := coderdenttest.New(t, &coderdenttest.Options{
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAdvancedTemplateScheduling: 1,
+					wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
 			},
 		})
@@ -70,7 +70,7 @@ func TestUserQuietHours(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAdvancedTemplateScheduling: 1,
+					wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
 			},
 		})
@@ -81,7 +81,7 @@ func TestUserQuietHours(t *testing.T) {
 
 		// Get quiet hours for a user that doesn't have them set.
 		ctx := testutil.Context(t, testutil.WaitLong)
-		sched1, err := client.UserQuietHoursSchedule(ctx, codersdk.Me)
+		sched1, err := client.UserQuietHoursSchedule(ctx, wirtualsdk.Me)
 		require.NoError(t, err)
 		require.Equal(t, defaultScheduleParsed.String(), sched1.RawSchedule)
 		require.False(t, sched1.UserSet)
@@ -102,7 +102,7 @@ func TestUserQuietHours(t *testing.T) {
 			require.NoError(t, err)
 		}
 
-		sched2, err := client.UpdateUserQuietHoursSchedule(ctx, user.ID.String(), codersdk.UpdateUserQuietHoursScheduleRequest{
+		sched2, err := client.UpdateUserQuietHoursSchedule(ctx, user.ID.String(), wirtualsdk.UpdateUserQuietHoursScheduleRequest{
 			Schedule: customQuietHoursSchedule,
 		})
 		require.NoError(t, err)
@@ -122,33 +122,33 @@ func TestUserQuietHours(t *testing.T) {
 		require.WithinDuration(t, customScheduleParsed.Next(time.Now()), sched3.Next, 15*time.Second)
 
 		// Try setting a garbage schedule.
-		_, err = client.UpdateUserQuietHoursSchedule(ctx, user.ID.String(), codersdk.UpdateUserQuietHoursScheduleRequest{
+		_, err = client.UpdateUserQuietHoursSchedule(ctx, user.ID.String(), wirtualsdk.UpdateUserQuietHoursScheduleRequest{
 			Schedule: "garbage",
 		})
 		require.Error(t, err)
 		require.ErrorContains(t, err, "parse daily schedule")
 
 		// Try setting a non-daily schedule.
-		_, err = client.UpdateUserQuietHoursSchedule(ctx, user.ID.String(), codersdk.UpdateUserQuietHoursScheduleRequest{
+		_, err = client.UpdateUserQuietHoursSchedule(ctx, user.ID.String(), wirtualsdk.UpdateUserQuietHoursScheduleRequest{
 			Schedule: "CRON_TZ=America/Chicago 0 0 * * 1",
 		})
 		require.Error(t, err)
 		require.ErrorContains(t, err, "parse daily schedule")
 
 		// Try setting a schedule with a timezone that doesn't exist.
-		_, err = client.UpdateUserQuietHoursSchedule(ctx, user.ID.String(), codersdk.UpdateUserQuietHoursScheduleRequest{
+		_, err = client.UpdateUserQuietHoursSchedule(ctx, user.ID.String(), wirtualsdk.UpdateUserQuietHoursScheduleRequest{
 			Schedule: "CRON_TZ=Deans/House 0 0 * * *",
 		})
 		require.Error(t, err)
 		require.ErrorContains(t, err, "parse daily schedule")
 
 		// Try setting a schedule with more than one time.
-		_, err = client.UpdateUserQuietHoursSchedule(ctx, user.ID.String(), codersdk.UpdateUserQuietHoursScheduleRequest{
+		_, err = client.UpdateUserQuietHoursSchedule(ctx, user.ID.String(), wirtualsdk.UpdateUserQuietHoursScheduleRequest{
 			Schedule: "CRON_TZ=America/Chicago 0 0,12 * * *",
 		})
 		require.Error(t, err)
 		require.ErrorContains(t, err, "more than one time")
-		_, err = client.UpdateUserQuietHoursSchedule(ctx, user.ID.String(), codersdk.UpdateUserQuietHoursScheduleRequest{
+		_, err = client.UpdateUserQuietHoursSchedule(ctx, user.ID.String(), wirtualsdk.UpdateUserQuietHoursScheduleRequest{
 			Schedule: "CRON_TZ=America/Chicago 0-30 0 * * *",
 		})
 		require.Error(t, err)
@@ -171,7 +171,7 @@ func TestUserQuietHours(t *testing.T) {
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
 					// Not entitled.
-					// codersdk.FeatureAdvancedTemplateScheduling: 1,
+					// wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
 			},
 		})
@@ -180,7 +180,7 @@ func TestUserQuietHours(t *testing.T) {
 		//nolint:gocritic // We want to test the lack of entitlement, not RBAC.
 		_, err := client.UserQuietHoursSchedule(ctx, user.UserID.String())
 		require.Error(t, err)
-		var sdkErr *codersdk.Error
+		var sdkErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &sdkErr)
 		require.Equal(t, http.StatusForbidden, sdkErr.StatusCode())
 	})
@@ -198,7 +198,7 @@ func TestUserQuietHours(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAdvancedTemplateScheduling: 1,
+					wirtualsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
 			},
 		})
@@ -216,11 +216,11 @@ func TestUserQuietHours(t *testing.T) {
 		require.False(t, sched.UserCanSet)
 
 		// Try to set
-		_, err = client.UpdateUserQuietHoursSchedule(ctx, user.ID.String(), codersdk.UpdateUserQuietHoursScheduleRequest{
+		_, err = client.UpdateUserQuietHoursSchedule(ctx, user.ID.String(), wirtualsdk.UpdateUserQuietHoursScheduleRequest{
 			Schedule: "CRON_TZ=America/Chicago 30 2 * * *",
 		})
 		require.Error(t, err)
-		var sdkErr *codersdk.Error
+		var sdkErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &sdkErr)
 		require.Equal(t, http.StatusForbidden, sdkErr.StatusCode())
 		require.Contains(t, sdkErr.Message, "cannot set custom quiet hours schedule")
@@ -256,7 +256,7 @@ func TestAssignCustomOrgRoles(t *testing.T) {
 		},
 		LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureCustomRoles: 1,
+				wirtualsdk.FeatureCustomRoles: 1,
 			},
 		},
 	})
@@ -267,19 +267,19 @@ func TestAssignCustomOrgRoles(t *testing.T) {
 
 	ctx := testutil.Context(t, testutil.WaitShort)
 	// Create a custom role as an organization admin that allows making templates.
-	auditorRole, err := client.CreateOrganizationRole(ctx, codersdk.Role{
+	auditorRole, err := client.CreateOrganizationRole(ctx, wirtualsdk.Role{
 		Name:            "org-template-admin",
 		OrganizationID:  owner.OrganizationID.String(),
 		DisplayName:     "Template Admin",
 		SitePermissions: nil,
-		OrganizationPermissions: codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-			codersdk.ResourceTemplate: codersdk.RBACResourceActions[codersdk.ResourceTemplate], // All template perms
+		OrganizationPermissions: wirtualsdk.CreatePermissions(map[wirtualsdk.RBACResource][]wirtualsdk.RBACAction{
+			wirtualsdk.ResourceTemplate: wirtualsdk.RBACResourceActions[wirtualsdk.ResourceTemplate], // All template perms
 		}),
 		UserPermissions: nil,
 	})
 	require.NoError(t, err)
 
-	createTemplateReq := codersdk.CreateTemplateRequest{
+	createTemplateReq := wirtualsdk.CreateTemplateRequest{
 		Name:        "name",
 		DisplayName: "Template",
 		VersionID:   tv.ID,
@@ -290,7 +290,7 @@ func TestAssignCustomOrgRoles(t *testing.T) {
 	require.Error(t, err)
 
 	// Assign new role to the member as the org admin
-	_, err = client.UpdateOrganizationMemberRoles(ctx, owner.OrganizationID, member.ID.String(), codersdk.UpdateRoles{
+	_, err = client.UpdateOrganizationMemberRoles(ctx, owner.OrganizationID, member.ID.String(), wirtualsdk.UpdateRoles{
 		Roles: []string{auditorRole.Name},
 	})
 	require.NoError(t, err)
@@ -305,8 +305,8 @@ func TestGrantSiteRoles(t *testing.T) {
 
 	requireStatusCode := func(t *testing.T, err error, statusCode int) {
 		t.Helper()
-		var e *codersdk.Error
-		require.ErrorAs(t, err, &e, "error is codersdk error")
+		var e *wirtualsdk.Error
+		require.ErrorAs(t, err, &e, "error is wirtualsdk error")
 		require.Equal(t, statusCode, e.StatusCode(), "correct status code")
 	}
 
@@ -317,8 +317,8 @@ func TestGrantSiteRoles(t *testing.T) {
 		},
 		LicenseOptions: &coderdenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureMultipleOrganizations:      1,
-				codersdk.FeatureExternalProvisionerDaemons: 1,
+				wirtualsdk.FeatureMultipleOrganizations:      1,
+				wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 			},
 		},
 	})
@@ -334,7 +334,7 @@ func TestGrantSiteRoles(t *testing.T) {
 
 	testCases := []struct {
 		Name          string
-		Client        *codersdk.Client
+		Client        *wirtualsdk.Client
 		OrgID         uuid.UUID
 		AssignToUser  string
 		Roles         []string
@@ -345,7 +345,7 @@ func TestGrantSiteRoles(t *testing.T) {
 		{
 			Name:         "OrgRoleInSite",
 			Client:       admin,
-			AssignToUser: codersdk.Me,
+			AssignToUser: wirtualsdk.Me,
 			Roles:        []string{rbac.RoleOrgAdmin()},
 			Error:        true,
 			StatusCode:   http.StatusBadRequest,
@@ -354,7 +354,7 @@ func TestGrantSiteRoles(t *testing.T) {
 			Name:         "UserNotExists",
 			Client:       admin,
 			AssignToUser: uuid.NewString(),
-			Roles:        []string{codersdk.RoleOwner},
+			Roles:        []string{wirtualsdk.RoleOwner},
 			Error:        true,
 			StatusCode:   http.StatusBadRequest,
 		},
@@ -379,8 +379,8 @@ func TestGrantSiteRoles(t *testing.T) {
 			Name:         "SiteRoleInOrg",
 			Client:       admin,
 			OrgID:        first.OrganizationID,
-			AssignToUser: codersdk.Me,
-			Roles:        []string{codersdk.RoleOwner},
+			AssignToUser: wirtualsdk.Me,
+			Roles:        []string{wirtualsdk.RoleOwner},
 			Error:        true,
 			StatusCode:   http.StatusBadRequest,
 		},
@@ -417,9 +417,9 @@ func TestGrantSiteRoles(t *testing.T) {
 			Name:         "UserAdminMakeMember",
 			Client:       userAdmin,
 			AssignToUser: newUser,
-			Roles:        []string{codersdk.RoleMember},
+			Roles:        []string{wirtualsdk.RoleMember},
 			ExpectedRoles: []string{
-				codersdk.RoleMember,
+				wirtualsdk.RoleMember,
 			},
 			Error: false,
 		},
@@ -442,18 +442,18 @@ func TestGrantSiteRoles(t *testing.T) {
 				c.AssignToUser = newUser.ID.String()
 			}
 
-			var newRoles []codersdk.SlimRole
+			var newRoles []wirtualsdk.SlimRole
 			if c.OrgID != uuid.Nil {
 				// Org assign
-				var mem codersdk.OrganizationMember
-				mem, err = c.Client.UpdateOrganizationMemberRoles(ctx, c.OrgID, c.AssignToUser, codersdk.UpdateRoles{
+				var mem wirtualsdk.OrganizationMember
+				mem, err = c.Client.UpdateOrganizationMemberRoles(ctx, c.OrgID, c.AssignToUser, wirtualsdk.UpdateRoles{
 					Roles: c.Roles,
 				})
 				newRoles = mem.Roles
 			} else {
 				// Site assign
-				var user codersdk.User
-				user, err = c.Client.UpdateUserRoles(ctx, c.AssignToUser, codersdk.UpdateRoles{
+				var user wirtualsdk.User
+				user, err = c.Client.UpdateUserRoles(ctx, c.AssignToUser, wirtualsdk.UpdateRoles{
 					Roles: c.Roles,
 				})
 				newRoles = user.Roles
@@ -487,7 +487,7 @@ func TestEnterprisePostUser(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -498,17 +498,17 @@ func TestEnterprisePostUser(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		org := coderdenttest.CreateOrganization(t, other, coderdenttest.CreateOrganizationOptions{}, func(request *codersdk.CreateOrganizationRequest) {
+		org := coderdenttest.CreateOrganization(t, other, coderdenttest.CreateOrganizationOptions{}, func(request *wirtualsdk.CreateOrganizationRequest) {
 			request.Name = "another"
 		})
 
-		_, err := notInOrg.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		_, err := notInOrg.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			Email:           "some@domain.com",
 			Username:        "anotheruser",
 			Password:        "SomeSecurePassword!",
 			OrganizationIDs: []uuid.UUID{org.ID},
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusNotFound, apiErr.StatusCode())
 	})
@@ -522,7 +522,7 @@ func TestEnterprisePostUser(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -534,13 +534,13 @@ func TestEnterprisePostUser(t *testing.T) {
 
 		org := coderdenttest.CreateOrganization(t, other, coderdenttest.CreateOrganizationOptions{})
 
-		_, err := notInOrg.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		_, err := notInOrg.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			Email:           "some@domain.com",
 			Username:        "anotheruser",
 			Password:        "SomeSecurePassword!",
 			OrganizationIDs: []uuid.UUID{org.ID},
 		})
-		var apiErr *codersdk.Error
+		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Equal(t, http.StatusNotFound, apiErr.StatusCode())
 	})
@@ -554,7 +554,7 @@ func TestEnterprisePostUser(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -567,7 +567,7 @@ func TestEnterprisePostUser(t *testing.T) {
 
 		// nolint:gocritic // intentional using the owner.
 		// Manually making a user with the request instead of the coderdtest util
-		_, err := client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		_, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			Email:    "another@user.org",
 			Username: "someone-else",
 			Password: "SomeSecurePassword!",
@@ -584,7 +584,7 @@ func TestEnterprisePostUser(t *testing.T) {
 			},
 			LicenseOptions: &coderdenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations: 1,
+					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -598,7 +598,7 @@ func TestEnterprisePostUser(t *testing.T) {
 
 		// nolint:gocritic // intentional using the owner.
 		// Manually making a user with the request instead of the coderdtest util
-		user, err := client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+		user, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			Email:    "another@user.org",
 			Username: "someone-else",
 			Password: "SomeSecurePassword!",

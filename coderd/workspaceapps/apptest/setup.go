@@ -68,8 +68,8 @@ type Deployment struct {
 	Options *DeploymentOptions
 
 	// SDKClient should be logged in as the admin user.
-	SDKClient      *codersdk.Client
-	FirstUser      codersdk.CreateFirstUserResponse
+	SDKClient      *wirtualsdk.Client
+	FirstUser      wirtualsdk.CreateFirstUserResponse
 	PathAppBaseURL *url.URL
 	FlushStats     func()
 }
@@ -99,13 +99,13 @@ type App struct {
 type Details struct {
 	*Deployment
 
-	Me codersdk.User
+	Me wirtualsdk.User
 
 	// The following fields are not set if setupProxyTest was called with
 	// `withWorkspace` set to `false`.
 
-	Workspace *codersdk.Workspace
-	Agent     *codersdk.WorkspaceAgent
+	Workspace *wirtualsdk.Workspace
+	Agent     *wirtualsdk.WorkspaceAgent
 	AppPort   uint16
 
 	Apps struct {
@@ -123,8 +123,8 @@ type Details struct {
 // are not followed by default.
 //
 // The client is authenticated as the first user by default.
-func (d *Details) AppClient(t *testing.T) *codersdk.Client {
-	client := codersdk.New(d.PathAppBaseURL)
+func (d *Details) AppClient(t *testing.T) *wirtualsdk.Client {
+	client := wirtualsdk.New(d.PathAppBaseURL)
 	client.SetSessionToken(d.SDKClient.SessionToken())
 	forceURLTransport(t, client)
 	client.HTTPClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
@@ -190,7 +190,7 @@ func setupProxyTestWithFactory(t *testing.T, factory DeploymentFactory, opts *De
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitMedium)
 	defer cancel()
 
-	me, err := deployment.SDKClient.User(ctx, codersdk.Me)
+	me, err := deployment.SDKClient.User(ctx, wirtualsdk.Me)
 	require.NoError(t, err)
 
 	if opts.noWorkspace {
@@ -261,7 +261,7 @@ func appServer(t *testing.T, headers http.Header, isHTTPS bool) uint16 {
 	server := httptest.NewUnstartedServer(
 		http.HandlerFunc(
 			func(w http.ResponseWriter, r *http.Request) {
-				_, err := r.Cookie(codersdk.SessionTokenCookie)
+				_, err := r.Cookie(wirtualsdk.SessionTokenCookie)
 				assert.ErrorIs(t, err, http.ErrNoCookie)
 				w.Header().Set("X-Forwarded-For", r.Header.Get("X-Forwarded-For"))
 				w.Header().Set("X-Got-Host", r.Host)
@@ -295,7 +295,7 @@ func appServer(t *testing.T, headers http.Header, isHTTPS bool) uint16 {
 }
 
 //nolint:revive
-func createWorkspaceWithApps(t *testing.T, client *codersdk.Client, orgID uuid.UUID, me codersdk.User, port uint16, serveHTTPS bool, workspaceMutators ...func(*codersdk.CreateWorkspaceRequest)) (codersdk.Workspace, codersdk.WorkspaceAgent) {
+func createWorkspaceWithApps(t *testing.T, client *wirtualsdk.Client, orgID uuid.UUID, me wirtualsdk.User, port uint16, serveHTTPS bool, workspaceMutators ...func(*wirtualsdk.CreateWorkspaceRequest)) (wirtualsdk.Workspace, wirtualsdk.WorkspaceAgent) {
 	authToken := uuid.NewString()
 
 	scheme := "http"
@@ -308,8 +308,8 @@ func createWorkspaceWithApps(t *testing.T, client *codersdk.Client, orgID uuid.U
 	workspaceName, err := cryptorand.String(6)
 	require.NoError(t, err)
 	workspaceName = "ws-" + workspaceName
-	workspaceMutators = append([]func(*codersdk.CreateWorkspaceRequest){
-		func(req *codersdk.CreateWorkspaceRequest) {
+	workspaceMutators = append([]func(*wirtualsdk.CreateWorkspaceRequest){
+		func(req *wirtualsdk.CreateWorkspaceRequest) {
 			req.Name = workspaceName
 		},
 	}, workspaceMutators...)
@@ -446,7 +446,7 @@ func createWorkspaceWithApps(t *testing.T, client *codersdk.Client, orgID uuid.U
 	})
 
 	resources := coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
-	agents := make([]codersdk.WorkspaceAgent, 0, 1)
+	agents := make([]wirtualsdk.WorkspaceAgent, 0, 1)
 	for _, resource := range resources {
 		agents = append(agents, resource.Agents...)
 	}
@@ -465,7 +465,7 @@ func findProtoApp(t *testing.T, protoApps []*proto.App, slug string) *proto.App 
 	return nil
 }
 
-func doWithRetries(t require.TestingT, client *codersdk.Client, req *http.Request) (*http.Response, error) {
+func doWithRetries(t require.TestingT, client *wirtualsdk.Client, req *http.Request) (*http.Response, error) {
 	var resp *http.Response
 	var err error
 	require.Eventually(t, func() bool {
@@ -482,7 +482,7 @@ func doWithRetries(t require.TestingT, client *codersdk.Client, req *http.Reques
 	return resp, err
 }
 
-func requestWithRetries(ctx context.Context, t testing.TB, client *codersdk.Client, method, urlOrPath string, body interface{}, opts ...codersdk.RequestOption) (*http.Response, error) {
+func requestWithRetries(ctx context.Context, t testing.TB, client *wirtualsdk.Client, method, urlOrPath string, body interface{}, opts ...wirtualsdk.RequestOption) (*http.Response, error) {
 	t.Helper()
 	var resp *http.Response
 	var err error
@@ -502,7 +502,7 @@ func requestWithRetries(ctx context.Context, t testing.TB, client *codersdk.Clie
 
 // forceURLTransport forces the client to route all requests to the client's
 // configured URLs host regardless of hostname.
-func forceURLTransport(t *testing.T, client *codersdk.Client) {
+func forceURLTransport(t *testing.T, client *wirtualsdk.Client) {
 	defaultTransport, ok := http.DefaultTransport.(*http.Transport)
 	require.True(t, ok)
 	transport := defaultTransport.Clone()

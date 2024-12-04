@@ -119,7 +119,7 @@ func (c *Client) ConnectRPC23(ctx context.Context) (
 	return agentproto.NewDRPCAgentClient(conn), proto.NewDRPCTailnetClient(conn), nil
 }
 
-func (c *Client) GetLifecycleStates() []codersdk.WorkspaceAgentLifecycle {
+func (c *Client) GetLifecycleStates() []wirtualsdk.WorkspaceAgentLifecycle {
 	return c.fakeAgentAPI.GetLifecycleStates()
 }
 
@@ -137,7 +137,7 @@ func (c *Client) GetStartupLogs() []agentsdk.Log {
 	return c.logs
 }
 
-func (c *Client) SetAnnouncementBannersFunc(f func() ([]codersdk.BannerConfig, error)) {
+func (c *Client) SetAnnouncementBannersFunc(f func() ([]wirtualsdk.BannerConfig, error)) {
 	c.fakeAgentAPI.SetAnnouncementBannersFunc(f)
 }
 
@@ -167,11 +167,11 @@ type FakeAgentAPI struct {
 	statsCh         chan *agentproto.Stats
 	appHealthCh     chan *agentproto.BatchUpdateAppHealthRequest
 	logsCh          chan<- *agentproto.BatchCreateLogsRequest
-	lifecycleStates []codersdk.WorkspaceAgentLifecycle
+	lifecycleStates []wirtualsdk.WorkspaceAgentLifecycle
 	metadata        map[string]agentsdk.Metadata
 	timings         []*agentproto.Timing
 
-	getAnnouncementBannersFunc func() ([]codersdk.BannerConfig, error)
+	getAnnouncementBannersFunc func() ([]wirtualsdk.BannerConfig, error)
 }
 
 func (f *FakeAgentAPI) GetManifest(context.Context, *agentproto.GetManifestRequest) (*agentproto.Manifest, error) {
@@ -188,7 +188,7 @@ func (f *FakeAgentAPI) GetTimings() []*agentproto.Timing {
 	return slices.Clone(f.timings)
 }
 
-func (f *FakeAgentAPI) SetAnnouncementBannersFunc(fn func() ([]codersdk.BannerConfig, error)) {
+func (f *FakeAgentAPI) SetAnnouncementBannersFunc(fn func() ([]wirtualsdk.BannerConfig, error)) {
 	f.Lock()
 	defer f.Unlock()
 	f.getAnnouncementBannersFunc = fn
@@ -226,7 +226,7 @@ func (f *FakeAgentAPI) UpdateStats(ctx context.Context, req *agentproto.UpdateSt
 	return &agentproto.UpdateStatsResponse{ReportInterval: durationpb.New(statsInterval)}, nil
 }
 
-func (f *FakeAgentAPI) GetLifecycleStates() []codersdk.WorkspaceAgentLifecycle {
+func (f *FakeAgentAPI) GetLifecycleStates() []wirtualsdk.WorkspaceAgentLifecycle {
 	f.Lock()
 	defer f.Unlock()
 	return slices.Clone(f.lifecycleStates)

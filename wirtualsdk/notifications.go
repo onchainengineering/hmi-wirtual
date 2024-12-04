@@ -1,4 +1,4 @@
-package codersdk
+package wirtualsdk
 
 import (
 	"context"

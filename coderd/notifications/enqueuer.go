@@ -37,7 +37,7 @@ type StoreEnqueuer struct {
 }
 
 // NewStoreEnqueuer creates an Enqueuer implementation which can persist notification messages in the store.
-func NewStoreEnqueuer(cfg codersdk.NotificationsConfig, store Store, helpers template.FuncMap, log slog.Logger, clock quartz.Clock) (*StoreEnqueuer, error) {
+func NewStoreEnqueuer(cfg wirtualsdk.NotificationsConfig, store Store, helpers template.FuncMap, log slog.Logger, clock quartz.Clock) (*StoreEnqueuer, error) {
 	var method database.NotificationMethod
 	if err := method.Scan(cfg.Method.String()); err != nil {
 		return nil, xerrors.Errorf("given notification method %q is invalid", cfg.Method)

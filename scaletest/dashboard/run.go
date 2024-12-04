@@ -15,7 +15,7 @@ import (
 )
 
 type Runner struct {
-	client  *codersdk.Client
+	client  *wirtualsdk.Client
 	cfg     Config
 	metrics Metrics
 }
@@ -25,7 +25,7 @@ var (
 	_ harness.Cleanable = &Runner{}
 )
 
-func NewRunner(client *codersdk.Client, metrics Metrics, cfg Config) *Runner {
+func NewRunner(client *wirtualsdk.Client, metrics Metrics, cfg Config) *Runner {
 	client.Trace = cfg.Trace
 	if cfg.WaitLoaded == nil {
 		cfg.WaitLoaded = waitForWorkspacesPageLoaded
@@ -63,7 +63,7 @@ func (r *Runner) runUntilDeadlineExceeded(ctx context.Context) error {
 	if r.client == nil {
 		return xerrors.Errorf("client is nil")
 	}
-	me, err := r.client.User(ctx, codersdk.Me)
+	me, err := r.client.User(ctx, wirtualsdk.Me)
 	if err != nil {
 		return xerrors.Errorf("get scaletest user: %w", err)
 	}

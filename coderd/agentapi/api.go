@@ -75,7 +75,7 @@ type Options struct {
 	DerpForceWebSockets       bool
 	DerpMapUpdateFrequency    time.Duration
 	ExternalAuthConfigs       []*externalauth.Config
-	Experiments               codersdk.Experiments
+	Experiments               wirtualsdk.Experiments
 
 	UpdateAgentMetricsFn func(ctx context.Context, labels prometheusmetrics.AgentMetricLabels, metrics []*agentproto.Stats_Metric)
 }

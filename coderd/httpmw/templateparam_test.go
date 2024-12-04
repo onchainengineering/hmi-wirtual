@@ -34,7 +34,7 @@ func TestTemplateParam(t *testing.T) {
 		)
 
 		r := httptest.NewRequest("GET", "/", nil)
-		r.Header.Set(codersdk.SessionTokenHeader, token)
+		r.Header.Set(wirtualsdk.SessionTokenHeader, token)
 
 		ctx := chi.NewRouteContext()
 		r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, ctx))
