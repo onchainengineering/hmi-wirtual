@@ -1,7 +1,7 @@
 # Telemetry
 
 <blockquote class="info">
-TL;DR: disable telemetry by setting <code>CODER_TELEMETRY_ENABLE=false</code>.
+TL;DR: disable telemetry by setting <code>WIRTUAL_TELEMETRY_ENABLE=false</code>.
 </blockquote>
 
 Coder collects telemetry from all installations by default. We believe our users
@@ -41,5 +41,5 @@ telemetry to identify affected installations and notify their administrators.
 ## Toggling
 
 You can turn telemetry on or off using either the
-`CODER_TELEMETRY_ENABLE=[true|false]` environment variable or the
+`WIRTUAL_TELEMETRY_ENABLE=[true|false]` environment variable or the
 `--telemetry=[true|false]` command-line flag.

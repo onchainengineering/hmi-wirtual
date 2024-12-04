@@ -50,9 +50,9 @@ the `id_token`. See all configuration options for group sync in the
 
 ```bash
 # Add the 'groups' scope.
-CODER_OIDC_SCOPES=openid,profile,email,groups
+WIRTUAL_OIDC_SCOPES=openid,profile,email,groups
 # This name needs to match the "Claim name" in the configuration above.
-CODER_OIDC_GROUP_FIELD=groups
+WIRTUAL_OIDC_GROUP_FIELD=groups
 ```
 
 These groups can also be used to configure role syncing based on group
@@ -60,11 +60,11 @@ membership.
 
 ```bash
 # Requires the "groups" scope
-CODER_OIDC_SCOPES=openid,profile,email,groups
+WIRTUAL_OIDC_SCOPES=openid,profile,email,groups
 # This name needs to match the "Claim name" in the configuration above.
-CODER_OIDC_USER_ROLE_FIELD=groups
+WIRTUAL_OIDC_USER_ROLE_FIELD=groups
 # Example configuration to map a group to some roles
-CODER_OIDC_USER_ROLE_MAPPING='{"admin-group":["template-admin","user-admin"]}'
+WIRTUAL_OIDC_USER_ROLE_MAPPING='{"admin-group":["template-admin","user-admin"]}'
 ```
 
 # (Easy) Mapping Okta profile attributes
@@ -93,16 +93,16 @@ Configure using these new attributes in Coder.
 
 ```bash
 # This must be set to false. Coder uses this endpoint to grab the attributes.
-CODER_OIDC_IGNORE_USERINFO=false
+WIRTUAL_OIDC_IGNORE_USERINFO=false
 # No custom scopes are required.
-CODER_OIDC_SCOPES=openid,profile,email
+WIRTUAL_OIDC_SCOPES=openid,profile,email
 # Configure the group/role field using the attribute name in the application.
-CODER_OIDC_USER_ROLE_FIELD=approles
+WIRTUAL_OIDC_USER_ROLE_FIELD=approles
 # See our docs for mapping okta roles to coder roles.
-CODER_OIDC_USER_ROLE_MAPPING='{"admin-group":["template-admin","user-admin"]}'
+WIRTUAL_OIDC_USER_ROLE_MAPPING='{"admin-group":["template-admin","user-admin"]}'
 
 # If you added an attribute for groups, set that here.
-# CODER_OIDC_GROUP_FIELD=...
+# WIRTUAL_OIDC_GROUP_FIELD=...
 ```
 
 # (Advanced) Custom scopes to retrieve custom claims
@@ -145,13 +145,13 @@ need to configure coder to use this.
 # Grab this value from the Authorization Server > Settings > Issuer
 # DO NOT USE the application issuer URL. Make sure to use the newly configured
 # authorization server.
-CODER_OIDC_ISSUER_URL=https://dev-12222860.okta.com/oauth2/default
+WIRTUAL_OIDC_ISSUER_URL=https://dev-12222860.okta.com/oauth2/default
 # Add the new scope you just configured
-CODER_OIDC_SCOPES=openid,profile,email,roles
+WIRTUAL_OIDC_SCOPES=openid,profile,email,roles
 # Use the claim you just configured
-CODER_OIDC_USER_ROLE_FIELD=roles
+WIRTUAL_OIDC_USER_ROLE_FIELD=roles
 # See our docs for mapping okta roles to coder roles.
-CODER_OIDC_USER_ROLE_MAPPING='{"admin-group":["template-admin","user-admin"]}'
+WIRTUAL_OIDC_USER_ROLE_MAPPING='{"admin-group":["template-admin","user-admin"]}'
 ```
 
 You can use the “Token Preview” page to verify it has been correctly configured

@@ -79,10 +79,10 @@ ADD filesystem-mirror-example.tfrc /home/coder/.terraformrc
 # Optionally, we can "seed" the filesystem mirror with common providers.
 # Comment out lines 40-49 if you plan on only using a volume or network mirror:
 WORKDIR /home/coder/.terraform.d/plugins/registry.terraform.io
-ARG CODER_PROVIDER_VERSION=1.0.1
-RUN echo "Adding coder/coder v${CODER_PROVIDER_VERSION}" \
+ARG WIRTUAL_PROVIDER_VERSION=1.0.1
+RUN echo "Adding coder/coder v${WIRTUAL_PROVIDER_VERSION}" \
     && mkdir -p coder/coder && cd coder/coder \
-    && curl -LOs https://github.com/coder/terraform-provider-coder/releases/download/v${CODER_PROVIDER_VERSION}/terraform-provider-coder_${CODER_PROVIDER_VERSION}_linux_amd64.zip
+    && curl -LOs https://github.com/coder/terraform-provider-coder/releases/download/v${WIRTUAL_PROVIDER_VERSION}/terraform-provider-coder_${WIRTUAL_PROVIDER_VERSION}_linux_amd64.zip
 ARG DOCKER_PROVIDER_VERSION=3.0.2
 RUN echo "Adding kreuzwerker/docker v${DOCKER_PROVIDER_VERSION}" \
     && mkdir -p kreuzwerker/docker && cd kreuzwerker/docker \
@@ -164,10 +164,10 @@ services:
       - ./plugins:/opt/terraform/plugins
     # ...
   environment:
-    CODER_TELEMETRY_ENABLE: "false" # Disable telemetry
-    CODER_BLOCK_DIRECT: "true" # force SSH traffic through control plane's DERP proxy
-    CODER_DERP_SERVER_STUN_ADDRESSES: "disable" # Only use relayed connections
-    CODER_UPDATE_CHECK: "false" # Disable automatic update checks
+    WIRTUAL_TELEMETRY_ENABLE: "false" # Disable telemetry
+    WIRTUAL_BLOCK_DIRECT: "true" # force SSH traffic through control plane's DERP proxy
+    WIRTUAL_DERP_SERVER_STUN_ADDRESSES: "disable" # Only use relayed connections
+    WIRTUAL_UPDATE_CHECK: "false" # Disable automatic update checks
   database:
     image: registry.example.com/postgres:13
     # ...
@@ -193,19 +193,19 @@ coder:
     tag: "latest"
   env:
     # Disable telemetry
-    - name: "CODER_TELEMETRY_ENABLE"
+    - name: "WIRTUAL_TELEMETRY_ENABLE"
       value: "false"
     # Disable automatic update checks
-    - name: "CODER_UPDATE_CHECK"
+    - name: "WIRTUAL_UPDATE_CHECK"
       value: "false"
     # force SSH traffic through control plane's DERP proxy
-    - name: CODER_BLOCK_DIRECT
+    - name: WIRTUAL_BLOCK_DIRECT
       value: "true"
     # Only use relayed connections
-    - name: "CODER_DERP_SERVER_STUN_ADDRESSES"
+    - name: "WIRTUAL_DERP_SERVER_STUN_ADDRESSES"
       value: "disable"
     # You must set up an external PostgreSQL database
-    - name: "CODER_PG_CONNECTION_URL"
+    - name: "WIRTUAL_PG_CONNECTION_URL"
       value: ""
 # ...
 ```
@@ -223,7 +223,7 @@ server, as demonstrated in the example below:
 3. Extract the file and move its contents to your server folder.
 4. If you are using NodeJS, you can execute the following command:
    `cd docs && npx http-server .`
-5. Set the [CODER_DOCS_URL](../reference/cli/server.md#--docs-url) environment
+5. Set the [WIRTUAL_DOCS_URL](../reference/cli/server.md#--docs-url) environment
    variable to use the URL of your hosted docs. This way, the Coder UI will
    reference the documentation from your specified URL.
 

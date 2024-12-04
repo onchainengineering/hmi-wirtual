@@ -259,8 +259,8 @@ export const sshIntoWorkspace = async (
 		const cp = spawn(binaryPath, [...binaryArgs, "ssh", "--stdio", workspace], {
 			env: {
 				...process.env,
-				CODER_SESSION_TOKEN: sessionToken,
-				CODER_URL: `http://localhost:${coderPort}`,
+				WIRTUAL_SESSION_TOKEN: sessionToken,
+				WIRTUAL_URL: `http://localhost:${coderPort}`,
 			},
 		});
 		cp.on("error", (err) => reject(err));
@@ -409,10 +409,10 @@ export const startAgentWithCommand = async (
 	const cp = spawn(command, [...args, "agent", "--no-reap"], {
 		env: {
 			...process.env,
-			CODER_AGENT_URL: `http://localhost:${coderPort}`,
-			CODER_AGENT_TOKEN: token,
-			CODER_AGENT_PPROF_ADDRESS: `127.0.0.1:${agentPProfPort}`,
-			CODER_AGENT_PROMETHEUS_ADDRESS: `127.0.0.1:${prometheusPort}`,
+			WIRTUAL_AGENT_URL: `http://localhost:${coderPort}`,
+			WIRTUAL_AGENT_TOKEN: token,
+			WIRTUAL_AGENT_PPROF_ADDRESS: `127.0.0.1:${agentPProfPort}`,
+			WIRTUAL_AGENT_PROMETHEUS_ADDRESS: `127.0.0.1:${prometheusPort}`,
 		},
 	});
 	cp.stdout.on("data", (data: Buffer) => {
@@ -873,8 +873,8 @@ export const updateTemplate = async (
 		{
 			env: {
 				...process.env,
-				CODER_SESSION_TOKEN: sessionToken,
-				CODER_URL: `http://localhost:${coderPort}`,
+				WIRTUAL_SESSION_TOKEN: sessionToken,
+				WIRTUAL_URL: `http://localhost:${coderPort}`,
 			},
 		},
 	);

@@ -47,7 +47,7 @@ func AgentScriptEnv() map[string]string {
 	for operatingSystem, scripts := range agentScripts {
 		for architecture, script := range scripts {
 			script := strings.ReplaceAll(script, "${ARCH}", architecture)
-			env[fmt.Sprintf("CODER_AGENT_SCRIPT_%s_%s", operatingSystem, architecture)] = script
+			env[fmt.Sprintf("WIRTUAL_AGENT_SCRIPT_%s_%s", operatingSystem, architecture)] = script
 		}
 	}
 	return env

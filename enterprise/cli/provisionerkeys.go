@@ -81,7 +81,7 @@ func (r *RootCmd) provisionerKeysCreate() *serpent.Command {
 		{
 			Flag:          "tag",
 			FlagShorthand: "t",
-			Env:           "CODER_PROVISIONERD_TAGS",
+			Env:           "WIRTUAL_PROVISIONERD_TAGS",
 			Description:   "Tags to filter provisioner jobs by.",
 			Value:         serpent.StringArrayOf(&rawTags),
 		},

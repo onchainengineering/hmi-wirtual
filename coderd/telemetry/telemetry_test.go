@@ -246,7 +246,7 @@ func TestTelemetry(t *testing.T) {
 
 // nolint:paralleltest
 func TestTelemetryInstallSource(t *testing.T) {
-	t.Setenv("CODER_TELEMETRY_INSTALL_SOURCE", "aws_marketplace")
+	t.Setenv("WIRTUAL_TELEMETRY_INSTALL_SOURCE", "aws_marketplace")
 	db := dbmem.New()
 	deployment, _ := collectSnapshot(t, db, nil)
 	require.Equal(t, "aws_marketplace", deployment.InstallSource)

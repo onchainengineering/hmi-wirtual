@@ -53,7 +53,7 @@ To capture Prometheus metrics from the loadtest, two environment variables are r
 
 ### Enterprise License
 
-To add an Enterprise license, set the `SCALETEST_CODER_LICENSE` environment variable to the JWT string
+To add an Enterprise license, set the `SCALETEST_WIRTUAL_LICENSE` environment variable to the JWT string
 
 ## Scenarios
 

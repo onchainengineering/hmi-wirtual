@@ -44,9 +44,9 @@ RUN echo "FIPS" >/etc/crypto-policies/config && \
 
 # Copy and extract Coder binary from tar file. We have to put this in /opt to
 # match the Dockerfile.
-ARG CODER_BIN=/opt/coder
-ARG CODER_BIN_TAR_GZ=coder.tar.gz
-COPY "$CODER_BIN_TAR_GZ" /tmp/coder.tar.gz
+ARG WIRTUAL_BIN=/opt/coder
+ARG WIRTUAL_BIN_TAR_GZ=coder.tar.gz
+COPY "$WIRTUAL_BIN_TAR_GZ" /tmp/coder.tar.gz
 RUN mkdir -p /opt && \
 		tar -xzvf /tmp/coder.tar.gz --directory /opt --strip-components=1 ./coder && \
     rm /tmp/coder.tar.gz
@@ -63,9 +63,9 @@ ENV PATH="${TERRAFORM_BIN_DIR}:${PATH}"
 
 # Install the Coder Terraform provider to a well-known location.
 ARG TERRAFORM_PLUGINS_DIR=/opt/terraform/plugins
-ARG TERRAFORM_CODER_PROVIDER_VERSION
-ARG TERRAFORM_CODER_PROVIDER_ZIP=terraform-provider-coder.zip
-COPY "$TERRAFORM_CODER_PROVIDER_ZIP" "${TERRAFORM_PLUGINS_DIR}/registry.terraform.io/coder/coder/terraform-provider-coder_${TERRAFORM_CODER_PROVIDER_VERSION}_linux_amd64.zip"
+ARG TERRAFORM_WIRTUAL_PROVIDER_VERSION
+ARG TERRAFORM_WIRTUAL_PROVIDER_ZIP=terraform-provider-coder.zip
+COPY "$TERRAFORM_WIRTUAL_PROVIDER_ZIP" "${TERRAFORM_PLUGINS_DIR}/registry.terraform.io/coder/coder/terraform-provider-coder_${TERRAFORM_WIRTUAL_PROVIDER_VERSION}_linux_amd64.zip"
 
 # Configure Terraform to use plugins from this dir.
 COPY terraform-filesystem-mirror.tfrc /opt/terraform/config.tfrc
@@ -83,7 +83,7 @@ RUN useradd coder \
       --shell=/bin/bash \
       --uid=1000 \
       --user-group && \
-    chown --recursive --quiet coder:coder "$CODER_BIN" && \
+    chown --recursive --quiet coder:coder "$WIRTUAL_BIN" && \
     chown --recursive --quiet coder:coder "$TERRAFORM_BIN_DIR" && \
     chown --recursive --quiet coder:coder "$TERRAFORM_PLUGINS_DIR" && \
     chmod 0755 /home/coder

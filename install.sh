@@ -138,17 +138,17 @@ The Coder binary has been placed in the following location:
 
 EOF
 
-	CODER_COMMAND="$(command -v "$STANDALONE_BINARY_NAME" || true)"
+	WIRTUAL_COMMAND="$(command -v "$STANDALONE_BINARY_NAME" || true)"
 
-	if [ -z "${CODER_COMMAND}" ]; then
+	if [ -z "${WIRTUAL_COMMAND}" ]; then
 		cath <<EOF
 Extend your path to use Coder:
 
   $ PATH="$STANDALONE_INSTALL_PREFIX/bin:\$PATH"
 
 EOF
-	elif [ "$CODER_COMMAND" != "$STANDALONE_BINARY_LOCATION" ]; then
-		echo_path_conflict "$CODER_COMMAND"
+	elif [ "$WIRTUAL_COMMAND" != "$STANDALONE_BINARY_LOCATION" ]; then
+		echo_path_conflict "$WIRTUAL_COMMAND"
 	else
 		cath <<EOF
 To run a Coder server:
@@ -179,10 +179,10 @@ Coder has been installed to
 
 EOF
 
-	CODER_COMMAND="$(command -v "coder" || true)"
+	WIRTUAL_COMMAND="$(command -v "coder" || true)"
 
-	if [ "$CODER_COMMAND" != "$BREW_PREFIX/bin/coder" ]; then
-		echo_path_conflict "$CODER_COMMAND"
+	if [ "$WIRTUAL_COMMAND" != "$BREW_PREFIX/bin/coder" ]; then
+		echo_path_conflict "$WIRTUAL_COMMAND"
 	fi
 
 	cath <<EOF

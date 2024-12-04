@@ -154,7 +154,7 @@ func (n *notifier) ensureRunning(ctx context.Context) (bool, error) {
 // process is responsible for coordinating the retrieval, processing, and delivery of messages.
 // Messages are dispatched concurrently, but they may block when success/failure channels are full.
 //
-// NOTE: it is _possible_ that these goroutines could block for long enough to exceed CODER_NOTIFICATIONS_DISPATCH_TIMEOUT,
+// NOTE: it is _possible_ that these goroutines could block for long enough to exceed WIRTUAL_NOTIFICATIONS_DISPATCH_TIMEOUT,
 // resulting in a failed attempt for each notification when their contexts are canceled; this is not possible with the
 // default configurations but could be brought about by an operator tuning things incorrectly.
 func (n *notifier) process(ctx context.Context, success chan<- dispatchResult, failure chan<- dispatchResult) error {

@@ -94,7 +94,7 @@ func (*RootCmd) resetPassword() *serpent.Command {
 		{
 			Flag:        "postgres-url",
 			Description: "URL of a PostgreSQL database to connect to.",
-			Env:         "CODER_PG_CONNECTION_URL",
+			Env:         "WIRTUAL_PG_CONNECTION_URL",
 			Value:       serpent.StringOf(&postgresURL),
 		},
 	}

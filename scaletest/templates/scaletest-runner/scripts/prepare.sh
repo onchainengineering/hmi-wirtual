@@ -30,21 +30,21 @@ done
 
 log "Creating coder CLI token (needed for cleanup during shutdown)..."
 
-mkdir -p "${CODER_CONFIG_DIR}"
-echo -n "${CODER_URL}" >"${CODER_CONFIG_DIR}/url"
+mkdir -p "${WIRTUAL_CONFIG_DIR}"
+echo -n "${WIRTUAL_URL}" >"${WIRTUAL_CONFIG_DIR}/url"
 
 set +x # Avoid logging the token.
 # Persist configuration for shutdown script too since the
 # owner token is invalidated immediately on workspace stop.
-export CODER_SESSION_TOKEN=${CODER_USER_TOKEN}
+export WIRTUAL_SESSION_TOKEN=${WIRTUAL_USER_TOKEN}
 coder tokens delete scaletest_runner >/dev/null 2>&1 || true
 # TODO(mafredri): Set TTL? This could interfere with delayed stop though.
 token=$(coder tokens create --name scaletest_runner)
 if [[ $DRY_RUN == 1 ]]; then
-	token=${CODER_SESSION_TOKEN}
+	token=${WIRTUAL_SESSION_TOKEN}
 fi
-unset CODER_SESSION_TOKEN
-echo -n "${token}" >"${CODER_CONFIG_DIR}/session"
+unset WIRTUAL_SESSION_TOKEN
+echo -n "${token}" >"${WIRTUAL_CONFIG_DIR}/session"
 [[ $VERBOSE == 1 ]] && set -x # Restore logging (if enabled).
 
 if [[ ${SCALETEST_PARAM_CLEANUP_PREPARE} == 1 ]]; then

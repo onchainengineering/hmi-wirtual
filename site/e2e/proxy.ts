@@ -8,9 +8,9 @@ export const startWorkspaceProxy = async (
 	const cp = spawn("go", ["run", coderMain, "wsproxy", "server"], {
 		env: {
 			...process.env,
-			CODER_PRIMARY_ACCESS_URL: `http://127.0.0.1:${coderPort}`,
-			CODER_PROXY_SESSION_TOKEN: token,
-			CODER_HTTP_ADDRESS: `localhost:${workspaceProxyPort}`,
+			WIRTUAL_PRIMARY_ACCESS_URL: `http://127.0.0.1:${coderPort}`,
+			WIRTUAL_PROXY_SESSION_TOKEN: token,
+			WIRTUAL_HTTP_ADDRESS: `localhost:${workspaceProxyPort}`,
 		},
 	});
 	cp.stdout.on("data", (data: Buffer) => {

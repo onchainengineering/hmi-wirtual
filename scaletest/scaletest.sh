@@ -14,7 +14,7 @@ SCALETEST_SCENARIO="${SCALETEST_SCENARIO:-}"
 SCALETEST_PROJECT="${SCALETEST_PROJECT:-}"
 SCALETEST_PROMETHEUS_REMOTE_WRITE_USER="${SCALETEST_PROMETHEUS_REMOTE_WRITE_USER:-}"
 SCALETEST_PROMETHEUS_REMOTE_WRITE_PASSWORD="${SCALETEST_PROMETHEUS_REMOTE_WRITE_PASSWORD:-}"
-SCALETEST_CODER_LICENSE="${SCALETEST_CODER_LICENSE:-}"
+SCALETEST_WIRTUAL_LICENSE="${SCALETEST_WIRTUAL_LICENSE:-}"
 SCALETEST_SKIP_CLEANUP="${SCALETEST_SKIP_CLEANUP:-0}"
 SCALETEST_CREATE_CONCURRENCY="${SCALETEST_CREATE_CONCURRENCY:-10}"
 SCALETEST_TRAFFIC_BYTES_PER_TICK="${SCALETEST_TRAFFIC_BYTES_PER_TICK:-1024}"
@@ -150,15 +150,15 @@ echo "Setting up infrastructure."
 maybedryrun "$DRY_RUN" terraform apply --var-file="${SCALETEST_SCENARIO_VARS}" --var-file="${SCALETEST_SECRETS}" --var state=started --auto-approve
 
 if [[ "${DRY_RUN}" != 1 ]]; then
-	SCALETEST_CODER_URL=$(<"${CONFIG_DIR}/url")
+	SCALETEST_WIRTUAL_URL=$(<"${CONFIG_DIR}/url")
 else
-	SCALETEST_CODER_URL="http://coder.dryrun.local:3000"
+	SCALETEST_WIRTUAL_URL="http://coder.dryrun.local:3000"
 fi
 KUBECONFIG="${PROJECT_ROOT}/scaletest/.coderv2/${SCALETEST_NAME}-cluster.kubeconfig"
-echo "Waiting for Coder deployment at ${SCALETEST_CODER_URL} to become ready"
+echo "Waiting for Coder deployment at ${SCALETEST_WIRTUAL_URL} to become ready"
 max_attempts=10
 for attempt in $(seq 1 $max_attempts); do
-	maybedryrun "$DRY_RUN" curl --silent --fail --output /dev/null "${SCALETEST_CODER_URL}/api/v2/buildinfo"
+	maybedryrun "$DRY_RUN" curl --silent --fail --output /dev/null "${SCALETEST_WIRTUAL_URL}/api/v2/buildinfo"
 	curl_status=$?
 	if [[ $curl_status -eq 0 ]]; then
 		break
@@ -173,11 +173,11 @@ for attempt in $(seq 1 $max_attempts); do
 done
 
 echo "Initializing Coder deployment."
-DRY_RUN="$DRY_RUN" "${PROJECT_ROOT}/scaletest/lib/coder_init.sh" "${SCALETEST_CODER_URL}"
+DRY_RUN="$DRY_RUN" "${PROJECT_ROOT}/scaletest/lib/coder_init.sh" "${SCALETEST_WIRTUAL_URL}"
 
-if [[ -n "${SCALETEST_CODER_LICENSE}" ]]; then
+if [[ -n "${SCALETEST_WIRTUAL_LICENSE}" ]]; then
 	echo "Applying Coder Enterprise License"
-	DRY_RUN="$DRY_RUN" "${PROJECT_ROOT}/scaletest/lib/coder_shim.sh" license add -l "${SCALETEST_CODER_LICENSE}"
+	DRY_RUN="$DRY_RUN" "${PROJECT_ROOT}/scaletest/lib/coder_shim.sh" license add -l "${SCALETEST_WIRTUAL_LICENSE}"
 fi
 
 echo "Creating ${SCALETEST_NUM_WORKSPACES} workspaces."

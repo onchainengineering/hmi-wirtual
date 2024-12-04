@@ -37,12 +37,12 @@ envFrom:
 {{- end }}
 {{- end }}
 env:
-- name: CODER_HTTP_ADDRESS
+- name: WIRTUAL_HTTP_ADDRESS
   value: "0.0.0.0:8080"
-- name: CODER_PROMETHEUS_ADDRESS
+- name: WIRTUAL_PROMETHEUS_ADDRESS
   value: "0.0.0.0:2112"
 {{- if .Values.provisionerDaemon.pskSecretName }}
-- name: CODER_PROVISIONER_DAEMON_PSK
+- name: WIRTUAL_PROVISIONER_DAEMON_PSK
   valueFrom:
     secretKeyRef:
       name: {{ .Values.provisionerDaemon.pskSecretName | quote }}
@@ -52,12 +52,12 @@ env:
   # See: https://github.com/coder/coder/issues/5024
 {{- $hasAccessURL := false }}
 {{- range .Values.coder.env }}
-{{- if eq .name "CODER_ACCESS_URL" }}
+{{- if eq .name "WIRTUAL_ACCESS_URL" }}
 {{- $hasAccessURL = true }}
 {{- end }}
 {{- end }}
 {{- if and (not $hasAccessURL) .Values.coder.envUseClusterAccessURL }}
-- name: CODER_ACCESS_URL
+- name: WIRTUAL_ACCESS_URL
   value: {{ include "coder.defaultAccessURL" . | quote }}
 {{- end }}
 # Used for inter-pod communication with high-availability.
@@ -65,7 +65,7 @@ env:
   valueFrom:
     fieldRef:
       fieldPath: status.podIP
-- name: CODER_DERP_SERVER_RELAY_URL
+- name: WIRTUAL_DERP_SERVER_RELAY_URL
   value: "http://$(KUBE_POD_IP):8080"
 {{- include "coder.tlsEnv" . }}
 {{- with .Values.coder.env }}
@@ -81,7 +81,7 @@ ports:
   protocol: TCP
   {{- end }}
   {{- range .Values.coder.env }}
-  {{- if eq .name "CODER_PROMETHEUS_ENABLE" }}
+  {{- if eq .name "WIRTUAL_PROMETHEUS_ENABLE" }}
   {{/*
     This sadly has to be nested to avoid evaluating the second part
     of the condition too early and potentially getting type errors if

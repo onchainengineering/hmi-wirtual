@@ -506,7 +506,7 @@ func New(ctx context.Context, options *Options) (_ *API, err error) {
 		api.AGPL.RootHandler.Mount("/scim/v2", http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			httpapi.Write(r.Context(), w, http.StatusNotFound, codersdk.Response{
 				Message: "SCIM is disabled, please contact your administrator if you believe this is an error",
-				Detail:  "SCIM endpoints are disabled if no SCIM is configured. Configure 'CODER_SCIM_AUTH_HEADER' to enable.",
+				Detail:  "SCIM endpoints are disabled if no SCIM is configured. Configure 'WIRTUAL_SCIM_AUTH_HEADER' to enable.",
 			})
 		})))
 	}
@@ -743,7 +743,7 @@ func (api *API) updateEntitlements(ctx context.Context) error {
 				api.AGPL.TemplateScheduleStore.Store(&templateStoreInterface)
 
 				if api.DefaultQuietHoursSchedule == "" {
-					api.Logger.Warn(ctx, "template autostop requirement will default to UTC midnight as the default user quiet hours schedule. Set a custom default quiet hours schedule using CODER_QUIET_HOURS_DEFAULT_SCHEDULE to avoid this warning")
+					api.Logger.Warn(ctx, "template autostop requirement will default to UTC midnight as the default user quiet hours schedule. Set a custom default quiet hours schedule using WIRTUAL_QUIET_HOURS_DEFAULT_SCHEDULE to avoid this warning")
 					api.DefaultQuietHoursSchedule = "CRON_TZ=UTC 0 0 * * *"
 				}
 				quietHoursStore, err := schedule.NewEnterpriseUserQuietHoursScheduleStore(api.DefaultQuietHoursSchedule, api.DeploymentValues.UserQuietHoursSchedule.AllowUserCustom.Value())

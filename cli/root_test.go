@@ -133,9 +133,9 @@ func TestRoot(t *testing.T) {
 		defer srv.Close()
 		url = srv.URL
 		buf := new(bytes.Buffer)
-		coderURLEnv := "$CODER_URL"
+		coderURLEnv := "$WIRTUAL_URL"
 		if runtime.GOOS == "windows" {
-			coderURLEnv = "%CODER_URL%"
+			coderURLEnv = "%WIRTUAL_URL%"
 		}
 		inv, _ := clitest.New(t,
 			"--no-feature-warning",

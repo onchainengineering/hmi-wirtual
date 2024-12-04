@@ -77,7 +77,7 @@ func (w *WebhookHandler) dispatch(msgPayload types.MessagePayload, titlePlaintex
 		}
 
 		// Prepare request.
-		// Outer context has a deadline (see CODER_NOTIFICATIONS_DISPATCH_TIMEOUT).
+		// Outer context has a deadline (see WIRTUAL_NOTIFICATIONS_DISPATCH_TIMEOUT).
 		req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewBuffer(m))
 		if err != nil {
 			return false, xerrors.Errorf("create HTTP request: %v", err)

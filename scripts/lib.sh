@@ -96,7 +96,7 @@ dependency_check() {
 
 	# Special case for yq that can be yq or yq4.
 	if [[ $dep == yq ]]; then
-		[[ -n "${CODER_LIBSH_YQ:-}" ]]
+		[[ -n "${WIRTUAL_LIBSH_YQ:-}" ]]
 		return
 	fi
 
@@ -211,7 +211,7 @@ issourced() {
 # We don't need to check dependencies more than once per script, but some
 # scripts call other scripts that also `source lib.sh`, so we set an environment
 # variable after successfully checking dependencies once.
-if [[ "${CODER_LIBSH_NO_CHECK_DEPENDENCIES:-}" != *t* ]]; then
+if [[ "${WIRTUAL_LIBSH_NO_CHECK_DEPENDENCIES:-}" != *t* ]]; then
 	libsh_bad_dependencies=0
 
 	if ((BASH_VERSINFO[0] < 4)); then
@@ -266,10 +266,10 @@ if [[ "${CODER_LIBSH_NO_CHECK_DEPENDENCIES:-}" != *t* ]]; then
 
 	# Allow for yq to be installed as yq4.
 	if command -v yq4 >/dev/null; then
-		export CODER_LIBSH_YQ=yq4
+		export WIRTUAL_LIBSH_YQ=yq4
 	elif command -v yq >/dev/null; then
 		if [[ $(yq --version) == *" v4."* ]]; then
-			export CODER_LIBSH_YQ=yq
+			export WIRTUAL_LIBSH_YQ=yq
 		fi
 	fi
 
@@ -277,12 +277,12 @@ if [[ "${CODER_LIBSH_NO_CHECK_DEPENDENCIES:-}" != *t* ]]; then
 		error "Invalid dependencies, see above for more details."
 	fi
 
-	export CODER_LIBSH_NO_CHECK_DEPENDENCIES=true
+	export WIRTUAL_LIBSH_NO_CHECK_DEPENDENCIES=true
 fi
 
 # Alias yq to the version we want by shadowing with a function.
-if [[ -n ${CODER_LIBSH_YQ:-} ]]; then
+if [[ -n ${WIRTUAL_LIBSH_YQ:-} ]]; then
 	yq() {
-		command $CODER_LIBSH_YQ "$@"
+		command $WIRTUAL_LIBSH_YQ "$@"
 	}
 fi

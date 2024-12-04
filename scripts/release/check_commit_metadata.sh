@@ -37,7 +37,7 @@ declare -A COMMIT_METADATA_TITLE COMMIT_METADATA_HUMAN_TITLE COMMIT_METADATA_CAT
 
 # This environment variable can be set to 1 to ignore missing commit metadata,
 # useful for dry-runs.
-ignore_missing_metadata=${CODER_IGNORE_MISSING_COMMIT_METADATA:-0}
+ignore_missing_metadata=${WIRTUAL_IGNORE_MISSING_COMMIT_METADATA:-0}
 
 main() {
 	log "Checking commit metadata for changes between ${from_ref} and ${to_ref}..."

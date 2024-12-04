@@ -140,7 +140,7 @@ v2.15.X).
 Then, define the POST webhook endpoint created by your Teams workflow:
 
 ```bash
-export CODER_NOTIFICATIONS_WEBHOOK_ENDPOINT=https://prod-16.eastus.logic.azure.com:443/workflows/f8fbe3e8211e4b638...`
+export WIRTUAL_NOTIFICATIONS_WEBHOOK_ENDPOINT=https://prod-16.eastus.logic.azure.com:443/workflows/f8fbe3e8211e4b638...`
 ```
 
 Finally, go to the **Notification Settings** in Coder and switch the notifier to

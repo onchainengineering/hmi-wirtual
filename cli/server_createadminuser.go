@@ -252,7 +252,7 @@ func (r *RootCmd) newCreateAdminUserCommand() *serpent.Command {
 
 	createAdminUserCommand.Options.Add(
 		serpent.Option{
-			Env:         "CODER_PG_CONNECTION_URL",
+			Env:         "WIRTUAL_PG_CONNECTION_URL",
 			Flag:        "postgres-url",
 			Description: "URL of a PostgreSQL database. If empty, the built-in PostgreSQL deployment will be used (Coder must not be already running in this case).",
 			Value:       serpent.StringOf(&newUserDBURL),
@@ -261,31 +261,31 @@ func (r *RootCmd) newCreateAdminUserCommand() *serpent.Command {
 			Name:        "Postgres Connection Auth",
 			Description: "Type of auth to use when connecting to postgres.",
 			Flag:        "postgres-connection-auth",
-			Env:         "CODER_PG_CONNECTION_AUTH",
+			Env:         "WIRTUAL_PG_CONNECTION_AUTH",
 			Default:     "password",
 			Value:       serpent.EnumOf(&newUserPgAuth, codersdk.PostgresAuthDrivers...),
 		},
 		serpent.Option{
-			Env:         "CODER_SSH_KEYGEN_ALGORITHM",
+			Env:         "WIRTUAL_SSH_KEYGEN_ALGORITHM",
 			Flag:        "ssh-keygen-algorithm",
 			Description: "The algorithm to use for generating ssh keys. Accepted values are \"ed25519\", \"ecdsa\", or \"rsa4096\".",
 			Default:     "ed25519",
 			Value:       serpent.StringOf(&newUserSSHKeygenAlgorithm),
 		},
 		serpent.Option{
-			Env:         "CODER_USERNAME",
+			Env:         "WIRTUAL_USERNAME",
 			Flag:        "username",
 			Description: "The username of the new user. If not specified, you will be prompted via stdin.",
 			Value:       serpent.StringOf(&newUserUsername),
 		},
 		serpent.Option{
-			Env:         "CODER_EMAIL",
+			Env:         "WIRTUAL_EMAIL",
 			Flag:        "email",
 			Description: "The email of the new user. If not specified, you will be prompted via stdin.",
 			Value:       serpent.StringOf(&newUserEmail),
 		},
 		serpent.Option{
-			Env:         "CODER_PASSWORD",
+			Env:         "WIRTUAL_PASSWORD",
 			Flag:        "password",
 			Description: "The password of the new user. If not specified, you will be prompted via stdin.",
 			Value:       serpent.StringOf(&newUserPassword),

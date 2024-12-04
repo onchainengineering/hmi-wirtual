@@ -189,7 +189,7 @@ func TestWorkspaceAgent(t *testing.T) {
 		session, err := sshClient.NewSession()
 		require.NoError(t, err)
 		defer session.Close()
-		key := "CODER_AGENT_TOKEN"
+		key := "WIRTUAL_AGENT_TOKEN"
 		command := "sh -c 'echo $" + key + "'"
 		if runtime.GOOS == "windows" {
 			command = "cmd.exe /c echo %" + key + "%"
@@ -284,9 +284,9 @@ func TestWorkspaceAgent(t *testing.T) {
 			OwnerID:        memberUser.ID,
 		}).WithAgent().Do()
 
-		coderURLEnv := "$CODER_URL"
+		coderURLEnv := "$WIRTUAL_URL"
 		if runtime.GOOS == "windows" {
-			coderURLEnv = "%CODER_URL%"
+			coderURLEnv = "%WIRTUAL_URL%"
 		}
 
 		logDir := t.TempDir()

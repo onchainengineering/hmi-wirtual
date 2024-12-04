@@ -101,7 +101,7 @@ func (r *RootCmd) groupEdit() *serpent.Command {
 		{
 			Flag:        "display-name",
 			Description: `Optional human friendly name for the group.`,
-			Env:         "CODER_DISPLAY_NAME",
+			Env:         "WIRTUAL_DISPLAY_NAME",
 			Value:       serpent.StringOf(&displayName),
 		},
 		{

@@ -52,7 +52,7 @@ To fix this:
    resource "coder_agent" "main" {
      # ...
      env = {
-       name = "CODER_WORKSPACE_NAME"
+       name = "WIRTUAL_WORKSPACE_NAME"
        value = data.coder_workspace.me.name
      }
    }
@@ -63,7 +63,7 @@ To fix this:
 
    ```bash
    ansi_term_announce_host() {
-       printf '\033AnSiTh %s\n' "coder.$CODER_WORKSPACE_NAME"
+       printf '\033AnSiTh %s\n' "coder.$WIRTUAL_WORKSPACE_NAME"
    }
 
    ansi_term_announce_user() {

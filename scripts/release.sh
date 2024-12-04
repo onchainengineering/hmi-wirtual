@@ -54,8 +54,8 @@ mainline=1
 channel=mainline
 
 # These values will be used for any PRs created.
-pr_review_assignee=${CODER_RELEASE_PR_REVIEW_ASSIGNEE:-@me}
-pr_review_reviewer=${CODER_RELEASE_PR_REVIEW_REVIEWER:-bpmct,stirby}
+pr_review_assignee=${WIRTUAL_RELEASE_PR_REVIEW_ASSIGNEE:-@me}
+pr_review_reviewer=${WIRTUAL_RELEASE_PR_REVIEW_REVIEWER:-bpmct,stirby}
 
 args="$(getopt -o h -l dry-run,help,ref:,mainline,stable,major,minor,patch,force,ignore-script-out-of-date -- "$@")"
 eval set -- "$args"
@@ -184,7 +184,7 @@ if ((!mainline)); then
 	old_version=${latest_stable_version}
 fi
 
-trap 'log "Check commit metadata failed, you can try to set \"export CODER_IGNORE_MISSING_COMMIT_METADATA=1\" and try again, if you know what you are doing."' EXIT
+trap 'log "Check commit metadata failed, you can try to set \"export WIRTUAL_IGNORE_MISSING_COMMIT_METADATA=1\" and try again, if you know what you are doing."' EXIT
 # shellcheck source=scripts/release/check_commit_metadata.sh
 source "$SCRIPT_DIR/release/check_commit_metadata.sh" "$old_version" "$ref"
 trap - EXIT

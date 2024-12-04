@@ -49,10 +49,10 @@ if [[ "$version" == "" ]]; then
 	version="$(execrelative ./version.sh)"
 fi
 
-image="${CODER_IMAGE_BASE:-ghcr.io/coder/coder}"
+image="${WIRTUAL_IMAGE_BASE:-ghcr.io/coder/coder}"
 
-# use CODER_IMAGE_TAG_PREFIX if set as a prefix for the tag
-tag_prefix="${CODER_IMAGE_TAG_PREFIX:-}"
+# use WIRTUAL_IMAGE_TAG_PREFIX if set as a prefix for the tag
+tag_prefix="${WIRTUAL_IMAGE_TAG_PREFIX:-}"
 
 tag="${tag_prefix:+$tag_prefix-}v$version"
 

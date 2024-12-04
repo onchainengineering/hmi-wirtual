@@ -232,7 +232,7 @@ func TestAgent(t *testing.T) {
 			},
 			want: []string{
 				"⧗ Running workspace agent startup scripts",
-				"ℹ︎ To connect immediately, reconnect with --wait=no or CODER_SSH_WAIT=no, see --help for more information.",
+				"ℹ︎ To connect immediately, reconnect with --wait=no or WIRTUAL_SSH_WAIT=no, see --help for more information.",
 				"testing: Hello world",
 				"Bye now",
 				"✔ Running workspace agent startup scripts",
@@ -313,7 +313,7 @@ func TestAgent(t *testing.T) {
 			},
 			want: []string{
 				"⧗ Running workspace agent startup scripts",
-				"ℹ︎ To connect immediately, reconnect with --wait=no or CODER_SSH_WAIT=no, see --help for more information.",
+				"ℹ︎ To connect immediately, reconnect with --wait=no or WIRTUAL_SSH_WAIT=no, see --help for more information.",
 				"Hello world",
 				"✔ Running workspace agent startup scripts",
 			},

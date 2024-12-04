@@ -65,8 +65,8 @@ jobs:
       PR_NUMBER: ${{ steps.pr_info.outputs.PR_NUMBER }}
       PR_TITLE: ${{ steps.pr_info.outputs.PR_TITLE }}
       PR_URL: ${{ steps.pr_info.outputs.PR_URL }}
-      CODER_BASE_IMAGE_TAG: ${{ steps.set_tags.outputs.CODER_BASE_IMAGE_TAG }}
-      CODER_IMAGE_TAG: ${{ steps.set_tags.outputs.CODER_IMAGE_TAG }}
+      WIRTUAL_BASE_IMAGE_TAG: ${{ steps.set_tags.outputs.WIRTUAL_BASE_IMAGE_TAG }}
+      WIRTUAL_IMAGE_TAG: ${{ steps.set_tags.outputs.WIRTUAL_IMAGE_TAG }}
       NEW: ${{ steps.check_deployment.outputs.NEW }}
       BUILD: ${{ steps.build_conditionals.outputs.first_or_force_build == 'true' || steps.build_conditionals.outputs.automatic_rebuild == 'true' }}
 
@@ -99,11 +99,11 @@ jobs:
         id: set_tags
         run: |
           set -euo pipefail
-          echo "CODER_BASE_IMAGE_TAG=$CODER_BASE_IMAGE_TAG" >> $GITHUB_OUTPUT
-          echo "CODER_IMAGE_TAG=$CODER_IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "WIRTUAL_BASE_IMAGE_TAG=$WIRTUAL_BASE_IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "WIRTUAL_IMAGE_TAG=$WIRTUAL_IMAGE_TAG" >> $GITHUB_OUTPUT
         env:
-          CODER_BASE_IMAGE_TAG: ghcr.io/coder/coder-preview-base:pr${{ steps.pr_info.outputs.PR_NUMBER }}
-          CODER_IMAGE_TAG: ghcr.io/coder/coder-preview:pr${{ steps.pr_info.outputs.PR_NUMBER }}
+          WIRTUAL_BASE_IMAGE_TAG: ghcr.io/coder/coder-preview-base:pr${{ steps.pr_info.outputs.PR_NUMBER }}
+          WIRTUAL_IMAGE_TAG: ghcr.io/coder/coder-preview:pr${{ steps.pr_info.outputs.PR_NUMBER }}
 
       - name: Set up kubeconfig
         run: |
@@ -214,7 +214,7 @@ jobs:
       cancel-in-progress: true
     env:
       DOCKER_CLI_EXPERIMENTAL: "enabled"
-      CODER_IMAGE_TAG: ${{ needs.get_info.outputs.CODER_IMAGE_TAG }}
+      WIRTUAL_IMAGE_TAG: ${{ needs.get_info.outputs.WIRTUAL_IMAGE_TAG }}
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
@@ -249,11 +249,11 @@ jobs:
           make gen/mark-fresh
           export DOCKER_IMAGE_NO_PREREQUISITES=true
           version="$(./scripts/version.sh)"
-          export CODER_IMAGE_BUILD_BASE_TAG="$(CODER_IMAGE_BASE=coder-base ./scripts/image_tag.sh --version "$version")"
+          export WIRTUAL_IMAGE_BUILD_BASE_TAG="$(WIRTUAL_IMAGE_BASE=coder-base ./scripts/image_tag.sh --version "$version")"
           make -j build/coder_linux_amd64
           ./scripts/build_docker.sh \
             --arch amd64 \
-            --target ${{ env.CODER_IMAGE_TAG }} \
+            --target ${{ env.WIRTUAL_IMAGE_TAG }} \
             --version $version \
             --push \
             build/coder_linux_amd64
@@ -268,7 +268,7 @@ jobs:
     permissions:
       pull-requests: write # needed for commenting on PRs
     env:
-      CODER_IMAGE_TAG: ${{ needs.get_info.outputs.CODER_IMAGE_TAG }}
+      WIRTUAL_IMAGE_TAG: ${{ needs.get_info.outputs.WIRTUAL_IMAGE_TAG }}
       PR_NUMBER: ${{ needs.get_info.outputs.PR_NUMBER }}
       PR_TITLE: ${{ needs.get_info.outputs.PR_TITLE }}
       PR_URL: ${{ needs.get_info.outputs.PR_URL }}
@@ -298,7 +298,7 @@ jobs:
           )
           if [ -z "$foundTag" ]; then
             echo "Image not found"
-            echo "${{ env.CODER_IMAGE_TAG }} not found in ghcr.io/coder/coder-preview"
+            echo "${{ env.WIRTUAL_IMAGE_TAG }} not found in ghcr.io/coder/coder-preview"
             exit 1
           else
             echo "Image found"

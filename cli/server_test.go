@@ -57,17 +57,17 @@ func TestReadExternalAuthProvidersFromEnv(t *testing.T) {
 	t.Run("Valid", func(t *testing.T) {
 		t.Parallel()
 		providers, err := cli.ReadExternalAuthProvidersFromEnv([]string{
-			"CODER_EXTERNAL_AUTH_0_ID=1",
-			"CODER_EXTERNAL_AUTH_0_TYPE=gitlab",
-			"CODER_EXTERNAL_AUTH_1_ID=2",
-			"CODER_EXTERNAL_AUTH_1_CLIENT_ID=sid",
-			"CODER_EXTERNAL_AUTH_1_CLIENT_SECRET=hunter12",
-			"CODER_EXTERNAL_AUTH_1_TOKEN_URL=google.com",
-			"CODER_EXTERNAL_AUTH_1_VALIDATE_URL=bing.com",
-			"CODER_EXTERNAL_AUTH_1_SCOPES=repo:read repo:write",
-			"CODER_EXTERNAL_AUTH_1_NO_REFRESH=true",
-			"CODER_EXTERNAL_AUTH_1_DISPLAY_NAME=Google",
-			"CODER_EXTERNAL_AUTH_1_DISPLAY_ICON=/icon/google.svg",
+			"WIRTUAL_EXTERNAL_AUTH_0_ID=1",
+			"WIRTUAL_EXTERNAL_AUTH_0_TYPE=gitlab",
+			"WIRTUAL_EXTERNAL_AUTH_1_ID=2",
+			"WIRTUAL_EXTERNAL_AUTH_1_CLIENT_ID=sid",
+			"WIRTUAL_EXTERNAL_AUTH_1_CLIENT_SECRET=hunter12",
+			"WIRTUAL_EXTERNAL_AUTH_1_TOKEN_URL=google.com",
+			"WIRTUAL_EXTERNAL_AUTH_1_VALIDATE_URL=bing.com",
+			"WIRTUAL_EXTERNAL_AUTH_1_SCOPES=repo:read repo:write",
+			"WIRTUAL_EXTERNAL_AUTH_1_NO_REFRESH=true",
+			"WIRTUAL_EXTERNAL_AUTH_1_DISPLAY_NAME=Google",
+			"WIRTUAL_EXTERNAL_AUTH_1_DISPLAY_ICON=/icon/google.svg",
 		})
 		require.NoError(t, err)
 		require.Len(t, providers, 2)
@@ -89,7 +89,7 @@ func TestReadExternalAuthProvidersFromEnv(t *testing.T) {
 	})
 }
 
-// TestReadGitAuthProvidersFromEnv ensures that the deprecated `CODER_GITAUTH_`
+// TestReadGitAuthProvidersFromEnv ensures that the deprecated `WIRTUAL_GITAUTH_`
 // environment variables are still supported.
 func TestReadGitAuthProvidersFromEnv(t *testing.T) {
 	t.Parallel()
@@ -104,7 +104,7 @@ func TestReadGitAuthProvidersFromEnv(t *testing.T) {
 	t.Run("InvalidKey", func(t *testing.T) {
 		t.Parallel()
 		providers, err := cli.ReadExternalAuthProvidersFromEnv([]string{
-			"CODER_GITAUTH_XXX=invalid",
+			"WIRTUAL_GITAUTH_XXX=invalid",
 		})
 		require.Error(t, err, "providers: %+v", providers)
 		require.Empty(t, providers)
@@ -112,8 +112,8 @@ func TestReadGitAuthProvidersFromEnv(t *testing.T) {
 	t.Run("SkipKey", func(t *testing.T) {
 		t.Parallel()
 		providers, err := cli.ReadExternalAuthProvidersFromEnv([]string{
-			"CODER_GITAUTH_0_ID=invalid",
-			"CODER_GITAUTH_2_ID=invalid",
+			"WIRTUAL_GITAUTH_0_ID=invalid",
+			"WIRTUAL_GITAUTH_2_ID=invalid",
 		})
 		require.Error(t, err, "%+v", providers)
 		require.Empty(t, providers)
@@ -121,15 +121,15 @@ func TestReadGitAuthProvidersFromEnv(t *testing.T) {
 	t.Run("Valid", func(t *testing.T) {
 		t.Parallel()
 		providers, err := cli.ReadExternalAuthProvidersFromEnv([]string{
-			"CODER_GITAUTH_0_ID=1",
-			"CODER_GITAUTH_0_TYPE=gitlab",
-			"CODER_GITAUTH_1_ID=2",
-			"CODER_GITAUTH_1_CLIENT_ID=sid",
-			"CODER_GITAUTH_1_CLIENT_SECRET=hunter12",
-			"CODER_GITAUTH_1_TOKEN_URL=google.com",
-			"CODER_GITAUTH_1_VALIDATE_URL=bing.com",
-			"CODER_GITAUTH_1_SCOPES=repo:read repo:write",
-			"CODER_GITAUTH_1_NO_REFRESH=true",
+			"WIRTUAL_GITAUTH_0_ID=1",
+			"WIRTUAL_GITAUTH_0_TYPE=gitlab",
+			"WIRTUAL_GITAUTH_1_ID=2",
+			"WIRTUAL_GITAUTH_1_CLIENT_ID=sid",
+			"WIRTUAL_GITAUTH_1_CLIENT_SECRET=hunter12",
+			"WIRTUAL_GITAUTH_1_TOKEN_URL=google.com",
+			"WIRTUAL_GITAUTH_1_VALIDATE_URL=bing.com",
+			"WIRTUAL_GITAUTH_1_SCOPES=repo:read repo:write",
+			"WIRTUAL_GITAUTH_1_NO_REFRESH=true",
 		})
 		require.NoError(t, err)
 		require.Len(t, providers, 2)
@@ -1621,7 +1621,7 @@ func TestServer_Production(t *testing.T) {
 //nolint:tparallel,paralleltest // This test sets environment variables.
 func TestServer_TelemetryDisable(t *testing.T) {
 	// Set the default telemetry to true (normally disabled in tests).
-	t.Setenv("CODER_TEST_TELEMETRY_DEFAULT_ENABLE", "true")
+	t.Setenv("WIRTUAL_TEST_TELEMETRY_DEFAULT_ENABLE", "true")
 
 	//nolint:paralleltest // No need to reinitialise the variable tt (Go version).
 	for _, tt := range []struct {
@@ -1630,10 +1630,10 @@ func TestServer_TelemetryDisable(t *testing.T) {
 		want bool
 	}{
 		{"", "", true},
-		{"CODER_TELEMETRY_ENABLE", "true", true},
-		{"CODER_TELEMETRY_ENABLE", "false", false},
-		{"CODER_TELEMETRY", "true", true},
-		{"CODER_TELEMETRY", "false", false},
+		{"WIRTUAL_TELEMETRY_ENABLE", "true", true},
+		{"WIRTUAL_TELEMETRY_ENABLE", "false", false},
+		{"WIRTUAL_TELEMETRY", "true", true},
+		{"WIRTUAL_TELEMETRY", "false", false},
 	} {
 		t.Run(fmt.Sprintf("%s=%s", tt.key, tt.val), func(t *testing.T) {
 			t.Parallel()

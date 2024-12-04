@@ -37,7 +37,7 @@ coder server --experiments=*
 # Enable multiple experimental features
 coder server --experiments=feature1,feature2
 
-# Alternatively, use the `CODER_EXPERIMENTS` environment variable.
+# Alternatively, use the `WIRTUAL_EXPERIMENTS` environment variable.
 ```
 
 ### Available experimental features

@@ -120,9 +120,9 @@ locals {
     # if the cache repo is enabled.
     "ENVBUILDER_GIT_URL" : data.coder_parameter.repo_url.value,
     # The agent token is required for the agent to connect to the Coder platform.
-    "CODER_AGENT_TOKEN" : try(coder_agent.dev.0.token, ""),
+    "WIRTUAL_AGENT_TOKEN" : try(coder_agent.dev.0.token, ""),
     # The agent URL is required for the agent to connect to the Coder platform.
-    "CODER_AGENT_URL" : data.coder_workspace.me.access_url,
+    "WIRTUAL_AGENT_URL" : data.coder_workspace.me.access_url,
     # The agent init script is required for the agent to start up. We base64 encode it here
     # to avoid quoting issues.
     "ENVBUILDER_INIT_SCRIPT" : "echo ${base64encode(try(coder_agent.dev[0].init_script, ""))} | base64 -d | sh",

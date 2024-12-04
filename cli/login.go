@@ -140,7 +140,7 @@ func (r *RootCmd) loginWithPassword(
 }
 
 func (r *RootCmd) login() *serpent.Command {
-	const firstUserTrialEnv = "CODER_FIRST_USER_TRIAL"
+	const firstUserTrialEnv = "WIRTUAL_FIRST_USER_TRIAL"
 
 	var (
 		email              string
@@ -412,25 +412,25 @@ func (r *RootCmd) login() *serpent.Command {
 	cmd.Options = serpent.OptionSet{
 		{
 			Flag:        "first-user-email",
-			Env:         "CODER_FIRST_USER_EMAIL",
+			Env:         "WIRTUAL_FIRST_USER_EMAIL",
 			Description: "Specifies an email address to use if creating the first user for the deployment.",
 			Value:       serpent.StringOf(&email),
 		},
 		{
 			Flag:        "first-user-username",
-			Env:         "CODER_FIRST_USER_USERNAME",
+			Env:         "WIRTUAL_FIRST_USER_USERNAME",
 			Description: "Specifies a username to use if creating the first user for the deployment.",
 			Value:       serpent.StringOf(&username),
 		},
 		{
 			Flag:        "first-user-full-name",
-			Env:         "CODER_FIRST_USER_FULL_NAME",
+			Env:         "WIRTUAL_FIRST_USER_FULL_NAME",
 			Description: "Specifies a human-readable name for the first user of the deployment.",
 			Value:       serpent.StringOf(&name),
 		},
 		{
 			Flag:        "first-user-password",
-			Env:         "CODER_FIRST_USER_PASSWORD",
+			Env:         "WIRTUAL_FIRST_USER_PASSWORD",
 			Description: "Specifies a password to use if creating the first user for the deployment.",
 			Value:       serpent.StringOf(&password),
 		},

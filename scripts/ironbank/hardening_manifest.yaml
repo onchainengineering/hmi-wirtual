@@ -13,7 +13,7 @@ tags:
 # Build args passed to Dockerfile ARGs
 args:
   # Needs to be kept in sync with the resource below.
-  TERRAFORM_CODER_PROVIDER_VERSION: "0.6.10"
+  TERRAFORM_WIRTUAL_PROVIDER_VERSION: "0.6.10"
 
 # Docker image labels
 labels:
@@ -48,7 +48,7 @@ resources:
   # installs.
   #
   # The version of this provider needs to be kept in sync with the
-  # TERRAFORM_CODER_PROVIDER_VERSION build arg.
+  # TERRAFORM_WIRTUAL_PROVIDER_VERSION build arg.
   - url: https://github.com/coder/terraform-provider-coder/releases/download/v0.6.10/terraform-provider-coder_0.6.10_linux_amd64.zip
     filename: "terraform-provider-coder.zip"
     validation:

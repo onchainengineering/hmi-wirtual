@@ -459,7 +459,7 @@ func TestLogin(t *testing.T) {
 		coderdtest.CreateFirstUser(t, client)
 
 		inv, _ := clitest.New(t, "login", "--no-open")
-		inv.Environ.Set("CODER_URL", url)
+		inv.Environ.Set("WIRTUAL_URL", url)
 
 		doneChan := make(chan struct{})
 		pty := ptytest.New(t).Attach(inv)

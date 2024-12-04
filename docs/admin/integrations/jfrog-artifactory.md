@@ -58,11 +58,11 @@ artifactory:
     integration-templates:
       - id: "1"
         name: "CODER"
-        redirect-uri: "https://CODER_URL/external-auth/jfrog/callback"
+        redirect-uri: "https://WIRTUAL_URL/external-auth/jfrog/callback"
         scope: "applied-permissions/user"
 ```
 
-> Note Replace `CODER_URL` with your Coder deployment URL, e.g.,
+> Note Replace `WIRTUAL_URL` with your Coder deployment URL, e.g.,
 > <coder.example.com>
 
 2. Create a new Application Integration by going to
@@ -77,14 +77,14 @@ artifactory:
 
 ```env
 # JFrog Artifactory External Auth
-CODER_EXTERNAL_AUTH_1_ID="jfrog"
-CODER_EXTERNAL_AUTH_1_TYPE="jfrog"
-CODER_EXTERNAL_AUTH_1_CLIENT_ID="YYYYYYYYYYYYYYY"
-CODER_EXTERNAL_AUTH_1_CLIENT_SECRET="XXXXXXXXXXXXXXXXXXX"
-CODER_EXTERNAL_AUTH_1_DISPLAY_NAME="JFrog Artifactory"
-CODER_EXTERNAL_AUTH_1_DISPLAY_ICON="/icon/jfrog.svg"
-CODER_EXTERNAL_AUTH_1_AUTH_URL="https://JFROG_URL/ui/authorization"
-CODER_EXTERNAL_AUTH_1_SCOPES="applied-permissions/user"
+WIRTUAL_EXTERNAL_AUTH_1_ID="jfrog"
+WIRTUAL_EXTERNAL_AUTH_1_TYPE="jfrog"
+WIRTUAL_EXTERNAL_AUTH_1_CLIENT_ID="YYYYYYYYYYYYYYY"
+WIRTUAL_EXTERNAL_AUTH_1_CLIENT_SECRET="XXXXXXXXXXXXXXXXXXX"
+WIRTUAL_EXTERNAL_AUTH_1_DISPLAY_NAME="JFrog Artifactory"
+WIRTUAL_EXTERNAL_AUTH_1_DISPLAY_ICON="/icon/jfrog.svg"
+WIRTUAL_EXTERNAL_AUTH_1_AUTH_URL="https://JFROG_URL/ui/authorization"
+WIRTUAL_EXTERNAL_AUTH_1_SCOPES="applied-permissions/user"
 ```
 
 > Note Replace `JFROG_URL` with your JFrog Artifactory base URL, e.g.,

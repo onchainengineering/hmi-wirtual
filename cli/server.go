@@ -1089,7 +1089,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				// Stop the notification manager, which will cause any buffered updates to the store to be flushed.
 				// If the Stop() call times out, messages that were sent but not reflected as such in the store will have
 				// their leases expire after a period of time and will be re-queued for sending.
-				// See CODER_NOTIFICATIONS_LEASE_PERIOD.
+				// See WIRTUAL_NOTIFICATIONS_LEASE_PERIOD.
 				cliui.Info(inv.Stdout, "Shutting down notifications manager..."+"\n")
 				err = shutdownWithTimeout(notificationsManager.Stop, 5*time.Second)
 				if err != nil {
@@ -2396,7 +2396,7 @@ func ConfigureHTTPServers(logger slog.Logger, inv *serpent.Invocation, cfg *code
 // It made more sense to have the redirect be opt-in.
 //
 // Also, for a while we have been accepting the environment variable (but not the
-// corresponding flag!) "CODER_TLS_REDIRECT_HTTP", and it appeared in a configuration
+// corresponding flag!) "WIRTUAL_TLS_REDIRECT_HTTP", and it appeared in a configuration
 // example, so we keep accepting it to not break backward compat.
 func redirectHTTPToHTTPSDeprecation(ctx context.Context, logger slog.Logger, inv *serpent.Invocation, cfg *codersdk.DeploymentValues) {
 	truthy := func(s string) bool {
@@ -2406,8 +2406,8 @@ func redirectHTTPToHTTPSDeprecation(ctx context.Context, logger slog.Logger, inv
 		}
 		return b
 	}
-	if truthy(inv.Environ.Get("CODER_TLS_REDIRECT_HTTP")) ||
-		truthy(inv.Environ.Get("CODER_TLS_REDIRECT_HTTP_TO_HTTPS")) ||
+	if truthy(inv.Environ.Get("WIRTUAL_TLS_REDIRECT_HTTP")) ||
+		truthy(inv.Environ.Get("WIRTUAL_TLS_REDIRECT_HTTP_TO_HTTPS")) ||
 		inv.ParsedFlags().Changed("tls-redirect-http-to-https") {
 		logger.Warn(ctx, "⚠️ --tls-redirect-http-to-https is deprecated, please use --redirect-to-access-url instead")
 		cfg.RedirectToAccessURL = cfg.TLS.RedirectHTTP
@@ -2417,12 +2417,12 @@ func redirectHTTPToHTTPSDeprecation(ctx context.Context, logger slog.Logger, inv
 // ReadExternalAuthProvidersFromEnv is provided for compatibility purposes with
 // the viper CLI.
 func ReadExternalAuthProvidersFromEnv(environ []string) ([]codersdk.ExternalAuthConfig, error) {
-	providers, err := parseExternalAuthProvidersFromEnv("CODER_EXTERNAL_AUTH_", environ)
+	providers, err := parseExternalAuthProvidersFromEnv("WIRTUAL_EXTERNAL_AUTH_", environ)
 	if err != nil {
 		return nil, err
 	}
 	// Deprecated: To support legacy git auth!
-	gitProviders, err := parseExternalAuthProvidersFromEnv("CODER_GITAUTH_", environ)
+	gitProviders, err := parseExternalAuthProvidersFromEnv("WIRTUAL_GITAUTH_", environ)
 	if err != nil {
 		return nil, err
 	}

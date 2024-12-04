@@ -17,33 +17,33 @@ data "coderd_user" "machine" {
   username = "machine"
 }
 
-variable "CODER_TEMPLATE_NAME" {
+variable "WIRTUAL_TEMPLATE_NAME" {
   type = string
 }
 
-variable "CODER_TEMPLATE_VERSION" {
+variable "WIRTUAL_TEMPLATE_VERSION" {
   type = string
 }
 
-variable "CODER_TEMPLATE_DIR" {
+variable "WIRTUAL_TEMPLATE_DIR" {
   type = string
 }
 
-variable "CODER_TEMPLATE_MESSAGE" {
+variable "WIRTUAL_TEMPLATE_MESSAGE" {
   type = string
 }
 
 resource "coderd_template" "dogfood" {
-  name            = var.CODER_TEMPLATE_NAME
+  name            = var.WIRTUAL_TEMPLATE_NAME
   display_name    = "Write Coder on Coder"
   description     = "The template to use when developing Coder on Coder!"
   icon            = "/emojis/1f3c5.png"
   organization_id = "703f72a1-76f6-4f89-9de6-8a3989693fe5"
   versions = [
     {
-      name      = var.CODER_TEMPLATE_VERSION
-      message   = var.CODER_TEMPLATE_MESSAGE
-      directory = var.CODER_TEMPLATE_DIR
+      name      = var.WIRTUAL_TEMPLATE_VERSION
+      message   = var.WIRTUAL_TEMPLATE_MESSAGE
+      directory = var.WIRTUAL_TEMPLATE_DIR
       active    = true
     }
   ]

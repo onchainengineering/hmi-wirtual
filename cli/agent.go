@@ -223,7 +223,7 @@ func (r *RootCmd) workspaceAgent() *serpent.Command {
 					}
 				}
 				if token == "" {
-					return xerrors.Errorf("CODER_AGENT_TOKEN or CODER_AGENT_TOKEN_FILE must be set for token auth")
+					return xerrors.Errorf("WIRTUAL_AGENT_TOKEN or WIRTUAL_AGENT_TOKEN_FILE must be set for token auth")
 				}
 				client.SetSessionToken(token)
 			case "google-instance-identity":
@@ -352,39 +352,39 @@ func (r *RootCmd) workspaceAgent() *serpent.Command {
 			Flag:        "auth",
 			Default:     "token",
 			Description: "Specify the authentication type to use for the agent.",
-			Env:         "CODER_AGENT_AUTH",
+			Env:         "WIRTUAL_AGENT_AUTH",
 			Value:       serpent.StringOf(&auth),
 		},
 		{
 			Flag:        "log-dir",
 			Default:     os.TempDir(),
 			Description: "Specify the location for the agent log files.",
-			Env:         "CODER_AGENT_LOG_DIR",
+			Env:         "WIRTUAL_AGENT_LOG_DIR",
 			Value:       serpent.StringOf(&logDir),
 		},
 		{
 			Flag:        "script-data-dir",
 			Default:     os.TempDir(),
 			Description: "Specify the location for storing script data.",
-			Env:         "CODER_AGENT_SCRIPT_DATA_DIR",
+			Env:         "WIRTUAL_AGENT_SCRIPT_DATA_DIR",
 			Value:       serpent.StringOf(&scriptDataDir),
 		},
 		{
 			Flag:        "pprof-address",
 			Default:     "127.0.0.1:6060",
-			Env:         "CODER_AGENT_PPROF_ADDRESS",
+			Env:         "WIRTUAL_AGENT_PPROF_ADDRESS",
 			Value:       serpent.StringOf(&pprofAddress),
 			Description: "The address to serve pprof.",
 		},
 		{
 			Flag:        "agent-header-command",
-			Env:         "CODER_AGENT_HEADER_COMMAND",
+			Env:         "WIRTUAL_AGENT_HEADER_COMMAND",
 			Value:       serpent.StringOf(&agentHeaderCommand),
 			Description: "An external command that outputs additional HTTP headers added to all requests. The command must output each header as `key=value` on its own line.",
 		},
 		{
 			Flag:        "agent-header",
-			Env:         "CODER_AGENT_HEADER",
+			Env:         "WIRTUAL_AGENT_HEADER",
 			Value:       serpent.StringArrayOf(&agentHeader),
 			Description: "Additional HTTP headers added to all requests. Provide as " + `key=value` + ". Can be specified multiple times.",
 		},
@@ -399,28 +399,28 @@ func (r *RootCmd) workspaceAgent() *serpent.Command {
 			Flag: "ssh-max-timeout",
 			// tcpip.KeepaliveIdleOption = 72h + 1min (forwardTCPSockOpts() in tailnet/conn.go)
 			Default:     "72h",
-			Env:         "CODER_AGENT_SSH_MAX_TIMEOUT",
+			Env:         "WIRTUAL_AGENT_SSH_MAX_TIMEOUT",
 			Description: "Specify the max timeout for a SSH connection, it is advisable to set it to a minimum of 60s, but no more than 72h.",
 			Value:       serpent.DurationOf(&sshMaxTimeout),
 		},
 		{
 			Flag:        "tailnet-listen-port",
 			Default:     "0",
-			Env:         "CODER_AGENT_TAILNET_LISTEN_PORT",
+			Env:         "WIRTUAL_AGENT_TAILNET_LISTEN_PORT",
 			Description: "Specify a static port for Tailscale to use for listening.",
 			Value:       serpent.Int64Of(&tailnetListenPort),
 		},
 		{
 			Flag:        "prometheus-address",
 			Default:     "127.0.0.1:2112",
-			Env:         "CODER_AGENT_PROMETHEUS_ADDRESS",
+			Env:         "WIRTUAL_AGENT_PROMETHEUS_ADDRESS",
 			Value:       serpent.StringOf(&prometheusAddress),
 			Description: "The bind address to serve Prometheus metrics.",
 		},
 		{
 			Flag:        "debug-address",
 			Default:     "127.0.0.1:2113",
-			Env:         "CODER_AGENT_DEBUG_ADDRESS",
+			Env:         "WIRTUAL_AGENT_DEBUG_ADDRESS",
 			Value:       serpent.StringOf(&debugAddress),
 			Description: "The bind address to serve a debug HTTP server.",
 		},
@@ -428,7 +428,7 @@ func (r *RootCmd) workspaceAgent() *serpent.Command {
 			Name:        "Human Log Location",
 			Description: "Output human-readable logs to a given file.",
 			Flag:        "log-human",
-			Env:         "CODER_AGENT_LOGGING_HUMAN",
+			Env:         "WIRTUAL_AGENT_LOGGING_HUMAN",
 			Default:     "/dev/stderr",
 			Value:       serpent.StringOf(&slogHumanPath),
 		},
@@ -436,7 +436,7 @@ func (r *RootCmd) workspaceAgent() *serpent.Command {
 			Name:        "JSON Log Location",
 			Description: "Output JSON logs to a given file.",
 			Flag:        "log-json",
-			Env:         "CODER_AGENT_LOGGING_JSON",
+			Env:         "WIRTUAL_AGENT_LOGGING_JSON",
 			Default:     "",
 			Value:       serpent.StringOf(&slogJSONPath),
 		},
@@ -444,14 +444,14 @@ func (r *RootCmd) workspaceAgent() *serpent.Command {
 			Name:        "Stackdriver Log Location",
 			Description: "Output Stackdriver compatible logs to a given file.",
 			Flag:        "log-stackdriver",
-			Env:         "CODER_AGENT_LOGGING_STACKDRIVER",
+			Env:         "WIRTUAL_AGENT_LOGGING_STACKDRIVER",
 			Default:     "",
 			Value:       serpent.StringOf(&slogStackdriverPath),
 		},
 		{
 			Flag:        "block-file-transfer",
 			Default:     "false",
-			Env:         "CODER_AGENT_BLOCK_FILE_TRANSFER",
+			Env:         "WIRTUAL_AGENT_BLOCK_FILE_TRANSFER",
 			Description: fmt.Sprintf("Block file transfer using known applications: %s.", strings.Join(agentssh.BlockedFileTransferCommands, ",")),
 			Value:       serpent.BoolOf(&blockFileTransfer),
 		},

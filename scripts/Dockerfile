@@ -10,13 +10,13 @@ FROM $BASE_IMAGE
 
 # LABEL doesn't add any real layers so it's fine (and easier) to do it here than
 # in the build script.
-ARG CODER_VERSION
+ARG WIRTUAL_VERSION
 LABEL \
 	org.opencontainers.image.title="Coder" \
 	org.opencontainers.image.description="A tool for provisioning self-hosted development environments with Terraform." \
 	org.opencontainers.image.url="https://github.com/coder/coder" \
 	org.opencontainers.image.source="https://github.com/coder/coder" \
-	org.opencontainers.image.version="$CODER_VERSION"
+	org.opencontainers.image.version="$WIRTUAL_VERSION"
 
 # The coder binary is injected by scripts/build_docker.sh.
 COPY --chown=1000:1000 --chmod=755 coder /opt/coder

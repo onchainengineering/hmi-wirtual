@@ -75,7 +75,7 @@ resource "coder_agent" "main" {
   os    = "linux"
   dir   = "/home/${local.workspace_user}"
   env = {
-    CODER_WORKSPACE_ID = data.coder_workspace.me.id
+    WIRTUAL_WORKSPACE_ID = data.coder_workspace.me.id
   }
 
   metadata {
@@ -149,7 +149,7 @@ resource "incus_instance_file" "agent_token" {
   count              = data.coder_workspace.me.start_count
   instance           = incus_instance.dev.name
   content            = <<EOF
-CODER_AGENT_TOKEN=${local.agent_token}
+WIRTUAL_AGENT_TOKEN=${local.agent_token}
 EOF
   create_directories = true
   target_path        = "/opt/coder/init.env"

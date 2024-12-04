@@ -59,7 +59,7 @@ const (
 //
 // With this disabled, you still get a lot of output if you have a valid logger
 // with the debug level enabled.
-const EnvMagicsockDebugLogging = "CODER_MAGICSOCK_DEBUG_LOGGING"
+const EnvMagicsockDebugLogging = "WIRTUAL_MAGICSOCK_DEBUG_LOGGING"
 
 func init() {
 	// Globally disable network namespacing. All networking happens in

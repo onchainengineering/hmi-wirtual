@@ -603,8 +603,8 @@ jobs:
         if: ${{ matrix.variant.premium }}
         env:
           DEBUG: pw:api
-          CODER_E2E_LICENSE: ${{ secrets.CODER_E2E_LICENSE }}
-          CODER_E2E_REQUIRE_PREMIUM_TESTS: "1"
+          WIRTUAL_E2E_LICENSE: ${{ secrets.WIRTUAL_E2E_LICENSE }}
+          WIRTUAL_E2E_REQUIRE_PREMIUM_TESTS: "1"
         working-directory: site
 
       - name: Upload Playwright Failed Tests
@@ -867,7 +867,7 @@ jobs:
           make gen/mark-fresh
           make build/coder-dylib
         env:
-          CODER_SIGN_DARWIN: ${{ github.ref == 'refs/heads/main' && '1' || '0' }}
+          WIRTUAL_SIGN_DARWIN: ${{ github.ref == 'refs/heads/main' && '1' || '0' }}
           AC_CERTIFICATE_FILE: /tmp/apple_cert.p12
           AC_CERTIFICATE_PASSWORD_FILE: /tmp/apple_cert_password.txt
 
@@ -959,8 +959,8 @@ jobs:
       - name: Build Linux Docker images
         id: build-docker
         env:
-          CODER_IMAGE_BASE: ghcr.io/coder/coder-preview
-          CODER_IMAGE_TAG_PREFIX: main
+          WIRTUAL_IMAGE_BASE: ghcr.io/coder/coder-preview
+          WIRTUAL_IMAGE_TAG_PREFIX: main
           DOCKER_CLI_EXPERIMENTAL: "enabled"
         run: |
           set -euxo pipefail
@@ -1113,17 +1113,17 @@ jobs:
 
       - name: Deploy workspace proxies
         run: |
-          flyctl deploy --image "$IMAGE" --app paris-coder --config ./.github/fly-wsproxies/paris-coder.toml --env "CODER_PROXY_SESSION_TOKEN=$TOKEN_PARIS" --yes
-          flyctl deploy --image "$IMAGE" --app sydney-coder --config ./.github/fly-wsproxies/sydney-coder.toml --env "CODER_PROXY_SESSION_TOKEN=$TOKEN_SYDNEY" --yes
-          flyctl deploy --image "$IMAGE" --app sao-paulo-coder --config ./.github/fly-wsproxies/sao-paulo-coder.toml --env "CODER_PROXY_SESSION_TOKEN=$TOKEN_SAO_PAULO" --yes
-          flyctl deploy --image "$IMAGE" --app jnb-coder --config ./.github/fly-wsproxies/jnb-coder.toml --env "CODER_PROXY_SESSION_TOKEN=$TOKEN_JNB" --yes
+          flyctl deploy --image "$IMAGE" --app paris-coder --config ./.github/fly-wsproxies/paris-coder.toml --env "WIRTUAL_PROXY_SESSION_TOKEN=$TOKEN_PARIS" --yes
+          flyctl deploy --image "$IMAGE" --app sydney-coder --config ./.github/fly-wsproxies/sydney-coder.toml --env "WIRTUAL_PROXY_SESSION_TOKEN=$TOKEN_SYDNEY" --yes
+          flyctl deploy --image "$IMAGE" --app sao-paulo-coder --config ./.github/fly-wsproxies/sao-paulo-coder.toml --env "WIRTUAL_PROXY_SESSION_TOKEN=$TOKEN_SAO_PAULO" --yes
+          flyctl deploy --image "$IMAGE" --app jnb-coder --config ./.github/fly-wsproxies/jnb-coder.toml --env "WIRTUAL_PROXY_SESSION_TOKEN=$TOKEN_JNB" --yes
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
           IMAGE: ${{ needs.build.outputs.IMAGE }}
-          TOKEN_PARIS: ${{ secrets.FLY_PARIS_CODER_PROXY_SESSION_TOKEN }}
-          TOKEN_SYDNEY: ${{ secrets.FLY_SYDNEY_CODER_PROXY_SESSION_TOKEN }}
-          TOKEN_SAO_PAULO: ${{ secrets.FLY_SAO_PAULO_CODER_PROXY_SESSION_TOKEN }}
-          TOKEN_JNB: ${{ secrets.FLY_JNB_CODER_PROXY_SESSION_TOKEN }}
+          TOKEN_PARIS: ${{ secrets.FLY_PARIS_WIRTUAL_PROXY_SESSION_TOKEN }}
+          TOKEN_SYDNEY: ${{ secrets.FLY_SYDNEY_WIRTUAL_PROXY_SESSION_TOKEN }}
+          TOKEN_SAO_PAULO: ${{ secrets.FLY_SAO_PAULO_WIRTUAL_PROXY_SESSION_TOKEN }}
+          TOKEN_JNB: ${{ secrets.FLY_JNB_WIRTUAL_PROXY_SESSION_TOKEN }}
 
   # sqlc-vet runs a postgres docker container, runs Coder migrations, and then
   # runs sqlc-vet to ensure all queries are valid. This catches any mistakes

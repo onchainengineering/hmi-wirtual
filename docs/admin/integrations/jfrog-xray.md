@@ -43,7 +43,7 @@ using Coder's [JFrog Xray Integration](https://github.com/coder/coder-xray).
    helm upgrade --install coder-xray coder-xray/coder-xray \
    --namespace coder-xray \
    --create-namespace \
-   --set namespace="<CODER_WORKSPACES_NAMESPACE>" \ # Replace with your Coder workspaces namespace
+   --set namespace="<WIRTUAL_WORKSPACES_NAMESPACE>" \ # Replace with your Coder workspaces namespace
    --set coder.url="https://<your-coder-url>" \
    --set coder.secretName="coder-token" \
    --set artifactory.url="https://<your-artifactory-url>" \

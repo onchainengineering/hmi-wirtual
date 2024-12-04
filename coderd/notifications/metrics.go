@@ -51,8 +51,8 @@ func NewMetrics(reg prometheus.Registerer) *Metrics {
 			Name: "queued_seconds", Namespace: ns, Subsystem: subsystem,
 			Buckets: []float64{1, 2.5, 5, 7.5, 10, 15, 20, 30, 60, 120, 300, 600, 3600},
 			Help: "The time elapsed between a notification being enqueued in the store and retrieved for dispatching " +
-				"(measures the latency of the notifications system). This should generally be within CODER_NOTIFICATIONS_FETCH_INTERVAL " +
-				"seconds; higher values for a sustained period indicates delayed processing and CODER_NOTIFICATIONS_LEASE_COUNT " +
+				"(measures the latency of the notifications system). This should generally be within WIRTUAL_NOTIFICATIONS_FETCH_INTERVAL " +
+				"seconds; higher values for a sustained period indicates delayed processing and WIRTUAL_NOTIFICATIONS_LEASE_COUNT " +
 				"can be increased to accommodate this.",
 		}, []string{LabelMethod}),
 

@@ -83,21 +83,21 @@ configuration. To see the full list of configuration options:
 ```bash
 # Proxy specific configuration. These are REQUIRED
 # Example: https://coderd.example.com
-CODER_PRIMARY_ACCESS_URL="https://<url_of_coderd_dashboard>"
-CODER_PROXY_SESSION_TOKEN="<session_token_from_proxy_create>"
+WIRTUAL_PRIMARY_ACCESS_URL="https://<url_of_coderd_dashboard>"
+WIRTUAL_PROXY_SESSION_TOKEN="<session_token_from_proxy_create>"
 
 # Runtime variables for "coder start".
-CODER_HTTP_ADDRESS=0.0.0.0:80
-CODER_TLS_ADDRESS=0.0.0.0:443
+WIRTUAL_HTTP_ADDRESS=0.0.0.0:80
+WIRTUAL_TLS_ADDRESS=0.0.0.0:443
 # Example: https://east.coderd.example.com
-CODER_ACCESS_URL="https://<access_url_of_proxy>"
+WIRTUAL_ACCESS_URL="https://<access_url_of_proxy>"
 # Example: *.east.coderd.example.com
-CODER_WILDCARD_ACCESS_URL="*.<app_hostname_of_proxy>"
+WIRTUAL_WILDCARD_ACCESS_URL="*.<app_hostname_of_proxy>"
 
-CODER_TLS_ENABLE=true
-CODER_TLS_CLIENT_AUTH=none
-CODER_TLS_CERT_FILE="<cert_file_location>"
-CODER_TLS_KEY_FILE="<key_file_location>"
+WIRTUAL_TLS_ENABLE=true
+WIRTUAL_TLS_CLIENT_AUTH=none
+WIRTUAL_TLS_CERT_FILE="<cert_file_location>"
+WIRTUAL_TLS_KEY_FILE="<key_file_location>"
 
 # Additional configuration options are available.
 ```
@@ -112,15 +112,15 @@ Make a `values-wsproxy.yaml` with the workspace proxy configuration:
 ```yaml
 coder:
   env:
-    - name: CODER_PRIMARY_ACCESS_URL
+    - name: WIRTUAL_PRIMARY_ACCESS_URL
       value: "https://<url_of_coderd_dashboard>"
-    - name: CODER_PROXY_SESSION_TOKEN
+    - name: WIRTUAL_PROXY_SESSION_TOKEN
       value: "<session_token_from_proxy_create>"
     # Example: https://east.coderd.example.com
-    - name: CODER_ACCESS_URL
+    - name: WIRTUAL_ACCESS_URL
       value: "https://<access_url_of_proxy>"
     # Example: *.east.coderd.example.com
-    - name: CODER_WILDCARD_ACCESS_URL
+    - name: WIRTUAL_WILDCARD_ACCESS_URL
       value: "*.<app_hostname_of_proxy>"
 
   tls:
@@ -182,7 +182,7 @@ Change the provided
 file to include a custom entrypoint:
 
 ```diff
-  image: ghcr.io/coder/coder:${CODER_VERSION:-latest}
+  image: ghcr.io/coder/coder:${WIRTUAL_VERSION:-latest}
 + entrypoint: /opt/coder wsproxy server
 ```
 
@@ -211,10 +211,10 @@ up to 60 seconds.
 ## Observability
 
 Coder workspace proxy exports metrics via the HTTP endpoint, which can be
-enabled using either the environment variable `CODER_PROMETHEUS_ENABLE` or the
+enabled using either the environment variable `WIRTUAL_PROMETHEUS_ENABLE` or the
 flag `--prometheus-enable`.
 
 The Prometheus endpoint address is `http://localhost:2112/` by default. You can
-use either the environment variable `CODER_PROMETHEUS_ADDRESS` or the flag
+use either the environment variable `WIRTUAL_PROMETHEUS_ADDRESS` or the flag
 `--prometheus-address <network-interface>:<port>` to select a different listen
 address.

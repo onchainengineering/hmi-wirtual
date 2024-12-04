@@ -24,10 +24,10 @@ CREATE DATABASE coder;
 
 Coder configuration is defined via
 [environment variables](../admin/setup/index.md). The database client requires
-the connection string provided via the `CODER_PG_CONNECTION_URL` variable.
+the connection string provided via the `WIRTUAL_PG_CONNECTION_URL` variable.
 
 ```shell
-export CODER_PG_CONNECTION_URL="postgres://coder:secret42@localhost/coder?sslmode=disable"
+export WIRTUAL_PG_CONNECTION_URL="postgres://coder:secret42@localhost/coder?sslmode=disable"
 ```
 
 ## Custom schema
@@ -56,7 +56,7 @@ Once the schema is created, you can list all schemas with `\dn`:
 In this case the database client requires the modified connection string:
 
 ```shell
-export CODER_PG_CONNECTION_URL="postgres://coder:secret42@localhost/coder?sslmode=disable&search_path=myschema"
+export WIRTUAL_PG_CONNECTION_URL="postgres://coder:secret42@localhost/coder?sslmode=disable&search_path=myschema"
 ```
 
 The `search_path` parameter determines the order of schemas in which they are

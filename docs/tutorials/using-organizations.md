@@ -30,7 +30,7 @@ coderd:
     repo: ghcr.io/coder/coder-preview
     tag: orgs-preview-aug-16
   env:
-    - name: CODER_EXPERIMENTS
+    - name: WIRTUAL_EXPERIMENTS
       value: multi-organization
 ```
 
@@ -92,8 +92,8 @@ instructions on using other platforms like Kubernetes, see our
 [provisioner documentation](../admin/provisioners.md).
 
 ```sh
-export CODER_URL=https://<your-coder-url>
-export CODER_PROVISIONER_DAEMON_KEY=<key>
+export WIRTUAL_URL=https://<your-coder-url>
+export WIRTUAL_PROVISIONER_DAEMON_KEY=<key>
 coder provisionerd start --org <org-name>
 ```
 

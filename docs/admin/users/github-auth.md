@@ -7,7 +7,7 @@ First,
 GitHub will ask you for the following Coder parameters:
 
 - **Homepage URL**: Set to your Coder deployments
-  [`CODER_ACCESS_URL`](../../reference/cli/server.md#--access-url) (e.g.
+  [`WIRTUAL_ACCESS_URL`](../../reference/cli/server.md#--access-url) (e.g.
   `https://coder.domain.com`)
 - **User Authorization Callback URL**: Set to `https://coder.domain.com`
 
@@ -39,16 +39,16 @@ same result as the command above by adding the following environment variables
 to the `/etc/coder.d/coder.env` file:
 
 ```env
-CODER_OAUTH2_GITHUB_ALLOW_SIGNUPS=true
-CODER_OAUTH2_GITHUB_ALLOWED_ORGS="your-org"
-CODER_OAUTH2_GITHUB_CLIENT_ID="8d1...e05"
-CODER_OAUTH2_GITHUB_CLIENT_SECRET="57ebc9...02c24c"
+WIRTUAL_OAUTH2_GITHUB_ALLOW_SIGNUPS=true
+WIRTUAL_OAUTH2_GITHUB_ALLOWED_ORGS="your-org"
+WIRTUAL_OAUTH2_GITHUB_CLIENT_ID="8d1...e05"
+WIRTUAL_OAUTH2_GITHUB_CLIENT_SECRET="57ebc9...02c24c"
 ```
 
 **Note:** To allow everyone to signup using GitHub, set:
 
 ```env
-CODER_OAUTH2_GITHUB_ALLOW_EVERYONE=true
+WIRTUAL_OAUTH2_GITHUB_ALLOW_EVERYONE=true
 ```
 
 Once complete, run `sudo service coder restart` to reboot Coder.
@@ -59,17 +59,17 @@ If deploying Coder via Helm, you can set the above environment variables in the
 ```yaml
 coder:
   env:
-    - name: CODER_OAUTH2_GITHUB_ALLOW_SIGNUPS
+    - name: WIRTUAL_OAUTH2_GITHUB_ALLOW_SIGNUPS
       value: "true"
-    - name: CODER_OAUTH2_GITHUB_CLIENT_ID
+    - name: WIRTUAL_OAUTH2_GITHUB_CLIENT_ID
       value: "533...des"
-    - name: CODER_OAUTH2_GITHUB_CLIENT_SECRET
+    - name: WIRTUAL_OAUTH2_GITHUB_CLIENT_SECRET
       value: "G0CSP...7qSM"
-    # If setting allowed orgs, comment out CODER_OAUTH2_GITHUB_ALLOW_EVERYONE and its value
-    - name: CODER_OAUTH2_GITHUB_ALLOWED_ORGS
+    # If setting allowed orgs, comment out WIRTUAL_OAUTH2_GITHUB_ALLOW_EVERYONE and its value
+    - name: WIRTUAL_OAUTH2_GITHUB_ALLOWED_ORGS
       value: "your-org"
-    # If allowing everyone, comment out CODER_OAUTH2_GITHUB_ALLOWED_ORGS and it's value
-    #- name: CODER_OAUTH2_GITHUB_ALLOW_EVERYONE
+    # If allowing everyone, comment out WIRTUAL_OAUTH2_GITHUB_ALLOWED_ORGS and it's value
+    #- name: WIRTUAL_OAUTH2_GITHUB_ALLOW_EVERYONE
     #  value: "true"
 ```
 

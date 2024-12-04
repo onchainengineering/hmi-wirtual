@@ -51,8 +51,8 @@ if [[ -z "${SCALETEST_NAME}" ]]; then
 	exit 1
 fi
 
-CODER_TOKEN=$("${PROJECT_ROOT}/scaletest/lib/coder_shim.sh" tokens create)
-CODER_URL="http://coder.coder-${SCALETEST_NAME}.svc.cluster.local"
+WIRTUAL_TOKEN=$("${PROJECT_ROOT}/scaletest/lib/coder_shim.sh" tokens create)
+WIRTUAL_URL="http://coder.coder-${SCALETEST_NAME}.svc.cluster.local"
 export KUBECONFIG="${PROJECT_ROOT}/scaletest/.coderv2/${SCALETEST_NAME}-cluster.kubeconfig"
 
 # Clean up any pre-existing pods
@@ -80,15 +80,15 @@ spec:
   - command:
     - sh
     - -c
-    - "curl -fsSL $CODER_URL/bin/coder-linux-amd64 -o /tmp/coder && chmod +x /tmp/coder && /tmp/coder --verbose --url=$CODER_URL --token=$CODER_TOKEN exp scaletest workspace-traffic --concurrency=0 --bytes-per-tick=${SCALETEST_TRAFFIC_BYTES_PER_TICK} --tick-interval=${SCALETEST_TRAFFIC_TICK_INTERVAL} --scaletest-prometheus-wait=60s"
+    - "curl -fsSL $WIRTUAL_URL/bin/coder-linux-amd64 -o /tmp/coder && chmod +x /tmp/coder && /tmp/coder --verbose --url=$WIRTUAL_URL --token=$WIRTUAL_TOKEN exp scaletest workspace-traffic --concurrency=0 --bytes-per-tick=${SCALETEST_TRAFFIC_BYTES_PER_TICK} --tick-interval=${SCALETEST_TRAFFIC_TICK_INTERVAL} --scaletest-prometheus-wait=60s"
     env:
-    - name: CODER_URL
-      value: $CODER_URL
-    - name: CODER_TOKEN
-      value: $CODER_TOKEN
-    - name: CODER_SCALETEST_PROMETHEUS_ADDRESS
+    - name: WIRTUAL_URL
+      value: $WIRTUAL_URL
+    - name: WIRTUAL_TOKEN
+      value: $WIRTUAL_TOKEN
+    - name: WIRTUAL_SCALETEST_PROMETHEUS_ADDRESS
       value: "0.0.0.0:21112"
-    - name: CODER_SCALETEST_JOB_TIMEOUT
+    - name: WIRTUAL_SCALETEST_JOB_TIMEOUT
       value: "30m"
     ports:
     - containerPort: 21112

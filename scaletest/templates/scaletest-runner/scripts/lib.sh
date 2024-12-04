@@ -22,16 +22,16 @@ SCALETEST_RESULTS_DIR="${SCALETEST_RUN_DIR}/results"
 SCALETEST_LOGS_DIR="${SCALETEST_RUN_DIR}/logs"
 SCALETEST_PPROF_DIR="${SCALETEST_RUN_DIR}/pprof"
 # https://github.com/kubernetes/kubernetes/issues/72501 :-(
-SCALETEST_CODER_BINARY="/tmp/coder-full-${SCALETEST_RUN_ID}"
+SCALETEST_WIRTUAL_BINARY="/tmp/coder-full-${SCALETEST_RUN_ID}"
 
 mkdir -p "${SCALETEST_STATE_DIR}" "${SCALETEST_RESULTS_DIR}" "${SCALETEST_LOGS_DIR}" "${SCALETEST_PPROF_DIR}"
 
 coder() {
-	if [[ ! -x "${SCALETEST_CODER_BINARY}" ]]; then
+	if [[ ! -x "${SCALETEST_WIRTUAL_BINARY}" ]]; then
 		log "Fetching full coder binary..."
 		fetch_coder_full
 	fi
-	maybedryrun "${DRY_RUN}" "${SCALETEST_CODER_BINARY}" "${@}"
+	maybedryrun "${DRY_RUN}" "${SCALETEST_WIRTUAL_BINARY}" "${@}"
 }
 
 show_json() {
@@ -227,20 +227,20 @@ wait_baseline() {
 }
 
 get_appearance() {
-	session_token=$CODER_USER_TOKEN
-	if [[ -f "${CODER_CONFIG_DIR}/session" ]]; then
-		session_token="$(<"${CODER_CONFIG_DIR}/session")"
+	session_token=$WIRTUAL_USER_TOKEN
+	if [[ -f "${WIRTUAL_CONFIG_DIR}/session" ]]; then
+		session_token="$(<"${WIRTUAL_CONFIG_DIR}/session")"
 	fi
 	curl -sSL \
 		-H "Coder-Session-Token: ${session_token}" \
-		"${CODER_URL}/api/v2/appearance"
+		"${WIRTUAL_URL}/api/v2/appearance"
 }
 set_appearance() {
 	local json=$1 color=$2 message=$3
 
-	session_token=$CODER_USER_TOKEN
-	if [[ -f "${CODER_CONFIG_DIR}/session" ]]; then
-		session_token="$(<"${CODER_CONFIG_DIR}/session")"
+	session_token=$WIRTUAL_USER_TOKEN
+	if [[ -f "${WIRTUAL_CONFIG_DIR}/session" ]]; then
+		session_token="$(<"${WIRTUAL_CONFIG_DIR}/session")"
 	fi
 	newjson="$(
 		jq \
@@ -253,7 +253,7 @@ set_appearance() {
 		-H 'Content-Type: application/json' \
 		-H "Coder-Session-Token: ${session_token}" \
 		--data "${newjson}" \
-		"${CODER_URL}/api/v2/appearance"
+		"${WIRTUAL_URL}/api/v2/appearance"
 }
 
 namespace() {
@@ -269,8 +269,8 @@ coder_pods() {
 # fetch_coder_full fetches the full (non-slim) coder binary from one of the coder pods
 # running in the same namespace as the current pod.
 fetch_coder_full() {
-	if [[ -x "${SCALETEST_CODER_BINARY}" ]]; then
-		log "Full Coder binary already exists at ${SCALETEST_CODER_BINARY}"
+	if [[ -x "${SCALETEST_WIRTUAL_BINARY}" ]]; then
+		log "Full Coder binary already exists at ${SCALETEST_WIRTUAL_BINARY}"
 		return 0
 	fi
 	ns=$(namespace)
@@ -296,9 +296,9 @@ fetch_coder_full() {
 		cp \
 		--container coder \
 		--retries 10 \
-		"${pod}:/opt/coder" "${SCALETEST_CODER_BINARY}"
-	maybedryrun "${DRY_RUN}" chmod +x "${SCALETEST_CODER_BINARY}"
-	log "Full Coder binary downloaded to ${SCALETEST_CODER_BINARY}"
+		"${pod}:/opt/coder" "${SCALETEST_WIRTUAL_BINARY}"
+	maybedryrun "${DRY_RUN}" chmod +x "${SCALETEST_WIRTUAL_BINARY}"
+	log "Full Coder binary downloaded to ${SCALETEST_WIRTUAL_BINARY}"
 }
 
 # set_pod_status_annotation annotates the currently running pod with the key

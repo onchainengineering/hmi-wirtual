@@ -157,11 +157,11 @@ func TestServerCreateAdminUser(t *testing.T) {
 		defer cancel()
 
 		inv, _ := clitest.New(t, "server", "create-admin-user")
-		inv.Environ.Set("CODER_PG_CONNECTION_URL", connectionURL)
-		inv.Environ.Set("CODER_SSH_KEYGEN_ALGORITHM", "ed25519")
-		inv.Environ.Set("CODER_USERNAME", username)
-		inv.Environ.Set("CODER_EMAIL", email)
-		inv.Environ.Set("CODER_PASSWORD", password)
+		inv.Environ.Set("WIRTUAL_PG_CONNECTION_URL", connectionURL)
+		inv.Environ.Set("WIRTUAL_SSH_KEYGEN_ALGORITHM", "ed25519")
+		inv.Environ.Set("WIRTUAL_USERNAME", username)
+		inv.Environ.Set("WIRTUAL_EMAIL", email)
+		inv.Environ.Set("WIRTUAL_PASSWORD", password)
 
 		pty := ptytest.New(t)
 		inv.Stdout = pty.Output()

@@ -17,13 +17,13 @@ import (
 const (
 	// EnvProcPrioMgmt is the environment variable that determines whether
 	// we attempt to manage process CPU and OOM Killer priority.
-	EnvProcPrioMgmt  = "CODER_PROC_PRIO_MGMT"
-	EnvProcOOMScore  = "CODER_PROC_OOM_SCORE"
-	EnvProcNiceScore = "CODER_PROC_NICE_SCORE"
+	EnvProcPrioMgmt  = "WIRTUAL_PROC_PRIO_MGMT"
+	EnvProcOOMScore  = "WIRTUAL_PROC_OOM_SCORE"
+	EnvProcNiceScore = "WIRTUAL_PROC_NICE_SCORE"
 )
 
 // CommandContext returns an exec.Cmd that calls "coder agent-exec" prior to exec'ing
-// the provided command if CODER_PROC_PRIO_MGMT is set, otherwise a normal exec.Cmd
+// the provided command if WIRTUAL_PROC_PRIO_MGMT is set, otherwise a normal exec.Cmd
 // is returned. All instances of exec.Cmd should flow through this function to ensure
 // proper resource constraints are applied to the child process.
 func CommandContext(ctx context.Context, cmd string, args ...string) (*exec.Cmd, error) {
@@ -35,7 +35,7 @@ func CommandContext(ctx context.Context, cmd string, args ...string) (*exec.Cmd,
 }
 
 // PTYCommandContext returns an pty.Cmd that calls "coder agent-exec" prior to exec'ing
-// the provided command if CODER_PROC_PRIO_MGMT is set, otherwise a normal pty.Cmd
+// the provided command if WIRTUAL_PROC_PRIO_MGMT is set, otherwise a normal pty.Cmd
 // is returned. All instances of pty.Cmd should flow through this function to ensure
 // proper resource constraints are applied to the child process.
 func PTYCommandContext(ctx context.Context, cmd string, args ...string) (*pty.Cmd, error) {

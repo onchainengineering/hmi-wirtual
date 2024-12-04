@@ -21,11 +21,11 @@ For proof-of-concept deployments, you can run a complete Coder instance with the
 following command.
 
 ```shell
-export CODER_DATA=$HOME/.config/coderv2-docker
+export WIRTUAL_DATA=$HOME/.config/coderv2-docker
 export DOCKER_GROUP=$(getent group docker | cut -d: -f3)
-mkdir -p $CODER_DATA
+mkdir -p $WIRTUAL_DATA
 docker run --rm -it \
-  -v $CODER_DATA:/home/coder/.config \
+  -v $WIRTUAL_DATA:/home/coder/.config \
   -v /var/run/docker.sock:/var/run/docker.sock \
   --group-add $DOCKER_GROUP \
   ghcr.io/coder/coder:latest
@@ -34,14 +34,14 @@ docker run --rm -it \
 ### External database (recommended)
 
 For production deployments, we recommend using an external PostgreSQL database
-(version 13 or higher). Set `CODER_ACCESS_URL` to the external URL that users
+(version 13 or higher). Set `WIRTUAL_ACCESS_URL` to the external URL that users
 and workspaces will use to connect to Coder.
 
 ```shell
 export DOCKER_GROUP=$(getent group docker | cut -d: -f3)
 docker run --rm -it \
-  -e CODER_ACCESS_URL="https://coder.example.com" \
-  -e CODER_PG_CONNECTION_URL="postgresql://username:password@database/coder" \
+  -e WIRTUAL_ACCESS_URL="https://coder.example.com" \
+  -e WIRTUAL_PG_CONNECTION_URL="postgresql://username:password@database/coder" \
   -v /var/run/docker.sock:/var/run/docker.sock \
   --group-add $DOCKER_GROUP \
   ghcr.io/coder/coder:latest
@@ -81,7 +81,7 @@ Coder's [configuration options](../admin/setup/index.md).
 
 ### Docker-based workspace is stuck in "Connecting..."
 
-Ensure you have an externally-reachable `CODER_ACCESS_URL` set. See
+Ensure you have an externally-reachable `WIRTUAL_ACCESS_URL` set. See
 [troubleshooting templates](../admin/templates/troubleshooting.md) for more
 steps.
 

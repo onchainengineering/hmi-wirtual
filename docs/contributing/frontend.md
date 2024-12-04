@@ -13,7 +13,7 @@ you.
 You can run the UI and access the Coder dashboard in two ways:
 
 1. Build the UI pointing to an external Coder server:
-   `CODER_HOST=https://mycoder.com pnpm dev` inside of the `site` folder. This
+   `WIRTUAL_HOST=https://mycoder.com pnpm dev` inside of the `site` folder. This
    is helpful when you are building something in the UI and already have the
    data on your deployed server.
 2. Build the entire Coder server + UI locally: `./scripts/develop.sh` in the

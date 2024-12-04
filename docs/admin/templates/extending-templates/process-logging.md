@@ -228,7 +228,7 @@ would like to add workspace process logging to, follow these steps:
      spec {
        ...
        env {
-         name = "CODER_AGENT_SUBSYSTEM"
+         name = "WIRTUAL_AGENT_SUBSYSTEM"
          value = "exectrace"
        }
        ...

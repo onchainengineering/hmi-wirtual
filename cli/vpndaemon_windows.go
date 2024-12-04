@@ -26,14 +26,14 @@ func (r *RootCmd) vpnDaemonRun() *serpent.Command {
 		Options: serpent.OptionSet{
 			{
 				Flag:        "rpc-read-handle",
-				Env:         "CODER_VPN_DAEMON_RPC_READ_HANDLE",
+				Env:         "WIRTUAL_VPN_DAEMON_RPC_READ_HANDLE",
 				Description: "The handle for the pipe to read from the RPC connection.",
 				Value:       serpent.Int64Of(&rpcReadHandleInt),
 				Required:    true,
 			},
 			{
 				Flag:        "rpc-write-handle",
-				Env:         "CODER_VPN_DAEMON_RPC_WRITE_HANDLE",
+				Env:         "WIRTUAL_VPN_DAEMON_RPC_WRITE_HANDLE",
 				Description: "The handle for the pipe to write to the RPC connection.",
 				Value:       serpent.Int64Of(&rpcWriteHandleInt),
 				Required:    true,

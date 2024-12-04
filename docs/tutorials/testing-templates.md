@@ -34,7 +34,7 @@ coder users create \
   --login-type none
 
 coder tokens create --user machine-user --lifetime 8760h
-# Copy the token and store it in a secret in your CI environment with the name `CODER_SESSION_TOKEN`
+# Copy the token and store it in a secret in your CI environment with the name `WIRTUAL_SESSION_TOKEN`
 ```
 
 ## Example GitHub Action Workflow
@@ -80,7 +80,7 @@ jobs:
         uses: coder/setup-action@v1
         with:
           access_url: "https://coder.example.com"
-          coder_session_token: ${{ secrets.CODER_SESSION_TOKEN }}
+          coder_session_token: ${{ secrets.WIRTUAL_SESSION_TOKEN }}
 
       - name: Validate Terraform template
         run: terraform validate

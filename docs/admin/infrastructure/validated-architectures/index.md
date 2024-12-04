@@ -349,7 +349,7 @@ could affect workspace users experience once the platform is live.
 ### Observability
 
 1. Enable the Prometheus endpoint (environment variable:
-   `CODER_PROMETHEUS_ENABLE`).
+   `WIRTUAL_PROMETHEUS_ENABLE`).
 1. Deploy the
    [Coder Observability bundle](https://github.com/coder/observability) to
    leverage pre-configured dashboards, alerts, and runbooks for monitoring

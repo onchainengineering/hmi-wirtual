@@ -83,30 +83,30 @@ DOCKER_ARCHES := amd64 arm64 armv7
 DYLIB_ARCHES := darwin_amd64 darwin_arm64
 
 # Computed variables based on the above.
-CODER_SLIM_BINARIES      := $(addprefix build/coder-slim_$(VERSION)_,$(OS_ARCHES))
-CODER_DYLIBS             := $(foreach os_arch, $(DYLIB_ARCHES), build/coder-vpn_$(VERSION)_$(os_arch).dylib)
-CODER_FAT_BINARIES       := $(addprefix build/coder_$(VERSION)_,$(OS_ARCHES))
-CODER_ALL_BINARIES       := $(CODER_SLIM_BINARIES) $(CODER_FAT_BINARIES)
-CODER_TAR_GZ_ARCHIVES    := $(foreach os_arch, $(ARCHIVE_TAR_GZ), build/coder_$(VERSION)_$(os_arch).tar.gz)
-CODER_ZIP_ARCHIVES       := $(foreach os_arch, $(ARCHIVE_ZIP), build/coder_$(VERSION)_$(os_arch).zip)
-CODER_ALL_ARCHIVES       := $(CODER_TAR_GZ_ARCHIVES) $(CODER_ZIP_ARCHIVES)
-CODER_ALL_PACKAGES       := $(foreach os_arch, $(PACKAGE_OS_ARCHES), $(addprefix build/coder_$(VERSION)_$(os_arch).,$(PACKAGE_FORMATS)))
-CODER_ARCH_IMAGES        := $(foreach arch, $(DOCKER_ARCHES), build/coder_$(VERSION)_linux_$(arch).tag)
-CODER_ARCH_IMAGES_PUSHED := $(addprefix push/, $(CODER_ARCH_IMAGES))
-CODER_MAIN_IMAGE         := build/coder_$(VERSION)_linux.tag
+WIRTUAL_SLIM_BINARIES      := $(addprefix build/coder-slim_$(VERSION)_,$(OS_ARCHES))
+WIRTUAL_DYLIBS             := $(foreach os_arch, $(DYLIB_ARCHES), build/coder-vpn_$(VERSION)_$(os_arch).dylib)
+WIRTUAL_FAT_BINARIES       := $(addprefix build/coder_$(VERSION)_,$(OS_ARCHES))
+WIRTUAL_ALL_BINARIES       := $(WIRTUAL_SLIM_BINARIES) $(WIRTUAL_FAT_BINARIES)
+WIRTUAL_TAR_GZ_ARCHIVES    := $(foreach os_arch, $(ARCHIVE_TAR_GZ), build/coder_$(VERSION)_$(os_arch).tar.gz)
+WIRTUAL_ZIP_ARCHIVES       := $(foreach os_arch, $(ARCHIVE_ZIP), build/coder_$(VERSION)_$(os_arch).zip)
+WIRTUAL_ALL_ARCHIVES       := $(WIRTUAL_TAR_GZ_ARCHIVES) $(WIRTUAL_ZIP_ARCHIVES)
+WIRTUAL_ALL_PACKAGES       := $(foreach os_arch, $(PACKAGE_OS_ARCHES), $(addprefix build/coder_$(VERSION)_$(os_arch).,$(PACKAGE_FORMATS)))
+WIRTUAL_ARCH_IMAGES        := $(foreach arch, $(DOCKER_ARCHES), build/coder_$(VERSION)_linux_$(arch).tag)
+WIRTUAL_ARCH_IMAGES_PUSHED := $(addprefix push/, $(WIRTUAL_ARCH_IMAGES))
+WIRTUAL_MAIN_IMAGE         := build/coder_$(VERSION)_linux.tag
 
-CODER_SLIM_NOVERSION_BINARIES     := $(addprefix build/coder-slim_,$(OS_ARCHES))
-CODER_FAT_NOVERSION_BINARIES      := $(addprefix build/coder_,$(OS_ARCHES))
-CODER_ALL_NOVERSION_IMAGES        := $(foreach arch, $(DOCKER_ARCHES), build/coder_linux_$(arch).tag) build/coder_linux.tag
-CODER_ALL_NOVERSION_IMAGES_PUSHED := $(addprefix push/, $(CODER_ALL_NOVERSION_IMAGES))
+WIRTUAL_SLIM_NOVERSION_BINARIES     := $(addprefix build/coder-slim_,$(OS_ARCHES))
+WIRTUAL_FAT_NOVERSION_BINARIES      := $(addprefix build/coder_,$(OS_ARCHES))
+WIRTUAL_ALL_NOVERSION_IMAGES        := $(foreach arch, $(DOCKER_ARCHES), build/coder_linux_$(arch).tag) build/coder_linux.tag
+WIRTUAL_ALL_NOVERSION_IMAGES_PUSHED := $(addprefix push/, $(WIRTUAL_ALL_NOVERSION_IMAGES))
 
 # If callers are only building Docker images and not the packages and archives,
 # we can skip those prerequisites as they are not actually required and only
 # specified to avoid concurrent write failures.
 ifdef DOCKER_IMAGE_NO_PREREQUISITES
-CODER_ARCH_IMAGE_PREREQUISITES :=
+WIRTUAL_ARCH_IMAGE_PREREQUISITES :=
 else
-CODER_ARCH_IMAGE_PREREQUISITES := \
+WIRTUAL_ARCH_IMAGE_PREREQUISITES := \
 	build/coder_$(VERSION)_%.apk \
 	build/coder_$(VERSION)_%.deb \
 	build/coder_$(VERSION)_%.rpm \
@@ -120,24 +120,24 @@ clean:
 	git restore site/out/
 .PHONY: clean
 
-build-slim: $(CODER_SLIM_BINARIES)
+build-slim: $(WIRTUAL_SLIM_BINARIES)
 .PHONY: build-slim
 
-build-fat build-full build: $(CODER_FAT_BINARIES)
+build-fat build-full build: $(WIRTUAL_FAT_BINARIES)
 .PHONY: build-fat build-full build
 
-release: $(CODER_FAT_BINARIES) $(CODER_ALL_ARCHIVES) $(CODER_ALL_PACKAGES) $(CODER_ARCH_IMAGES) build/coder_helm_$(VERSION).tgz
+release: $(WIRTUAL_FAT_BINARIES) $(WIRTUAL_ALL_ARCHIVES) $(WIRTUAL_ALL_PACKAGES) $(WIRTUAL_ARCH_IMAGES) build/coder_helm_$(VERSION).tgz
 .PHONY: release
 
 build/coder-slim_$(VERSION)_checksums.sha1: site/out/bin/coder.sha1
 	cp "$<" "$@"
 
-site/out/bin/coder.sha1: $(CODER_SLIM_BINARIES)
+site/out/bin/coder.sha1: $(WIRTUAL_SLIM_BINARIES)
 	pushd ./site/out/bin
 		openssl dgst -r -sha1 coder-* | tee coder.sha1
 	popd
 
-build/coder-slim_$(VERSION).tar: build/coder-slim_$(VERSION)_checksums.sha1 $(CODER_SLIM_BINARIES)
+build/coder-slim_$(VERSION).tar: build/coder-slim_$(VERSION)_checksums.sha1 $(WIRTUAL_SLIM_BINARIES)
 	pushd ./site/out/bin
 		tar cf "../../../build/$(@F)" coder-*
 	popd
@@ -162,7 +162,7 @@ build/coder-slim_$(VERSION).tar.zst: build/coder-slim_$(VERSION).tar
 # Called like this:
 #   make build/coder_linux_amd64
 #   make build/coder_windows_amd64.exe
-$(CODER_FAT_NOVERSION_BINARIES): build/coder_%: build/coder_$(VERSION)_%
+$(WIRTUAL_FAT_NOVERSION_BINARIES): build/coder_%: build/coder_$(VERSION)_%
 	rm -f "$@"
 	ln "$<" "$@"
 
@@ -171,12 +171,12 @@ $(CODER_FAT_NOVERSION_BINARIES): build/coder_%: build/coder_$(VERSION)_%
 # Called like this:
 #   make build/coder-slim_linux_amd64
 #   make build/coder-slim_windows_amd64.exe
-$(CODER_SLIM_NOVERSION_BINARIES): build/coder-slim_%: build/coder-slim_$(VERSION)_%
+$(WIRTUAL_SLIM_NOVERSION_BINARIES): build/coder-slim_%: build/coder-slim_$(VERSION)_%
 	rm -f "$@"
 	ln "$<" "$@"
 
 # "fat" binaries always depend on the site and the compressed slim binaries.
-$(CODER_FAT_BINARIES): \
+$(WIRTUAL_FAT_BINARIES): \
 	site/out/index.html \
 	site/out/bin/coder.sha1 \
 	site/out/bin/coder.tar.zst
@@ -206,7 +206,7 @@ endef
 #
 # You should probably use the non-version targets above instead if you're
 # calling this manually.
-$(CODER_ALL_BINARIES): go.mod go.sum \
+$(WIRTUAL_ALL_BINARIES): go.mod go.sum \
 	$(GO_SRC_FILES) \
 	$(shell find ./examples/templates) \
 	site/static/error.html
@@ -243,7 +243,7 @@ $(CODER_ALL_BINARIES): go.mod go.sum \
 	fi
 
 # This task builds Coder Desktop dylibs
-$(CODER_DYLIBS): go.mod go.sum $(GO_SRC_FILES)
+$(WIRTUAL_DYLIBS): go.mod go.sum $(GO_SRC_FILES)
 	@if [ "$(shell uname)" = "Darwin" ]; then
 		$(get-mode-os-arch-ext)
 		./scripts/build_go.sh \
@@ -259,7 +259,7 @@ $(CODER_DYLIBS): go.mod go.sum $(GO_SRC_FILES)
 	fi
 
 # This task builds both dylibs
-build/coder-dylib: $(CODER_DYLIBS)
+build/coder-dylib: $(WIRTUAL_DYLIBS)
 
 # This task builds all archives. It parses the target name to get the metadata
 # for the build, so it must be specified in this format:
@@ -272,7 +272,7 @@ build/coder-dylib: $(CODER_DYLIBS)
 # This depends on all fat binaries because it's difficult to do dynamic
 # dependencies due to the .exe requirement on Windows. These targets are
 # typically only used during release anyways.
-$(CODER_ALL_ARCHIVES): $(CODER_FAT_BINARIES)
+$(WIRTUAL_ALL_ARCHIVES): $(WIRTUAL_FAT_BINARIES)
 	$(get-mode-os-arch-ext)
 	bin_ext=""
 	if [[ "$$os" == "windows" ]]; then
@@ -297,8 +297,8 @@ $(CODER_ALL_ARCHIVES): $(CODER_FAT_BINARIES)
 #
 # Packages need to run after the archives are built, otherwise they cause tar
 # errors like "file changed as we read it".
-CODER_PACKAGE_DEPS := $(foreach os_arch, $(PACKAGE_OS_ARCHES), build/coder_$(VERSION)_$(os_arch) build/coder_$(VERSION)_$(os_arch).tar.gz)
-$(CODER_ALL_PACKAGES): $(CODER_PACKAGE_DEPS)
+WIRTUAL_PACKAGE_DEPS := $(foreach os_arch, $(PACKAGE_OS_ARCHES), build/coder_$(VERSION)_$(os_arch) build/coder_$(VERSION)_$(os_arch).tar.gz)
+$(WIRTUAL_ALL_PACKAGES): $(WIRTUAL_PACKAGE_DEPS)
 	$(get-mode-os-arch-ext)
 
 	./scripts/package.sh \
@@ -319,15 +319,15 @@ build/coder_$(VERSION)_windows_amd64_installer.exe: build/coder_$(VERSION)_windo
 #
 # Called like this:
 #   make build/coder_linux_amd64.tag
-$(CODER_ALL_NOVERSION_IMAGES): build/coder_%: build/coder_$(VERSION)_%
-.PHONY: $(CODER_ALL_NOVERSION_IMAGES)
+$(WIRTUAL_ALL_NOVERSION_IMAGES): build/coder_%: build/coder_$(VERSION)_%
+.PHONY: $(WIRTUAL_ALL_NOVERSION_IMAGES)
 
 # Redirect from version-less push Docker image targets to the versioned ones.
 #
 # Called like this:
 #   make push/build/coder_linux_amd64.tag
-$(CODER_ALL_NOVERSION_IMAGES_PUSHED): push/build/coder_%: push/build/coder_$(VERSION)_%
-.PHONY: $(CODER_ALL_NOVERSION_IMAGES_PUSHED)
+$(WIRTUAL_ALL_NOVERSION_IMAGES_PUSHED): push/build/coder_%: push/build/coder_$(VERSION)_%
+.PHONY: $(WIRTUAL_ALL_NOVERSION_IMAGES_PUSHED)
 
 # This task builds all Docker images. It parses the target name to get the
 # metadata for the build, so it must be specified in this format:
@@ -337,7 +337,7 @@ $(CODER_ALL_NOVERSION_IMAGES_PUSHED): push/build/coder_%: push/build/coder_$(VER
 #
 # Images need to run after the archives and packages are built, otherwise they
 # cause errors like "file changed as we read it".
-$(CODER_ARCH_IMAGES): build/coder_$(VERSION)_%.tag: build/coder_$(VERSION)_% $(CODER_ARCH_IMAGE_PREREQUISITES)
+$(WIRTUAL_ARCH_IMAGES): build/coder_$(VERSION)_%.tag: build/coder_$(VERSION)_% $(WIRTUAL_ARCH_IMAGE_PREREQUISITES)
 	$(get-mode-os-arch-ext)
 
 	image_tag="$$(./scripts/image_tag.sh --arch "$$arch" --version "$(VERSION)")"
@@ -351,7 +351,7 @@ $(CODER_ARCH_IMAGES): build/coder_$(VERSION)_%.tag: build/coder_$(VERSION)_% $(C
 
 # Multi-arch Docker image. This requires all architecture-specific images to be
 # built AND pushed.
-$(CODER_MAIN_IMAGE): $(CODER_ARCH_IMAGES_PUSHED)
+$(WIRTUAL_MAIN_IMAGE): $(WIRTUAL_ARCH_IMAGES_PUSHED)
 	image_tag="$$(./scripts/image_tag.sh --version "$(VERSION)")"
 	./scripts/build_docker_multiarch.sh \
 		--target "$$image_tag" \
@@ -361,16 +361,16 @@ $(CODER_MAIN_IMAGE): $(CODER_ARCH_IMAGES_PUSHED)
 	echo "$$image_tag" > "$@"
 
 # Push a Docker image.
-$(CODER_ARCH_IMAGES_PUSHED): push/%: %
+$(WIRTUAL_ARCH_IMAGES_PUSHED): push/%: %
 	image_tag="$$(cat "$<")"
 	docker push "$$image_tag"
-.PHONY: $(CODER_ARCH_IMAGES_PUSHED)
+.PHONY: $(WIRTUAL_ARCH_IMAGES_PUSHED)
 
 # Push the multi-arch Docker manifest.
-push/$(CODER_MAIN_IMAGE): $(CODER_MAIN_IMAGE)
+push/$(WIRTUAL_MAIN_IMAGE): $(WIRTUAL_MAIN_IMAGE)
 	image_tag="$$(cat "$<")"
 	docker manifest push "$$image_tag"
-.PHONY: push/$(CODER_MAIN_IMAGE)
+.PHONY: push/$(WIRTUAL_MAIN_IMAGE)
 
 # Helm charts that are available
 charts = coder provisioner
@@ -853,8 +853,8 @@ test-race:
 
 test-tailnet-integration:
 	env \
-		CODER_TAILNET_TESTS=true \
-		CODER_MAGICSOCK_DEBUG_LOGGING=true \
+		WIRTUAL_TAILNET_TESTS=true \
+		WIRTUAL_MAGICSOCK_DEBUG_LOGGING=true \
 		TS_DEBUG_NETCHECK=true \
 		GOTRACEBACK=single \
 		go test \

@@ -26,10 +26,10 @@ env:
   # Use `inputs` (vs `github.event.inputs`) to ensure that booleans are actual
   # booleans, not strings.
   # https://github.blog/changelog/2022-06-10-github-actions-inputs-unified-across-manual-and-reusable-workflows/
-  CODER_RELEASE: ${{ !inputs.dry_run }}
-  CODER_DRY_RUN: ${{ inputs.dry_run }}
-  CODER_RELEASE_CHANNEL: ${{ inputs.release_channel }}
-  CODER_RELEASE_NOTES: ${{ inputs.release_notes }}
+  WIRTUAL_RELEASE: ${{ !inputs.dry_run }}
+  WIRTUAL_DRY_RUN: ${{ inputs.dry_run }}
+  WIRTUAL_RELEASE_CHANNEL: ${{ inputs.release_channel }}
+  WIRTUAL_RELEASE_NOTES: ${{ inputs.release_notes }}
 
 jobs:
   # build-dylib is a separate job to build the dylib on macOS.
@@ -87,7 +87,7 @@ jobs:
           make gen/mark-fresh
           make build/coder-dylib
         env:
-          CODER_SIGN_DARWIN: 1
+          WIRTUAL_SIGN_DARWIN: 1
           AC_CERTIFICATE_FILE: /tmp/apple_cert.p12
           AC_CERTIFICATE_PASSWORD_FILE: /tmp/apple_cert_password.txt
 
@@ -145,7 +145,7 @@ jobs:
           version="$(./scripts/version.sh)"
           echo "version=$version" >> $GITHUB_OUTPUT
           # Speed up future version.sh calls.
-          echo "CODER_FORCE_VERSION=$version" >> $GITHUB_ENV
+          echo "WIRTUAL_FORCE_VERSION=$version" >> $GITHUB_ENV
           echo "$version"
 
       # Verify that all expectations for a release are met.
@@ -168,7 +168,7 @@ jobs:
             exit 1
           fi
 
-          if [[ -z "${CODER_RELEASE_NOTES}" ]]; then
+          if [[ -z "${WIRTUAL_RELEASE_NOTES}" ]]; then
             echo "Release notes are required to create a release, did you use scripts/release.sh?"
             exit 1
           fi
@@ -177,7 +177,7 @@ jobs:
           echo
           echo "- Ref: ${GITHUB_REF}"
           echo "- Version: ${version}"
-          echo "- Release channel: ${CODER_RELEASE_CHANNEL}"
+          echo "- Release channel: ${WIRTUAL_RELEASE_CHANNEL}"
           echo "- Release branch: ${release_branch}"
           echo "- Release notes: true"
 
@@ -186,13 +186,13 @@ jobs:
           set -euo pipefail
 
           release_notes_file="$(mktemp -t release_notes.XXXXXX)"
-          echo "$CODER_RELEASE_NOTES" > "$release_notes_file"
-          echo CODER_RELEASE_NOTES_FILE="$release_notes_file" >> $GITHUB_ENV
+          echo "$WIRTUAL_RELEASE_NOTES" > "$release_notes_file"
+          echo WIRTUAL_RELEASE_NOTES_FILE="$release_notes_file" >> $GITHUB_ENV
 
       - name: Show release notes
         run: |
           set -euo pipefail
-          cat "$CODER_RELEASE_NOTES_FILE"
+          cat "$WIRTUAL_RELEASE_NOTES_FILE"
 
       - name: Docker Login
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
@@ -299,8 +299,8 @@ jobs:
             build/coder_helm_"$version".tgz \
             build/provisioner_helm_"$version".tgz
         env:
-          CODER_SIGN_WINDOWS: "1"
-          CODER_SIGN_DARWIN: "1"
+          WIRTUAL_SIGN_WINDOWS: "1"
+          WIRTUAL_SIGN_DARWIN: "1"
           AC_CERTIFICATE_FILE: /tmp/apple_cert.p12
           AC_CERTIFICATE_PASSWORD_FILE: /tmp/apple_cert_password.txt
           AC_APIKEY_ISSUER_ID: ${{ secrets.AC_APIKEY_ISSUER_ID }}
@@ -323,11 +323,11 @@ jobs:
         id: image-base-tag
         run: |
           set -euo pipefail
-          if [[ "${CODER_RELEASE:-}" != *t* ]] || [[ "${CODER_DRY_RUN:-}" == *t* ]]; then
+          if [[ "${WIRTUAL_RELEASE:-}" != *t* ]] || [[ "${WIRTUAL_DRY_RUN:-}" == *t* ]]; then
             # Empty value means use the default and avoid building a fresh one.
             echo "tag=" >> $GITHUB_OUTPUT
           else
-            echo "tag=$(CODER_IMAGE_BASE=ghcr.io/coder/coder-base ./scripts/image_tag.sh)" >> $GITHUB_OUTPUT
+            echo "tag=$(WIRTUAL_IMAGE_BASE=ghcr.io/coder/coder-base ./scripts/image_tag.sh)" >> $GITHUB_OUTPUT
           fi
 
       - name: Create empty base-build-context directory
@@ -390,7 +390,7 @@ jobs:
 
           # we can't build multi-arch if the images aren't pushed, so quit now
           # if dry-running
-          if [[ "$CODER_RELEASE" != *t* ]]; then
+          if [[ "$WIRTUAL_RELEASE" != *t* ]]; then
             echo Skipping multi-arch docker builds due to dry-run.
             exit 0
           fi
@@ -413,7 +413,7 @@ jobs:
               $(cat build/coder_"$version"_linux_{amd64,arm64,armv7}.tag)
           fi
         env:
-          CODER_BASE_IMAGE_TAG: ${{ steps.image-base-tag.outputs.tag }}
+          WIRTUAL_BASE_IMAGE_TAG: ${{ steps.image-base-tag.outputs.tag }}
 
       - name: Generate offline docs
         run: |
@@ -428,17 +428,17 @@ jobs:
           set -euo pipefail
 
           publish_args=()
-          if [[ $CODER_RELEASE_CHANNEL == "stable" ]]; then
+          if [[ $WIRTUAL_RELEASE_CHANNEL == "stable" ]]; then
             publish_args+=(--stable)
           fi
-          if [[ $CODER_DRY_RUN == *t* ]]; then
+          if [[ $WIRTUAL_DRY_RUN == *t* ]]; then
             publish_args+=(--dry-run)
           fi
           declare -p publish_args
 
           ./scripts/release/publish.sh \
             "${publish_args[@]}" \
-            --release-notes-file "$CODER_RELEASE_NOTES_FILE" \
+            --release-notes-file "$WIRTUAL_RELEASE_NOTES_FILE" \
             ./build/*_installer.exe \
             ./build/*.zip \
             ./build/*.tar.gz \
@@ -448,7 +448,7 @@ jobs:
             ./build/*.rpm
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CODER_GPG_RELEASE_KEY_BASE64: ${{ secrets.GPG_RELEASE_KEY_BASE64 }}
+          WIRTUAL_GPG_RELEASE_KEY_BASE64: ${{ secrets.GPG_RELEASE_KEY_BASE64 }}
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@6fc4af4b145ae7821d527454aa9bd537d1f2dc5f # v2.1.7

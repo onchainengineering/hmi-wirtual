@@ -149,7 +149,7 @@
               cp -r ${buildSite.out}/* ./site/out
 
               # Build and copy the binary!
-              export CODER_FORCE_VERSION=${version}
+              export WIRTUAL_FORCE_VERSION=${version}
               make -j build/coder_${osArch}
             '';
             installPhase = ''

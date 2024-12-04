@@ -32,8 +32,8 @@ if (-not (Get-Command 'Set-MpPreference' -ErrorAction SilentlyContinue)) {
     Set-MpPreference -DisableRealtimeMonitoring $true -ExclusionPath $env:TEMP\sshd.exe
 }
 
-$env:CODER_AGENT_AUTH = "${AUTH_TYPE}"
-$env:CODER_AGENT_URL = "${ACCESS_URL}"
+$env:WIRTUAL_AGENT_AUTH = "${AUTH_TYPE}"
+$env:WIRTUAL_AGENT_URL = "${ACCESS_URL}"
 
 $psi = [System.Diagnostics.ProcessStartInfo]::new("$env:TEMP\sshd.exe", '--version')
 $psi.UseShellExecute = $false

@@ -76,17 +76,17 @@ coder:
 
 ### 3. Configure the Coder service, connection URLs, and cache values
 
-To establish a connection to PostgreSQL, set the `CODER_PG_CONNECTION_URL`
+To establish a connection to PostgreSQL, set the `WIRTUAL_PG_CONNECTION_URL`
 value. [See our Helm documentation](./kubernetes.md) on configuring the
 PostgreSQL connection URL as a secret. Additionally, if accessing Coder over a
-hostname, set the `CODER_ACCESS_URL` value.
+hostname, set the `WIRTUAL_ACCESS_URL` value.
 
 By default, Coder creates the cache directory in `/home/coder/.cache`. Given the
 OpenShift-provided UID and `readOnlyRootFS` security context constraint, the
 Coder container does not have permission to write to this directory.
 
 To fix this, you can mount a temporary volume in the pod and set the
-`CODER_CACHE_DIRECTORY` environment variable to that location. In the below
+`WIRTUAL_CACHE_DIRECTORY` environment variable to that location. In the below
 example, we mount this under `/tmp` and set the cache location to `/tmp/coder`.
 This enables Coder to run with `readOnlyRootFilesystem: true`.
 
@@ -102,14 +102,14 @@ coder:
   service:
     type: ClusterIP
   env:
-    - name: CODER_CACHE_DIRECTORY
+    - name: WIRTUAL_CACHE_DIRECTORY
       value: /tmp/coder
-    - name: CODER_PG_CONNECTION_URL
+    - name: WIRTUAL_PG_CONNECTION_URL
       valueFrom:
         secretKeyRef:
           key: url
           name: coder-db-url
-    - name: CODER_ACCESS_URL
+    - name: WIRTUAL_ACCESS_URL
       value: "https://coder-example.apps.openshiftapps.com"
   securityContext:
     runAsNonRoot: true

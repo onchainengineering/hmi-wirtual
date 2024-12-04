@@ -25,10 +25,10 @@ A good starting point for your values file is:
 ```yaml
 coder:
   env:
-    - name: CODER_URL
+    - name: WIRTUAL_URL
       value: "https://coder.example.com"
     # This env enables the Prometheus metrics endpoint.
-    - name: CODER_PROMETHEUS_ADDRESS
+    - name: WIRTUAL_PROMETHEUS_ADDRESS
       value: "0.0.0.0:2112"
   replicaCount: 10
 provisionerDaemon:

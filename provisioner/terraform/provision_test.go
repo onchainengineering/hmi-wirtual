@@ -926,9 +926,9 @@ func TestProvision_SafeEnv(t *testing.T) {
 
 	t.Setenv("VALID_USER_ENV", passedValue)
 
-	// We ensure random CODER_ variables aren't passed through to avoid leaking
+	// We ensure random WIRTUAL_ variables aren't passed through to avoid leaking
 	// control plane secrets (e.g. PG URL).
-	t.Setenv("CODER_SECRET", secretValue)
+	t.Setenv("WIRTUAL_SECRET", secretValue)
 
 	const echoResource = `
 	resource "null_resource" "a" {
@@ -955,7 +955,7 @@ func TestProvision_SafeEnv(t *testing.T) {
 	log := readProvisionLog(t, sess)
 	require.Contains(t, log, passedValue)
 	require.NotContains(t, log, secretValue)
-	require.Contains(t, log, "CODER_")
+	require.Contains(t, log, "WIRTUAL_")
 }
 
 func TestProvision_MalformedModules(t *testing.T) {

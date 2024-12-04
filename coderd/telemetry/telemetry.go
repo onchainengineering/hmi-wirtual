@@ -239,7 +239,7 @@ func (r *remoteReporter) deployment() error {
 	}
 
 	// Tracks where Coder was installed from!
-	installSource := os.Getenv("CODER_TELEMETRY_INSTALL_SOURCE")
+	installSource := os.Getenv("WIRTUAL_TELEMETRY_INSTALL_SOURCE")
 	if len(installSource) > 64 {
 		return xerrors.Errorf("install source must be <=64 chars: %s", installSource)
 	}

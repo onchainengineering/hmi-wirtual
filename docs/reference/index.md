@@ -70,7 +70,7 @@ activity.
 
   ```shell
   curl -X PATCH https://coder.example.com/api/v2/workspaceagents/me/logs \
-  -H "Coder-Session-Token: $CODER_AGENT_TOKEN" \
+  -H "Coder-Session-Token: $WIRTUAL_AGENT_TOKEN" \
   -d "{
   \"logs\": [
     {
@@ -95,7 +95,7 @@ activity.
   if pgrep -f "my_training_script.py" > /dev/null
   then
     curl -X PUT "https://coder.example.com/api/v2/workspaces/$WORKSPACE_ID/extend" \
-    -H "Coder-Session-Token: $CODER_AGENT_TOKEN" \
+    -H "Coder-Session-Token: $WIRTUAL_AGENT_TOKEN" \
     -d '{
   	"deadline": "2019-08-24T14:15:22Z"
     }'

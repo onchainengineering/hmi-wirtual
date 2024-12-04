@@ -13,8 +13,8 @@ starting in v2.16.0.
 # Using the CLI flag
 $ coder server --experiments=notifications
 
-# Alternatively, using the `CODER_EXPERIMENTS` environment variable
-$ CODER_EXPERIMENTS=notifications coder server
+# Alternatively, using the `WIRTUAL_EXPERIMENTS` environment variable
+$ WIRTUAL_EXPERIMENTS=notifications coder server
 ```
 
 More information on experiments can be found
@@ -65,15 +65,15 @@ flags.
 
 | Required | CLI                                 | Env                                     | Type       | Description                                                                                                           | Default |
 | :------: | ----------------------------------- | --------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------- | ------- |
-|    ✔️    | `--notifications-dispatch-timeout`  | `CODER_NOTIFICATIONS_DISPATCH_TIMEOUT`  | `duration` | How long to wait while a notification is being sent before giving up.                                                 | 1m      |
-|    ✔️    | `--notifications-method`            | `CODER_NOTIFICATIONS_METHOD`            | `string`   | Which delivery method to use (available options: 'smtp', 'webhook'). See [Delivery Methods](#delivery-methods) below. | smtp    |
-|    -️    | `--notifications-max-send-attempts` | `CODER_NOTIFICATIONS_MAX_SEND_ATTEMPTS` | `int`      | The upper limit of attempts to send a notification.                                                                   | 5       |
+|    ✔️    | `--notifications-dispatch-timeout`  | `WIRTUAL_NOTIFICATIONS_DISPATCH_TIMEOUT`  | `duration` | How long to wait while a notification is being sent before giving up.                                                 | 1m      |
+|    ✔️    | `--notifications-method`            | `WIRTUAL_NOTIFICATIONS_METHOD`            | `string`   | Which delivery method to use (available options: 'smtp', 'webhook'). See [Delivery Methods](#delivery-methods) below. | smtp    |
+|    -️    | `--notifications-max-send-attempts` | `WIRTUAL_NOTIFICATIONS_MAX_SEND_ATTEMPTS` | `int`      | The upper limit of attempts to send a notification.                                                                   | 5       |
 
 ## Delivery Methods
 
 Notifications can currently be delivered by either SMTP or webhook. Each message
 can only be delivered to one method, and this method is configured globally with
-[`CODER_NOTIFICATIONS_METHOD`](../../../reference/cli/server.md#--notifications-method)
+[`WIRTUAL_NOTIFICATIONS_METHOD`](../../../reference/cli/server.md#--notifications-method)
 (default: `smtp`). When there are no delivery methods configured, notifications
 will be disabled.
 
@@ -92,31 +92,31 @@ existing one.
 
 | Required | CLI                 | Env                     | Type     | Description                               | Default   |
 | :------: | ------------------- | ----------------------- | -------- | ----------------------------------------- | --------- |
-|    ✔️    | `--email-from`      | `CODER_EMAIL_FROM`      | `string` | The sender's address to use.              |           |
-|    ✔️    | `--email-smarthost` | `CODER_EMAIL_SMARTHOST` | `string` | The SMTP relay to send messages           |
-|    ✔️    | `--email-hello`     | `CODER_EMAIL_HELLO`     | `string` | The hostname identifying the SMTP server. | localhost |
+|    ✔️    | `--email-from`      | `WIRTUAL_EMAIL_FROM`      | `string` | The sender's address to use.              |           |
+|    ✔️    | `--email-smarthost` | `WIRTUAL_EMAIL_SMARTHOST` | `string` | The SMTP relay to send messages           |
+|    ✔️    | `--email-hello`     | `WIRTUAL_EMAIL_HELLO`     | `string` | The hostname identifying the SMTP server. | localhost |
 
 **Authentication Settings:**
 
 | Required | CLI                          | Env                              | Type     | Description                                                               |
 | :------: | ---------------------------- | -------------------------------- | -------- | ------------------------------------------------------------------------- |
-|    -     | `--email-auth-username`      | `CODER_EMAIL_AUTH_USERNAME`      | `string` | Username to use with PLAIN/LOGIN authentication.                          |
-|    -     | `--email-auth-password`      | `CODER_EMAIL_AUTH_PASSWORD`      | `string` | Password to use with PLAIN/LOGIN authentication.                          |
-|    -     | `--email-auth-password-file` | `CODER_EMAIL_AUTH_PASSWORD_FILE` | `string` | File from which to load password for use with PLAIN/LOGIN authentication. |
-|    -     | `--email-auth-identity`      | `CODER_EMAIL_AUTH_IDENTITY`      | `string` | Identity to use with PLAIN authentication.                                |
+|    -     | `--email-auth-username`      | `WIRTUAL_EMAIL_AUTH_USERNAME`      | `string` | Username to use with PLAIN/LOGIN authentication.                          |
+|    -     | `--email-auth-password`      | `WIRTUAL_EMAIL_AUTH_PASSWORD`      | `string` | Password to use with PLAIN/LOGIN authentication.                          |
+|    -     | `--email-auth-password-file` | `WIRTUAL_EMAIL_AUTH_PASSWORD_FILE` | `string` | File from which to load password for use with PLAIN/LOGIN authentication. |
+|    -     | `--email-auth-identity`      | `WIRTUAL_EMAIL_AUTH_IDENTITY`      | `string` | Identity to use with PLAIN authentication.                                |
 
 **TLS Settings:**
 
 | Required | CLI                         | Env                           | Type     | Description                                                                                                                                                      | Default |
 | :------: | --------------------------- | ----------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-|    -     | `--email-force-tls`         | `CODER_EMAIL_FORCE_TLS`       | `bool`   | Force a TLS connection to the configured SMTP smarthost. If port 465 is used, TLS will be forced. See https://datatracker.ietf.org/doc/html/rfc8314#section-3.3. | false   |
-|    -     | `--email-tls-starttls`      | `CODER_EMAIL_TLS_STARTTLS`    | `bool`   | Enable STARTTLS to upgrade insecure SMTP connections using TLS. Ignored if `CODER_NOTIFICATIONS_EMAIL_FORCE_TLS` is set.                                         | false   |
-|    -     | `--email-tls-skip-verify`   | `CODER_EMAIL_TLS_SKIPVERIFY`  | `bool`   | Skip verification of the target server's certificate (**insecure**).                                                                                             | false   |
-|    -     | `--email-tls-server-name`   | `CODER_EMAIL_TLS_SERVERNAME`  | `string` | Server name to verify against the target certificate.                                                                                                            |         |
-|    -     | `--email-tls-cert-file`     | `CODER_EMAIL_TLS_CERTFILE`    | `string` | Certificate file to use.                                                                                                                                         |         |
-|    -     | `--email-tls-cert-key-file` | `CODER_EMAIL_TLS_CERTKEYFILE` | `string` | Certificate key file to use.                                                                                                                                     |         |
+|    -     | `--email-force-tls`         | `WIRTUAL_EMAIL_FORCE_TLS`       | `bool`   | Force a TLS connection to the configured SMTP smarthost. If port 465 is used, TLS will be forced. See https://datatracker.ietf.org/doc/html/rfc8314#section-3.3. | false   |
+|    -     | `--email-tls-starttls`      | `WIRTUAL_EMAIL_TLS_STARTTLS`    | `bool`   | Enable STARTTLS to upgrade insecure SMTP connections using TLS. Ignored if `WIRTUAL_NOTIFICATIONS_EMAIL_FORCE_TLS` is set.                                         | false   |
+|    -     | `--email-tls-skip-verify`   | `WIRTUAL_EMAIL_TLS_SKIPVERIFY`  | `bool`   | Skip verification of the target server's certificate (**insecure**).                                                                                             | false   |
+|    -     | `--email-tls-server-name`   | `WIRTUAL_EMAIL_TLS_SERVERNAME`  | `string` | Server name to verify against the target certificate.                                                                                                            |         |
+|    -     | `--email-tls-cert-file`     | `WIRTUAL_EMAIL_TLS_CERTFILE`    | `string` | Certificate file to use.                                                                                                                                         |         |
+|    -     | `--email-tls-cert-key-file` | `WIRTUAL_EMAIL_TLS_CERTKEYFILE` | `string` | Certificate key file to use.                                                                                                                                     |         |
 
-**NOTE:** you _MUST_ use `CODER_EMAIL_FORCE_TLS` if your smarthost supports TLS
+**NOTE:** you _MUST_ use `WIRTUAL_EMAIL_FORCE_TLS` if your smarthost supports TLS
 on a port other than `465`.
 
 ### Send emails using G-Suite
@@ -127,9 +127,9 @@ After setting the required fields above:
    account you wish to send from
 2. Set the following configuration options:
    ```
-   CODER_EMAIL_SMARTHOST=smtp.gmail.com:465
-   CODER_EMAIL_AUTH_USERNAME=<user>@<domain>
-   CODER_EMAIL_AUTH_PASSWORD="<app password created above>"
+   WIRTUAL_EMAIL_SMARTHOST=smtp.gmail.com:465
+   WIRTUAL_EMAIL_AUTH_USERNAME=<user>@<domain>
+   WIRTUAL_EMAIL_AUTH_PASSWORD="<app password created above>"
    ```
 
 See
@@ -143,10 +143,10 @@ After setting the required fields above:
 1. Setup an account on Microsoft 365 or outlook.com
 2. Set the following configuration options:
    ```
-   CODER_EMAIL_SMARTHOST=smtp-mail.outlook.com:587
-   CODER_EMAIL_TLS_STARTTLS=true
-   CODER_EMAIL_AUTH_USERNAME=<user>@<domain>
-   CODER_EMAIL_AUTH_PASSWORD="<account password>"
+   WIRTUAL_EMAIL_SMARTHOST=smtp-mail.outlook.com:587
+   WIRTUAL_EMAIL_TLS_STARTTLS=true
+   WIRTUAL_EMAIL_AUTH_USERNAME=<user>@<domain>
+   WIRTUAL_EMAIL_AUTH_PASSWORD="<account password>"
    ```
 
 See
@@ -163,7 +163,7 @@ systems.
 
 | Required | CLI                                | Env                                    | Type  | Description                             |
 | :------: | ---------------------------------- | -------------------------------------- | ----- | --------------------------------------- |
-|    ✔️    | `--notifications-webhook-endpoint` | `CODER_NOTIFICATIONS_WEBHOOK_ENDPOINT` | `url` | The endpoint to which to send webhooks. |
+|    ✔️    | `--notifications-webhook-endpoint` | `WIRTUAL_NOTIFICATIONS_WEBHOOK_ENDPOINT` | `url` | The endpoint to which to send webhooks. |
 
 Here is an example payload for Coder's webhook notification:
 
@@ -240,7 +240,7 @@ Administrators can configure which delivery methods are used for each different
 ![preferences](../../../images/admin/monitoring/notifications/notification-admin-prefs.png)
 
 You can find this page under
-`https://$CODER_ACCESS_URL/deployment/notifications?tab=events`.
+`https://$WIRTUAL_ACCESS_URL/deployment/notifications?tab=events`.
 
 ## Stop sending notifications
 
@@ -263,7 +263,7 @@ troubleshoot:
    occurred
 3. Review the logs (search for the term `notifications`) for diagnostic
    information<br> _If you do not see any relevant logs, set
-   `CODER_VERBOSE=true` or `--verbose` to output debug logs_
+   `WIRTUAL_VERBOSE=true` or `--verbose` to output debug logs_
 
 ## Internals
 
@@ -287,18 +287,18 @@ messages._
 - a message begins in `pending` state
 - transitions to `leased` when a Coder replica acquires new messages from the
   database
-  - new messages are checked for every `CODER_NOTIFICATIONS_FETCH_INTERVAL`
+  - new messages are checked for every `WIRTUAL_NOTIFICATIONS_FETCH_INTERVAL`
     (default: 15s)
 - if a message is delivered successfully, it transitions to `sent` state
 - if a message encounters a non-retryable error (e.g. misconfiguration), it
   transitions to `permanent_failure`
 - if a message encounters a retryable error (e.g. temporary server outage), it
   transitions to `temporary_failure`
-  - this message will be retried up to `CODER_NOTIFICATIONS_MAX_SEND_ATTEMPTS`
+  - this message will be retried up to `WIRTUAL_NOTIFICATIONS_MAX_SEND_ATTEMPTS`
     (default: 5)
   - this message will transition back to `pending` state after
-    `CODER_NOTIFICATIONS_RETRY_INTERVAL` (default: 5m) and be retried
-  - after `CODER_NOTIFICATIONS_MAX_SEND_ATTEMPTS` is exceeded, it transitions to
+    `WIRTUAL_NOTIFICATIONS_RETRY_INTERVAL` (default: 5m) and be retried
+  - after `WIRTUAL_NOTIFICATIONS_MAX_SEND_ATTEMPTS` is exceeded, it transitions to
     `permanent_failure`
 
 See [Troubleshooting](#troubleshooting) above for more details.

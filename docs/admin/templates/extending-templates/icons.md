@@ -36,18 +36,18 @@ come bundled with your Coder deployment.
 
   - Use icons for external authentication providers to make them recognizable.
     You can set an icon for each provider by setting the
-    `CODER_EXTERNAL_AUTH_X_ICON` environment variable, where `X` is the number
+    `WIRTUAL_EXTERNAL_AUTH_X_ICON` environment variable, where `X` is the number
     of the provider.
 
     ```env
-    CODER_EXTERNAL_AUTH_0_ICON=/icon/github.svg
-    CODER_EXTERNAL_AUTH_1_ICON=/icon/google.svg
+    WIRTUAL_EXTERNAL_AUTH_0_ICON=/icon/github.svg
+    WIRTUAL_EXTERNAL_AUTH_1_ICON=/icon/google.svg
     ```
 
 - [**Support Links**](../../setup/appearance.md#support-links):
 
   - Use icons for support links to make them recognizable. You can set the
-    `icon` field for each link in `CODER_SUPPORT_LINKS` array.
+    `icon` field for each link in `WIRTUAL_SUPPORT_LINKS` array.
 
 ## Bundled icons
 

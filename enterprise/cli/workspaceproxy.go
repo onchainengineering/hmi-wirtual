@@ -435,7 +435,7 @@ func newUpdateProxyResponseFormatter() *updateProxyResponseFormatter {
 				"Token: %[2]s\n"+
 				"\n"+
 				"Start the proxy by running:\n"+
-				cliui.Code("CODER_PROXY_SESSION_TOKEN=%[2]s coder wsproxy server --primary-access-url %[3]s --http-address=0.0.0.0:3001")+
+				cliui.Code("WIRTUAL_PROXY_SESSION_TOKEN=%[2]s coder wsproxy server --primary-access-url %[3]s --http-address=0.0.0.0:3001")+
 				// This is required to turn off the code style. Otherwise it appears in the code block until the end of the line.
 				pretty.Sprint(cliui.DefaultStyles.Placeholder, ""),
 				response.Proxy.Name, response.ProxyToken, up.primaryAccessURL), nil

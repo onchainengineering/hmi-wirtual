@@ -59,13 +59,13 @@ func (r *RootCmd) groupCreate() *serpent.Command {
 			Flag:          "avatar-url",
 			Description:   `Set an avatar for a group.`,
 			FlagShorthand: "u",
-			Env:           "CODER_AVATAR_URL",
+			Env:           "WIRTUAL_AVATAR_URL",
 			Value:         serpent.StringOf(&avatarURL),
 		},
 		{
 			Flag:        "display-name",
 			Description: `Optional human friendly name for the group.`,
-			Env:         "CODER_DISPLAY_NAME",
+			Env:         "WIRTUAL_DISPLAY_NAME",
 			Value: serpent.Validate(serpent.StringOf(&displayName), func(_displayName *serpent.String) error {
 				displayName := _displayName.String()
 				if displayName != "" {

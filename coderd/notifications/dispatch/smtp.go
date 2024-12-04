@@ -113,7 +113,7 @@ func (s *SMTPHandler) dispatch(subject, htmlBody, plainBody, to string) Delivery
 			return false, xerrors.Errorf("'smarthost' validation: %w", err)
 		}
 
-		// Outer context has a deadline (see CODER_NOTIFICATIONS_DISPATCH_TIMEOUT).
+		// Outer context has a deadline (see WIRTUAL_NOTIFICATIONS_DISPATCH_TIMEOUT).
 		if _, ok := ctx.Deadline(); !ok {
 			return false, xerrors.Errorf("context has no deadline")
 		}
@@ -281,7 +281,7 @@ func (s *SMTPHandler) client(ctx context.Context, host string, port string) (*sm
 		err  error
 	)
 
-	// Outer context has a deadline (see CODER_NOTIFICATIONS_DISPATCH_TIMEOUT).
+	// Outer context has a deadline (see WIRTUAL_NOTIFICATIONS_DISPATCH_TIMEOUT).
 	deadline, ok := ctx.Deadline()
 	if !ok {
 		return nil, xerrors.Errorf("context has no deadline")
@@ -452,7 +452,7 @@ func (s *SMTPHandler) auth(ctx context.Context, mechs string) (sasl.Client, erro
 				continue
 			}
 			if password == "" {
-				errs = multierror.Append(errs, xerrors.New("cannot use PLAIN auth, password not defined (see CODER_EMAIL_AUTH_PASSWORD)"))
+				errs = multierror.Append(errs, xerrors.New("cannot use PLAIN auth, password not defined (see WIRTUAL_EMAIL_AUTH_PASSWORD)"))
 				continue
 			}
 
@@ -474,7 +474,7 @@ func (s *SMTPHandler) auth(ctx context.Context, mechs string) (sasl.Client, erro
 				continue
 			}
 			if password == "" {
-				errs = multierror.Append(errs, xerrors.New("cannot use LOGIN auth, password not defined (see CODER_EMAIL_AUTH_PASSWORD)"))
+				errs = multierror.Append(errs, xerrors.New("cannot use LOGIN auth, password not defined (see WIRTUAL_EMAIL_AUTH_PASSWORD)"))
 				continue
 			}
 

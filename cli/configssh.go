@@ -545,14 +545,14 @@ func (r *RootCmd) configSSH() *serpent.Command {
 	cmd.Options = serpent.OptionSet{
 		{
 			Flag:        "ssh-config-file",
-			Env:         "CODER_SSH_CONFIG_FILE",
+			Env:         "WIRTUAL_SSH_CONFIG_FILE",
 			Default:     sshDefaultConfigFileName,
 			Description: "Specifies the path to an SSH config.",
 			Value:       serpent.StringOf(&sshConfigFile),
 		},
 		{
 			Flag:    "coder-binary-path",
-			Env:     "CODER_SSH_CONFIG_BINARY_PATH",
+			Env:     "WIRTUAL_SSH_CONFIG_BINARY_PATH",
 			Default: "",
 			Description: "Optionally specify the absolute path to the coder binary used in ProxyCommand. " +
 				"By default, the binary invoking this command ('config ssh') is used.",
@@ -571,39 +571,39 @@ func (r *RootCmd) configSSH() *serpent.Command {
 		{
 			Flag:          "ssh-option",
 			FlagShorthand: "o",
-			Env:           "CODER_SSH_CONFIG_OPTS",
+			Env:           "WIRTUAL_SSH_CONFIG_OPTS",
 			Description:   "Specifies additional SSH options to embed in each host stanza.",
 			Value:         serpent.StringArrayOf(&sshConfigOpts.sshOptions),
 		},
 		{
 			Flag:          "dry-run",
 			FlagShorthand: "n",
-			Env:           "CODER_SSH_DRY_RUN",
+			Env:           "WIRTUAL_SSH_DRY_RUN",
 			Description:   "Perform a trial run with no changes made, showing a diff at the end.",
 			Value:         serpent.BoolOf(&dryRun),
 		},
 		{
 			Flag:        "skip-proxy-command",
-			Env:         "CODER_SSH_SKIP_PROXY_COMMAND",
+			Env:         "WIRTUAL_SSH_SKIP_PROXY_COMMAND",
 			Description: "Specifies whether the ProxyCommand option should be skipped. Useful for testing.",
 			Value:       serpent.BoolOf(&skipProxyCommand),
 			Hidden:      true,
 		},
 		{
 			Flag:        "use-previous-options",
-			Env:         "CODER_SSH_USE_PREVIOUS_OPTIONS",
+			Env:         "WIRTUAL_SSH_USE_PREVIOUS_OPTIONS",
 			Description: "Specifies whether or not to keep options from previous run of config-ssh.",
 			Value:       serpent.BoolOf(&usePreviousOpts),
 		},
 		{
 			Flag:        "ssh-host-prefix",
-			Env:         "CODER_CONFIGSSH_SSH_HOST_PREFIX",
+			Env:         "WIRTUAL_CONFIGSSH_SSH_HOST_PREFIX",
 			Description: "Override the default host prefix.",
 			Value:       serpent.StringOf(&sshConfigOpts.userHostPrefix),
 		},
 		{
 			Flag:        "wait",
-			Env:         "CODER_CONFIGSSH_WAIT", // Not to be mixed with CODER_SSH_WAIT.
+			Env:         "WIRTUAL_CONFIGSSH_WAIT", // Not to be mixed with WIRTUAL_SSH_WAIT.
 			Description: "Specifies whether or not to wait for the startup script to finish executing. Auto means that the agent startup script behavior configured in the workspace template is used.",
 			Default:     "auto",
 			Value:       serpent.EnumOf(&sshConfigOpts.waitEnum, "yes", "no", "auto"),
@@ -611,13 +611,13 @@ func (r *RootCmd) configSSH() *serpent.Command {
 		{
 			Flag:        "disable-autostart",
 			Description: "Disable starting the workspace automatically when connecting via SSH.",
-			Env:         "CODER_CONFIGSSH_DISABLE_AUTOSTART",
+			Env:         "WIRTUAL_CONFIGSSH_DISABLE_AUTOSTART",
 			Value:       serpent.BoolOf(&sshConfigOpts.disableAutostart),
 			Default:     "false",
 		},
 		{
 			Flag: "force-unix-filepaths",
-			Env:  "CODER_CONFIGSSH_UNIX_FILEPATHS",
+			Env:  "WIRTUAL_CONFIGSSH_UNIX_FILEPATHS",
 			Description: "By default, 'config-ssh' uses the os path separator when writing the ssh config. " +
 				"This might be an issue in Windows machine that use a unix-like shell. " +
 				"This flag forces the use of unix file paths (the forward slash '/').",

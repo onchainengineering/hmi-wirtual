@@ -39,7 +39,7 @@ flag:
 
 ```sh
 # as an environment variable
-CODER_OIDC_GROUP_FIELD=groups
+WIRTUAL_OIDC_GROUP_FIELD=groups
 ```
 
 ```sh
@@ -58,7 +58,7 @@ flag.
 
 ```sh
 # as an environment variable
-CODER_OIDC_GROUP_MAPPING='{"myOIDCGroupID": "myCoderGroupName"}'
+WIRTUAL_OIDC_GROUP_MAPPING='{"myOIDCGroupID": "myCoderGroupName"}'
 ```
 
 ```sh
@@ -71,7 +71,7 @@ Below is an example mapping in the Coder Helm chart:
 ```yaml
 coder:
   env:
-    - name: CODER_OIDC_GROUP_MAPPING
+    - name: WIRTUAL_OIDC_GROUP_MAPPING
       value: >
         {"myOIDCGroupID": "myCoderGroupName"}
 ```
@@ -179,7 +179,7 @@ Visit the Coder UI to confirm these changes:
 ### Group allowlist
 
 You can limit which groups from your identity provider can log in to Coder with
-[CODER_OIDC_ALLOWED_GROUPS](https://coder.com/docs/cli/server#--oidc-allowed-groups).
+[WIRTUAL_OIDC_ALLOWED_GROUPS](https://coder.com/docs/cli/server#--oidc-allowed-groups).
 Users who are not in a matching group will see the following error:
 
 ![Unauthorized group error](../../images/admin/group-allowlist.png)
@@ -219,11 +219,11 @@ Set the following in your Coder server [configuration](../setup/index.md).
 
 ```env
  # Depending on your identity provider configuration, you may need to explicitly request a "roles" scope
-CODER_OIDC_SCOPES=openid,profile,email,roles
+WIRTUAL_OIDC_SCOPES=openid,profile,email,roles
 
 # The following fields are required for role sync:
-CODER_OIDC_USER_ROLE_FIELD=roles
-CODER_OIDC_USER_ROLE_MAPPING='{"TemplateAuthor":["template-admin","user-admin"]}'
+WIRTUAL_OIDC_USER_ROLE_FIELD=roles
+WIRTUAL_OIDC_USER_ROLE_MAPPING='{"TemplateAuthor":["template-admin","user-admin"]}'
 ```
 
 > One role from your identity provider can be mapped to many roles in Coder
@@ -331,7 +331,7 @@ organization field server flag:
 
 ```sh
 # as an environment variable
-CODER_OIDC_ORGANIZATION_FIELD=groups
+WIRTUAL_OIDC_ORGANIZATION_FIELD=groups
 ```
 
 Next, fetch the corresponding organization IDs using the following endpoint:
@@ -343,7 +343,7 @@ https://[coder.example.com]/api/v2/organizations
 Set the following in your Coder server [configuration](../setup/index.md).
 
 ```env
-CODER_OIDC_ORGANIZATION_MAPPING='{"data-scientists":["d8d9daef-e273-49ff-a832-11fe2b2d4ab1", "70be0908-61b5-4fb5-aba4-4dfb3a6c5787"]}'
+WIRTUAL_OIDC_ORGANIZATION_MAPPING='{"data-scientists":["d8d9daef-e273-49ff-a832-11fe2b2d4ab1", "70be0908-61b5-4fb5-aba4-4dfb3a6c5787"]}'
 ```
 
 > One claim value from your identity provider can be mapped to many
@@ -354,7 +354,7 @@ By default, all users are assigned to the default (first) organization. You can
 disable that with:
 
 ```env
-CODER_OIDC_ORGANIZATION_ASSIGN_DEFAULT=false
+WIRTUAL_OIDC_ORGANIZATION_ASSIGN_DEFAULT=false
 ```
 
 ## Troubleshooting group/role/organization sync
@@ -369,8 +369,8 @@ server logs and enable
 can filter for only logs related to group/role sync:
 
 ```sh
-CODER_VERBOSE=true
-CODER_LOG_FILTER=".*userauth.*|.*groups returned.*"
+WIRTUAL_VERBOSE=true
+WIRTUAL_LOG_FILTER=".*userauth.*|.*groups returned.*"
 ```
 
 Be sure to restart the server after changing these configuration values. Then,
@@ -404,7 +404,7 @@ limit the groups sent over to prevent creating excess groups.
 
 ```env
 # as an environment variable
-CODER_OIDC_GROUP_AUTO_CREATE=true
+WIRTUAL_OIDC_GROUP_AUTO_CREATE=true
 ```
 
 ```shell
@@ -413,7 +413,7 @@ CODER_OIDC_GROUP_AUTO_CREATE=true
 ```
 
 A basic regex filtering option on the Coder side is available. This is applied
-**after** the group mapping (`CODER_OIDC_GROUP_MAPPING`), meaning if the group
+**after** the group mapping (`WIRTUAL_OIDC_GROUP_MAPPING`), meaning if the group
 is remapped, the remapped value is tested in the regex. This is useful if you
 want to filter out groups that do not match a certain pattern. For example, if
 you want to only allow groups that start with `my-group-` to be created, you can
@@ -421,7 +421,7 @@ set the following environment variable.
 
 ```env
 # as an environment variable
-CODER_OIDC_GROUP_REGEX_FILTER="^my-group-.*$"
+WIRTUAL_OIDC_GROUP_REGEX_FILTER="^my-group-.*$"
 ```
 
 ```shell
@@ -442,7 +442,7 @@ scope. For example, Azure AD uses `GroupMember.Read.All` instead of `groups`.
 You can find the correct scope name in the IDP's documentation. Some IDP's allow
 configuring the name of this scope.
 
-The solution is to update the value of `CODER_OIDC_SCOPES` to the correct value
+The solution is to update the value of `WIRTUAL_OIDC_SCOPES` to the correct value
 for the identity provider.
 
 ### No `group` claim in the `got oidc claims` log
@@ -453,7 +453,7 @@ Steps to troubleshoot.
    `groups` claim will be sent.
 2. Check if another claim appears to be the correct claim with a different name.
    A common name is `memberOf` instead of `groups`. If this is present, update
-   `CODER_OIDC_GROUP_FIELD=memberOf`.
+   `WIRTUAL_OIDC_GROUP_FIELD=memberOf`.
 3. Make sure the number of groups being sent is under the limit of the IDP. Some
    IDPs will return an error, while others will just omit the `groups` claim. A
    common solution is to create a filter on the identity provider that returns
@@ -484,10 +484,10 @@ Below are some details specific to individual OIDC providers.
 1. In Coder's configuration file (or Helm values as appropriate), set the
    following environment variables or their corresponding CLI arguments:
 
-   - `CODER_OIDC_ISSUER_URL`: the `issuer` value from the previous step.
-   - `CODER_OIDC_CLIENT_ID`: the Client ID from step 1.
-   - `CODER_OIDC_CLIENT_SECRET`: the Client Secret from step 1.
-   - `CODER_OIDC_AUTH_URL_PARAMS`: set to
+   - `WIRTUAL_OIDC_ISSUER_URL`: the `issuer` value from the previous step.
+   - `WIRTUAL_OIDC_CLIENT_ID`: the Client ID from step 1.
+   - `WIRTUAL_OIDC_CLIENT_SECRET`: the Client Secret from step 1.
+   - `WIRTUAL_OIDC_AUTH_URL_PARAMS`: set to
 
      ```console
      {"resource":"$CLIENT_ID"}
@@ -498,7 +498,7 @@ Below are some details specific to individual OIDC providers.
      This is required for the upstream OIDC provider to return the requested
      claims.
 
-   - `CODER_OIDC_IGNORE_USERINFO`: Set to `true`.
+   - `WIRTUAL_OIDC_IGNORE_USERINFO`: Set to `true`.
 
 1. Configure
    [Issuance Transform Rules](https://learn.microsoft.com/en-us/windows-server/identity/ad-fs/operations/create-a-rule-to-send-ldap-attributes-as-claims)
