@@ -7,7 +7,7 @@ import (
 
 	"github.com/coder/coder/v2/coderd/database"
 	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // Post workspace agent results for a JFrog XRay scan.
@@ -18,8 +18,8 @@ import (
 // @Accept json
 // @Produce json
 // @Tags Enterprise
-// @Param request body codersdk.JFrogXrayScan true "Post JFrog XRay scan request"
-// @Success 200 {object} codersdk.Response
+// @Param request body wirtualsdk.JFrogXrayScan true "Post JFrog XRay scan request"
+// @Success 200 {object} wirtualsdk.Response
 // @Router /integrations/jfrog/xray-scan [post]
 func (api *API) postJFrogXrayScan(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -60,7 +60,7 @@ func (api *API) postJFrogXrayScan(rw http.ResponseWriter, r *http.Request) {
 // @Tags Enterprise
 // @Param workspace_id query string true "Workspace ID"
 // @Param agent_id query string true "Agent ID"
-// @Success 200 {object} codersdk.JFrogXrayScan
+// @Success 200 {object} wirtualsdk.JFrogXrayScan
 // @Router /integrations/jfrog/xray-scan [get]
 func (api *API) jFrogXrayScan(rw http.ResponseWriter, r *http.Request) {
 	var (

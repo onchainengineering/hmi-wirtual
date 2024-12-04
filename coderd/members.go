@@ -16,7 +16,7 @@ import (
 	"github.com/coder/coder/v2/coderd/httpapi"
 	"github.com/coder/coder/v2/coderd/httpmw"
 	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Add organization member
@@ -26,7 +26,7 @@ import (
 // @Tags Members
 // @Param organization path string true "Organization ID"
 // @Param user path string true "User ID, name, or me"
-// @Success 200 {object} codersdk.OrganizationMember
+// @Success 200 {object} wirtualsdk.OrganizationMember
 // @Router /organizations/{organization}/members/{user} [post]
 func (api *API) postOrganizationMember(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -148,7 +148,7 @@ func (api *API) deleteOrganizationMember(rw http.ResponseWriter, r *http.Request
 // @Produce json
 // @Tags Members
 // @Param organization path string true "Organization ID"
-// @Success 200 {object} []codersdk.OrganizationMemberWithUserData
+// @Success 200 {object} []wirtualsdk.OrganizationMemberWithUserData
 // @Router /organizations/{organization}/members [get]
 func (api *API) listMembers(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -186,8 +186,8 @@ func (api *API) listMembers(rw http.ResponseWriter, r *http.Request) {
 // @Tags Members
 // @Param organization path string true "Organization ID"
 // @Param user path string true "User ID, name, or me"
-// @Param request body codersdk.UpdateRoles true "Update roles request"
-// @Success 200 {object} codersdk.OrganizationMember
+// @Param request body wirtualsdk.UpdateRoles true "Update roles request"
+// @Success 200 {object} wirtualsdk.OrganizationMember
 // @Router /organizations/{organization}/members/{user}/roles [put]
 func (api *API) putMemberRoles(rw http.ResponseWriter, r *http.Request) {
 	var (

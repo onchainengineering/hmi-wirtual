@@ -21,11 +21,11 @@ import (
 	"github.com/coder/coder/v2/coderd/database/dbtestutil"
 	"github.com/coder/coder/v2/coderd/rbac"
 	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/codersdk"
 	coderden "github.com/coder/coder/v2/enterprise/coderd"
 	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
 	"github.com/coder/coder/v2/enterprise/coderd/license"
 	"github.com/coder/coder/v2/testutil"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 )
 
@@ -1060,7 +1060,7 @@ type oidcTestRunner struct {
 	// The IDP will return the idToken claims.
 	Login        func(t *testing.T, idToken jwt.MapClaims) (*codersdk.Client, *http.Response)
 	AttemptLogin func(t *testing.T, idToken jwt.MapClaims) (*codersdk.Client, *http.Response)
-	// ForceRefresh will use an authenticated codersdk.Client, and force their
+	// ForceRefresh will use an authenticated wirtualsdk.Client, and force their
 	// OIDC token to be expired and require a refresh. The refresh will use the claims provided.
 	// It just calls the /users/me endpoint to trigger the refresh.
 	ForceRefresh     func(t *testing.T, client *codersdk.Client, idToken jwt.MapClaims)

@@ -28,13 +28,13 @@ import (
 	"github.com/coder/coder/v2/coderd/database/dbfake"
 	"github.com/coder/coder/v2/coderd/database/dbtime"
 	"github.com/coder/coder/v2/coderd/healthcheck/derphealth"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/codersdk/healthsdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
 	"github.com/coder/coder/v2/provisionersdk/proto"
 	"github.com/coder/coder/v2/tailnet"
 	"github.com/coder/coder/v2/testutil"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
+	"github.com/coder/coder/v2/wirtualsdk/healthsdk"
+	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 )
 
 func TestSupportBundle(t *testing.T) {

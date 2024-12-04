@@ -23,7 +23,7 @@ import (
 	"github.com/coder/coder/v2/coderd/httpapi"
 	"github.com/coder/coder/v2/coderd/httpmw"
 	"github.com/coder/coder/v2/coderd/searchquery"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Get audit logs
@@ -34,7 +34,7 @@ import (
 // @Param q query string false "Search query"
 // @Param limit query int true "Page limit"
 // @Param offset query int false "Page offset"
-// @Success 200 {object} codersdk.AuditLogResponse
+// @Success 200 {object} wirtualsdk.AuditLogResponse
 // @Router /audit [get]
 func (api *API) auditLogs(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -92,7 +92,7 @@ func (api *API) auditLogs(rw http.ResponseWriter, r *http.Request) {
 // @Security CoderSessionToken
 // @Accept json
 // @Tags Audit
-// @Param request body codersdk.CreateTestAuditLogRequest true "Audit log request"
+// @Param request body wirtualsdk.CreateTestAuditLogRequest true "Audit log request"
 // @Success 204
 // @Router /audit/testgenerate [post]
 // @x-apidocgen {"skip": true}

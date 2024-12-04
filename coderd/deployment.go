@@ -6,7 +6,7 @@ import (
 	"github.com/coder/coder/v2/coderd/httpapi"
 	"github.com/coder/coder/v2/coderd/rbac"
 	"github.com/coder/coder/v2/coderd/rbac/policy"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Get deployment config
@@ -14,7 +14,7 @@ import (
 // @Security CoderSessionToken
 // @Produce json
 // @Tags General
-// @Success 200 {object} codersdk.DeploymentConfig
+// @Success 200 {object} wirtualsdk.DeploymentConfig
 // @Router /deployment/config [get]
 func (api *API) deploymentValues(rw http.ResponseWriter, r *http.Request) {
 	if !api.Authorize(r, policy.ActionRead, rbac.ResourceDeploymentConfig) {
@@ -42,7 +42,7 @@ func (api *API) deploymentValues(rw http.ResponseWriter, r *http.Request) {
 // @Security CoderSessionToken
 // @Produce json
 // @Tags General
-// @Success 200 {object} codersdk.DeploymentStats
+// @Success 200 {object} wirtualsdk.DeploymentStats
 // @Router /deployment/stats [get]
 func (api *API) deploymentStats(rw http.ResponseWriter, r *http.Request) {
 	if !api.Authorize(r, policy.ActionRead, rbac.ResourceDeploymentStats) {
@@ -65,7 +65,7 @@ func (api *API) deploymentStats(rw http.ResponseWriter, r *http.Request) {
 // @ID build-info
 // @Produce json
 // @Tags General
-// @Success 200 {object} codersdk.BuildInfoResponse
+// @Success 200 {object} wirtualsdk.BuildInfoResponse
 // @Router /buildinfo [get]
 func buildInfoHandler(resp codersdk.BuildInfoResponse) http.HandlerFunc {
 	// This is in a handler so that we can generate API docs info.
@@ -79,7 +79,7 @@ func buildInfoHandler(resp codersdk.BuildInfoResponse) http.HandlerFunc {
 // @Security CoderSessionToken
 // @Produce json
 // @Tags General
-// @Success 200 {object} codersdk.SSHConfigResponse
+// @Success 200 {object} wirtualsdk.SSHConfigResponse
 // @Router /deployment/ssh [get]
 func (api *API) sshConfig(rw http.ResponseWriter, r *http.Request) {
 	httpapi.Write(r.Context(), rw, http.StatusOK, api.SSHConfig)

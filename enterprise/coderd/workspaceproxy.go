@@ -27,11 +27,11 @@ import (
 	"github.com/coder/coder/v2/coderd/telemetry"
 	"github.com/coder/coder/v2/coderd/workspaceapps"
 	"github.com/coder/coder/v2/coderd/workspaceapps/appurl"
-	"github.com/coder/coder/v2/codersdk"
 	"github.com/coder/coder/v2/cryptorand"
 	"github.com/coder/coder/v2/enterprise/coderd/proxyhealth"
 	"github.com/coder/coder/v2/enterprise/replicasync"
 	"github.com/coder/coder/v2/enterprise/wsproxy/wsproxysdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // whitelistedCryptoKeyFeatures is a list of crypto key features that are
@@ -93,8 +93,8 @@ func (api *API) fetchRegions(ctx context.Context) (codersdk.RegionsResponse[code
 // @Produce json
 // @Tags Enterprise
 // @Param workspaceproxy path string true "Proxy ID or name" format(uuid)
-// @Param request body codersdk.PatchWorkspaceProxy true "Update workspace proxy request"
-// @Success 200 {object} codersdk.WorkspaceProxy
+// @Param request body wirtualsdk.PatchWorkspaceProxy true "Update workspace proxy request"
+// @Success 200 {object} wirtualsdk.WorkspaceProxy
 // @Router /workspaceproxies/{workspaceproxy} [patch]
 func (api *API) patchWorkspaceProxy(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -243,7 +243,7 @@ func (api *API) patchPrimaryWorkspaceProxy(req codersdk.PatchWorkspaceProxy, rw 
 // @Produce json
 // @Tags Enterprise
 // @Param workspaceproxy path string true "Proxy ID or name" format(uuid)
-// @Success 200 {object} codersdk.Response
+// @Success 200 {object} wirtualsdk.Response
 // @Router /workspaceproxies/{workspaceproxy} [delete]
 func (api *API) deleteWorkspaceProxy(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -295,7 +295,7 @@ func (api *API) deleteWorkspaceProxy(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Enterprise
 // @Param workspaceproxy path string true "Proxy ID or name" format(uuid)
-// @Success 200 {object} codersdk.WorkspaceProxy
+// @Success 200 {object} wirtualsdk.WorkspaceProxy
 // @Router /workspaceproxies/{workspaceproxy} [get]
 func (api *API) workspaceProxy(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -312,8 +312,8 @@ func (api *API) workspaceProxy(rw http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Tags Enterprise
-// @Param request body codersdk.CreateWorkspaceProxyRequest true "Create workspace proxy request"
-// @Success 201 {object} codersdk.WorkspaceProxy
+// @Param request body wirtualsdk.CreateWorkspaceProxyRequest true "Create workspace proxy request"
+// @Success 201 {object} wirtualsdk.WorkspaceProxy
 // @Router /workspaceproxies [post]
 func (api *API) postWorkspaceProxy(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -417,7 +417,7 @@ func validateProxyURL(u string) error {
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Enterprise
-// @Success 200 {array} codersdk.RegionsResponse[codersdk.WorkspaceProxy]
+// @Success 200 {array} wirtualsdk.RegionsResponse[codersdk.WorkspaceProxy]
 // @Router /workspaceproxies [get]
 func (api *API) workspaceProxies(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -843,8 +843,8 @@ func (api *API) workspaceProxyDeregister(rw http.ResponseWriter, r *http.Request
 // @Tags Enterprise
 // @Accept json
 // @Produce json
-// @Param request body codersdk.IssueReconnectingPTYSignedTokenRequest true "Issue reconnecting PTY signed token request"
-// @Success 200 {object} codersdk.IssueReconnectingPTYSignedTokenResponse
+// @Param request body wirtualsdk.IssueReconnectingPTYSignedTokenRequest true "Issue reconnecting PTY signed token request"
+// @Success 200 {object} wirtualsdk.IssueReconnectingPTYSignedTokenResponse
 // @Router /applications/reconnecting-pty-signed-token [post]
 // @x-apidocgen {"skip": true}
 func (api *API) reconnectingPTYSignedToken(rw http.ResponseWriter, r *http.Request) {

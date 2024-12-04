@@ -13,9 +13,9 @@ import (
 
 	"cdr.dev/slog"
 	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/codersdk"
 	"github.com/coder/coder/v2/tailnet"
 	"github.com/coder/coder/v2/tailnet/proto"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 var permanentErrorStatuses = []int{

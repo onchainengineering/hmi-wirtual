@@ -32,11 +32,11 @@ import (
 	"github.com/coder/coder/v2/coderd/rbac/policy"
 	"github.com/coder/coder/v2/coderd/render"
 	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
 	"github.com/coder/coder/v2/examples"
 	"github.com/coder/coder/v2/provisioner/terraform/tfparse"
 	"github.com/coder/coder/v2/provisionersdk"
 	sdkproto "github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Get template version by ID
@@ -45,7 +45,7 @@ import (
 // @Produce json
 // @Tags Templates
 // @Param templateversion path string true "Template version ID" format(uuid)
-// @Success 200 {object} codersdk.TemplateVersion
+// @Success 200 {object} wirtualsdk.TemplateVersion
 // @Router /templateversions/{templateversion} [get]
 func (api *API) templateVersion(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -87,8 +87,8 @@ func (api *API) templateVersion(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Templates
 // @Param templateversion path string true "Template version ID" format(uuid)
-// @Param request body codersdk.PatchTemplateVersionRequest true "Patch template version request"
-// @Success 200 {object} codersdk.TemplateVersion
+// @Param request body wirtualsdk.PatchTemplateVersionRequest true "Patch template version request"
+// @Success 200 {object} wirtualsdk.TemplateVersion
 // @Router /templateversions/{templateversion} [patch]
 func (api *API) patchTemplateVersion(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -182,7 +182,7 @@ func (api *API) patchTemplateVersion(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Templates
 // @Param templateversion path string true "Template version ID" format(uuid)
-// @Success 200 {object} codersdk.Response
+// @Success 200 {object} wirtualsdk.Response
 // @Router /templateversions/{templateversion}/cancel [patch]
 func (api *API) patchCancelTemplateVersion(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -238,7 +238,7 @@ func (api *API) patchCancelTemplateVersion(rw http.ResponseWriter, r *http.Reque
 // @Produce json
 // @Tags Templates
 // @Param templateversion path string true "Template version ID" format(uuid)
-// @Success 200 {array} codersdk.TemplateVersionParameter
+// @Success 200 {array} wirtualsdk.TemplateVersionParameter
 // @Router /templateversions/{templateversion}/rich-parameters [get]
 func (api *API) templateVersionRichParameters(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -284,7 +284,7 @@ func (api *API) templateVersionRichParameters(rw http.ResponseWriter, r *http.Re
 // @Produce json
 // @Tags Templates
 // @Param templateversion path string true "Template version ID" format(uuid)
-// @Success 200 {array} codersdk.TemplateVersionExternalAuth
+// @Success 200 {array} wirtualsdk.TemplateVersionExternalAuth
 // @Router /templateversions/{templateversion}/external-auth [get]
 func (api *API) templateVersionExternalAuth(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -378,7 +378,7 @@ func (api *API) templateVersionExternalAuth(rw http.ResponseWriter, r *http.Requ
 // @Produce json
 // @Tags Templates
 // @Param templateversion path string true "Template version ID" format(uuid)
-// @Success 200 {array} codersdk.TemplateVersionVariable
+// @Success 200 {array} wirtualsdk.TemplateVersionVariable
 // @Router /templateversions/{templateversion}/variables [get]
 func (api *API) templateVersionVariables(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -417,8 +417,8 @@ func (api *API) templateVersionVariables(rw http.ResponseWriter, r *http.Request
 // @Produce json
 // @Tags Templates
 // @Param templateversion path string true "Template version ID" format(uuid)
-// @Param request body codersdk.CreateTemplateVersionDryRunRequest true "Dry-run request"
-// @Success 201 {object} codersdk.ProvisionerJob
+// @Param request body wirtualsdk.CreateTemplateVersionDryRunRequest true "Dry-run request"
+// @Success 201 {object} wirtualsdk.ProvisionerJob
 // @Router /templateversions/{templateversion}/dry-run [post]
 func (api *API) postTemplateVersionDryRun(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -534,7 +534,7 @@ func (api *API) postTemplateVersionDryRun(rw http.ResponseWriter, r *http.Reques
 // @Tags Templates
 // @Param templateversion path string true "Template version ID" format(uuid)
 // @Param jobID path string true "Job ID" format(uuid)
-// @Success 200 {object} codersdk.ProvisionerJob
+// @Success 200 {object} wirtualsdk.ProvisionerJob
 // @Router /templateversions/{templateversion}/dry-run/{jobID} [get]
 func (api *API) templateVersionDryRun(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -553,7 +553,7 @@ func (api *API) templateVersionDryRun(rw http.ResponseWriter, r *http.Request) {
 // @Tags Templates
 // @Param templateversion path string true "Template version ID" format(uuid)
 // @Param jobID path string true "Job ID" format(uuid)
-// @Success 200 {array} codersdk.WorkspaceResource
+// @Success 200 {array} wirtualsdk.WorkspaceResource
 // @Router /templateversions/{templateversion}/dry-run/{jobID}/resources [get]
 func (api *API) templateVersionDryRunResources(rw http.ResponseWriter, r *http.Request) {
 	job, ok := api.fetchTemplateVersionDryRunJob(rw, r)
@@ -574,7 +574,7 @@ func (api *API) templateVersionDryRunResources(rw http.ResponseWriter, r *http.R
 // @Param before query int false "Before Unix timestamp"
 // @Param after query int false "After Unix timestamp"
 // @Param follow query bool false "Follow log stream"
-// @Success 200 {array} codersdk.ProvisionerJobLog
+// @Success 200 {array} wirtualsdk.ProvisionerJobLog
 // @Router /templateversions/{templateversion}/dry-run/{jobID}/logs [get]
 func (api *API) templateVersionDryRunLogs(rw http.ResponseWriter, r *http.Request) {
 	job, ok := api.fetchTemplateVersionDryRunJob(rw, r)
@@ -592,7 +592,7 @@ func (api *API) templateVersionDryRunLogs(rw http.ResponseWriter, r *http.Reques
 // @Tags Templates
 // @Param jobID path string true "Job ID" format(uuid)
 // @Param templateversion path string true "Template version ID" format(uuid)
-// @Success 200 {object} codersdk.Response
+// @Success 200 {object} wirtualsdk.Response
 // @Router /templateversions/{templateversion}/dry-run/{jobID}/cancel [patch]
 func (api *API) patchTemplateVersionDryRunCancel(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -717,7 +717,7 @@ func (api *API) fetchTemplateVersionDryRunJob(rw http.ResponseWriter, r *http.Re
 // @Param include_archived query bool false "Include archived versions in the list"
 // @Param limit query int false "Page limit"
 // @Param offset query int false "Page offset"
-// @Success 200 {array} codersdk.TemplateVersion
+// @Success 200 {array} wirtualsdk.TemplateVersion
 // @Router /templates/{template}/versions [get]
 func (api *API) templateVersionsByTemplate(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -833,7 +833,7 @@ func (api *API) templateVersionsByTemplate(rw http.ResponseWriter, r *http.Reque
 // @Tags Templates
 // @Param template path string true "Template ID" format(uuid)
 // @Param templateversionname path string true "Template version name"
-// @Success 200 {array} codersdk.TemplateVersion
+// @Success 200 {array} wirtualsdk.TemplateVersion
 // @Router /templates/{template}/versions/{templateversionname} [get]
 func (api *API) templateVersionByName(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -880,7 +880,7 @@ func (api *API) templateVersionByName(rw http.ResponseWriter, r *http.Request) {
 // @Param organization path string true "Organization ID" format(uuid)
 // @Param templatename path string true "Template name"
 // @Param templateversionname path string true "Template version name"
-// @Success 200 {object} codersdk.TemplateVersion
+// @Success 200 {object} wirtualsdk.TemplateVersion
 // @Router /organizations/{organization}/templates/{templatename}/versions/{templateversionname} [get]
 func (api *API) templateVersionByOrganizationTemplateAndName(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -945,7 +945,7 @@ func (api *API) templateVersionByOrganizationTemplateAndName(rw http.ResponseWri
 // @Param organization path string true "Organization ID" format(uuid)
 // @Param templatename path string true "Template name"
 // @Param templateversionname path string true "Template version name"
-// @Success 200 {object} codersdk.TemplateVersion
+// @Success 200 {object} wirtualsdk.TemplateVersion
 // @Router /organizations/{organization}/templates/{templatename}/versions/{templateversionname}/previous [get]
 func (api *API) previousTemplateVersionByOrganizationTemplateAndName(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1030,8 +1030,8 @@ func (api *API) previousTemplateVersionByOrganizationTemplateAndName(rw http.Res
 // @Produce json
 // @Tags Templates
 // @Param template path string true "Template ID" format(uuid)
-// @Param request body codersdk.ArchiveTemplateVersionsRequest true "Archive request"
-// @Success 200 {object} codersdk.Response
+// @Param request body wirtualsdk.ArchiveTemplateVersionsRequest true "Archive request"
+// @Success 200 {object} wirtualsdk.Response
 // @Router /templates/{template}/versions/archive [post]
 func (api *API) postArchiveTemplateVersions(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -1096,7 +1096,7 @@ func (api *API) postArchiveTemplateVersions(rw http.ResponseWriter, r *http.Requ
 // @Produce json
 // @Tags Templates
 // @Param templateversion path string true "Template version ID" format(uuid)
-// @Success 200 {object} codersdk.Response
+// @Success 200 {object} wirtualsdk.Response
 // @Router /templateversions/{templateversion}/archive [post]
 func (api *API) postArchiveTemplateVersion() func(rw http.ResponseWriter, r *http.Request) {
 	return api.setArchiveTemplateVersion(true)
@@ -1108,7 +1108,7 @@ func (api *API) postArchiveTemplateVersion() func(rw http.ResponseWriter, r *htt
 // @Produce json
 // @Tags Templates
 // @Param templateversion path string true "Template version ID" format(uuid)
-// @Success 200 {object} codersdk.Response
+// @Success 200 {object} wirtualsdk.Response
 // @Router /templateversions/{templateversion}/unarchive [post]
 func (api *API) postUnarchiveTemplateVersion() func(rw http.ResponseWriter, r *http.Request) {
 	return api.setArchiveTemplateVersion(false)
@@ -1198,9 +1198,9 @@ func (api *API) setArchiveTemplateVersion(archive bool) func(rw http.ResponseWri
 // @Accept json
 // @Produce json
 // @Tags Templates
-// @Param request body codersdk.UpdateActiveTemplateVersion true "Modified template version"
+// @Param request body wirtualsdk.UpdateActiveTemplateVersion true "Modified template version"
 // @Param template path string true "Template ID" format(uuid)
-// @Success 200 {object} codersdk.Response
+// @Success 200 {object} wirtualsdk.Response
 // @Router /templates/{template}/versions [patch]
 func (api *API) patchActiveTemplateVersion(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -1302,8 +1302,8 @@ func (api *API) patchActiveTemplateVersion(rw http.ResponseWriter, r *http.Reque
 // @Produce json
 // @Tags Templates
 // @Param organization path string true "Organization ID" format(uuid)
-// @Param request body codersdk.CreateTemplateVersionRequest true "Create template version request"
-// @Success 201 {object} codersdk.TemplateVersion
+// @Param request body wirtualsdk.CreateTemplateVersionRequest true "Create template version request"
+// @Success 201 {object} wirtualsdk.TemplateVersion
 // @Router /organizations/{organization}/templateversions [post]
 func (api *API) postTemplateVersionsByOrganization(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -1649,7 +1649,7 @@ func (api *API) postTemplateVersionsByOrganization(rw http.ResponseWriter, r *ht
 // @Produce json
 // @Tags Templates
 // @Param templateversion path string true "Template version ID" format(uuid)
-// @Success 200 {array} codersdk.WorkspaceResource
+// @Success 200 {array} wirtualsdk.WorkspaceResource
 // @Router /templateversions/{templateversion}/resources [get]
 func (api *API) templateVersionResources(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -1682,7 +1682,7 @@ func (api *API) templateVersionResources(rw http.ResponseWriter, r *http.Request
 // @Param before query int false "Before log id"
 // @Param after query int false "After log id"
 // @Param follow query bool false "Follow log stream"
-// @Success 200 {array} codersdk.ProvisionerJobLog
+// @Success 200 {array} wirtualsdk.ProvisionerJobLog
 // @Router /templateversions/{templateversion}/logs [get]
 func (api *API) templateVersionLogs(rw http.ResponseWriter, r *http.Request) {
 	var (

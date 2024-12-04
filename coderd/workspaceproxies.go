@@ -12,7 +12,7 @@ import (
 	"github.com/coder/coder/v2/coderd/database/dbauthz"
 	"github.com/coder/coder/v2/coderd/httpapi"
 	"github.com/coder/coder/v2/coderd/workspaceapps/appurl"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // PrimaryRegion exposes the user facing values of a workspace proxy to
@@ -73,7 +73,7 @@ func (api *API) PrimaryWorkspaceProxy(ctx context.Context) (database.WorkspacePr
 // @Security CoderSessionToken
 // @Produce json
 // @Tags WorkspaceProxies
-// @Success 200 {object} codersdk.RegionsResponse[codersdk.Region]
+// @Success 200 {object} wirtualsdk.RegionsResponse[codersdk.Region]
 // @Router /regions [get]
 func (api *API) regions(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

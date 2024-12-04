@@ -21,8 +21,8 @@ import (
 	"github.com/coder/coder/v2/coderd/rbac"
 	"github.com/coder/coder/v2/coderd/rbac/policy"
 	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/healthsdk"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/healthsdk"
 )
 
 // @Summary Debug Info Wireguard Coordinator
@@ -283,7 +283,7 @@ func validateHealthSettings(settings healthsdk.HealthSettings) error {
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Debug
-// @Success 201 {object} codersdk.Response
+// @Success 201 {object} wirtualsdk.Response
 // @Router /debug/ws [get]
 // @x-apidocgen {"skip": true}
 func _debugws(http.ResponseWriter, *http.Request) {} //nolint:unused

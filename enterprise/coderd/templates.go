@@ -16,7 +16,7 @@ import (
 	"github.com/coder/coder/v2/coderd/httpapi"
 	"github.com/coder/coder/v2/coderd/httpmw"
 	"github.com/coder/coder/v2/coderd/rbac/policy"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Get template available acl users/groups
@@ -25,7 +25,7 @@ import (
 // @Produce json
 // @Tags Enterprise
 // @Param template path string true "Template ID" format(uuid)
-// @Success 200 {array} codersdk.ACLAvailable
+// @Success 200 {array} wirtualsdk.ACLAvailable
 // @Router /templates/{template}/acl/available [get]
 func (api *API) templateAvailablePermissions(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -92,7 +92,7 @@ func (api *API) templateAvailablePermissions(rw http.ResponseWriter, r *http.Req
 // @Produce json
 // @Tags Enterprise
 // @Param template path string true "Template ID" format(uuid)
-// @Success 200 {array} codersdk.TemplateUser
+// @Success 200 {array} wirtualsdk.TemplateUser
 // @Router /templates/{template}/acl [get]
 func (api *API) templateACL(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -171,8 +171,8 @@ func (api *API) templateACL(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Enterprise
 // @Param template path string true "Template ID" format(uuid)
-// @Param request body codersdk.UpdateTemplateACL true "Update template request"
-// @Success 200 {object} codersdk.Response
+// @Param request body wirtualsdk.UpdateTemplateACL true "Update template request"
+// @Success 200 {object} wirtualsdk.Response
 // @Router /templates/{template}/acl [patch]
 func (api *API) patchTemplateACL(rw http.ResponseWriter, r *http.Request) {
 	var (

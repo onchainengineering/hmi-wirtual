@@ -14,8 +14,8 @@ import (
 	"github.com/coder/coder/v2/coderd/database"
 	"github.com/coder/coder/v2/coderd/httpapi"
 	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/codersdk"
 	"github.com/coder/coder/v2/provisionerd/proto"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 type committer struct {
@@ -125,7 +125,7 @@ func (c *committer) CommitQuota(
 // @Produce json
 // @Tags Enterprise
 // @Param user path string true "User ID, name, or me"
-// @Success 200 {object} codersdk.WorkspaceQuota
+// @Success 200 {object} wirtualsdk.WorkspaceQuota
 // @Router /workspace-quota/{user} [get]
 // @Deprecated this endpoint will be removed, use /organizations/{organization}/members/{user}/workspace-quota instead
 func (api *API) workspaceQuotaByUser(rw http.ResponseWriter, r *http.Request) {
@@ -148,7 +148,7 @@ func (api *API) workspaceQuotaByUser(rw http.ResponseWriter, r *http.Request) {
 // @Tags Enterprise
 // @Param user path string true "User ID, name, or me"
 // @Param organization path string true "Organization ID" format(uuid)
-// @Success 200 {object} codersdk.WorkspaceQuota
+// @Success 200 {object} wirtualsdk.WorkspaceQuota
 // @Router /organizations/{organization}/members/{user}/workspace-quota [get]
 func (api *API) workspaceQuota(rw http.ResponseWriter, r *http.Request) {
 	var (

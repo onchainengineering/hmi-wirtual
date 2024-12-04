@@ -13,7 +13,7 @@ import (
 	"nhooyr.io/websocket"
 
 	"github.com/coder/coder/v2/coderd/healthcheck/health"
-	"github.com/coder/coder/v2/codersdk/healthsdk"
+	"github.com/coder/coder/v2/wirtualsdk/healthsdk"
 )
 
 type WebsocketReport healthsdk.WebsocketReport

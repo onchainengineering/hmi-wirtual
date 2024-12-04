@@ -13,8 +13,8 @@ import (
 	"github.com/coder/coder/v2/cli"
 	"github.com/coder/coder/v2/cli/cliui"
 	"github.com/coder/coder/v2/coderd/database/awsiamrds"
-	"github.com/coder/coder/v2/codersdk"
 	"github.com/coder/coder/v2/enterprise/dbcrypt"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 
 	"golang.org/x/xerrors"

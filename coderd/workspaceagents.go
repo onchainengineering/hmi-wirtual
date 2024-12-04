@@ -36,11 +36,11 @@ import (
 	"github.com/coder/coder/v2/coderd/rbac"
 	"github.com/coder/coder/v2/coderd/rbac/policy"
 	"github.com/coder/coder/v2/coderd/wspubsub"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
 	"github.com/coder/coder/v2/tailnet"
 	"github.com/coder/coder/v2/tailnet/proto"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
+	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 )
 
 // @Summary Get workspace agent by ID
@@ -49,7 +49,7 @@ import (
 // @Produce json
 // @Tags Agents
 // @Param workspaceagent path string true "Workspace agent ID" format(uuid)
-// @Success 200 {object} codersdk.WorkspaceAgent
+// @Success 200 {object} wirtualsdk.WorkspaceAgent
 // @Router /workspaceagents/{workspaceagent} [get]
 func (api *API) workspaceAgent(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -146,7 +146,7 @@ const AgentAPIVersionREST = "1.0"
 // @Produce json
 // @Tags Agents
 // @Param request body agentsdk.PatchLogs true "logs"
-// @Success 200 {object} codersdk.Response
+// @Success 200 {object} wirtualsdk.Response
 // @Router /workspaceagents/me/logs [patch]
 func (api *API) patchWorkspaceAgentLogs(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -307,7 +307,7 @@ func (api *API) patchWorkspaceAgentLogs(rw http.ResponseWriter, r *http.Request)
 // @Param after query int false "After log id"
 // @Param follow query bool false "Follow log stream"
 // @Param no_compression query bool false "Disable compression for WebSocket connection"
-// @Success 200 {array} codersdk.WorkspaceAgentLog
+// @Success 200 {array} wirtualsdk.WorkspaceAgentLog
 // @Router /workspaceagents/{workspaceagent}/logs [get]
 func (api *API) workspaceAgentLogs(rw http.ResponseWriter, r *http.Request) {
 	// This mostly copies how provisioner job logs are streamed!
@@ -575,7 +575,7 @@ func (api *API) workspaceAgentLogs(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Agents
 // @Param workspaceagent path string true "Workspace agent ID" format(uuid)
-// @Success 200 {object} codersdk.WorkspaceAgentListeningPortsResponse
+// @Success 200 {object} wirtualsdk.WorkspaceAgentListeningPortsResponse
 // @Router /workspaceagents/{workspaceagent}/listening-ports [get]
 func (api *API) workspaceAgentListeningPorts(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -919,7 +919,7 @@ func (api *API) handleResumeToken(ctx context.Context, rw http.ResponseWriter, r
 // @Produce json
 // @Tags Agents
 // @Param request body agentsdk.PostLogSourceRequest true "Log source request"
-// @Success 200 {object} codersdk.WorkspaceAgentLogSource
+// @Success 200 {object} wirtualsdk.WorkspaceAgentLogSource
 // @Router /workspaceagents/me/log-source [post]
 func (api *API) workspaceAgentPostLogSource(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

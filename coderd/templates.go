@@ -29,8 +29,8 @@ import (
 	"github.com/coder/coder/v2/coderd/telemetry"
 	"github.com/coder/coder/v2/coderd/util/ptr"
 	"github.com/coder/coder/v2/coderd/workspacestats"
-	"github.com/coder/coder/v2/codersdk"
 	"github.com/coder/coder/v2/examples"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // Returns a single template.
@@ -41,7 +41,7 @@ import (
 // @Produce json
 // @Tags Templates
 // @Param template path string true "Template ID" format(uuid)
-// @Success 200 {object} codersdk.Template
+// @Success 200 {object} wirtualsdk.Template
 // @Router /templates/{template} [get]
 func (api *API) template(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -56,7 +56,7 @@ func (api *API) template(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Templates
 // @Param template path string true "Template ID" format(uuid)
-// @Success 200 {object} codersdk.Response
+// @Success 200 {object} wirtualsdk.Response
 // @Router /templates/{template} [delete]
 func (api *API) deleteTemplate(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -162,9 +162,9 @@ func (api *API) notifyTemplateDeleted(ctx context.Context, template database.Tem
 // @Accept json
 // @Produce json
 // @Tags Templates
-// @Param request body codersdk.CreateTemplateRequest true "Request body"
+// @Param request body wirtualsdk.CreateTemplateRequest true "Request body"
 // @Param organization path string true "Organization ID"
-// @Success 200 {object} codersdk.Template
+// @Success 200 {object} wirtualsdk.Template
 // @Router /organizations/{organization}/templates [post]
 func (api *API) postTemplateByOrganization(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -491,7 +491,7 @@ func (api *API) postTemplateByOrganization(rw http.ResponseWriter, r *http.Reque
 // @Produce json
 // @Tags Templates
 // @Param organization path string true "Organization ID" format(uuid)
-// @Success 200 {array} codersdk.Template
+// @Success 200 {array} wirtualsdk.Template
 // @Router /organizations/{organization}/templates [get]
 func (api *API) templatesByOrganization() http.HandlerFunc {
 	// TODO: Should deprecate this endpoint and make it akin to /workspaces with
@@ -509,7 +509,7 @@ func (api *API) templatesByOrganization() http.HandlerFunc {
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Templates
-// @Success 200 {array} codersdk.Template
+// @Success 200 {array} wirtualsdk.Template
 // @Router /templates [get]
 func (api *API) fetchTemplates(mutate func(r *http.Request, arg *database.GetTemplatesWithFilterParams)) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
@@ -564,7 +564,7 @@ func (api *API) fetchTemplates(mutate func(r *http.Request, arg *database.GetTem
 // @Tags Templates
 // @Param organization path string true "Organization ID" format(uuid)
 // @Param templatename path string true "Template name"
-// @Success 200 {object} codersdk.Template
+// @Success 200 {object} wirtualsdk.Template
 // @Router /organizations/{organization}/templates/{templatename} [get]
 func (api *API) templateByOrganizationAndName(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -596,7 +596,7 @@ func (api *API) templateByOrganizationAndName(rw http.ResponseWriter, r *http.Re
 // @Produce json
 // @Tags Templates
 // @Param template path string true "Template ID" format(uuid)
-// @Success 200 {object} codersdk.Template
+// @Success 200 {object} wirtualsdk.Template
 // @Router /templates/{template} [patch]
 func (api *API) patchTemplateMeta(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -914,7 +914,7 @@ func (api *API) notifyUsersOfTemplateDeprecation(ctx context.Context, template d
 // @Produce json
 // @Tags Templates
 // @Param template path string true "Template ID" format(uuid)
-// @Success 200 {object} codersdk.DAUsResponse
+// @Success 200 {object} wirtualsdk.DAUsResponse
 // @Router /templates/{template}/daus [get]
 func (api *API) templateDAUs(rw http.ResponseWriter, r *http.Request) {
 	template := httpmw.TemplateParam(r)
@@ -928,7 +928,7 @@ func (api *API) templateDAUs(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Templates
 // @Param organization path string true "Organization ID" format(uuid)
-// @Success 200 {array} codersdk.TemplateExample
+// @Success 200 {array} wirtualsdk.TemplateExample
 // @Router /organizations/{organization}/templates/examples [get]
 // @Deprecated Use /templates/examples instead
 func (api *API) templateExamplesByOrganization(rw http.ResponseWriter, r *http.Request) {
@@ -959,7 +959,7 @@ func (api *API) templateExamplesByOrganization(rw http.ResponseWriter, r *http.R
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Templates
-// @Success 200 {array} codersdk.TemplateExample
+// @Success 200 {array} wirtualsdk.TemplateExample
 // @Router /templates/examples [get]
 func (api *API) templateExamples(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

@@ -12,8 +12,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/codersdk"
 	"github.com/coder/coder/v2/pty/ptytest"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 func TestCurrentOrganization(t *testing.T) {

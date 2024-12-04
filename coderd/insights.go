@@ -19,7 +19,7 @@ import (
 	"github.com/coder/coder/v2/coderd/rbac"
 	"github.com/coder/coder/v2/coderd/rbac/policy"
 	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // Duplicated in codersdk.
@@ -31,7 +31,7 @@ const insightsTimeLayout = time.RFC3339
 // @Produce json
 // @Tags Insights
 // @Param tz_offset query int true "Time-zone offset (e.g. -2)"
-// @Success 200 {object} codersdk.DAUsResponse
+// @Success 200 {object} wirtualsdk.DAUsResponse
 // @Router /insights/daus [get]
 func (api *API) deploymentDAUs(rw http.ResponseWriter, r *http.Request) {
 	if !api.Authorize(r, policy.ActionRead, rbac.ResourceDeploymentConfig) {
@@ -104,7 +104,7 @@ func (api *API) returnDAUsInternal(rw http.ResponseWriter, r *http.Request, temp
 // @Param start_time query string true "Start time" format(date-time)
 // @Param end_time query string true "End time" format(date-time)
 // @Param template_ids query []string false "Template IDs" collectionFormat(csv)
-// @Success 200 {object} codersdk.UserActivityInsightsResponse
+// @Success 200 {object} wirtualsdk.UserActivityInsightsResponse
 // @Router /insights/user-activity [get]
 func (api *API) insightsUserActivity(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -207,7 +207,7 @@ func (api *API) insightsUserActivity(rw http.ResponseWriter, r *http.Request) {
 // @Param start_time query string true "Start time" format(date-time)
 // @Param end_time query string true "End time" format(date-time)
 // @Param template_ids query []string false "Template IDs" collectionFormat(csv)
-// @Success 200 {object} codersdk.UserLatencyInsightsResponse
+// @Success 200 {object} wirtualsdk.UserLatencyInsightsResponse
 // @Router /insights/user-latency [get]
 func (api *API) insightsUserLatency(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -301,7 +301,7 @@ func (api *API) insightsUserLatency(rw http.ResponseWriter, r *http.Request) {
 // @Param end_time query string true "End time" format(date-time)
 // @Param interval query string true "Interval" enums(week,day)
 // @Param template_ids query []string false "Template IDs" collectionFormat(csv)
-// @Success 200 {object} codersdk.TemplateInsightsResponse
+// @Success 200 {object} wirtualsdk.TemplateInsightsResponse
 // @Router /insights/templates [get]
 func (api *API) insightsTemplates(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

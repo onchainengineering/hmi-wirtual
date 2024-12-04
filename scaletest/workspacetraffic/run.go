@@ -17,9 +17,9 @@ import (
 	"cdr.dev/slog/sloggers/sloghuman"
 
 	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
 	"github.com/coder/coder/v2/scaletest/harness"
 	"github.com/coder/coder/v2/scaletest/loadtestutil"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 type Runner struct {
@@ -32,7 +32,7 @@ var (
 	_ harness.Cleanable = &Runner{}
 )
 
-// func NewRunner(client *codersdk.Client, cfg Config, metrics *Metrics) *Runner {
+// func NewRunner(client *wirtualsdk.Client, cfg Config, metrics *Metrics) *Runner {
 func NewRunner(client *codersdk.Client, cfg Config) *Runner {
 	return &Runner{
 		client: client,

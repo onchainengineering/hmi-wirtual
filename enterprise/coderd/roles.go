@@ -15,7 +15,7 @@ import (
 	"github.com/coder/coder/v2/coderd/httpmw"
 	"github.com/coder/coder/v2/coderd/rbac"
 	"github.com/coder/coder/v2/coderd/rbac/policy"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // postOrgRoles will allow creating a custom organization role
@@ -26,9 +26,9 @@ import (
 // @Accept json
 // @Produce json
 // @Param organization path string true "Organization ID" format(uuid)
-// @Param request body codersdk.CustomRoleRequest true "Insert role request"
+// @Param request body wirtualsdk.CustomRoleRequest true "Insert role request"
 // @Tags Members
-// @Success 200 {array} codersdk.Role
+// @Success 200 {array} wirtualsdk.Role
 // @Router /organizations/{organization}/members/roles [post]
 func (api *API) postOrgRoles(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -90,9 +90,9 @@ func (api *API) postOrgRoles(rw http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Param organization path string true "Organization ID" format(uuid)
-// @Param request body codersdk.CustomRoleRequest true "Upsert role request"
+// @Param request body wirtualsdk.CustomRoleRequest true "Upsert role request"
 // @Tags Members
-// @Success 200 {array} codersdk.Role
+// @Success 200 {array} wirtualsdk.Role
 // @Router /organizations/{organization}/members/roles [put]
 func (api *API) putOrgRoles(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -176,7 +176,7 @@ func (api *API) putOrgRoles(rw http.ResponseWriter, r *http.Request) {
 // @Param organization path string true "Organization ID" format(uuid)
 // @Param roleName path string true "Role name"
 // @Tags Members
-// @Success 200 {array} codersdk.Role
+// @Success 200 {array} wirtualsdk.Role
 // @Router /organizations/{organization}/members/roles/{roleName} [delete]
 func (api *API) deleteOrgRole(rw http.ResponseWriter, r *http.Request) {
 	var (

@@ -15,8 +15,8 @@ import (
 	"github.com/coder/coder/v2/coderd/healthcheck/health"
 	"github.com/coder/coder/v2/coderd/provisionerdserver"
 	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk/healthsdk"
 	"github.com/coder/coder/v2/provisionerd/proto"
+	"github.com/coder/coder/v2/wirtualsdk/healthsdk"
 )
 
 type ProvisionerDaemonsReport healthsdk.ProvisionerDaemonsReport

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 )
 

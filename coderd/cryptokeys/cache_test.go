@@ -12,8 +12,8 @@ import (
 	"go.uber.org/goleak"
 
 	"github.com/coder/coder/v2/coderd/cryptokeys"
-	"github.com/coder/coder/v2/codersdk"
 	"github.com/coder/coder/v2/testutil"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/quartz"
 )
 

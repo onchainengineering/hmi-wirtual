@@ -7,7 +7,7 @@ import (
 
 	"github.com/coder/coder/v2/coderd/database"
 	"github.com/coder/coder/v2/coderd/idpsync"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 func (e EnterpriseIDPSync) OrganizationSyncEntitled() bool {

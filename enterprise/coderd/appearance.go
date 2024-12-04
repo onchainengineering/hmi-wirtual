@@ -17,7 +17,7 @@ import (
 	"github.com/coder/coder/v2/coderd/httpapi"
 	"github.com/coder/coder/v2/coderd/rbac"
 	"github.com/coder/coder/v2/coderd/rbac/policy"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Get appearance
@@ -25,7 +25,7 @@ import (
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Enterprise
-// @Success 200 {object} codersdk.AppearanceConfig
+// @Success 200 {object} wirtualsdk.AppearanceConfig
 // @Router /appearance [get]
 func (api *API) appearance(rw http.ResponseWriter, r *http.Request) {
 	af := *api.AGPL.AppearanceFetcher.Load()
@@ -139,8 +139,8 @@ func validateHexColor(color string) error {
 // @Accept json
 // @Produce json
 // @Tags Enterprise
-// @Param request body codersdk.UpdateAppearanceConfig true "Update appearance request"
-// @Success 200 {object} codersdk.UpdateAppearanceConfig
+// @Param request body wirtualsdk.UpdateAppearanceConfig true "Update appearance request"
+// @Success 200 {object} wirtualsdk.UpdateAppearanceConfig
 // @Router /appearance [put]
 func (api *API) putAppearance(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

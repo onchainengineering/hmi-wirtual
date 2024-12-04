@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 const (

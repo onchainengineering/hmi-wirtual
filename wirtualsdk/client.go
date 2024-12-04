@@ -343,8 +343,8 @@ func ExpectJSONMime(res *http.Response) error {
 	return nil
 }
 
-// ReadBodyAsError reads the response as a codersdk.Response, and
-// wraps it in a codersdk.Error type for easy marshaling.
+// ReadBodyAsError reads the response as a wirtualsdk.Response, and
+// wraps it in a wirtualsdk.Error type for easy marshaling.
 //
 // This will always return an error, so only call it if the response failed
 // your expectations. Usually via status code checking.

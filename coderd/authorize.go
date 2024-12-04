@@ -12,7 +12,7 @@ import (
 	"github.com/coder/coder/v2/coderd/httpmw"
 	"github.com/coder/coder/v2/coderd/rbac"
 	"github.com/coder/coder/v2/coderd/rbac/policy"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // AuthorizeFilter takes a list of objects and returns the filtered list of
@@ -115,8 +115,8 @@ func (h *HTTPAuthorizer) AuthorizeSQLFilter(r *http.Request, action policy.Actio
 // @Accept json
 // @Produce json
 // @Tags Authorization
-// @Param request body codersdk.AuthorizationRequest true "Authorization request"
-// @Success 200 {object} codersdk.AuthorizationResponse
+// @Param request body wirtualsdk.AuthorizationRequest true "Authorization request"
+// @Success 200 {object} wirtualsdk.AuthorizationResponse
 // @Router /authcheck [post]
 func (api *API) checkAuthorization(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

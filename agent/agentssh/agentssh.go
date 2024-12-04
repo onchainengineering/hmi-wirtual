@@ -32,8 +32,8 @@ import (
 
 	"github.com/coder/coder/v2/agent/agentexec"
 	"github.com/coder/coder/v2/agent/usershell"
-	"github.com/coder/coder/v2/codersdk"
 	"github.com/coder/coder/v2/pty"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 const (

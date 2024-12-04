@@ -42,8 +42,8 @@ import (
 	"github.com/coder/coder/v2/coderd/rbac"
 	"github.com/coder/coder/v2/coderd/render"
 	"github.com/coder/coder/v2/coderd/userpassword"
-	"github.com/coder/coder/v2/codersdk"
 	"github.com/coder/coder/v2/cryptorand"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 const (
@@ -74,9 +74,9 @@ func (o *OAuthConvertStateClaims) Validate(e jwt.Expected) error {
 // @Accept json
 // @Produce json
 // @Tags Authorization
-// @Param request body codersdk.ConvertLoginRequest true "Convert request"
+// @Param request body wirtualsdk.ConvertLoginRequest true "Convert request"
 // @Param user path string true "User ID, name, or me"
-// @Success 201 {object} codersdk.OAuthConversionResponse
+// @Success 201 {object} wirtualsdk.OAuthConversionResponse
 // @Router /users/{user}/convert-login [post]
 func (api *API) postConvertLoginType(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -214,7 +214,7 @@ func (api *API) postConvertLoginType(rw http.ResponseWriter, r *http.Request) {
 // @ID request-one-time-passcode
 // @Accept json
 // @Tags Authorization
-// @Param request body codersdk.RequestOneTimePasscodeRequest true "One-time passcode request"
+// @Param request body wirtualsdk.RequestOneTimePasscodeRequest true "One-time passcode request"
 // @Success 204
 // @Router /users/otp/request [post]
 func (api *API) postRequestOneTimePasscode(rw http.ResponseWriter, r *http.Request) {
@@ -320,7 +320,7 @@ func (api *API) notifyUserRequestedOneTimePasscode(ctx context.Context, user dat
 // @ID change-password-with-a-one-time-passcode
 // @Accept json
 // @Tags Authorization
-// @Param request body codersdk.ChangePasswordWithOneTimePasscodeRequest true "Change password request"
+// @Param request body wirtualsdk.ChangePasswordWithOneTimePasscodeRequest true "Change password request"
 // @Success 204
 // @Router /users/otp/change-password [post]
 func (api *API) postChangePasswordWithOneTimePasscode(rw http.ResponseWriter, r *http.Request) {
@@ -454,8 +454,8 @@ func (api *API) postChangePasswordWithOneTimePasscode(rw http.ResponseWriter, r 
 // @Produce json
 // @Accept json
 // @Tags Authorization
-// @Param request body codersdk.ValidateUserPasswordRequest true "Validate user password request"
-// @Success 200 {object} codersdk.ValidateUserPasswordResponse
+// @Param request body wirtualsdk.ValidateUserPasswordRequest true "Validate user password request"
+// @Success 200 {object} wirtualsdk.ValidateUserPasswordResponse
 // @Router /users/validate-password [post]
 func (*API) validateUserPassword(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -488,8 +488,8 @@ func (*API) validateUserPassword(rw http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Tags Authorization
-// @Param request body codersdk.LoginWithPasswordRequest true "Login request"
-// @Success 201 {object} codersdk.LoginWithPasswordResponse
+// @Param request body wirtualsdk.LoginWithPasswordRequest true "Login request"
+// @Success 201 {object} wirtualsdk.LoginWithPasswordResponse
 // @Router /users/login [post]
 func (api *API) postLogin(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -673,7 +673,7 @@ func ActivateDormantUser(logger slog.Logger, auditor *atomic.Pointer[audit.Audit
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Users
-// @Success 200 {object} codersdk.Response
+// @Success 200 {object} wirtualsdk.Response
 // @Router /users/logout [post]
 func (api *API) postLogout(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -759,7 +759,7 @@ type GithubOAuth2Config struct {
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Users
-// @Success 200 {object} codersdk.AuthMethods
+// @Success 200 {object} wirtualsdk.AuthMethods
 // @Router /users/authmethods [get]
 func (api *API) userAuthMethods(rw http.ResponseWriter, r *http.Request) {
 	var signInText string

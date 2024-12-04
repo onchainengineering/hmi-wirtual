@@ -14,7 +14,7 @@ import (
 	"github.com/coder/coder/v2/coderd/database/db2sdk"
 	"github.com/coder/coder/v2/coderd/httpapi"
 	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Create group for organization
@@ -23,9 +23,9 @@ import (
 // @Accept json
 // @Produce json
 // @Tags Enterprise
-// @Param request body codersdk.CreateGroupRequest true "Create group request"
+// @Param request body wirtualsdk.CreateGroupRequest true "Create group request"
 // @Param organization path string true "Organization ID"
-// @Success 201 {object} codersdk.Group
+// @Success 201 {object} wirtualsdk.Group
 // @Router /organizations/{organization}/groups [post]
 func (api *API) postGroupByOrganization(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -92,8 +92,8 @@ func (api *API) postGroupByOrganization(rw http.ResponseWriter, r *http.Request)
 // @Produce json
 // @Tags Enterprise
 // @Param group path string true "Group name"
-// @Param request body codersdk.PatchGroupRequest true "Patch group request"
-// @Success 200 {object} codersdk.Group
+// @Param request body wirtualsdk.PatchGroupRequest true "Patch group request"
+// @Success 200 {object} wirtualsdk.Group
 // @Router /groups/{group} [patch]
 func (api *API) patchGroup(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -311,7 +311,7 @@ func (api *API) patchGroup(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Enterprise
 // @Param group path string true "Group name"
-// @Success 200 {object} codersdk.Group
+// @Success 200 {object} wirtualsdk.Group
 // @Router /groups/{group} [delete]
 func (api *API) deleteGroup(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -361,7 +361,7 @@ func (api *API) deleteGroup(rw http.ResponseWriter, r *http.Request) {
 // @Tags Enterprise
 // @Param organization path string true "Organization ID" format(uuid)
 // @Param groupName path string true "Group name"
-// @Success 200 {object} codersdk.Group
+// @Success 200 {object} wirtualsdk.Group
 // @Router /organizations/{organization}/groups/{groupName} [get]
 func (api *API) groupByOrganization(rw http.ResponseWriter, r *http.Request) {
 	api.group(rw, r)
@@ -373,7 +373,7 @@ func (api *API) groupByOrganization(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Enterprise
 // @Param group path string true "Group id"
-// @Success 200 {object} codersdk.Group
+// @Success 200 {object} wirtualsdk.Group
 // @Router /groups/{group} [get]
 func (api *API) group(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -411,7 +411,7 @@ func (api *API) group(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Enterprise
 // @Param organization path string true "Organization ID" format(uuid)
-// @Success 200 {array} codersdk.Group
+// @Success 200 {array} wirtualsdk.Group
 // @Router /organizations/{organization}/groups [get]
 func (api *API) groupsByOrganization(rw http.ResponseWriter, r *http.Request) {
 	org := httpmw.OrganizationParam(r)
@@ -431,7 +431,7 @@ func (api *API) groupsByOrganization(rw http.ResponseWriter, r *http.Request) {
 // @Param organization query string true "Organization ID or name"
 // @Param has_member query string true "User ID or name"
 // @Param group_ids query string true "Comma separated list of group IDs"
-// @Success 200 {array} codersdk.Group
+// @Success 200 {array} wirtualsdk.Group
 // @Router /groups [get]
 func (api *API) groups(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

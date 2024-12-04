@@ -12,7 +12,7 @@ import (
 	"github.com/coder/coder/v2/coderd/idpsync"
 	"github.com/coder/coder/v2/coderd/rbac"
 	"github.com/coder/coder/v2/coderd/rbac/policy"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Get group IdP Sync settings by organization
@@ -21,7 +21,7 @@ import (
 // @Produce json
 // @Tags Enterprise
 // @Param organization path string true "Organization ID" format(uuid)
-// @Success 200 {object} codersdk.GroupSyncSettings
+// @Success 200 {object} wirtualsdk.GroupSyncSettings
 // @Router /organizations/{organization}/settings/idpsync/groups [get]
 func (api *API) groupIDPSyncSettings(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -50,8 +50,8 @@ func (api *API) groupIDPSyncSettings(rw http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Tags Enterprise
 // @Param organization path string true "Organization ID" format(uuid)
-// @Param request body codersdk.GroupSyncSettings true "New settings"
-// @Success 200 {object} codersdk.GroupSyncSettings
+// @Param request body wirtualsdk.GroupSyncSettings true "New settings"
+// @Success 200 {object} wirtualsdk.GroupSyncSettings
 // @Router /organizations/{organization}/settings/idpsync/groups [patch]
 func (api *API) patchGroupIDPSyncSettings(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -116,7 +116,7 @@ func (api *API) patchGroupIDPSyncSettings(rw http.ResponseWriter, r *http.Reques
 // @Produce json
 // @Tags Enterprise
 // @Param organization path string true "Organization ID" format(uuid)
-// @Success 200 {object} codersdk.RoleSyncSettings
+// @Success 200 {object} wirtualsdk.RoleSyncSettings
 // @Router /organizations/{organization}/settings/idpsync/roles [get]
 func (api *API) roleIDPSyncSettings(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -145,8 +145,8 @@ func (api *API) roleIDPSyncSettings(rw http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Tags Enterprise
 // @Param organization path string true "Organization ID" format(uuid)
-// @Param request body codersdk.RoleSyncSettings true "New settings"
-// @Success 200 {object} codersdk.RoleSyncSettings
+// @Param request body wirtualsdk.RoleSyncSettings true "New settings"
+// @Success 200 {object} wirtualsdk.RoleSyncSettings
 // @Router /organizations/{organization}/settings/idpsync/roles [patch]
 func (api *API) patchRoleIDPSyncSettings(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -190,7 +190,7 @@ func (api *API) patchRoleIDPSyncSettings(rw http.ResponseWriter, r *http.Request
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Enterprise
-// @Success 200 {object} codersdk.OrganizationSyncSettings
+// @Success 200 {object} wirtualsdk.OrganizationSyncSettings
 // @Router /settings/idpsync/organization [get]
 func (api *API) organizationIDPSyncSettings(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -221,8 +221,8 @@ func (api *API) organizationIDPSyncSettings(rw http.ResponseWriter, r *http.Requ
 // @Produce json
 // @Accept json
 // @Tags Enterprise
-// @Success 200 {object} codersdk.OrganizationSyncSettings
-// @Param request body codersdk.OrganizationSyncSettings true "New settings"
+// @Success 200 {object} wirtualsdk.OrganizationSyncSettings
+// @Param request body wirtualsdk.OrganizationSyncSettings true "New settings"
 // @Router /settings/idpsync/organization [patch]
 func (api *API) patchOrganizationIDPSyncSettings(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

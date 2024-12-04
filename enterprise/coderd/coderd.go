@@ -40,7 +40,6 @@ import (
 	"github.com/coder/coder/v2/coderd/httpmw"
 	"github.com/coder/coder/v2/coderd/rbac"
 	agplschedule "github.com/coder/coder/v2/coderd/schedule"
-	"github.com/coder/coder/v2/codersdk"
 	"github.com/coder/coder/v2/enterprise/coderd/dbauthz"
 	"github.com/coder/coder/v2/enterprise/coderd/license"
 	"github.com/coder/coder/v2/enterprise/coderd/proxyhealth"
@@ -51,6 +50,7 @@ import (
 	"github.com/coder/coder/v2/enterprise/tailnet"
 	"github.com/coder/coder/v2/provisionerd/proto"
 	agpltailnet "github.com/coder/coder/v2/tailnet"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // New constructs an Enterprise coderd API instance.
@@ -1040,7 +1040,7 @@ func derpMapper(logger slog.Logger, proxyHealth *proxyhealth.ProxyHealth) func(*
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Enterprise
-// @Success 200 {object} codersdk.Entitlements
+// @Success 200 {object} wirtualsdk.Entitlements
 // @Router /entitlements [get]
 func (api *API) serveEntitlements(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

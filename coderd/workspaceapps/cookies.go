@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // AppConnectSessionTokenCookieName returns the cookie name for the session

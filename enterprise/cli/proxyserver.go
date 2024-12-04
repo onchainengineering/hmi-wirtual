@@ -28,8 +28,8 @@ import (
 	"github.com/coder/coder/v2/coderd"
 	"github.com/coder/coder/v2/coderd/httpmw"
 	"github.com/coder/coder/v2/coderd/workspaceapps/appurl"
-	"github.com/coder/coder/v2/codersdk"
 	"github.com/coder/coder/v2/enterprise/wsproxy"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )

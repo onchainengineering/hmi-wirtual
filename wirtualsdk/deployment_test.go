@@ -17,7 +17,7 @@ import (
 	"github.com/coder/serpent"
 
 	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 type exclusion struct {

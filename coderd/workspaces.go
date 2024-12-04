@@ -35,8 +35,8 @@ import (
 	"github.com/coder/coder/v2/coderd/util/ptr"
 	"github.com/coder/coder/v2/coderd/wsbuilder"
 	"github.com/coder/coder/v2/coderd/wspubsub"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
 )
 
 var (
@@ -56,7 +56,7 @@ var (
 // @Tags Workspaces
 // @Param workspace path string true "Workspace ID" format(uuid)
 // @Param include_deleted query bool false "Return data instead of HTTP 404 if the workspace is deleted"
-// @Success 200 {object} codersdk.Workspace
+// @Success 200 {object} wirtualsdk.Workspace
 // @Router /workspaces/{workspace} [get]
 func (api *API) workspace(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -129,7 +129,7 @@ func (api *API) workspace(rw http.ResponseWriter, r *http.Request) {
 // @Param q query string false "Search query in the format `key:value`. Available keys are: owner, template, name, status, has-agent, dormant, last_used_after, last_used_before."
 // @Param limit query int false "Page limit"
 // @Param offset query int false "Page offset"
-// @Success 200 {object} codersdk.WorkspacesResponse
+// @Success 200 {object} wirtualsdk.WorkspacesResponse
 // @Router /workspaces [get]
 func (api *API) workspaces(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -239,7 +239,7 @@ func (api *API) workspaces(rw http.ResponseWriter, r *http.Request) {
 // @Param user path string true "User ID, name, or me"
 // @Param workspacename path string true "Workspace name"
 // @Param include_deleted query bool false "Return data instead of HTTP 404 if the workspace is deleted"
-// @Success 200 {object} codersdk.Workspace
+// @Success 200 {object} wirtualsdk.Workspace
 // @Router /users/{user}/workspace/{workspacename} [get]
 func (api *API) workspaceByOwnerAndName(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -331,8 +331,8 @@ func (api *API) workspaceByOwnerAndName(rw http.ResponseWriter, r *http.Request)
 // @Tags Workspaces
 // @Param organization path string true "Organization ID" format(uuid)
 // @Param user path string true "Username, UUID, or me"
-// @Param request body codersdk.CreateWorkspaceRequest true "Create workspace request"
-// @Success 200 {object} codersdk.Workspace
+// @Param request body wirtualsdk.CreateWorkspaceRequest true "Create workspace request"
+// @Success 200 {object} wirtualsdk.Workspace
 // @Router /organizations/{organization}/members/{user}/workspaces [post]
 func (api *API) postWorkspacesByOrganization(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -384,8 +384,8 @@ func (api *API) postWorkspacesByOrganization(rw http.ResponseWriter, r *http.Req
 // @Produce json
 // @Tags Workspaces
 // @Param user path string true "Username, UUID, or me"
-// @Param request body codersdk.CreateWorkspaceRequest true "Create workspace request"
-// @Success 200 {object} codersdk.Workspace
+// @Param request body wirtualsdk.CreateWorkspaceRequest true "Create workspace request"
+// @Success 200 {object} wirtualsdk.Workspace
 // @Router /users/{user}/workspaces [post]
 func (api *API) postUserWorkspaces(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -728,7 +728,7 @@ func createWorkspace(
 // @Accept json
 // @Tags Workspaces
 // @Param workspace path string true "Workspace ID" format(uuid)
-// @Param request body codersdk.UpdateWorkspaceRequest true "Metadata update request"
+// @Param request body wirtualsdk.UpdateWorkspaceRequest true "Metadata update request"
 // @Success 204
 // @Router /workspaces/{workspace} [patch]
 func (api *API) patchWorkspace(rw http.ResponseWriter, r *http.Request) {
@@ -823,7 +823,7 @@ func (api *API) patchWorkspace(rw http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Tags Workspaces
 // @Param workspace path string true "Workspace ID" format(uuid)
-// @Param request body codersdk.UpdateWorkspaceAutostartRequest true "Schedule update request"
+// @Param request body wirtualsdk.UpdateWorkspaceAutostartRequest true "Schedule update request"
 // @Success 204
 // @Router /workspaces/{workspace}/autostart [put]
 func (api *API) putWorkspaceAutostart(rw http.ResponseWriter, r *http.Request) {
@@ -898,7 +898,7 @@ func (api *API) putWorkspaceAutostart(rw http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Tags Workspaces
 // @Param workspace path string true "Workspace ID" format(uuid)
-// @Param request body codersdk.UpdateWorkspaceTTLRequest true "Workspace TTL update request"
+// @Param request body wirtualsdk.UpdateWorkspaceTTLRequest true "Workspace TTL update request"
 // @Success 204
 // @Router /workspaces/{workspace}/ttl [put]
 func (api *API) putWorkspaceTTL(rw http.ResponseWriter, r *http.Request) {
@@ -979,8 +979,8 @@ func (api *API) putWorkspaceTTL(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Workspaces
 // @Param workspace path string true "Workspace ID" format(uuid)
-// @Param request body codersdk.UpdateWorkspaceDormancy true "Make a workspace dormant or active"
-// @Success 200 {object} codersdk.Workspace
+// @Param request body wirtualsdk.UpdateWorkspaceDormancy true "Make a workspace dormant or active"
+// @Success 200 {object} wirtualsdk.Workspace
 // @Router /workspaces/{workspace}/dormant [put]
 func (api *API) putWorkspaceDormant(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -1130,8 +1130,8 @@ func (api *API) putWorkspaceDormant(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Workspaces
 // @Param workspace path string true "Workspace ID" format(uuid)
-// @Param request body codersdk.PutExtendWorkspaceRequest true "Extend deadline update request"
-// @Success 200 {object} codersdk.Response
+// @Param request body wirtualsdk.PutExtendWorkspaceRequest true "Extend deadline update request"
+// @Success 200 {object} wirtualsdk.Response
 // @Router /workspaces/{workspace}/extend [put]
 func (api *API) putExtendWorkspace(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1236,7 +1236,7 @@ func (api *API) putExtendWorkspace(rw http.ResponseWriter, r *http.Request) {
 // @Tags Workspaces
 // @Accept json
 // @Param workspace path string true "Workspace ID" format(uuid)
-// @Param request body codersdk.PostWorkspaceUsageRequest false "Post workspace usage request"
+// @Param request body wirtualsdk.PostWorkspaceUsageRequest false "Post workspace usage request"
 // @Success 204
 // @Router /workspaces/{workspace}/usage [post]
 func (api *API) postWorkspaceUsage(rw http.ResponseWriter, r *http.Request) {
@@ -1446,7 +1446,7 @@ func (api *API) deleteFavoriteWorkspace(rw http.ResponseWriter, r *http.Request)
 // @Accept json
 // @Tags Workspaces
 // @Param workspace path string true "Workspace ID" format(uuid)
-// @Param request body codersdk.UpdateWorkspaceAutomaticUpdatesRequest true "Automatic updates request"
+// @Param request body wirtualsdk.UpdateWorkspaceAutomaticUpdatesRequest true "Automatic updates request"
 // @Success 204
 // @Router /workspaces/{workspace}/autoupdates [put]
 func (api *API) putWorkspaceAutoupdates(rw http.ResponseWriter, r *http.Request) {
@@ -1507,7 +1507,7 @@ func (api *API) putWorkspaceAutoupdates(rw http.ResponseWriter, r *http.Request)
 // @Produce json
 // @Tags Workspaces
 // @Param workspace path string true "Workspace ID" format(uuid)
-// @Success 200 {object} codersdk.ResolveAutostartResponse
+// @Success 200 {object} wirtualsdk.ResolveAutostartResponse
 // @Router /workspaces/{workspace}/resolve-autostart [get]
 func (api *API) resolveAutostart(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -1601,7 +1601,7 @@ func (api *API) resolveAutostart(rw http.ResponseWriter, r *http.Request) {
 // @Produce text/event-stream
 // @Tags Workspaces
 // @Param workspace path string true "Workspace ID" format(uuid)
-// @Success 200 {object} codersdk.Response
+// @Success 200 {object} wirtualsdk.Response
 // @Router /workspaces/{workspace}/watch [get]
 func (api *API) watchWorkspace(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1739,7 +1739,7 @@ func (api *API) watchWorkspace(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Workspaces
 // @Param workspace path string true "Workspace ID" format(uuid)
-// @Success 200 {object} codersdk.WorkspaceBuildTimings
+// @Success 200 {object} wirtualsdk.WorkspaceBuildTimings
 // @Router /workspaces/{workspace}/timings [get]
 func (api *API) workspaceTimings(rw http.ResponseWriter, r *http.Request) {
 	var (

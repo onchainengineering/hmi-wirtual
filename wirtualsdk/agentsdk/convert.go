@@ -10,8 +10,8 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/codersdk"
 	"github.com/coder/coder/v2/tailnet"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 func ManifestFromProto(manifest *proto.Manifest) (Manifest, error) {

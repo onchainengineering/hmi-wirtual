@@ -20,7 +20,7 @@ import (
 	"github.com/coder/coder/v2/coderd/rbac/policy"
 	"github.com/coder/coder/v2/coderd/workspaceapps"
 	"github.com/coder/coder/v2/coderd/workspaceapps/appurl"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Get applications host
@@ -28,7 +28,7 @@ import (
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Applications
-// @Success 200 {object} codersdk.AppHostResponse
+// @Success 200 {object} wirtualsdk.AppHostResponse
 // @Router /applications/host [get]
 // @Deprecated use api/v2/regions and see the primary proxy.
 func (api *API) appHost(rw http.ResponseWriter, r *http.Request) {

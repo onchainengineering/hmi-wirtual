@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 func RequireExperiment(experiments codersdk.Experiments, experiment codersdk.Experiment) func(next http.Handler) http.Handler {

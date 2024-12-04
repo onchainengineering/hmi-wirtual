@@ -21,12 +21,12 @@ import (
 
 	"cdr.dev/slog"
 	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	drpcsdk "github.com/coder/coder/v2/codersdk/drpc"
 	"github.com/coder/coder/v2/tailnet"
 	"github.com/coder/coder/v2/tailnet/proto"
 	"github.com/coder/coder/v2/testutil"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
+	drpcsdk "github.com/coder/coder/v2/wirtualsdk/drpc"
 )
 
 const statsInterval = 500 * time.Millisecond

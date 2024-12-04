@@ -9,7 +9,7 @@ import (
 	"github.com/coder/coder/v2/coderd/database"
 	"github.com/coder/coder/v2/coderd/httpapi"
 	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Upsert workspace agent port share
@@ -19,8 +19,8 @@ import (
 // @Produce json
 // @Tags PortSharing
 // @Param workspace path string true "Workspace ID" format(uuid)
-// @Param request body codersdk.UpsertWorkspaceAgentPortShareRequest true "Upsert port sharing level request"
-// @Success 200 {object} codersdk.WorkspaceAgentPortShare
+// @Param request body wirtualsdk.UpsertWorkspaceAgentPortShareRequest true "Upsert port sharing level request"
+// @Success 200 {object} wirtualsdk.WorkspaceAgentPortShare
 // @Router /workspaces/{workspace}/port-share [post]
 func (api *API) postWorkspaceAgentPortShare(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -118,7 +118,7 @@ func (api *API) postWorkspaceAgentPortShare(rw http.ResponseWriter, r *http.Requ
 // @Produce json
 // @Tags PortSharing
 // @Param workspace path string true "Workspace ID" format(uuid)
-// @Success 200 {object} codersdk.WorkspaceAgentPortShares
+// @Success 200 {object} wirtualsdk.WorkspaceAgentPortShares
 // @Router /workspaces/{workspace}/port-share [get]
 func (api *API) workspaceAgentPortShares(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -141,7 +141,7 @@ func (api *API) workspaceAgentPortShares(rw http.ResponseWriter, r *http.Request
 // @Accept json
 // @Tags PortSharing
 // @Param workspace path string true "Workspace ID" format(uuid)
-// @Param request body codersdk.DeleteWorkspaceAgentPortShareRequest true "Delete port sharing level request"
+// @Param request body wirtualsdk.DeleteWorkspaceAgentPortShareRequest true "Delete port sharing level request"
 // @Success 200
 // @Router /workspaces/{workspace}/port-share [delete]
 func (api *API) deleteWorkspaceAgentPortShare(rw http.ResponseWriter, r *http.Request) {

@@ -20,7 +20,7 @@ import (
 	"github.com/coder/coder/v2/coderd/httpmw"
 	"github.com/coder/coder/v2/coderd/rbac/policy"
 	"github.com/coder/coder/v2/coderd/telemetry"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // Creates a new token API key with the given scope and lifetime.
@@ -32,8 +32,8 @@ import (
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Param request body codersdk.CreateTokenRequest true "Create token request"
-// @Success 201 {object} codersdk.GenerateAPIKeyResponse
+// @Param request body wirtualsdk.CreateTokenRequest true "Create token request"
+// @Success 201 {object} wirtualsdk.GenerateAPIKeyResponse
 // @Router /users/{user}/keys/tokens [post]
 func (api *API) postToken(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -117,7 +117,7 @@ func (api *API) postToken(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Success 201 {object} codersdk.GenerateAPIKeyResponse
+// @Success 201 {object} wirtualsdk.GenerateAPIKeyResponse
 // @Router /users/{user}/keys [post]
 func (api *API) postAPIKey(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -151,7 +151,7 @@ func (api *API) postAPIKey(rw http.ResponseWriter, r *http.Request) {
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
 // @Param keyid path string true "Key ID" format(uuid)
-// @Success 200 {object} codersdk.APIKey
+// @Success 200 {object} wirtualsdk.APIKey
 // @Router /users/{user}/keys/{keyid} [get]
 func (api *API) apiKeyByID(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -180,7 +180,7 @@ func (api *API) apiKeyByID(rw http.ResponseWriter, r *http.Request) {
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
 // @Param keyname path string true "Key Name" format(string)
-// @Success 200 {object} codersdk.APIKey
+// @Success 200 {object} wirtualsdk.APIKey
 // @Router /users/{user}/keys/tokens/{keyname} [get]
 func (api *API) apiKeyByName(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -214,7 +214,7 @@ func (api *API) apiKeyByName(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Success 200 {array} codersdk.APIKey
+// @Success 200 {array} wirtualsdk.APIKey
 // @Router /users/{user}/keys/tokens [get]
 func (api *API) tokens(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -335,7 +335,7 @@ func (api *API) deleteAPIKey(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags General
 // @Param user path string true "User ID, name, or me"
-// @Success 200 {object} codersdk.TokenConfig
+// @Success 200 {object} wirtualsdk.TokenConfig
 // @Router /users/{user}/keys/tokens/tokenconfig [get]
 func (api *API) tokenConfig(rw http.ResponseWriter, r *http.Request) {
 	values, err := api.DeploymentValues.WithoutSecrets()

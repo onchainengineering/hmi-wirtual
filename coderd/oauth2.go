@@ -14,7 +14,7 @@ import (
 	"github.com/coder/coder/v2/coderd/httpapi"
 	"github.com/coder/coder/v2/coderd/httpmw"
 	"github.com/coder/coder/v2/coderd/identityprovider"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 func (*API) oAuth2ProviderMiddleware(next http.Handler) http.Handler {
@@ -36,7 +36,7 @@ func (*API) oAuth2ProviderMiddleware(next http.Handler) http.Handler {
 // @Produce json
 // @Tags Enterprise
 // @Param user_id query string false "Filter by applications authorized for a user"
-// @Success 200 {array} codersdk.OAuth2ProviderApp
+// @Success 200 {array} wirtualsdk.OAuth2ProviderApp
 // @Router /oauth2-provider/apps [get]
 func (api *API) oAuth2ProviderApps(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -80,7 +80,7 @@ func (api *API) oAuth2ProviderApps(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Enterprise
 // @Param app path string true "App ID"
-// @Success 200 {object} codersdk.OAuth2ProviderApp
+// @Success 200 {object} wirtualsdk.OAuth2ProviderApp
 // @Router /oauth2-provider/apps/{app} [get]
 func (api *API) oAuth2ProviderApp(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -94,8 +94,8 @@ func (api *API) oAuth2ProviderApp(rw http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Tags Enterprise
-// @Param request body codersdk.PostOAuth2ProviderAppRequest true "The OAuth2 application to create."
-// @Success 200 {object} codersdk.OAuth2ProviderApp
+// @Param request body wirtualsdk.PostOAuth2ProviderAppRequest true "The OAuth2 application to create."
+// @Success 200 {object} wirtualsdk.OAuth2ProviderApp
 // @Router /oauth2-provider/apps [post]
 func (api *API) postOAuth2ProviderApp(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -139,8 +139,8 @@ func (api *API) postOAuth2ProviderApp(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Enterprise
 // @Param app path string true "App ID"
-// @Param request body codersdk.PutOAuth2ProviderAppRequest true "Update an OAuth2 application."
-// @Success 200 {object} codersdk.OAuth2ProviderApp
+// @Param request body wirtualsdk.PutOAuth2ProviderAppRequest true "Update an OAuth2 application."
+// @Success 200 {object} wirtualsdk.OAuth2ProviderApp
 // @Router /oauth2-provider/apps/{app} [put]
 func (api *API) putOAuth2ProviderApp(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -216,7 +216,7 @@ func (api *API) deleteOAuth2ProviderApp(rw http.ResponseWriter, r *http.Request)
 // @Produce json
 // @Tags Enterprise
 // @Param app path string true "App ID"
-// @Success 200 {array} codersdk.OAuth2ProviderAppSecret
+// @Success 200 {array} wirtualsdk.OAuth2ProviderAppSecret
 // @Router /oauth2-provider/apps/{app}/secrets [get]
 func (api *API) oAuth2ProviderAppSecrets(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -246,7 +246,7 @@ func (api *API) oAuth2ProviderAppSecrets(rw http.ResponseWriter, r *http.Request
 // @Produce json
 // @Tags Enterprise
 // @Param app path string true "App ID"
-// @Success 200 {array} codersdk.OAuth2ProviderAppSecretFull
+// @Success 200 {array} wirtualsdk.OAuth2ProviderAppSecretFull
 // @Router /oauth2-provider/apps/{app}/secrets [post]
 func (api *API) postOAuth2ProviderAppSecret(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -333,7 +333,7 @@ func (api *API) deleteOAuth2ProviderAppSecret(rw http.ResponseWriter, r *http.Re
 // @Tags Enterprise
 // @Param client_id query string true "Client ID"
 // @Param state query string true "A random unguessable string"
-// @Param response_type query codersdk.OAuth2ProviderResponseType true "Response type"
+// @Param response_type query wirtualsdk.OAuth2ProviderResponseType true "Response type"
 // @Param redirect_uri query string false "Redirect here after authorization"
 // @Param scope query string false "Token scopes (currently ignored)"
 // @Success 302
@@ -350,7 +350,7 @@ func (api *API) getOAuth2ProviderAppAuthorize() http.HandlerFunc {
 // @Param client_secret formData string false "Client secret, required if grant_type=authorization_code"
 // @Param code formData string false "Authorization code, required if grant_type=authorization_code"
 // @Param refresh_token formData string false "Refresh token, required if grant_type=refresh_token"
-// @Param grant_type formData codersdk.OAuth2ProviderGrantType true "Grant type"
+// @Param grant_type formData wirtualsdk.OAuth2ProviderGrantType true "Grant type"
 // @Success 200 {object} oauth2.Token
 // @Router /oauth2/tokens [post]
 func (api *API) postOAuth2ProviderAppToken() http.HandlerFunc {

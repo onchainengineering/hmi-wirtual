@@ -10,7 +10,7 @@ import (
 	"golang.org/x/mod/semver"
 
 	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/pretty"
 )
 

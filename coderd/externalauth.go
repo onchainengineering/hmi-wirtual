@@ -16,7 +16,7 @@ import (
 	"github.com/coder/coder/v2/coderd/externalauth"
 	"github.com/coder/coder/v2/coderd/httpapi"
 	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Get external auth by ID
@@ -25,7 +25,7 @@ import (
 // @Tags Git
 // @Produce json
 // @Param externalauth path string true "Git Provider ID" format(string)
-// @Success 200 {object} codersdk.ExternalAuth
+// @Success 200 {object} wirtualsdk.ExternalAuth
 // @Router /external-auth/{externalauth} [get]
 func (api *API) externalAuthByID(w http.ResponseWriter, r *http.Request) {
 	config := httpmw.ExternalAuthParam(r)
@@ -207,7 +207,7 @@ func (api *API) postExternalAuthDeviceByID(rw http.ResponseWriter, r *http.Reque
 // @Produce json
 // @Tags Git
 // @Param externalauth path string true "Git Provider ID" format(string)
-// @Success 200 {object} codersdk.ExternalAuthDevice
+// @Success 200 {object} wirtualsdk.ExternalAuthDevice
 // @Router /external-auth/{externalauth}/device [get]
 func (*API) externalAuthDeviceByID(rw http.ResponseWriter, r *http.Request) {
 	config := httpmw.ExternalAuthParam(r)
@@ -320,7 +320,7 @@ func (api *API) externalAuthCallback(externalAuthConfig *externalauth.Config) ht
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Git
-// @Success 200 {object} codersdk.ExternalAuthLink
+// @Success 200 {object} wirtualsdk.ExternalAuthLink
 // @Router /external-auth [get]
 func (api *API) listUserExternalAuths(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

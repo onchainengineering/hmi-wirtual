@@ -20,7 +20,7 @@ import (
 	"github.com/coder/coder/v2/coderd/notifications"
 	agpl "github.com/coder/coder/v2/coderd/schedule"
 	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // EnterpriseTemplateScheduleStore provides an agpl.TemplateScheduleStore that

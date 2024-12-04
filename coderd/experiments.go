@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Get enabled experiments
@@ -12,7 +12,7 @@ import (
 // @Security CoderSessionToken
 // @Produce json
 // @Tags General
-// @Success 200 {array} codersdk.Experiment
+// @Success 200 {array} wirtualsdk.Experiment
 // @Router /experiments [get]
 func (api *API) handleExperimentsGet(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -24,7 +24,7 @@ func (api *API) handleExperimentsGet(rw http.ResponseWriter, r *http.Request) {
 // @Security CoderSessionToken
 // @Produce json
 // @Tags General
-// @Success 200 {array} codersdk.Experiment
+// @Success 200 {array} wirtualsdk.Experiment
 // @Router /experiments/available [get]
 func handleExperimentsSafe(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

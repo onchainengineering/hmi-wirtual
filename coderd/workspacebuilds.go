@@ -31,7 +31,7 @@ import (
 	"github.com/coder/coder/v2/coderd/rbac/policy"
 	"github.com/coder/coder/v2/coderd/wsbuilder"
 	"github.com/coder/coder/v2/coderd/wspubsub"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Get workspace build
@@ -40,7 +40,7 @@ import (
 // @Produce json
 // @Tags Builds
 // @Param workspacebuild path string true "Workspace build ID"
-// @Success 200 {object} codersdk.WorkspaceBuild
+// @Success 200 {object} wirtualsdk.WorkspaceBuild
 // @Router /workspacebuilds/{workspacebuild} [get]
 func (api *API) workspaceBuild(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -107,7 +107,7 @@ func (api *API) workspaceBuild(rw http.ResponseWriter, r *http.Request) {
 // @Param limit query int false "Page limit"
 // @Param offset query int false "Page offset"
 // @Param since query string false "Since timestamp" format(date-time)
-// @Success 200 {array} codersdk.WorkspaceBuild
+// @Success 200 {array} wirtualsdk.WorkspaceBuild
 // @Router /workspaces/{workspace}/builds [get]
 func (api *API) workspaceBuilds(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -220,7 +220,7 @@ func (api *API) workspaceBuilds(rw http.ResponseWriter, r *http.Request) {
 // @Param user path string true "User ID, name, or me"
 // @Param workspacename path string true "Workspace name"
 // @Param buildnumber path string true "Build number" format(number)
-// @Success 200 {object} codersdk.WorkspaceBuild
+// @Success 200 {object} wirtualsdk.WorkspaceBuild
 // @Router /users/{user}/workspace/{workspacename}/builds/{buildnumber} [get]
 func (api *API) workspaceBuildByBuildNumber(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -311,8 +311,8 @@ func (api *API) workspaceBuildByBuildNumber(rw http.ResponseWriter, r *http.Requ
 // @Produce json
 // @Tags Builds
 // @Param workspace path string true "Workspace ID" format(uuid)
-// @Param request body codersdk.CreateWorkspaceBuildRequest true "Create workspace build request"
-// @Success 200 {object} codersdk.WorkspaceBuild
+// @Param request body wirtualsdk.CreateWorkspaceBuildRequest true "Create workspace build request"
+// @Success 200 {object} wirtualsdk.WorkspaceBuild
 // @Router /workspaces/{workspace}/builds [post]
 func (api *API) postWorkspaceBuilds(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -427,7 +427,7 @@ func (api *API) postWorkspaceBuilds(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Builds
 // @Param workspacebuild path string true "Workspace build ID"
-// @Success 200 {object} codersdk.Response
+// @Success 200 {object} wirtualsdk.Response
 // @Router /workspacebuilds/{workspacebuild}/cancel [patch]
 func (api *API) patchCancelWorkspaceBuild(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -528,7 +528,7 @@ func (api *API) verifyUserCanCancelWorkspaceBuilds(ctx context.Context, userID u
 // @Produce json
 // @Tags Builds
 // @Param workspacebuild path string true "Workspace build ID"
-// @Success 200 {array} codersdk.WorkspaceBuildParameter
+// @Success 200 {array} wirtualsdk.WorkspaceBuildParameter
 // @Router /workspacebuilds/{workspacebuild}/parameters [get]
 func (api *API) workspaceBuildParameters(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -555,7 +555,7 @@ func (api *API) workspaceBuildParameters(rw http.ResponseWriter, r *http.Request
 // @Param before query int false "Before Unix timestamp"
 // @Param after query int false "After Unix timestamp"
 // @Param follow query bool false "Follow log stream"
-// @Success 200 {array} codersdk.ProvisionerJobLog
+// @Success 200 {array} wirtualsdk.ProvisionerJobLog
 // @Router /workspacebuilds/{workspacebuild}/logs [get]
 func (api *API) workspaceBuildLogs(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -578,7 +578,7 @@ func (api *API) workspaceBuildLogs(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Builds
 // @Param workspacebuild path string true "Workspace build ID"
-// @Success 200 {object} codersdk.WorkspaceBuild
+// @Success 200 {object} wirtualsdk.WorkspaceBuild
 // @Router /workspacebuilds/{workspacebuild}/state [get]
 func (api *API) workspaceBuildState(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -617,7 +617,7 @@ func (api *API) workspaceBuildState(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Builds
 // @Param workspacebuild path string true "Workspace build ID" format(uuid)
-// @Success 200 {object} codersdk.WorkspaceBuildTimings
+// @Success 200 {object} wirtualsdk.WorkspaceBuildTimings
 // @Router /workspacebuilds/{workspacebuild}/timings [get]
 func (api *API) workspaceBuildTimings(rw http.ResponseWriter, r *http.Request) {
 	var (

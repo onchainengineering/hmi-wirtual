@@ -18,9 +18,9 @@ import (
 	"nhooyr.io/websocket"
 
 	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/codersdk/drpc"
 	"github.com/coder/coder/v2/provisionerd/proto"
 	"github.com/coder/coder/v2/provisionerd/runner"
+	"github.com/coder/coder/v2/wirtualsdk/drpc"
 )
 
 type LogSource string

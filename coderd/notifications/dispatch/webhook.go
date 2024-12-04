@@ -16,7 +16,7 @@ import (
 
 	"github.com/coder/coder/v2/coderd/notifications/types"
 	markdown "github.com/coder/coder/v2/coderd/render"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // WebhookHandler dispatches notification messages via an HTTP POST webhook.

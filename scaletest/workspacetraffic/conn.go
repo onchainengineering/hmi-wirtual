@@ -12,8 +12,8 @@ import (
 
 	"nhooyr.io/websocket"
 
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 
 	"github.com/google/uuid"
 	gossh "golang.org/x/crypto/ssh"

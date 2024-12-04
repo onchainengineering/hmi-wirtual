@@ -11,7 +11,7 @@ import (
 	"github.com/coder/coder/v2/coderd/httpapi"
 	"github.com/coder/coder/v2/coderd/httpmw"
 	"github.com/coder/coder/v2/coderd/schedule"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 const TimeFormatHHMM = "15:04"
@@ -42,7 +42,7 @@ func (api *API) autostopRequirementEnabledMW(next http.Handler) http.Handler {
 // @Produce json
 // @Tags Enterprise
 // @Param user path string true "User ID" format(uuid)
-// @Success 200 {array} codersdk.UserQuietHoursScheduleResponse
+// @Success 200 {array} wirtualsdk.UserQuietHoursScheduleResponse
 // @Router /users/{user}/quiet-hours [get]
 func (api *API) userQuietHoursSchedule(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -77,8 +77,8 @@ func (api *API) userQuietHoursSchedule(rw http.ResponseWriter, r *http.Request) 
 // @Produce json
 // @Tags Enterprise
 // @Param user path string true "User ID" format(uuid)
-// @Param request body codersdk.UpdateUserQuietHoursScheduleRequest true "Update schedule request"
-// @Success 200 {array} codersdk.UserQuietHoursScheduleResponse
+// @Param request body wirtualsdk.UpdateUserQuietHoursScheduleRequest true "Update schedule request"
+// @Success 200 {array} wirtualsdk.UserQuietHoursScheduleResponse
 // @Router /users/{user}/quiet-hours [put]
 func (api *API) putUserQuietHoursSchedule(rw http.ResponseWriter, r *http.Request) {
 	var (

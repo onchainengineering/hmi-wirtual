@@ -9,7 +9,7 @@ import (
 	"github.com/coder/coder/v2/coderd/database/db2sdk"
 	"github.com/coder/coder/v2/coderd/httpmw"
 	"github.com/coder/coder/v2/coderd/rbac/policy"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 
 	"github.com/coder/coder/v2/coderd/httpapi"
 	"github.com/coder/coder/v2/coderd/rbac"
@@ -22,7 +22,7 @@ import (
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Members
-// @Success 200 {array} codersdk.AssignableRoles
+// @Success 200 {array} wirtualsdk.AssignableRoles
 // @Router /users/roles [get]
 func (api *API) AssignableSiteRoles(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -54,7 +54,7 @@ func (api *API) AssignableSiteRoles(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Members
 // @Param organization path string true "Organization ID" format(uuid)
-// @Success 200 {array} codersdk.AssignableRoles
+// @Success 200 {array} wirtualsdk.AssignableRoles
 // @Router /organizations/{organization}/members/roles [get]
 func (api *API) assignableOrgRoles(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

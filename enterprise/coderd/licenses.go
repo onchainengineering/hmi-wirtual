@@ -28,8 +28,8 @@ import (
 	"github.com/coder/coder/v2/coderd/httpapi"
 	"github.com/coder/coder/v2/coderd/rbac"
 	"github.com/coder/coder/v2/coderd/rbac/policy"
-	"github.com/coder/coder/v2/codersdk"
 	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 const (
@@ -60,8 +60,8 @@ var Keys = map[string]ed25519.PublicKey{"2022-08-12": ed25519.PublicKey(key20220
 // @Accept json
 // @Produce json
 // @Tags Organizations
-// @Param request body codersdk.AddLicenseRequest true "Add license request"
-// @Success 201 {object} codersdk.License
+// @Param request body wirtualsdk.AddLicenseRequest true "Add license request"
+// @Success 201 {object} wirtualsdk.License
 // @Router /licenses [post]
 func (api *API) postLicense(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -164,7 +164,7 @@ func (api *API) postLicense(rw http.ResponseWriter, r *http.Request) {
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Organizations
-// @Success 201 {object} codersdk.Response
+// @Success 201 {object} wirtualsdk.Response
 // @Router /licenses/refresh-entitlements [post]
 func (api *API) postRefreshEntitlements(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -230,7 +230,7 @@ func (api *API) refreshEntitlements(ctx context.Context) error {
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Enterprise
-// @Success 200 {array} codersdk.License
+// @Success 200 {array} wirtualsdk.License
 // @Router /licenses [get]
 func (api *API) licenses(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

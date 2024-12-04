@@ -6,8 +6,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/codersdk"
 	"github.com/coder/coder/v2/scaletest/workspacebuild"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 func Test_Config(t *testing.T) {

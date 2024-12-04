@@ -5,8 +5,8 @@ import (
 
 	"github.com/coder/coder/v2/coderd/healthcheck/health"
 	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/healthsdk"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/healthsdk"
 )
 
 func (a *agent) HandleNetcheck(rw http.ResponseWriter, r *http.Request) {

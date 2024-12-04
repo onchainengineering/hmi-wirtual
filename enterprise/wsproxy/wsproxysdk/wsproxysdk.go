@@ -16,9 +16,9 @@ import (
 	"cdr.dev/slog"
 	"github.com/coder/coder/v2/coderd/httpmw"
 	"github.com/coder/coder/v2/coderd/workspaceapps"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
 	agpl "github.com/coder/coder/v2/tailnet"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 )
 
 // Client is a HTTP client for a subset of Coder API routes that external
@@ -62,18 +62,18 @@ func (c *Client) SessionToken() string {
 	return c.SDKClient.SessionToken()
 }
 
-// Request wraps the underlying codersdk.Client's Request method.
+// Request wraps the underlying wirtualsdk.Client's Request method.
 func (c *Client) Request(ctx context.Context, method, path string, body interface{}, opts ...codersdk.RequestOption) (*http.Response, error) {
 	return c.SDKClient.Request(ctx, method, path, body, opts...)
 }
 
-// RequestIgnoreRedirects wraps the underlying codersdk.Client's Request method
+// RequestIgnoreRedirects wraps the underlying wirtualsdk.Client's Request method
 // on the client that ignores redirects.
 func (c *Client) RequestIgnoreRedirects(ctx context.Context, method, path string, body interface{}, opts ...codersdk.RequestOption) (*http.Response, error) {
 	return c.sdkClientIgnoreRedirects.Request(ctx, method, path, body, opts...)
 }
 
-// DialWorkspaceAgent calls the underlying codersdk.Client's DialWorkspaceAgent
+// DialWorkspaceAgent calls the underlying wirtualsdk.Client's DialWorkspaceAgent
 // method.
 func (c *Client) DialWorkspaceAgent(ctx context.Context, agentID uuid.UUID, options *workspacesdk.DialAgentOptions) (agentConn *workspacesdk.AgentConn, err error) {
 	return workspacesdk.New(c.SDKClient).DialAgent(ctx, agentID, options)

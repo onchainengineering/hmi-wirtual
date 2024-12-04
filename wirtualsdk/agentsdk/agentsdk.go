@@ -22,9 +22,9 @@ import (
 	"cdr.dev/slog"
 	"github.com/coder/coder/v2/agent/proto"
 	"github.com/coder/coder/v2/apiversion"
-	"github.com/coder/coder/v2/codersdk"
-	drpcsdk "github.com/coder/coder/v2/codersdk/drpc"
 	tailnetproto "github.com/coder/coder/v2/tailnet/proto"
+	"github.com/coder/coder/v2/wirtualsdk"
+	drpcsdk "github.com/coder/coder/v2/wirtualsdk/drpc"
 )
 
 // ExternalLogSourceID is the statically-defined ID of a log-source that
@@ -42,7 +42,7 @@ func New(serverURL *url.URL) *Client {
 	}
 }
 
-// Client wraps `codersdk.Client` with specific functions
+// Client wraps `wirtualsdk.Client` with specific functions
 // scoped to a workspace agent.
 type Client struct {
 	SDK *codersdk.Client

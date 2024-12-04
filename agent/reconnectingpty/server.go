@@ -15,7 +15,7 @@ import (
 
 	"cdr.dev/slog"
 	"github.com/coder/coder/v2/agent/agentssh"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 )
 
 type Server struct {

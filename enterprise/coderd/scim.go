@@ -22,8 +22,8 @@ import (
 	"github.com/coder/coder/v2/coderd/database/dbauthz"
 	"github.com/coder/coder/v2/coderd/database/dbtime"
 	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
 	"github.com/coder/coder/v2/enterprise/coderd/scim"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 func (api *API) scimVerifyAuthHeader(r *http.Request) bool {
@@ -336,7 +336,7 @@ func (api *API) scimPostUser(rw http.ResponseWriter, r *http.Request) {
 // @Tags Enterprise
 // @Param id path string true "User ID" format(uuid)
 // @Param request body coderd.SCIMUser true "Update user request"
-// @Success 200 {object} codersdk.User
+// @Success 200 {object} wirtualsdk.User
 // @Router /scim/v2/Users/{id} [patch]
 func (api *API) scimPatchUser(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

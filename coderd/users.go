@@ -30,7 +30,7 @@ import (
 	"github.com/coder/coder/v2/coderd/userpassword"
 	"github.com/coder/coder/v2/coderd/util/ptr"
 	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // userDebugOIDC returns the OIDC debug context for the user.
@@ -80,7 +80,7 @@ func (api *API) userDebugOIDC(rw http.ResponseWriter, r *http.Request) {
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Users
-// @Success 200 {object} codersdk.Response
+// @Success 200 {object} wirtualsdk.Response
 // @Router /users/first [get]
 func (api *API) firstUser(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -114,8 +114,8 @@ func (api *API) firstUser(rw http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Tags Users
-// @Param request body codersdk.CreateFirstUserRequest true "First user request"
-// @Success 201 {object} codersdk.CreateFirstUserResponse
+// @Param request body wirtualsdk.CreateFirstUserRequest true "First user request"
+// @Success 201 {object} wirtualsdk.CreateFirstUserResponse
 // @Router /users/first [post]
 func (api *API) postFirstUser(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -257,7 +257,7 @@ func (api *API) postFirstUser(rw http.ResponseWriter, r *http.Request) {
 // @Param after_id query string false "After ID" format(uuid)
 // @Param limit query int false "Page limit"
 // @Param offset query int false "Page offset"
-// @Success 200 {object} codersdk.GetUsersResponse
+// @Success 200 {object} wirtualsdk.GetUsersResponse
 // @Router /users [get]
 func (api *API) users(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -346,8 +346,8 @@ func (api *API) GetUsers(rw http.ResponseWriter, r *http.Request) ([]database.Us
 // @Accept json
 // @Produce json
 // @Tags Users
-// @Param request body codersdk.CreateUserRequestWithOrgs true "Create user request"
-// @Success 201 {object} codersdk.User
+// @Param request body wirtualsdk.CreateUserRequestWithOrgs true "Create user request"
+// @Success 201 {object} wirtualsdk.User
 // @Router /users [post]
 func (api *API) postUser(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -631,7 +631,7 @@ func (api *API) deleteUser(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, username, or me"
-// @Success 200 {object} codersdk.User
+// @Success 200 {object} wirtualsdk.User
 // @Router /users/{user} [get]
 func (api *API) userByName(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -657,7 +657,7 @@ func (api *API) userByName(rw http.ResponseWriter, r *http.Request) {
 // @Tags Users
 // @Param user path string true "User ID, username, or me"
 // @Param template_id query string true "Template ID"
-// @Success 200 {array} codersdk.UserParameter
+// @Success 200 {array} wirtualsdk.UserParameter
 // @Router /users/{user}/autofill-parameters [get]
 func (api *API) userAutofillParameters(rw http.ResponseWriter, r *http.Request) {
 	user := httpmw.UserParam(r)
@@ -708,7 +708,7 @@ func (api *API) userAutofillParameters(rw http.ResponseWriter, r *http.Request) 
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Success 200 {object} codersdk.UserLoginType
+// @Success 200 {object} wirtualsdk.UserLoginType
 // @Router /users/{user}/login-type [get]
 func (*API) userLoginType(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -737,8 +737,8 @@ func (*API) userLoginType(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Param request body codersdk.UpdateUserProfileRequest true "Updated profile"
-// @Success 200 {object} codersdk.User
+// @Param request body wirtualsdk.UpdateUserProfileRequest true "Updated profile"
+// @Success 200 {object} wirtualsdk.User
 // @Router /users/{user}/profile [put]
 func (api *API) putUserProfile(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -819,7 +819,7 @@ func (api *API) putUserProfile(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Success 200 {object} codersdk.User
+// @Success 200 {object} wirtualsdk.User
 // @Router /users/{user}/status/suspend [put]
 func (api *API) putSuspendUserAccount() func(rw http.ResponseWriter, r *http.Request) {
 	return api.putUserStatus(database.UserStatusSuspended)
@@ -831,7 +831,7 @@ func (api *API) putSuspendUserAccount() func(rw http.ResponseWriter, r *http.Req
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Success 200 {object} codersdk.User
+// @Success 200 {object} wirtualsdk.User
 // @Router /users/{user}/status/activate [put]
 func (api *API) putActivateUserAccount() func(rw http.ResponseWriter, r *http.Request) {
 	return api.putUserStatus(database.UserStatusActive)
@@ -971,8 +971,8 @@ func (api *API) notifyUserStatusChanged(ctx context.Context, actingUserName stri
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Param request body codersdk.UpdateUserAppearanceSettingsRequest true "New appearance settings"
-// @Success 200 {object} codersdk.User
+// @Param request body wirtualsdk.UpdateUserAppearanceSettingsRequest true "New appearance settings"
+// @Success 200 {object} wirtualsdk.User
 // @Router /users/{user}/appearance [put]
 func (api *API) putUserAppearanceSettings(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -1016,7 +1016,7 @@ func (api *API) putUserAppearanceSettings(rw http.ResponseWriter, r *http.Reques
 // @Accept json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Param request body codersdk.UpdateUserPasswordRequest true "Update password request"
+// @Param request body wirtualsdk.UpdateUserPasswordRequest true "Update password request"
 // @Success 204
 // @Router /users/{user}/password [put]
 func (api *API) putUserPassword(rw http.ResponseWriter, r *http.Request) {
@@ -1152,7 +1152,7 @@ func (api *API) putUserPassword(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Success 200 {object} codersdk.User
+// @Success 200 {object} wirtualsdk.User
 // @Router /users/{user}/roles [get]
 func (api *API) userRoles(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1195,8 +1195,8 @@ func (api *API) userRoles(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Param request body codersdk.UpdateRoles true "Update roles request"
-// @Success 200 {object} codersdk.User
+// @Param request body wirtualsdk.UpdateRoles true "Update roles request"
+// @Success 200 {object} wirtualsdk.User
 // @Router /users/{user}/roles [put]
 func (api *API) putUserRoles(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -1271,7 +1271,7 @@ func (api *API) putUserRoles(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Success 200 {array} codersdk.Organization
+// @Success 200 {array} wirtualsdk.Organization
 // @Router /users/{user}/organizations [get]
 func (api *API) organizationsByUser(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1310,7 +1310,7 @@ func (api *API) organizationsByUser(rw http.ResponseWriter, r *http.Request) {
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
 // @Param organizationname path string true "Organization name"
-// @Success 200 {object} codersdk.Organization
+// @Success 200 {object} wirtualsdk.Organization
 // @Router /users/{user}/organizations/{organizationname} [get]
 func (api *API) organizationByUserAndName(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

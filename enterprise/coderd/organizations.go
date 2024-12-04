@@ -14,7 +14,7 @@ import (
 	"github.com/coder/coder/v2/coderd/database/dbtime"
 	"github.com/coder/coder/v2/coderd/httpapi"
 	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Update organization
@@ -24,8 +24,8 @@ import (
 // @Produce json
 // @Tags Organizations
 // @Param organization path string true "Organization ID or name"
-// @Param request body codersdk.UpdateOrganizationRequest true "Patch organization request"
-// @Success 200 {object} codersdk.Organization
+// @Param request body wirtualsdk.UpdateOrganizationRequest true "Patch organization request"
+// @Success 200 {object} wirtualsdk.Organization
 // @Router /organizations/{organization} [patch]
 func (api *API) patchOrganization(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -125,7 +125,7 @@ func (api *API) patchOrganization(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Organizations
 // @Param organization path string true "Organization ID or name"
-// @Success 200 {object} codersdk.Response
+// @Success 200 {object} wirtualsdk.Response
 // @Router /organizations/{organization} [delete]
 func (api *API) deleteOrganization(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -171,8 +171,8 @@ func (api *API) deleteOrganization(rw http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Tags Organizations
-// @Param request body codersdk.CreateOrganizationRequest true "Create organization request"
-// @Success 201 {object} codersdk.Organization
+// @Param request body wirtualsdk.CreateOrganizationRequest true "Create organization request"
+// @Success 201 {object} wirtualsdk.Organization
 // @Router /organizations [post]
 func (api *API) postOrganizations(rw http.ResponseWriter, r *http.Request) {
 	var (

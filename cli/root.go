@@ -36,8 +36,8 @@ import (
 	"github.com/coder/coder/v2/cli/config"
 	"github.com/coder/coder/v2/cli/gitauth"
 	"github.com/coder/coder/v2/cli/telemetry"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
 	"github.com/coder/serpent"
 )
 
@@ -1054,7 +1054,7 @@ func formatMultiError(from string, multi []error, opts *formatOpts) string {
 
 // formatRunCommandError are cli command errors. This kind of error is very
 // broad, as it contains all errors that occur when running a command.
-// If you know the error is something else, like a codersdk.Error, make a new
+// If you know the error is something else, like a wirtualsdk.Error, make a new
 // formatter and add it to cliHumanFormatError function.
 func formatRunCommandError(err *serpent.RunCommandError, opts *formatOpts) string {
 	var str strings.Builder

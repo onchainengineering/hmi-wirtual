@@ -22,8 +22,6 @@ import (
 	"github.com/coder/coder/v2/coderd/database"
 	"github.com/coder/coder/v2/coderd/database/dbmem"
 	"github.com/coder/coder/v2/coderd/database/pubsub"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/drpc"
 	"github.com/coder/coder/v2/enterprise/coderd"
 	"github.com/coder/coder/v2/enterprise/coderd/license"
 	"github.com/coder/coder/v2/enterprise/dbcrypt"
@@ -33,6 +31,8 @@ import (
 	"github.com/coder/coder/v2/provisionersdk"
 	sdkproto "github.com/coder/coder/v2/provisionersdk/proto"
 	"github.com/coder/coder/v2/testutil"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/drpc"
 )
 
 const (
@@ -275,7 +275,7 @@ func (nopcloser) Close() error { return nil }
 
 type CreateOrganizationOptions struct {
 	// IncludeProvisionerDaemon will spin up an external provisioner for the organization.
-	// This requires enterprise and the feature 'codersdk.FeatureExternalProvisionerDaemons'
+	// This requires enterprise and the feature 'wirtualsdk.FeatureExternalProvisionerDaemons'
 	IncludeProvisionerDaemon bool
 }
 

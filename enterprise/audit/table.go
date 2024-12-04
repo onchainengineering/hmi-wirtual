@@ -7,7 +7,7 @@ import (
 	"runtime"
 
 	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // This mapping creates a relationship between an Auditable Resource

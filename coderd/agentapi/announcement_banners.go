@@ -8,7 +8,7 @@ import (
 
 	"github.com/coder/coder/v2/agent/proto"
 	"github.com/coder/coder/v2/coderd/appearance"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
+	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
 )
 
 type AnnouncementBannerAPI struct {

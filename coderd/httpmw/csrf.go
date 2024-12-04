@@ -9,7 +9,7 @@ import (
 	"github.com/justinas/nosurf"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // CSRF is a middleware that verifies that a CSRF token is present in the request

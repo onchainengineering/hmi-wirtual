@@ -1,13 +1,13 @@
 package cliui
 
 import (
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 )
 
 var defaultQuery = "owner:me"
 
-// WorkspaceFilter wraps codersdk.WorkspaceFilter
+// WorkspaceFilter wraps wirtualsdk.WorkspaceFilter
 // and allows easy integration to a CLI command.
 // Example usage:
 //

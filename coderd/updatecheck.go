@@ -10,14 +10,14 @@ import (
 
 	"github.com/coder/coder/v2/buildinfo"
 	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Update check
 // @ID update-check
 // @Produce json
 // @Tags General
-// @Success 200 {object} codersdk.UpdateCheckResponse
+// @Success 200 {object} wirtualsdk.UpdateCheckResponse
 // @Router /updatecheck [get]
 func (api *API) updateCheck(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

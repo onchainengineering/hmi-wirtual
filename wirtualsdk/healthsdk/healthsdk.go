@@ -13,7 +13,7 @@ import (
 	"tailscale.com/tailcfg"
 
 	"github.com/coder/coder/v2/coderd/healthcheck/health"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @typescript-ignore HealthClient

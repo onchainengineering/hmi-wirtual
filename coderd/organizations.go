@@ -7,7 +7,7 @@ import (
 	"github.com/coder/coder/v2/coderd/database/db2sdk"
 	"github.com/coder/coder/v2/coderd/httpapi"
 	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Get organizations
@@ -15,7 +15,7 @@ import (
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Organizations
-// @Success 200 {object} []codersdk.Organization
+// @Success 200 {object} []wirtualsdk.Organization
 // @Router /organizations [get]
 func (api *API) organizations(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -41,7 +41,7 @@ func (api *API) organizations(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Organizations
 // @Param organization path string true "Organization ID" format(uuid)
-// @Success 200 {object} codersdk.Organization
+// @Success 200 {object} wirtualsdk.Organization
 // @Router /organizations/{organization} [get]
 func (*API) organization(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

@@ -18,7 +18,7 @@ import (
 	"github.com/gohugoio/hugo/parser/pageparser"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 const (

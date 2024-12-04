@@ -32,9 +32,9 @@ import (
 	"github.com/coder/coder/v2/coderd/rbac/policy"
 	"github.com/coder/coder/v2/coderd/telemetry"
 	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
 	"github.com/coder/coder/v2/provisionerd/proto"
 	"github.com/coder/coder/v2/provisionersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 func (api *API) provisionerDaemonsEnabledMW(next http.Handler) http.Handler {
@@ -57,7 +57,7 @@ func (api *API) provisionerDaemonsEnabledMW(next http.Handler) http.Handler {
 // @Tags Enterprise
 // @Param organization path string true "Organization ID" format(uuid)
 // @Param tags query object false "Provisioner tags to filter by (JSON of the form {'tag1':'value1','tag2':'value2'})"
-// @Success 200 {array} codersdk.ProvisionerDaemon
+// @Success 200 {array} wirtualsdk.ProvisionerDaemon
 // @Router /organizations/{organization}/provisionerdaemons [get]
 func (api *API) provisionerDaemons(rw http.ResponseWriter, r *http.Request) {
 	var (

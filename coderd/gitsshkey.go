@@ -9,8 +9,8 @@ import (
 	"github.com/coder/coder/v2/coderd/gitsshkey"
 	"github.com/coder/coder/v2/coderd/httpapi"
 	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
+	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
 )
 
 // @Summary Regenerate user SSH key
@@ -19,7 +19,7 @@ import (
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Success 200 {object} codersdk.GitSSHKey
+// @Success 200 {object} wirtualsdk.GitSSHKey
 // @Router /users/{user}/gitsshkey [put]
 func (api *API) regenerateGitSSHKey(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -83,7 +83,7 @@ func (api *API) regenerateGitSSHKey(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Users
 // @Param user path string true "User ID, name, or me"
-// @Success 200 {object} codersdk.GitSSHKey
+// @Success 200 {object} wirtualsdk.GitSSHKey
 // @Router /users/{user}/gitsshkey [get]
 func (api *API) gitSSHKey(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

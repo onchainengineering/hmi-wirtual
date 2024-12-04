@@ -5,7 +5,7 @@ import (
 
 	"github.com/coder/coder/v2/coderd/httpapi"
 	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Removed: Get parameters by template version
@@ -40,7 +40,7 @@ func templateVersionSchemaDeprecated(rw http.ResponseWriter, r *http.Request) {
 // @Param after query int false "After log id"
 // @Param follow query bool false "Follow log stream"
 // @Param no_compression query bool false "Disable compression for WebSocket connection"
-// @Success 200 {array} codersdk.WorkspaceAgentLog
+// @Success 200 {array} wirtualsdk.WorkspaceAgentLog
 // @Router /workspaceagents/{workspaceagent}/startup-logs [get]
 func (api *API) workspaceAgentLogsDeprecated(rw http.ResponseWriter, r *http.Request) {
 	api.workspaceAgentLogs(rw, r)
@@ -66,7 +66,7 @@ func (api *API) workspaceAgentsGitAuth(rw http.ResponseWriter, r *http.Request) 
 // @Produce json
 // @Tags Builds
 // @Param workspacebuild path string true "Workspace build ID"
-// @Success 200 {array} codersdk.WorkspaceResource
+// @Success 200 {array} wirtualsdk.WorkspaceResource
 // @Router /workspacebuilds/{workspacebuild}/resources [get]
 // @Deprecated this endpoint is unused and will be removed in future.
 func (api *API) workspaceBuildResourcesDeprecated(rw http.ResponseWriter, r *http.Request) {

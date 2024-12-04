@@ -6,8 +6,8 @@ import (
 
 	"github.com/coder/coder/v2/coderd/httpapi"
 	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/codersdk"
 	"github.com/coder/coder/v2/site"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // authorizeMW serves to remove some code from the primary authorize handler.

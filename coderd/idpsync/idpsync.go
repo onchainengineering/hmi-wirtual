@@ -14,8 +14,8 @@ import (
 	"github.com/coder/coder/v2/coderd/database"
 	"github.com/coder/coder/v2/coderd/httpapi"
 	"github.com/coder/coder/v2/coderd/runtimeconfig"
-	"github.com/coder/coder/v2/codersdk"
 	"github.com/coder/coder/v2/site"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // IDPSync is an interface, so we can implement this as AGPL and as enterprise,

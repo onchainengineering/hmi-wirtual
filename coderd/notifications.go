@@ -14,7 +14,7 @@ import (
 	"github.com/coder/coder/v2/coderd/httpapi"
 	"github.com/coder/coder/v2/coderd/httpmw"
 	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Get notifications settings
@@ -22,7 +22,7 @@ import (
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Notifications
-// @Success 200 {object} codersdk.NotificationsSettings
+// @Success 200 {object} wirtualsdk.NotificationsSettings
 // @Router /notifications/settings [get]
 func (api *API) notificationsSettings(rw http.ResponseWriter, r *http.Request) {
 	settingsJSON, err := api.Database.GetNotificationsSettings(r.Context())
@@ -54,8 +54,8 @@ func (api *API) notificationsSettings(rw http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Tags Notifications
-// @Param request body codersdk.NotificationsSettings true "Notifications settings request"
-// @Success 200 {object} codersdk.NotificationsSettings
+// @Param request body wirtualsdk.NotificationsSettings true "Notifications settings request"
+// @Success 200 {object} wirtualsdk.NotificationsSettings
 // @Success 304
 // @Router /notifications/settings [put]
 func (api *API) putNotificationsSettings(rw http.ResponseWriter, r *http.Request) {
@@ -126,7 +126,7 @@ func (api *API) putNotificationsSettings(rw http.ResponseWriter, r *http.Request
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Notifications
-// @Success 200 {array} codersdk.NotificationTemplate
+// @Success 200 {array} wirtualsdk.NotificationTemplate
 // @Router /notifications/templates/system [get]
 func (api *API) systemNotificationTemplates(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -149,7 +149,7 @@ func (api *API) systemNotificationTemplates(rw http.ResponseWriter, r *http.Requ
 // @Security CoderSessionToken
 // @Produce json
 // @Tags Notifications
-// @Success 200 {array} codersdk.NotificationMethodsResponse
+// @Success 200 {array} wirtualsdk.NotificationMethodsResponse
 // @Router /notifications/dispatch-methods [get]
 func (api *API) notificationDispatchMethods(rw http.ResponseWriter, r *http.Request) {
 	var methods []string
@@ -169,7 +169,7 @@ func (api *API) notificationDispatchMethods(rw http.ResponseWriter, r *http.Requ
 // @Produce json
 // @Tags Notifications
 // @Param user path string true "User ID, name, or me"
-// @Success 200 {array} codersdk.NotificationPreference
+// @Success 200 {array} wirtualsdk.NotificationPreference
 // @Router /users/{user}/notifications/preferences [get]
 func (api *API) userNotificationPreferences(rw http.ResponseWriter, r *http.Request) {
 	var (
@@ -199,9 +199,9 @@ func (api *API) userNotificationPreferences(rw http.ResponseWriter, r *http.Requ
 // @Accept json
 // @Produce json
 // @Tags Notifications
-// @Param request body codersdk.UpdateUserNotificationPreferences true "Preferences"
+// @Param request body wirtualsdk.UpdateUserNotificationPreferences true "Preferences"
 // @Param user path string true "User ID, name, or me"
-// @Success 200 {array} codersdk.NotificationPreference
+// @Success 200 {array} wirtualsdk.NotificationPreference
 // @Router /users/{user}/notifications/preferences [put]
 func (api *API) putUserNotificationPreferences(rw http.ResponseWriter, r *http.Request) {
 	var (

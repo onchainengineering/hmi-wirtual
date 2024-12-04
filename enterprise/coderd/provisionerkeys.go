@@ -13,7 +13,7 @@ import (
 	"github.com/coder/coder/v2/coderd/httpmw"
 	"github.com/coder/coder/v2/coderd/provisionerdserver"
 	"github.com/coder/coder/v2/coderd/provisionerkey"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 // @Summary Create provisioner key
@@ -22,7 +22,7 @@ import (
 // @Produce json
 // @Tags Enterprise
 // @Param organization path string true "Organization ID"
-// @Success 201 {object} codersdk.CreateProvisionerKeyResponse
+// @Success 201 {object} wirtualsdk.CreateProvisionerKeyResponse
 // @Router /organizations/{organization}/provisionerkeys [post]
 func (api *API) postProvisionerKey(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -103,7 +103,7 @@ func (api *API) postProvisionerKey(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Enterprise
 // @Param organization path string true "Organization ID"
-// @Success 200 {object} []codersdk.ProvisionerKey
+// @Success 200 {object} []wirtualsdk.ProvisionerKey
 // @Router /organizations/{organization}/provisionerkeys [get]
 func (api *API) provisionerKeys(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -124,7 +124,7 @@ func (api *API) provisionerKeys(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Enterprise
 // @Param organization path string true "Organization ID"
-// @Success 200 {object} []codersdk.ProvisionerKeyDaemons
+// @Success 200 {object} []wirtualsdk.ProvisionerKeyDaemons
 // @Router /organizations/{organization}/provisionerkeys/daemons [get]
 func (api *API) provisionerKeyDaemons(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -206,7 +206,7 @@ func (api *API) deleteProvisionerKey(rw http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags Enterprise
 // @Param provisionerkey path string true "Provisioner Key"
-// @Success 200 {object} codersdk.ProvisionerKey
+// @Success 200 {object} wirtualsdk.ProvisionerKey
 // @Router /provisionerkeys/{provisionerkey} [get]
 func (*API) fetchProvisionerKey(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

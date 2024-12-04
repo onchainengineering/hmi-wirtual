@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/codersdk/healthsdk"
 	"github.com/coder/coder/v2/pty/ptytest"
+	"github.com/coder/coder/v2/wirtualsdk/healthsdk"
 )
 
 func TestNetcheck(t *testing.T) {
