@@ -74,25 +74,25 @@ func (s *scaletestTracingFlags) attach(opts *serpent.OptionSet) {
 		*opts,
 		serpent.Option{
 			Flag:        "trace",
-			Env:         "CODER_SCALETEST_TRACE",
+			Env:         "WIRTUAL_SCALETEST_TRACE",
 			Description: "Whether application tracing data is collected. It exports to a backend configured by environment variables. See: https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/protocol/exporter.md.",
 			Value:       serpent.BoolOf(&s.traceEnable),
 		},
 		serpent.Option{
 			Flag:        "trace-coder",
-			Env:         "CODER_SCALETEST_TRACE_CODER",
+			Env:         "WIRTUAL_SCALETEST_TRACE_WIRTUAL",
 			Description: "Whether opentelemetry traces are sent to Coder. We recommend keeping this disabled unless we advise you to enable it.",
 			Value:       serpent.BoolOf(&s.traceCoder),
 		},
 		serpent.Option{
 			Flag:        "trace-honeycomb-api-key",
-			Env:         "CODER_SCALETEST_TRACE_HONEYCOMB_API_KEY",
+			Env:         "WIRTUAL_SCALETEST_TRACE_HONEYCOMB_API_KEY",
 			Description: "Enables trace exporting to Honeycomb.io using the provided API key.",
 			Value:       serpent.StringOf(&s.traceHoneycombAPIKey),
 		},
 		serpent.Option{
 			Flag:        "trace-propagate",
-			Env:         "CODER_SCALETEST_TRACE_PROPAGATE",
+			Env:         "WIRTUAL_SCALETEST_TRACE_PROPAGATE",
 			Description: "Enables trace propagation to the Coder backend, which will be used to correlate server-side spans with client-side spans. Only enable this if the server is configured with the exact same tracing configuration as the client.",
 			Value:       serpent.BoolOf(&s.tracePropagate),
 		},
@@ -138,13 +138,13 @@ type scaletestStrategyFlags struct {
 }
 
 func (s *scaletestStrategyFlags) attach(opts *serpent.OptionSet) {
-	concurrencyLong, concurrencyEnv, concurrencyDescription := "concurrency", "CODER_SCALETEST_CONCURRENCY", "Number of concurrent jobs to run. 0 means unlimited."
-	timeoutLong, timeoutEnv, timeoutDescription := "timeout", "CODER_SCALETEST_TIMEOUT", "Timeout for the entire test run. 0 means unlimited."
-	jobTimeoutLong, jobTimeoutEnv, jobTimeoutDescription := "job-timeout", "CODER_SCALETEST_JOB_TIMEOUT", "Timeout per job. Jobs may take longer to complete under higher concurrency limits."
+	concurrencyLong, concurrencyEnv, concurrencyDescription := "concurrency", "WIRTUAL_SCALETEST_CONCURRENCY", "Number of concurrent jobs to run. 0 means unlimited."
+	timeoutLong, timeoutEnv, timeoutDescription := "timeout", "WIRTUAL_SCALETEST_TIMEOUT", "Timeout for the entire test run. 0 means unlimited."
+	jobTimeoutLong, jobTimeoutEnv, jobTimeoutDescription := "job-timeout", "WIRTUAL_SCALETEST_JOB_TIMEOUT", "Timeout per job. Jobs may take longer to complete under higher concurrency limits."
 	if s.cleanup {
-		concurrencyLong, concurrencyEnv, concurrencyDescription = "cleanup-"+concurrencyLong, "CODER_SCALETEST_CLEANUP_CONCURRENCY", strings.ReplaceAll(concurrencyDescription, "jobs", "cleanup jobs")
-		timeoutLong, timeoutEnv, timeoutDescription = "cleanup-"+timeoutLong, "CODER_SCALETEST_CLEANUP_TIMEOUT", strings.ReplaceAll(timeoutDescription, "test", "cleanup")
-		jobTimeoutLong, jobTimeoutEnv, jobTimeoutDescription = "cleanup-"+jobTimeoutLong, "CODER_SCALETEST_CLEANUP_JOB_TIMEOUT", strings.ReplaceAll(jobTimeoutDescription, "jobs", "cleanup jobs")
+		concurrencyLong, concurrencyEnv, concurrencyDescription = "cleanup-"+concurrencyLong, "WIRTUAL_SCALETEST_CLEANUP_CONCURRENCY", strings.ReplaceAll(concurrencyDescription, "jobs", "cleanup jobs")
+		timeoutLong, timeoutEnv, timeoutDescription = "cleanup-"+timeoutLong, "WIRTUAL_SCALETEST_CLEANUP_TIMEOUT", strings.ReplaceAll(timeoutDescription, "test", "cleanup")
+		jobTimeoutLong, jobTimeoutEnv, jobTimeoutDescription = "cleanup-"+jobTimeoutLong, "WIRTUAL_SCALETEST_CLEANUP_JOB_TIMEOUT", strings.ReplaceAll(jobTimeoutDescription, "jobs", "cleanup jobs")
 	}
 
 	*opts = append(
@@ -265,7 +265,7 @@ type scaletestOutputFlags struct {
 func (s *scaletestOutputFlags) attach(opts *serpent.OptionSet) {
 	*opts = append(*opts, serpent.Option{
 		Flag:        "output",
-		Env:         "CODER_SCALETEST_OUTPUTS",
+		Env:         "WIRTUAL_SCALETEST_OUTPUTS",
 		Description: `Output format specs in the format "<format>[:<path>]". Not specifying a path will default to stdout. Available formats: text, json.`,
 		Default:     "text",
 		Value:       serpent.StringArrayOf(&s.outputSpecs),
@@ -329,14 +329,14 @@ func (s *scaletestPrometheusFlags) attach(opts *serpent.OptionSet) {
 	*opts = append(*opts,
 		serpent.Option{
 			Flag:        "scaletest-prometheus-address",
-			Env:         "CODER_SCALETEST_PROMETHEUS_ADDRESS",
+			Env:         "WIRTUAL_SCALETEST_PROMETHEUS_ADDRESS",
 			Default:     "0.0.0.0:21112",
 			Description: "Address on which to expose scaletest Prometheus metrics.",
 			Value:       serpent.StringOf(&s.Address),
 		},
 		serpent.Option{
 			Flag:        "scaletest-prometheus-wait",
-			Env:         "CODER_SCALETEST_PROMETHEUS_WAIT",
+			Env:         "WIRTUAL_SCALETEST_PROMETHEUS_WAIT",
 			Default:     "15s",
 			Description: "How long to wait before exiting in order to allow Prometheus metrics to be scraped.",
 			Value:       serpent.DurationOf(&s.Wait),
@@ -505,7 +505,7 @@ func (r *RootCmd) scaletestCleanup() *serpent.Command {
 	cmd.Options = serpent.OptionSet{
 		{
 			Flag:        "template",
-			Env:         "CODER_SCALETEST_CLEANUP_TEMPLATE",
+			Env:         "WIRTUAL_SCALETEST_CLEANUP_TEMPLATE",
 			Description: "Name or ID of the template. Only delete workspaces created from the given template.",
 			Value:       serpent.StringOf(&template),
 		},
@@ -744,14 +744,14 @@ func (r *RootCmd) scaletestCreateWorkspaces() *serpent.Command {
 		{
 			Flag:          "count",
 			FlagShorthand: "c",
-			Env:           "CODER_SCALETEST_COUNT",
+			Env:           "WIRTUAL_SCALETEST_COUNT",
 			Default:       "1",
 			Description:   "Required: Number of workspaces to create.",
 			Value:         serpent.Int64Of(&count),
 		},
 		{
 			Flag:        "retry",
-			Env:         "CODER_SCALETEST_RETRY",
+			Env:         "WIRTUAL_SCALETEST_RETRY",
 			Default:     "0",
 			Description: "Number of tries to create and bring up the workspace.",
 			Value:       serpent.Int64Of(&retry),
@@ -759,91 +759,91 @@ func (r *RootCmd) scaletestCreateWorkspaces() *serpent.Command {
 		{
 			Flag:          "template",
 			FlagShorthand: "t",
-			Env:           "CODER_SCALETEST_TEMPLATE",
+			Env:           "WIRTUAL_SCALETEST_TEMPLATE",
 			Description:   "Required: Name or ID of the template to use for workspaces.",
 			Value:         serpent.StringOf(&template),
 		},
 		{
 			Flag:        "no-cleanup",
-			Env:         "CODER_SCALETEST_NO_CLEANUP",
+			Env:         "WIRTUAL_SCALETEST_NO_CLEANUP",
 			Description: "Do not clean up resources after the test completes. You can cleanup manually using coder scaletest cleanup.",
 			Value:       serpent.BoolOf(&noCleanup),
 		},
 		{
 			Flag:        "no-wait-for-agents",
-			Env:         "CODER_SCALETEST_NO_WAIT_FOR_AGENTS",
+			Env:         "WIRTUAL_SCALETEST_NO_WAIT_FOR_AGENTS",
 			Description: `Do not wait for agents to start before marking the test as succeeded. This can be useful if you are running the test against a template that does not start the agent quickly.`,
 			Value:       serpent.BoolOf(&noWaitForAgents),
 		},
 		{
 			Flag:        "run-command",
-			Env:         "CODER_SCALETEST_RUN_COMMAND",
+			Env:         "WIRTUAL_SCALETEST_RUN_COMMAND",
 			Description: "Command to run inside each workspace using reconnecting-pty (i.e. web terminal protocol). " + "If not specified, no command will be run.",
 			Value:       serpent.StringOf(&runCommand),
 		},
 		{
 			Flag:        "run-timeout",
-			Env:         "CODER_SCALETEST_RUN_TIMEOUT",
+			Env:         "WIRTUAL_SCALETEST_RUN_TIMEOUT",
 			Default:     "5s",
 			Description: "Timeout for the command to complete.",
 			Value:       serpent.DurationOf(&runTimeout),
 		},
 		{
 			Flag: "run-expect-timeout",
-			Env:  "CODER_SCALETEST_RUN_EXPECT_TIMEOUT",
+			Env:  "WIRTUAL_SCALETEST_RUN_EXPECT_TIMEOUT",
 
 			Description: "Expect the command to timeout." + " If the command does not finish within the given --run-timeout, it will be marked as succeeded." + " If the command finishes before the timeout, it will be marked as failed.",
 			Value:       serpent.BoolOf(&runExpectTimeout),
 		},
 		{
 			Flag:        "run-expect-output",
-			Env:         "CODER_SCALETEST_RUN_EXPECT_OUTPUT",
+			Env:         "WIRTUAL_SCALETEST_RUN_EXPECT_OUTPUT",
 			Description: "Expect the command to output the given string (on a single line). " + "If the command does not output the given string, it will be marked as failed.",
 			Value:       serpent.StringOf(&runExpectOutput),
 		},
 		{
 			Flag:        "run-log-output",
-			Env:         "CODER_SCALETEST_RUN_LOG_OUTPUT",
+			Env:         "WIRTUAL_SCALETEST_RUN_LOG_OUTPUT",
 			Description: "Log the output of the command to the test logs. " + "This should be left off unless you expect small amounts of output. " + "Large amounts of output will cause high memory usage.",
 			Value:       serpent.BoolOf(&runLogOutput),
 		},
 		{
 			Flag:        "connect-url",
-			Env:         "CODER_SCALETEST_CONNECT_URL",
+			Env:         "WIRTUAL_SCALETEST_CONNECT_URL",
 			Description: "URL to connect to inside the the workspace over WireGuard. " + "If not specified, no connections will be made over WireGuard.",
 			Value:       serpent.StringOf(&connectURL),
 		},
 		{
 			Flag:        "connect-mode",
-			Env:         "CODER_SCALETEST_CONNECT_MODE",
+			Env:         "WIRTUAL_SCALETEST_CONNECT_MODE",
 			Default:     "derp",
 			Description: "Mode to use for connecting to the workspace.",
 			Value:       serpent.EnumOf(&connectMode, "derp", "direct"),
 		},
 		{
 			Flag:        "connect-hold",
-			Env:         "CODER_SCALETEST_CONNECT_HOLD",
+			Env:         "WIRTUAL_SCALETEST_CONNECT_HOLD",
 			Default:     "30s",
 			Description: "How long to hold the WireGuard connection open for.",
 			Value:       serpent.DurationOf(&connectHold),
 		},
 		{
 			Flag:        "connect-interval",
-			Env:         "CODER_SCALETEST_CONNECT_INTERVAL",
+			Env:         "WIRTUAL_SCALETEST_CONNECT_INTERVAL",
 			Default:     "1s",
 			Value:       serpent.DurationOf(&connectInterval),
 			Description: "How long to wait between making requests to the --connect-url once the connection is established.",
 		},
 		{
 			Flag:        "connect-timeout",
-			Env:         "CODER_SCALETEST_CONNECT_TIMEOUT",
+			Env:         "WIRTUAL_SCALETEST_CONNECT_TIMEOUT",
 			Default:     "5s",
 			Description: "Timeout for each request to the --connect-url.",
 			Value:       serpent.DurationOf(&connectTimeout),
 		},
 		{
 			Flag:        "use-host-login",
-			Env:         "CODER_SCALETEST_USE_HOST_LOGIN",
+			Env:         "WIRTUAL_SCALETEST_USE_HOST_LOGIN",
 			Default:     "false",
 			Description: "Use the user logged in on the host machine, instead of creating users.",
 			Value:       serpent.BoolOf(&useHostUser),
@@ -937,7 +937,7 @@ func (r *RootCmd) scaletestWorkspaceTraffic() *serpent.Command {
 				return err
 			}
 			if numSkipped > 0 {
-				cliui.Warnf(inv.Stdout, "CODER_DISABLE_OWNER_WORKSPACE_ACCESS is set on the deployment.\n\t%d workspace(s) were skipped due to ownership mismatch.\n\tSet --use-host-login to only target workspaces you own.", numSkipped)
+				cliui.Warnf(inv.Stdout, "WIRTUAL_DISABLE_OWNER_WORKSPACE_ACCESS is set on the deployment.\n\t%d workspace(s) were skipped due to ownership mismatch.\n\tSet --use-host-login to only target workspaces you own.", numSkipped)
 			}
 
 			if targetWorkspaceEnd == 0 {
@@ -1063,47 +1063,47 @@ func (r *RootCmd) scaletestWorkspaceTraffic() *serpent.Command {
 		{
 			Flag:          "template",
 			FlagShorthand: "t",
-			Env:           "CODER_SCALETEST_TEMPLATE",
+			Env:           "WIRTUAL_SCALETEST_TEMPLATE",
 			Description:   "Name or ID of the template. Traffic generation will be limited to workspaces created from this template.",
 			Value:         serpent.StringOf(&template),
 		},
 		{
 			Flag:        "target-workspaces",
-			Env:         "CODER_SCALETEST_TARGET_WORKSPACES",
+			Env:         "WIRTUAL_SCALETEST_TARGET_WORKSPACES",
 			Description: "Target a specific range of workspaces in the format [START]:[END] (exclusive). Example: 0:10 will target the 10 first alphabetically sorted workspaces (0-9).",
 			Value:       serpent.StringOf(&targetWorkspaces),
 		},
 		{
 			Flag:        "bytes-per-tick",
-			Env:         "CODER_SCALETEST_WORKSPACE_TRAFFIC_BYTES_PER_TICK",
+			Env:         "WIRTUAL_SCALETEST_WORKSPACE_TRAFFIC_BYTES_PER_TICK",
 			Default:     "1024",
 			Description: "How much traffic to generate per tick.",
 			Value:       serpent.Int64Of(&bytesPerTick),
 		},
 		{
 			Flag:        "tick-interval",
-			Env:         "CODER_SCALETEST_WORKSPACE_TRAFFIC_TICK_INTERVAL",
+			Env:         "WIRTUAL_SCALETEST_WORKSPACE_TRAFFIC_TICK_INTERVAL",
 			Default:     "100ms",
 			Description: "How often to send traffic.",
 			Value:       serpent.DurationOf(&tickInterval),
 		},
 		{
 			Flag:        "ssh",
-			Env:         "CODER_SCALETEST_WORKSPACE_TRAFFIC_SSH",
+			Env:         "WIRTUAL_SCALETEST_WORKSPACE_TRAFFIC_SSH",
 			Default:     "",
 			Description: "Send traffic over SSH, cannot be used with --app.",
 			Value:       serpent.BoolOf(&ssh),
 		},
 		{
 			Flag:        "app",
-			Env:         "CODER_SCALETEST_WORKSPACE_TRAFFIC_APP",
+			Env:         "WIRTUAL_SCALETEST_WORKSPACE_TRAFFIC_APP",
 			Default:     "",
 			Description: "Send WebSocket traffic to a workspace app (proxied via wirtuald), cannot be used with --ssh.",
 			Value:       serpent.StringOf(&app),
 		},
 		{
 			Flag:        "use-host-login",
-			Env:         "CODER_SCALETEST_USE_HOST_LOGIN",
+			Env:         "WIRTUAL_SCALETEST_USE_HOST_LOGIN",
 			Default:     "false",
 			Description: "Connect as the currently logged in user.",
 			Value:       serpent.BoolOf(&useHostLogin),
@@ -1274,34 +1274,34 @@ func (r *RootCmd) scaletestDashboard() *serpent.Command {
 	cmd.Options = []serpent.Option{
 		{
 			Flag:        "target-users",
-			Env:         "CODER_SCALETEST_DASHBOARD_TARGET_USERS",
+			Env:         "WIRTUAL_SCALETEST_DASHBOARD_TARGET_USERS",
 			Description: "Target a specific range of users in the format [START]:[END] (exclusive). Example: 0:10 will target the 10 first alphabetically sorted users (0-9).",
 			Value:       serpent.StringOf(&targetUsers),
 		},
 		{
 			Flag:        "interval",
-			Env:         "CODER_SCALETEST_DASHBOARD_INTERVAL",
+			Env:         "WIRTUAL_SCALETEST_DASHBOARD_INTERVAL",
 			Default:     "10s",
 			Description: "Interval between actions.",
 			Value:       serpent.DurationOf(&interval),
 		},
 		{
 			Flag:        "jitter",
-			Env:         "CODER_SCALETEST_DASHBOARD_JITTER",
+			Env:         "WIRTUAL_SCALETEST_DASHBOARD_JITTER",
 			Default:     "5s",
 			Description: "Jitter between actions.",
 			Value:       serpent.DurationOf(&jitter),
 		},
 		{
 			Flag:        "headless",
-			Env:         "CODER_SCALETEST_DASHBOARD_HEADLESS",
+			Env:         "WIRTUAL_SCALETEST_DASHBOARD_HEADLESS",
 			Default:     "true",
 			Description: "Controls headless mode. Setting to false is useful for debugging.",
 			Value:       serpent.BoolOf(&headless),
 		},
 		{
 			Flag:        "rand-seed",
-			Env:         "CODER_SCALETEST_DASHBOARD_RAND_SEED",
+			Env:         "WIRTUAL_SCALETEST_DASHBOARD_RAND_SEED",
 			Default:     "0",
 			Description: "Seed for the random number generator.",
 			Value:       serpent.Int64Of(&randSeed),

@@ -217,7 +217,7 @@ func (r *RootCmd) templateVersionsPromote() *serpent.Command {
 		{
 			Flag:          "template",
 			FlagShorthand: "t",
-			Env:           "CODER_TEMPLATE_NAME",
+			Env:           "WIRTUAL_TEMPLATE_NAME",
 			Description:   "Specify the template name.",
 			Required:      true,
 			Value:         serpent.StringOf(&templateName),
@@ -225,7 +225,7 @@ func (r *RootCmd) templateVersionsPromote() *serpent.Command {
 		{
 			Flag:        "template-version",
 			Description: "Specify the template version name to promote.",
-			Env:         "CODER_TEMPLATE_VERSION_NAME",
+			Env:         "WIRTUAL_TEMPLATE_VERSION_NAME",
 			Required:    true,
 			Value:       serpent.StringOf(&templateVersionName),
 		},

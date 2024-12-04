@@ -338,7 +338,7 @@ func TestAgent_Session_EnvironmentVariables(t *testing.T) {
 
 	//nolint:paralleltest // These tests need to run sequentially.
 	for k, partialV := range map[string]string{
-		"CODER":               "true",  // From the agent.
+		"WIRTUAL":             "true",  // From the agent.
 		"MY_MANIFEST":         "true",  // From the manifest.
 		"MY_OVERRIDE":         "true",  // From the agent environment variables option, overrides manifest.
 		"MY_SESSION_MANIFEST": "false", // From the manifest, overrides session env.
@@ -1101,7 +1101,7 @@ func TestAgent_EnvironmentVariableExpansion(t *testing.T) {
 func TestAgent_CoderEnvVars(t *testing.T) {
 	t.Parallel()
 
-	for _, key := range []string{"CODER", "CODER_WORKSPACE_NAME", "CODER_WORKSPACE_AGENT_NAME"} {
+	for _, key := range []string{"WIRTUAL", "WIRTUAL_WORKSPACE_NAME", "WIRTUAL_WORKSPACE_AGENT_NAME"} {
 		key := key
 		t.Run(key, func(t *testing.T) {
 			t.Parallel()

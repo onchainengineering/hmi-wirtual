@@ -10,7 +10,7 @@ Run this command to generate release notes:
 
 ```shell
 git checkout main; git pull; git fetch --all
-export CODER_IGNORE_MISSING_COMMIT_METADATA=1
+export WIRTUAL_IGNORE_MISSING_COMMIT_METADATA=1
 export BRANCH=main
 ./scripts/release/generate_release_notes.sh \
   --old-version=v2.8.0 \

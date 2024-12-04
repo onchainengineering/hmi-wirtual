@@ -261,7 +261,7 @@ resource "kubernetes_deployment" "main" {
             run_as_user = "1000"
           }
           env {
-            name  = "CODER_AGENT_TOKEN"
+            name  = "WIRTUAL_AGENT_TOKEN"
             value = coder_agent.main.token
           }
           resources {

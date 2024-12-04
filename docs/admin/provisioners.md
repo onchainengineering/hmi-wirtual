@@ -71,8 +71,8 @@ organization, and optionally to a specific set of tags.
 1. Start the provisioner with the specified key:
 
    ```sh
-   export CODER_URL=https://<your-coder-url>
-   export CODER_PROVISIONER_DAEMON_KEY=<key>
+   export WIRTUAL_URL=https://<your-coder-url>
+   export WIRTUAL_PROVISIONER_DAEMON_KEY=<key>
    coder provisioner start
    ```
 
@@ -311,7 +311,7 @@ will use in concert with the Helm chart for deploying the Coder server.
    ```yaml
    coder:
      env:
-       - name: CODER_URL
+       - name: WIRTUAL_URL
          value: "https://coder.example.com"
      replicaCount: 10
    provisionerDaemon:
@@ -349,8 +349,8 @@ will use in concert with the Helm chart for deploying the Coder server.
 
 ```sh
 curl -L https://coder.com/install.sh | sh
-export CODER_URL=https://coder.example.com
-export CODER_SESSION_TOKEN=your_token
+export WIRTUAL_URL=https://coder.example.com
+export WIRTUAL_SESSION_TOKEN=your_token
 coder provisioner start
 ```
 
@@ -358,8 +358,8 @@ coder provisioner start
 
 ```sh
 docker run --rm -it \
-  -e CODER_URL=https://coder.example.com/ \
-  -e CODER_SESSION_TOKEN=your_token \
+  -e WIRTUAL_URL=https://coder.example.com/ \
+  -e WIRTUAL_SESSION_TOKEN=your_token \
   --entrypoint /opt/coder \
   ghcr.io/coder/coder:latest \
   provisioner start
@@ -378,11 +378,11 @@ coder server --provisioner-daemons=0
 ## Prometheus metrics
 
 Coder provisioner daemon exports metrics via the HTTP endpoint, which can be
-enabled using either the environment variable `CODER_PROMETHEUS_ENABLE` or the
+enabled using either the environment variable `WIRTUAL_PROMETHEUS_ENABLE` or the
 flag `--prometheus-enable`.
 
 The Prometheus endpoint address is `http://localhost:2112/` by default. You can
-use either the environment variable `CODER_PROMETHEUS_ADDRESS` or the flag
+use either the environment variable `WIRTUAL_PROMETHEUS_ADDRESS` or the flag
 `--prometheus-address <network-interface>:<port>` to select a different listen
 address.
 

@@ -127,8 +127,8 @@ resource "docker_container" "workspace" {
   hostname   = data.coder_workspace.me.name
   entrypoint = ["sh", "-c", replace(coder_agent.main.init_script, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal")]
   env = [
-    "CODER_AGENT_TOKEN=${coder_agent.main.token}",
-    "CODER_PARAMETER_CONTAINER_IMAGE=${local.images[data.coder_parameter.container_image.value]}"
+    "WIRTUAL_AGENT_TOKEN=${coder_agent.main.token}",
+    "WIRTUAL_PARAMETER_CONTAINER_IMAGE=${local.images[data.coder_parameter.container_image.value]}"
   ]
   host {
     host = "host.docker.internal"

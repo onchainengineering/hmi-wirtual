@@ -21,8 +21,8 @@ esac
 
 # NOTE(mafredri): API returns HTML if we accidentally use `...//api` vs `.../api`.
 # https://github.com/coder/coder/issues/9877
-CODER_URL="${CODER_URL%/}"
-buildinfo="$(curl -sSL "${CODER_URL}/api/v2/buildinfo")"
+WIRTUAL_URL="${WIRTUAL_URL%/}"
+buildinfo="$(curl -sSL "${WIRTUAL_URL}/api/v2/buildinfo")"
 server_version="$(jq -r '.version' <<<"${buildinfo}")"
 server_version_commit="$(jq -r '.external_url' <<<"${buildinfo}")"
 
@@ -30,7 +30,7 @@ server_version_commit="$(jq -r '.external_url' <<<"${buildinfo}")"
 # Use `command` here to bypass dry run.
 workspace_json="$(
 	command coder list --all --output json |
-		jq --arg workspace "${CODER_WORKSPACE}" --arg user "${CODER_USER}" 'map(select(.name == $workspace) | select(.owner_name == $user)) | .[0]'
+		jq --arg workspace "${WIRTUAL_WORKSPACE}" --arg user "${WIRTUAL_USER}" 'map(select(.name == $workspace) | select(.owner_name == $user)) | .[0]'
 )"
 owner_name="$(jq -r '.latest_build.workspace_owner_name' <<<"${workspace_json}")"
 workspace_name="$(jq -r '.latest_build.workspace_name' <<<"${workspace_json}")"
@@ -61,15 +61,15 @@ started)
 		params+=("    ${bullet} ${param}")
 	done <<<"$(jq -r '.latest_build.resources[].agents[]?.environment_variables | to_entries | map(select(.key | startswith("SCALETEST_PARAM_"))) | .[] | "`\(.key)`: `\(.value)`"' <<<"${workspace_json}")"
 
-	header="New scaletest started at \`${created_at}\` by \`${initiator_name}\` on ${CODER_URL} (<${server_version_commit}|\`${server_version}\`>)."
+	header="New scaletest started at \`${created_at}\` by \`${initiator_name}\` on ${WIRTUAL_URL} (<${server_version_commit}|\`${server_version}\`>)."
 	;;
 completed)
 	completed_at=$(date -Iseconds)
-	header="Scaletest completed at \`${completed_at}\` (started by \`${initiator_name}\`) on ${CODER_URL} (<${server_version_commit}|\`${server_version}\`>)."
+	header="Scaletest completed at \`${completed_at}\` (started by \`${initiator_name}\`) on ${WIRTUAL_URL} (<${server_version_commit}|\`${server_version}\`>)."
 	;;
 failed)
 	failed_at=$(date -Iseconds)
-	header="Scaletest failed at \`${failed_at}\` (started by \`${initiator_name}\`) on ${CODER_URL} (<${server_version_commit}|\`${server_version}\`>)."
+	header="Scaletest failed at \`${failed_at}\` (started by \`${initiator_name}\`) on ${WIRTUAL_URL} (<${server_version_commit}|\`${server_version}\`>)."
 	;;
 *)
 	echo "Unknown status: ${status}" >&2
@@ -81,7 +81,7 @@ text_arr=(
 	"${header}"
 	""
 	"${bullet} *Comment:* ${SCALETEST_COMMENT}"
-	"${bullet} Workspace (runner): ${CODER_URL}/@${owner_name}/${workspace_name}"
+	"${bullet} Workspace (runner): ${WIRTUAL_URL}/@${owner_name}/${workspace_name}"
 	"${bullet} Run ID: ${SCALETEST_RUN_ID}"
 	"${app_urls[@]}"
 	"${params[@]}"

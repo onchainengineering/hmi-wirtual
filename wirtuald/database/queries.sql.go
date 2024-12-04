@@ -3672,7 +3672,7 @@ type AcquireNotificationMessagesRow struct {
 // Only rows that aren't already leased (or ones which are leased but have exceeded their lease period) are returned.
 //
 // A "lease" here refers to a notifier taking ownership of a notification_messages row. A lease survives for the duration
-// of CODER_NOTIFICATIONS_LEASE_PERIOD. Once a message is delivered, its status is updated and the lease expires (set to NULL).
+// of WIRTUAL_NOTIFICATIONS_LEASE_PERIOD. Once a message is delivered, its status is updated and the lease expires (set to NULL).
 // If a message exceeds its lease, that implies the notifier did not shutdown cleanly, or the table update failed somehow,
 // and the row will then be eligible to be dequeued by another notifier.
 //

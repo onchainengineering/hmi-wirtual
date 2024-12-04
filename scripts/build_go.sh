@@ -5,7 +5,7 @@
 # Usage: ./build_go.sh [--version 1.2.3-devel+abcdef] [--os linux] [--arch amd64] [--output path/to/output] [--slim] [--agpl] [--boringcrypto] [--dylib]
 #
 # Defaults to linux:amd64 with slim disabled, but can be controlled with GOOS,
-# GOARCH and CODER_SLIM_BUILD=1. If no version is specified, defaults to the
+# GOARCH and WIRTUAL_SLIM_BUILD=1. If no version is specified, defaults to the
 # version from ./version.sh.
 #
 # GOARM can be controlled by suffixing any arm architecture (i.e. arm or arm64)
@@ -36,13 +36,13 @@ source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 version=""
 os="${GOOS:-linux}"
 arch="${GOARCH:-amd64}"
-slim="${CODER_SLIM_BUILD:-0}"
-sign_darwin="${CODER_SIGN_DARWIN:-0}"
-sign_windows="${CODER_SIGN_WINDOWS:-0}"
+slim="${WIRTUAL_SLIM_BUILD:-0}"
+sign_darwin="${WIRTUAL_SIGN_DARWIN:-0}"
+sign_windows="${WIRTUAL_SIGN_WINDOWS:-0}"
 bin_ident="com.coder.cli"
 output_path=""
-agpl="${CODER_BUILD_AGPL:-0}"
-boringcrypto=${CODER_BUILD_BORINGCRYPTO:-0}
+agpl="${WIRTUAL_BUILD_AGPL:-0}"
+boringcrypto=${WIRTUAL_BUILD_BORINGCRYPTO:-0}
 debug=0
 dylib=0
 

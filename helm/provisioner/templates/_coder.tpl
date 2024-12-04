@@ -30,7 +30,7 @@ args:
 - start
 {{- end }}
 env:
-- name: CODER_PROMETHEUS_ADDRESS
+- name: WIRTUAL_PROMETHEUS_ADDRESS
   value: "0.0.0.0:2112"
 {{- if and (empty .Values.provisionerDaemon.pskSecretName) (empty .Values.provisionerDaemon.keySecretName) }}
 {{ fail "Either provisionerDaemon.pskSecretName or provisionerDaemon.keySecretName must be specified." }}
@@ -40,32 +40,32 @@ env:
 	{{- else if .Values.provisionerDaemon.tags }}
 	{{ fail "provisionerDaemon.tags may not be specified with provisionerDaemon.keySecretName." }}
 	{{- end }}
-- name: CODER_PROVISIONER_DAEMON_KEY
+- name: WIRTUAL_PROVISIONER_DAEMON_KEY
   valueFrom:
     secretKeyRef:
       name: {{ .Values.provisionerDaemon.keySecretName | quote }}
       key: {{ .Values.provisionerDaemon.keySecretKey | quote }}
 {{- else }}
-- name: CODER_PROVISIONER_DAEMON_PSK
+- name: WIRTUAL_PROVISIONER_DAEMON_PSK
   valueFrom:
     secretKeyRef:
       name: {{ .Values.provisionerDaemon.pskSecretName | quote }}
       key: psk
 {{- end }}
 {{- if include "provisioner.tags" . }}
-- name: CODER_PROVISIONERD_TAGS
+- name: WIRTUAL_PROVISIONERD_TAGS
   value: {{ include "provisioner.tags" . }}
 {{- end }}
   # Set the default access URL so a `helm apply` works by default.
   # See: https://github.com/coder/coder/issues/5024
 {{- $hasAccessURL := false }}
 {{- range .Values.coder.env }}
-{{- if eq .name "CODER_URL" }}
+{{- if eq .name "WIRTUAL_URL" }}
 {{- $hasAccessURL = true }}
 {{- end }}
 {{- end }}
 {{- if not $hasAccessURL }}
-- name: CODER_URL
+- name: WIRTUAL_URL
   value: {{ include "coder.defaultAccessURL" . | quote }}
 {{- end }}
 {{- with .Values.coder.env }}
@@ -73,7 +73,7 @@ env:
 {{- end }}
 ports:
   {{- range .Values.coder.env }}
-  {{- if eq .name "CODER_PROMETHEUS_ENABLE" }}
+  {{- if eq .name "WIRTUAL_PROMETHEUS_ENABLE" }}
   {{/*
     This sadly has to be nested to avoid evaluating the second part
     of the condition too early and potentially getting type errors if

@@ -16,16 +16,16 @@ certificates, you'll need a domain name that resolves to your Caddy server.
    ```yaml
    services:
    coder:
-   	image: ghcr.io/coder/coder:${CODER_VERSION:-latest}
+   	image: ghcr.io/coder/coder:${WIRTUAL_VERSION:-latest}
    	environment:
-   		CODER_PG_CONNECTION_URL: "postgresql://${POSTGRES_USER:-username}:${POSTGRES_PASSWORD:-password}@database/${POSTGRES_DB:-coder}?sslmode=disable"
-   		CODER_HTTP_ADDRESS: "0.0.0.0:7080"
-   		# You'll need to set CODER_ACCESS_URL to an IP or domain
+   		WIRTUAL_PG_CONNECTION_URL: "postgresql://${POSTGRES_USER:-username}:${POSTGRES_PASSWORD:-password}@database/${POSTGRES_DB:-coder}?sslmode=disable"
+   		WIRTUAL_HTTP_ADDRESS: "0.0.0.0:7080"
+   		# You'll need to set WIRTUAL_ACCESS_URL to an IP or domain
    		# that workspaces can reach. This cannot be localhost
    		# or 127.0.0.1 for non-Docker templates!
-   		CODER_ACCESS_URL: "${CODER_ACCESS_URL}"
+   		WIRTUAL_ACCESS_URL: "${WIRTUAL_ACCESS_URL}"
    		# Optional) Enable wildcard apps/dashboard port forwarding
-   		CODER_WILDCARD_ACCESS_URL: "${CODER_WILDCARD_ACCESS_URL}"
+   		WIRTUAL_WILDCARD_ACCESS_URL: "${WIRTUAL_WILDCARD_ACCESS_URL}"
    		# If the coder user does not have write permissions on
    		# the docker socket, you can uncomment the following
    		# lines and set the group ID to one that has write
@@ -105,12 +105,12 @@ certificates, you'll need a domain name that resolves to your Caddy server.
    - `email@example.com`: Email to request certificates from LetsEncrypt/ZeroSSL
      (does not have to be Coder admin email)
 
-4. Start Coder. Set `CODER_ACCESS_URL` and `CODER_WILDCARD_ACCESS_URL` to the
+4. Start Coder. Set `WIRTUAL_ACCESS_URL` and `WIRTUAL_WILDCARD_ACCESS_URL` to the
    domain you're using in your Caddyfile.
 
    ```shell
-   export CODER_ACCESS_URL=https://coder.example.com
-   export CODER_WILDCARD_ACCESS_URL=*.coder.example.com
+   export WIRTUAL_ACCESS_URL=https://coder.example.com
+   export WIRTUAL_WILDCARD_ACCESS_URL=*.coder.example.com
    docker compose up -d # Run on startup
    ```
 
@@ -144,14 +144,14 @@ certificates, you'll need a domain name that resolves to your Caddy server.
      [dashboard port forwarding](../admin/networking/port-forwarding.md). This
      is optional and can be removed.
    - `localhost:3000`: Address Coder is running on. Modify this if you changed
-     `CODER_HTTP_ADDRESS` in the Coder configuration.
+     `WIRTUAL_HTTP_ADDRESS` in the Coder configuration.
    - _DO NOT CHANGE the `ask http://example.com` line! Doing so will result in
      your certs potentially not being generated._
 
 4. [Configure Coder](../admin/setup/index.md) and change the following values:
 
-   - `CODER_ACCESS_URL`: root domain (e.g. `https://coder.example.com`)
-   - `CODER_WILDCARD_ACCESS_URL`: wildcard domain (e.g. `*.example.com`).
+   - `WIRTUAL_ACCESS_URL`: root domain (e.g. `https://coder.example.com`)
+   - `WIRTUAL_WILDCARD_ACCESS_URL`: wildcard domain (e.g. `*.example.com`).
 
 5. Start the Caddy server:
 

@@ -89,11 +89,11 @@ coder:
   # to the workspace provisioner (so you can consume them in your Terraform
   # templates for auth keys etc.).
   #
-  # Please keep in mind that you should not set `CODER_HTTP_ADDRESS`,
-  # `CODER_TLS_ENABLE`, `CODER_TLS_CERT_FILE` or `CODER_TLS_KEY_FILE` as
+  # Please keep in mind that you should not set `WIRTUAL_HTTP_ADDRESS`,
+  # `WIRTUAL_TLS_ENABLE`, `WIRTUAL_TLS_CERT_FILE` or `WIRTUAL_TLS_KEY_FILE` as
   # they are already set by the Helm chart and will cause conflicts.
   env:
-    - name: CODER_PG_CONNECTION_URL
+    - name: WIRTUAL_PG_CONNECTION_URL
       valueFrom:
         secretKeyRef:
           # You'll need to create a secret called coder-db-url with your
@@ -104,7 +104,7 @@ coder:
 
     # (Optional) For production deployments the access URL should be set.
     # If you're just trying Coder, access the dashboard via the service IP.
-    - name: CODER_ACCESS_URL
+    - name: WIRTUAL_ACCESS_URL
       value: "https://coder.example.com"
 
   #tls:
@@ -151,7 +151,7 @@ has started, the `coder-*` pods should enter the `Running` state.
 Use `kubectl get svc -n coder` to get the IP address of the LoadBalancer. Visit
 this in the browser to set up your first account.
 
-If you do not have a domain, you should set `CODER_ACCESS_URL` to this URL in
+If you do not have a domain, you should set `WIRTUAL_ACCESS_URL` to this URL in
 the Helm chart and upgrade Coder (see below). This allows workspaces to connect
 to the proper Coder URL.
 
@@ -272,9 +272,9 @@ variables:
 ```yaml
 coder:
   env:
-    - name: CODER_PROXY_TRUSTED_HEADERS
+    - name: WIRTUAL_PROXY_TRUSTED_HEADERS
       value: X-Forwarded-For
-    - name: CODER_PROXY_TRUSTED_ORIGINS
+    - name: WIRTUAL_PROXY_TRUSTED_ORIGINS
       value: 10.0.0.1/8 # this will be the CIDR range of your Load Balancer IP address
 ```
 
@@ -295,7 +295,7 @@ Cloud's log management system if you are using managed Kubernetes.
 
 ### Kubernetes-based workspace is stuck in "Connecting..."
 
-Ensure you have an externally-reachable `CODER_ACCESS_URL` set in your helm
+Ensure you have an externally-reachable `WIRTUAL_ACCESS_URL` set in your helm
 chart. If you do not have a domain set up, this should be the IP address of
 Coder's LoadBalancer (`kubectl get svc -n coder`).
 

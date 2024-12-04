@@ -172,52 +172,52 @@ resource "kubernetes_pod" "main" {
       }
 
       env {
-        name  = "CODER_AGENT_TOKEN"
+        name  = "WIRTUAL_AGENT_TOKEN"
         value = coder_agent.main.token
       }
 
       env {
-        name  = "CODER_AGENT_URL"
+        name  = "WIRTUAL_AGENT_URL"
         value = data.coder_workspace.me.access_url
       }
 
       env {
-        name  = "CODER_INNER_IMAGE"
+        name  = "WIRTUAL_INNER_IMAGE"
         value = "index.docker.io/codercom/enterprise-base:ubuntu-20240812"
       }
 
       env {
-        name  = "CODER_INNER_USERNAME"
+        name  = "WIRTUAL_INNER_USERNAME"
         value = "coder"
       }
 
       env {
-        name  = "CODER_BOOTSTRAP_SCRIPT"
+        name  = "WIRTUAL_BOOTSTRAP_SCRIPT"
         value = coder_agent.main.init_script
       }
 
       env {
-        name  = "CODER_MOUNTS"
+        name  = "WIRTUAL_MOUNTS"
         value = "/home/coder:/home/coder"
       }
 
       env {
-        name  = "CODER_ADD_FUSE"
+        name  = "WIRTUAL_ADD_FUSE"
         value = var.create_fuse
       }
 
       env {
-        name  = "CODER_INNER_HOSTNAME"
+        name  = "WIRTUAL_INNER_HOSTNAME"
         value = data.coder_workspace.me.name
       }
 
       env {
-        name  = "CODER_ADD_TUN"
+        name  = "WIRTUAL_ADD_TUN"
         value = var.create_tun
       }
 
       env {
-        name = "CODER_CPUS"
+        name = "WIRTUAL_CPUS"
         value_from {
           resource_field_ref {
             resource = "limits.cpu"
@@ -226,7 +226,7 @@ resource "kubernetes_pod" "main" {
       }
 
       env {
-        name = "CODER_MEMORY"
+        name = "WIRTUAL_MEMORY"
         value_from {
           resource_field_ref {
             resource = "limits.memory"

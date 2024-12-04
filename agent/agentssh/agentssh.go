@@ -44,7 +44,7 @@ const (
 
 	// MagicSessionTypeEnvironmentVariable is used to track the purpose behind an SSH connection.
 	// This is stripped from any commands being executed, and is counted towards connection stats.
-	MagicSessionTypeEnvironmentVariable = "CODER_SSH_SESSION_TYPE"
+	MagicSessionTypeEnvironmentVariable = "WIRTUAL_SSH_SESSION_TYPE"
 	// MagicSessionTypeVSCode is set in the SSH config by the VS Code extension to identify itself.
 	MagicSessionTypeVSCode = "vscode"
 	// MagicSessionTypeJetBrains is set in the SSH config by the JetBrains

@@ -90,7 +90,7 @@ ln "$(realpath scripts/linux-pkg/nfpm.yaml)" "$temp_dir/"
 ln "$(realpath scripts/linux-pkg/preinstall.sh)" "$temp_dir/"
 
 pushd "$temp_dir"
-GOARCH="$arch" CODER_VERSION="$version" nfpm package \
+GOARCH="$arch" WIRTUAL_VERSION="$version" nfpm package \
 	-f nfpm.yaml \
 	-p "$format" \
 	-t "$output_path" \

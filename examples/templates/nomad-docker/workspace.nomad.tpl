@@ -34,7 +34,7 @@ job "workspace" {
         memory = ${memory_mb}
       }
       env {
-        CODER_AGENT_TOKEN = "${coder_agent_token}"
+        WIRTUAL_AGENT_TOKEN = "${coder_agent_token}"
       }
       meta {
         tag = "${workspace_tag}"

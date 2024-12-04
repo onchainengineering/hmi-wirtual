@@ -77,8 +77,8 @@ instructions on using other platforms like Kubernetes, see our
 [provisioner documentation](../provisioners.md).
 
 ```sh
-export CODER_URL=https://<your-coder-url>
-export CODER_PROVISIONER_DAEMON_KEY=<key>
+export WIRTUAL_URL=https://<your-coder-url>
+export WIRTUAL_PROVISIONER_DAEMON_KEY=<key>
 coder provisionerd start --org <org-name>
 ```
 

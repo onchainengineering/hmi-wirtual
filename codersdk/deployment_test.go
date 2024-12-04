@@ -120,8 +120,8 @@ func TestDeploymentValues_HighlyConfigurable(t *testing.T) {
 			t.Errorf("Option %q is excluded but has an env name", opt.Name)
 		}
 
-		// Also check all env vars are prefixed with CODER_
-		const prefix = "CODER_"
+		// Also check all env vars are prefixed with WIRTUAL_
+		const prefix = "WIRTUAL_"
 		if opt.Env != "" && !strings.HasPrefix(opt.Env, prefix) {
 			t.Errorf("Option %q has an env name (%q) that is not prefixed with %s", opt.Name, opt.Env, prefix)
 		}
@@ -586,7 +586,7 @@ func TestNotificationsCanBeDisabled(t *testing.T) {
 			name: "SMTP_DeliveryMethodSet",
 			environment: []serpent.EnvVar{
 				{
-					Name:  "CODER_EMAIL_SMARTHOST",
+					Name:  "WIRTUAL_EMAIL_SMARTHOST",
 					Value: "localhost:587",
 				},
 			},
@@ -596,7 +596,7 @@ func TestNotificationsCanBeDisabled(t *testing.T) {
 			name: "Webhook_DeliveryMethodSet",
 			environment: []serpent.EnvVar{
 				{
-					Name:  "CODER_NOTIFICATIONS_WEBHOOK_ENDPOINT",
+					Name:  "WIRTUAL_NOTIFICATIONS_WEBHOOK_ENDPOINT",
 					Value: "https://example.com/webhook",
 				},
 			},
@@ -606,11 +606,11 @@ func TestNotificationsCanBeDisabled(t *testing.T) {
 			name: "WebhookAndSMTP_DeliveryMethodSet",
 			environment: []serpent.EnvVar{
 				{
-					Name:  "CODER_NOTIFICATIONS_WEBHOOK_ENDPOINT",
+					Name:  "WIRTUAL_NOTIFICATIONS_WEBHOOK_ENDPOINT",
 					Value: "https://example.com/webhook",
 				},
 				{
-					Name:  "CODER_EMAIL_SMARTHOST",
+					Name:  "WIRTUAL_EMAIL_SMARTHOST",
 					Value: "localhost:587",
 				},
 			},

@@ -69,14 +69,14 @@ const (
 
 	notLoggedInMessage = "You are not logged in. Try logging in using 'coder login <url>'."
 
-	envNoVersionCheck   = "CODER_NO_VERSION_WARNING"
-	envNoFeatureWarning = "CODER_NO_FEATURE_WARNING"
-	envSessionToken     = "CODER_SESSION_TOKEN"
+	envNoVersionCheck   = "WIRTUAL_NO_VERSION_WARNING"
+	envNoFeatureWarning = "WIRTUAL_NO_FEATURE_WARNING"
+	envSessionToken     = "WIRTUAL_SESSION_TOKEN"
 	//nolint:gosec
-	envAgentToken = "CODER_AGENT_TOKEN"
+	envAgentToken = "WIRTUAL_AGENT_TOKEN"
 	//nolint:gosec
-	envAgentTokenFile = "CODER_AGENT_TOKEN_FILE"
-	envURL            = "CODER_URL"
+	envAgentTokenFile = "WIRTUAL_AGENT_TOKEN_FILE"
+	envURL            = "WIRTUAL_URL"
 )
 
 func (r *RootCmd) CoreSubcommands() []*serpent.Command {
@@ -141,7 +141,7 @@ func (r *RootCmd) AGPL() []*serpent.Command {
 func (r *RootCmd) RunWithSubcommands(subcommands []*serpent.Command) {
 	// This configuration is not available as a standard option because we
 	// want to trace the entire program, including Options parsing.
-	goTraceFilePath, ok := os.LookupEnv("CODER_GO_TRACE")
+	goTraceFilePath, ok := os.LookupEnv("WIRTUAL_GO_TRACE")
 	if ok {
 		traceFile, err := os.OpenFile(goTraceFilePath, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o644)
 		if err != nil {
@@ -384,7 +384,7 @@ func (r *RootCmd) Command(subcommands []*serpent.Command) (*serpent.Command, err
 		},
 		{
 			Flag:        varAgentURL,
-			Env:         "CODER_AGENT_URL",
+			Env:         "WIRTUAL_AGENT_URL",
 			Description: "URL for an agent to access your deployment.",
 			Value:       serpent.URLOf(r.agentURL),
 			Hidden:      true,
@@ -406,21 +406,21 @@ func (r *RootCmd) Command(subcommands []*serpent.Command) (*serpent.Command, err
 		},
 		{
 			Flag:        varHeader,
-			Env:         "CODER_HEADER",
+			Env:         "WIRTUAL_HEADER",
 			Description: "Additional HTTP headers added to all requests. Provide as " + `key=value` + ". Can be specified multiple times.",
 			Value:       serpent.StringArrayOf(&r.header),
 			Group:       globalGroup,
 		},
 		{
 			Flag:        varHeaderCommand,
-			Env:         "CODER_HEADER_COMMAND",
+			Env:         "WIRTUAL_HEADER_COMMAND",
 			Description: "An external command that outputs additional HTTP headers added to all requests. The command must output each header as `key=value` on its own line.",
 			Value:       serpent.StringOf(&r.headerCommand),
 			Group:       globalGroup,
 		},
 		{
 			Flag:        varNoOpen,
-			Env:         "CODER_NO_OPEN",
+			Env:         "WIRTUAL_NO_OPEN",
 			Description: "Suppress opening the browser when logging in, or starting the server.",
 			Value:       serpent.BoolOf(&r.noOpen),
 			Hidden:      true,
@@ -428,7 +428,7 @@ func (r *RootCmd) Command(subcommands []*serpent.Command) (*serpent.Command, err
 		},
 		{
 			Flag:        varForceTty,
-			Env:         "CODER_FORCE_TTY",
+			Env:         "WIRTUAL_FORCE_TTY",
 			Hidden:      true,
 			Description: "Force the use of a TTY.",
 			Value:       serpent.BoolOf(&r.forceTTY),
@@ -437,21 +437,21 @@ func (r *RootCmd) Command(subcommands []*serpent.Command) (*serpent.Command, err
 		{
 			Flag:          varVerbose,
 			FlagShorthand: "v",
-			Env:           "CODER_VERBOSE",
+			Env:           "WIRTUAL_VERBOSE",
 			Description:   "Enable verbose output.",
 			Value:         serpent.BoolOf(&r.verbose),
 			Group:         globalGroup,
 		},
 		{
 			Flag:        varDisableDirect,
-			Env:         "CODER_DISABLE_DIRECT_CONNECTIONS",
+			Env:         "WIRTUAL_DISABLE_DIRECT_CONNECTIONS",
 			Description: "Disable direct (P2P) connections to workspaces.",
 			Value:       serpent.BoolOf(&r.disableDirect),
 			Group:       globalGroup,
 		},
 		{
 			Flag:        varDisableNetworkTelemetry,
-			Env:         "CODER_DISABLE_NETWORK_TELEMETRY",
+			Env:         "WIRTUAL_DISABLE_NETWORK_TELEMETRY",
 			Description: "Disable network telemetry. Network telemetry is collected when connecting to workspaces using the CLI, and is forwarded to the server. If telemetry is also enabled on the server, it may be sent to Coder. Network telemetry is used to measure network quality and detect regressions.",
 			Value:       serpent.BoolOf(&r.disableNetworkTelemetry),
 			Group:       globalGroup,
@@ -465,7 +465,7 @@ func (r *RootCmd) Command(subcommands []*serpent.Command) (*serpent.Command, err
 		},
 		{
 			Flag:        config.FlagName,
-			Env:         "CODER_CONFIG_DIR",
+			Env:         "WIRTUAL_CONFIG_DIR",
 			Description: "Path to the global `coder` config directory.",
 			Default:     config.DefaultDir(),
 			Value:       serpent.StringOf(&r.globalConfig),
@@ -625,7 +625,7 @@ func (o *OrganizationContext) AttachOptions(cmd *serpent.Command) {
 		Required:      false,
 		Flag:          "org",
 		FlagShorthand: "O",
-		Env:           "CODER_ORGANIZATION",
+		Env:           "WIRTUAL_ORGANIZATION",
 		Value:         serpent.StringOf(&o.FlagSelect),
 	})
 }
@@ -1292,7 +1292,7 @@ func headerTransport(ctx context.Context, serverURL *url.URL, header []string, h
 		var outBuf bytes.Buffer
 		// #nosec
 		cmd := exec.CommandContext(ctx, shell, caller, headerCommand)
-		cmd.Env = append(os.Environ(), "CODER_URL="+serverURL.String())
+		cmd.Env = append(os.Environ(), "WIRTUAL_URL="+serverURL.String())
 		cmd.Stdout = &outBuf
 		cmd.Stderr = io.Discard
 		err := cmd.Run()

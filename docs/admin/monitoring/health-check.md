@@ -5,7 +5,7 @@ number of details about the health of your Coder deployment.
 
 ![Health check in Coder Dashboard](../../images/admin/monitoring/health-check.png)
 
-You can view it at `https://${CODER_URL}/health`, or you can alternatively view
+You can view it at `https://${WIRTUAL_URL}/health`, or you can alternatively view
 the
 [JSON response directly](../../reference/api/debug.md#debug-info-deployment-health).
 
@@ -16,7 +16,7 @@ The deployment health page is broken up into the following sections:
 The Access URL section shows checks related to Coder's
 [access URL](../setup/index.md#access-url).
 
-Coder will periodically send a GET request to `${CODER_ACCESS_URL}/healthz` and
+Coder will periodically send a GET request to `${WIRTUAL_ACCESS_URL}/healthz` and
 validate that the response is `200 OK`. The expected response body is also the
 string `OK`.
 
@@ -34,7 +34,7 @@ _Access URL not set_
 
 _Access URL invalid_
 
-**Problem:** `${CODER_ACCESS_URL}/healthz` is not a valid URL.
+**Problem:** `${WIRTUAL_ACCESS_URL}/healthz` is not a valid URL.
 
 **Solution:** Ensure that the access URL is a valid URL accepted by
 [`url.Parse`](https://pkg.go.dev/net/url#Parse). Example:
@@ -47,7 +47,7 @@ _Access URL invalid_
 _Failed to fetch `/healthz`_
 
 **Problem:** Coder was unable to execute a GET request to
-`${CODER_ACCESS_URL}/healthz`.
+`${WIRTUAL_ACCESS_URL}/healthz`.
 
 This could be due to a number of reasons, including but not limited to:
 
@@ -62,7 +62,7 @@ To troubleshoot further, you can log into the machine running Coder and attempt
 to run the following command:
 
 ```shell
-curl -v ${CODER_ACCESS_URL}/healthz
+curl -v ${WIRTUAL_ACCESS_URL}/healthz
 # Expected output:
 # *   Trying XXX.XXX.XXX.XXX:443
 # * Connected to https://coder.company.com (XXX.XXX.XXX.XXX) port 443 (#0)
@@ -77,7 +77,7 @@ The output of this command should aid further diagnosis.
 _/healthz did not return 200 OK_
 
 **Problem:** Coder was able to execute a GET request to
-`${CODER_ACCESS_URL}/healthz`, but the response code was not `200 OK` as
+`${WIRTUAL_ACCESS_URL}/healthz`, but the response code was not `200 OK` as
 expected.
 
 This could mean, for instance, that:

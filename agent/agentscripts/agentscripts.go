@@ -294,10 +294,10 @@ func (r *Runner) run(ctx context.Context, script codersdk.WorkspaceAgentScript, 
 
 	// Expose env vars that can be used in the script for storing data
 	// and binaries. In the future, we may want to expose more env vars
-	// for the script to use, like CODER_SCRIPT_DATA_DIR for persistent
+	// for the script to use, like WIRTUAL_SCRIPT_DATA_DIR for persistent
 	// storage.
-	cmd.Env = append(cmd.Env, "CODER_SCRIPT_DATA_DIR="+scriptDataDir)
-	cmd.Env = append(cmd.Env, "CODER_SCRIPT_BIN_DIR="+r.ScriptBinDir())
+	cmd.Env = append(cmd.Env, "WIRTUAL_SCRIPT_DATA_DIR="+scriptDataDir)
+	cmd.Env = append(cmd.Env, "WIRTUAL_SCRIPT_BIN_DIR="+r.ScriptBinDir())
 
 	scriptLogger := r.GetScriptLogger(script.LogSourceID)
 	// If ctx is canceled here (or in a writer below), we may be

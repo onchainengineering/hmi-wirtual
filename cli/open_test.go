@@ -36,9 +36,9 @@ func TestOpenVSCode(t *testing.T) {
 	_ = coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 	insideWorkspaceEnv := map[string]string{
-		"CODER":                      "true",
-		"CODER_WORKSPACE_NAME":       workspace.Name,
-		"CODER_WORKSPACE_AGENT_NAME": agentName,
+		"WIRTUAL":                      "true",
+		"WIRTUAL_WORKSPACE_NAME":       workspace.Name,
+		"WIRTUAL_WORKSPACE_AGENT_NAME": agentName,
 	}
 
 	wd, err := os.Getwd()
@@ -171,9 +171,9 @@ func TestOpenVSCode_NoAgentDirectory(t *testing.T) {
 	_ = coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 	insideWorkspaceEnv := map[string]string{
-		"CODER":                      "true",
-		"CODER_WORKSPACE_NAME":       workspace.Name,
-		"CODER_WORKSPACE_AGENT_NAME": agentName,
+		"WIRTUAL":                      "true",
+		"WIRTUAL_WORKSPACE_NAME":       workspace.Name,
+		"WIRTUAL_WORKSPACE_AGENT_NAME": agentName,
 	}
 
 	wd, err := os.Getwd()

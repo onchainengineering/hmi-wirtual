@@ -239,7 +239,7 @@ export const MockSupportLinks: TypesGen.LinkConfig[] = [
 	{
 		name: "Third link",
 		target:
-			"https://github.com/coder/coder/issues/new?labels=needs+grooming&body={CODER_BUILD_INFO}",
+			"https://github.com/coder/coder/issues/new?labels=needs+grooming&body={WIRTUAL_BUILD_INFO}",
 		icon: "",
 	},
 ];
@@ -804,7 +804,7 @@ spec {
     image   = "ubuntu"
     command = ["sh", "-c", coder_agent.main.init_script]
     env {
-      name  = "CODER_AGENT_TOKEN"
+      name  = "WIRTUAL_AGENT_TOKEN"
       value = coder_agent.main.token
     }
   }
@@ -836,7 +836,7 @@ spec {
     image   = "ubuntu"
     command = ["sh", "-c", coder_agent.main.init_script]
     env {
-      name  = "CODER_AGENT_TOKEN"
+      name  = "WIRTUAL_AGENT_TOKEN"
       value = coder_agent.main.token
     }
   }

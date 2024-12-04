@@ -148,7 +148,7 @@ func serveScript(t *testing.T, in string) string {
 	srvURL, err := url.Parse(srv.URL)
 	require.NoError(t, err)
 
-	script, exists := provisionersdk.AgentScriptEnv()[fmt.Sprintf("CODER_AGENT_SCRIPT_%s_%s", runtime.GOOS, runtime.GOARCH)]
+	script, exists := provisionersdk.AgentScriptEnv()[fmt.Sprintf("WIRTUAL_AGENT_SCRIPT_%s_%s", runtime.GOOS, runtime.GOARCH)]
 	if !exists {
 		t.Skip("Agent not supported...")
 		return ""

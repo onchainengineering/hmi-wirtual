@@ -1756,7 +1756,7 @@ func TestUserLogout(t *testing.T) {
 }
 
 // TestOIDCSkipIssuer verifies wirtuald can run without checking the issuer url
-// in the OIDC exchange. This means the CODER_OIDC_ISSUER_URL does not need
+// in the OIDC exchange. This means the WIRTUAL_OIDC_ISSUER_URL does not need
 // to match the id_token `iss` field, or the value returned in the well-known
 // config.
 //

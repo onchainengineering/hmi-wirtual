@@ -13,9 +13,9 @@ account, visit the following URL: `https://coder.example.com/cli-auth`
 
 By default, sessions last 24 hours and are automatically refreshed. You can
 configure
-[`CODER_SESSION_DURATION`](../../reference/cli/server.md#--session-duration) to
+[`WIRTUAL_SESSION_DURATION`](../../reference/cli/server.md#--session-duration) to
 change the duration and
-[`CODER_DISABLE_SESSION_EXPIRY_REFRESH`](../../reference/cli/server.md#--disable-session-expiry-refresh)
+[`WIRTUAL_DISABLE_SESSION_EXPIRY_REFRESH`](../../reference/cli/server.md#--disable-session-expiry-refresh)
 to configure this behavior.
 
 ## Long-Lived Tokens (API Tokens)
@@ -59,6 +59,6 @@ information:
 ### Set max token length
 
 You can use the
-[`CODER_MAX_TOKEN_LIFETIME`](https://coder.com/docs/reference/cli/server#--max-token-lifetime)
+[`WIRTUAL_MAX_TOKEN_LIFETIME`](https://coder.com/docs/reference/cli/server#--max-token-lifetime)
 server flag to set the maximum duration for long-lived tokens in your
 deployment.

@@ -6,7 +6,7 @@ full list of the options, run `coder server --help` or see our
 
 ## Access URL
 
-`CODER_ACCESS_URL` is required if you are not using the tunnel. Set this to the
+`WIRTUAL_ACCESS_URL` is required if you are not using the tunnel. Set this to the
 external URL that users and workspaces use to connect to Coder (e.g.
 <https://coder.example.com>). This should not be localhost.
 
@@ -24,14 +24,14 @@ You can change which port(s) Coder listens on.
 
 ```shell
 # Listen on port 80
-export CODER_HTTP_ADDRESS=0.0.0.0:80
+export WIRTUAL_HTTP_ADDRESS=0.0.0.0:80
 
 # Enable TLS and listen on port 443)
-export CODER_TLS_ENABLE=true
-export CODER_TLS_ADDRESS=0.0.0.0:443
+export WIRTUAL_TLS_ENABLE=true
+export WIRTUAL_TLS_ADDRESS=0.0.0.0:443
 
 ## Redirect from HTTP to HTTPS
-export CODER_REDIRECT_TO_ACCESS_URL=true
+export WIRTUAL_REDIRECT_TO_ACCESS_URL=true
 
 # Start the Coder server
 coder server
@@ -39,7 +39,7 @@ coder server
 
 ## Wildcard access URL
 
-`CODER_WILDCARD_ACCESS_URL` is necessary for
+`WIRTUAL_WILDCARD_ACCESS_URL` is necessary for
 [port forwarding](../networking/port-forwarding.md#dashboard) via the dashboard
 or running [coder_apps](../templates/index.md) on an absolute path. Set this to
 a wildcard subdomain that resolves to Coder (e.g. `*.coder.example.com`).
@@ -57,7 +57,7 @@ If you are providing TLS certificates directly to the Coder server, either
 
 ## TLS & Reverse Proxy
 
-The Coder server can directly use TLS certificates with `CODER_TLS_ENABLE` and
+The Coder server can directly use TLS certificates with `WIRTUAL_TLS_ENABLE` and
 accompanying configuration flags. However, Coder can also run behind a
 reverse-proxy to terminate TLS certificates from LetsEncrypt.
 
@@ -100,7 +100,7 @@ coder:
 ## PostgreSQL Database
 
 Coder uses a PostgreSQL database to store users, workspace metadata, and other
-deployment information. Use `CODER_PG_CONNECTION_URL` to set the database that
+deployment information. Use `WIRTUAL_PG_CONNECTION_URL` to set the database that
 Coder connects to. If unset, PostgreSQL binaries will be downloaded from Maven
 (<https://repo1.maven.org/maven2>) and store all data in the config root.
 
@@ -128,7 +128,7 @@ steps:
 5. Restore that content to an external database with
    `psql <external-connection-string> < coder.sql`.
 6. Start your Coder deployment with
-   `CODER_PG_CONNECTION_URL=<external-connection-string>`.
+   `WIRTUAL_PG_CONNECTION_URL=<external-connection-string>`.
 
 ## Configuring Coder behind a proxy
 

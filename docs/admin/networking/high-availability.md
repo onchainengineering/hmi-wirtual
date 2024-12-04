@@ -30,18 +30,18 @@ Coder automatically enters HA mode when multiple instances simultaneously
 connect to the same Postgres endpoint.
 
 HA brings one configuration variable to set in each Coderd node:
-`CODER_DERP_SERVER_RELAY_URL`. The HA nodes use these URLs to communicate with
+`WIRTUAL_DERP_SERVER_RELAY_URL`. The HA nodes use these URLs to communicate with
 each other. Inter-node communication is only required while using the embedded
 relay (default). If you're using [custom relays](./index.md#custom-relays),
-Coder ignores `CODER_DERP_SERVER_RELAY_URL` since Postgres is the sole
+Coder ignores `WIRTUAL_DERP_SERVER_RELAY_URL` since Postgres is the sole
 rendezvous for the Coder nodes.
 
-`CODER_DERP_SERVER_RELAY_URL` will never be `CODER_ACCESS_URL` because
-`CODER_ACCESS_URL` is a load balancer to all Coder nodes.
+`WIRTUAL_DERP_SERVER_RELAY_URL` will never be `WIRTUAL_ACCESS_URL` because
+`WIRTUAL_ACCESS_URL` is a load balancer to all Coder nodes.
 
 Here's an example 3-node network configuration setup:
 
-| Name      | `CODER_HTTP_ADDRESS` | `CODER_DERP_SERVER_RELAY_URL` | `CODER_ACCESS_URL`       |
+| Name      | `WIRTUAL_HTTP_ADDRESS` | `WIRTUAL_DERP_SERVER_RELAY_URL` | `WIRTUAL_ACCESS_URL`       |
 | --------- | -------------------- | ----------------------------- | ------------------------ |
 | `coder-1` | `*:80`               | `http://10.0.0.1:80`          | `https://coder.big.corp` |
 | `coder-2` | `*:80`               | `http://10.0.0.2:80`          | `https://coder.big.corp` |
@@ -62,7 +62,7 @@ env:
     valueFrom:
       fieldRef:
         fieldPath: status.podIP
-  - name: CODER_DERP_SERVER_RELAY_URL
+  - name: WIRTUAL_DERP_SERVER_RELAY_URL
     value: http://$(POD_IP)
 ```
 

@@ -353,8 +353,8 @@ resource "docker_image" "envbuilder" {
 locals {
   cache_repo = "us-central1-docker.pkg.dev/coder-dogfood-v2/envbuilder-cache/coder-dogfood"
   envbuilder_env = {
-    "CODER_AGENT_TOKEN" : coder_agent.dev.token,
-    "CODER_AGENT_URL" : data.coder_workspace.me.access_url,
+    "WIRTUAL_AGENT_TOKEN" : coder_agent.dev.token,
+    "WIRTUAL_AGENT_URL" : data.coder_workspace.me.access_url,
     "ENVBUILDER_GIT_USERNAME" : data.coder_external_auth.github.access_token,
     # "ENVBUILDER_GIT_URL" : data.coder_parameter.devcontainer_repo.value, # The provider sets this via the `git_url` property.
     "ENVBUILDER_DEVCONTAINER_DIR" : data.coder_parameter.devcontainer_dir.value,

@@ -75,18 +75,18 @@ curl -L https://coder.com/install.sh | sh
 # If no `--lifetime` flag is passed during creation, the default token lifetime
 # will be 30 days.
 # These variables are consumed by Coder
-export CODER_URL=https://coder.example.com
-export CODER_SESSION_TOKEN=*****
+export WIRTUAL_URL=https://coder.example.com
+export WIRTUAL_SESSION_TOKEN=*****
 
 # Template details
-export CODER_TEMPLATE_NAME=kubernetes
-export CODER_TEMPLATE_DIR=.coder/templates/kubernetes
-export CODER_TEMPLATE_VERSION=$(git rev-parse --short HEAD)
+export WIRTUAL_TEMPLATE_NAME=kubernetes
+export WIRTUAL_TEMPLATE_DIR=.coder/templates/kubernetes
+export WIRTUAL_TEMPLATE_VERSION=$(git rev-parse --short HEAD)
 
 # Push the new template version to Coder
-coder templates push --yes $CODER_TEMPLATE_NAME \
-    --directory $CODER_TEMPLATE_DIR \
-    --name=$CODER_TEMPLATE_VERSION # Version name is optional
+coder templates push --yes $WIRTUAL_TEMPLATE_NAME \
+    --directory $WIRTUAL_TEMPLATE_DIR \
+    --name=$WIRTUAL_TEMPLATE_VERSION # Version name is optional
 ```
 
 ## Testing and Publishing Coder Templates in CI/CD

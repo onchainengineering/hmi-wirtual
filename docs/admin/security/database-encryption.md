@@ -63,7 +63,7 @@ dd if=/dev/urandom bs=32 count=1 | base64
 kubectl create secret generic coder-external-token-encryption-keys --from-literal=keys=<key>
 ```
 
-- In your Coder configuration set `CODER_EXTERNAL_TOKEN_ENCRYPTION_KEYS` to a
+- In your Coder configuration set `WIRTUAL_EXTERNAL_TOKEN_ENCRYPTION_KEYS` to a
   comma-separated list of base64-encoded keys. For example, in your Helm
   `values.yaml`:
 
@@ -71,7 +71,7 @@ kubectl create secret generic coder-external-token-encryption-keys --from-litera
 coder:
   env:
     [...]
-    - name: CODER_EXTERNAL_TOKEN_ENCRYPTION_KEYS
+    - name: WIRTUAL_EXTERNAL_TOKEN_ENCRYPTION_KEYS
       valueFrom:
         secretKeyRef:
           name: coder-external-token-encryption-keys
@@ -139,8 +139,8 @@ To disable encryption, perform the following actions:
   encryption keys.
 
   > Note: for `decrypt` command, the equivalent environment variable for
-  > `--keys` is `CODER_EXTERNAL_TOKEN_ENCRYPTION_DECRYPT_KEYS` and not
-  > `CODER_EXTERNAL_TOKEN_ENCRYPTION_KEYS`. This is explicitly named differently
+  > `--keys` is `WIRTUAL_EXTERNAL_TOKEN_ENCRYPTION_DECRYPT_KEYS` and not
+  > `WIRTUAL_EXTERNAL_TOKEN_ENCRYPTION_KEYS`. This is explicitly named differently
   > to help prevent accidentally decrypting data.
 
 - Remove all

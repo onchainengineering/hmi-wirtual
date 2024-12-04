@@ -53,11 +53,11 @@ func TestEnv(t *testing.T) {
 	})
 	defer runner.Close()
 	id := uuid.New()
-	script := "echo $CODER_SCRIPT_DATA_DIR\necho $CODER_SCRIPT_BIN_DIR\n"
+	script := "echo $WIRTUAL_SCRIPT_DATA_DIR\necho $WIRTUAL_SCRIPT_BIN_DIR\n"
 	if runtime.GOOS == "windows" {
 		script = `
-			cmd.exe /c echo %CODER_SCRIPT_DATA_DIR%
-			cmd.exe /c echo %CODER_SCRIPT_BIN_DIR%
+			cmd.exe /c echo %WIRTUAL_SCRIPT_DATA_DIR%
+			cmd.exe /c echo %WIRTUAL_SCRIPT_BIN_DIR%
 		`
 	}
 	aAPI := agenttest.NewFakeAgentAPI(t, testutil.Logger(t), nil, nil)

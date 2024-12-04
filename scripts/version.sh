@@ -4,10 +4,10 @@
 # versions. Note: the version returned by this script will NOT include the "v"
 # prefix that is included in the Git tag.
 #
-# If $CODER_RELEASE is set to "true", the returned version will equal the
+# If $WIRTUAL_RELEASE is set to "true", the returned version will equal the
 # current git tag. If the current commit is not tagged, this will fail.
 #
-# If $CODER_RELEASE is not set, the returned version will always be a dev
+# If $WIRTUAL_RELEASE is not set, the returned version will always be a dev
 # version.
 
 set -euo pipefail
@@ -21,8 +21,8 @@ if [[ -d ".sl" ]]; then
 	exit 0
 fi
 
-if [[ -n "${CODER_FORCE_VERSION:-}" ]]; then
-	echo "${CODER_FORCE_VERSION}"
+if [[ -n "${WIRTUAL_FORCE_VERSION:-}" ]]; then
+	echo "${WIRTUAL_FORCE_VERSION}"
 	exit 0
 fi
 
@@ -56,7 +56,7 @@ version="${last_tag}"
 #
 # Dev versions are denoted by the "-devel+" suffix with a trailing commit short
 # SHA.
-if [[ "${CODER_RELEASE:-}" == *t* ]]; then
+if [[ "${WIRTUAL_RELEASE:-}" == *t* ]]; then
 	# $last_tag will equal `git describe --always` if we currently have the tag
 	# checked out.
 	if [[ "${last_tag}" != "$(git describe --always)" ]]; then

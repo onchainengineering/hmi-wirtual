@@ -278,7 +278,7 @@ func (r *RootCmd) dotfiles() *serpent.Command {
 	cmd.Options = serpent.OptionSet{
 		{
 			Flag:        "symlink-dir",
-			Env:         "CODER_SYMLINK_DIR",
+			Env:         "WIRTUAL_SYMLINK_DIR",
 			Description: "Specifies the directory for the dotfiles symlink destinations. If empty, will use $HOME.",
 			Value:       serpent.StringOf(&symlinkDir),
 		},
@@ -292,7 +292,7 @@ func (r *RootCmd) dotfiles() *serpent.Command {
 		{
 			Flag:        "repo-dir",
 			Default:     "dotfiles",
-			Env:         "CODER_DOTFILES_REPO_DIR",
+			Env:         "WIRTUAL_DOTFILES_REPO_DIR",
 			Description: "Specifies the directory for the dotfiles repository, relative to global config directory.",
 			Value:       serpent.StringOf(&dotfilesRepoDir),
 		},

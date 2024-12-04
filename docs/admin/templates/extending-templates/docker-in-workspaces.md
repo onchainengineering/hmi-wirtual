@@ -28,7 +28,7 @@ resource "docker_container" "workspace" {
   # ...
   name    = "coder-${data.coder_workspace.me.owner}-${lower(data.coder_workspace.me.name)}"
   image   = "codercom/enterprise-base:ubuntu"
-  env     = ["CODER_AGENT_TOKEN=${coder_agent.main.token}"]
+  env     = ["WIRTUAL_AGENT_TOKEN=${coder_agent.main.token}"]
   command = ["sh", "-c", coder_agent.main.init_script]
   # Use the Sysbox container runtime (required)
   runtime = "sysbox-runc"
@@ -108,7 +108,7 @@ resource "kubernetes_pod" "dev" {
     container {
       name = "dev"
       env {
-        name  = "CODER_AGENT_TOKEN"
+        name  = "WIRTUAL_AGENT_TOKEN"
         value = coder_agent.main.token
       }
       image = "codercom/enterprise-base:ubuntu"
@@ -154,7 +154,7 @@ or visit the [repo](https://github.com/coder/envbox).
 ### Authenticating with a Private Registry
 
 Authenticating with a private container registry can be done by referencing the
-credentials via the `CODER_IMAGE_PULL_SECRET` environment variable. It is
+credentials via the `WIRTUAL_IMAGE_PULL_SECRET` environment variable. It is
 encouraged to populate this
 [environment variable](https://kubernetes.io/docs/tasks/inject-data-application/distribute-credentials-secure/#define-container-environment-variables-using-secret-data)
 by using a Kubernetes
@@ -177,7 +177,7 @@ $ kubectl create secret docker-registry <name> \
 
 ```tf
 env {
-  name = "CODER_IMAGE_PULL_SECRET"
+  name = "WIRTUAL_IMAGE_PULL_SECRET"
   value_from {
     secret_key_ref {
       name = "<name>"
@@ -304,7 +304,7 @@ resource "docker_container" "workspace" {
   name    = "dev-${data.coder_workspace.me.id}"
   command = ["sh", "-c", coder_agent.main.init_script]
   env = [
-    "CODER_AGENT_TOKEN=${coder_agent.main.token}",
+    "WIRTUAL_AGENT_TOKEN=${coder_agent.main.token}",
     "DOCKER_HOST=${docker_container.dind.name}:2375"
   ]
   networks_advanced {
@@ -364,7 +364,7 @@ resource "kubernetes_pod" "main" {
         run_as_user = "1000"
       }
       env {
-        name  = "CODER_AGENT_TOKEN"
+        name  = "WIRTUAL_AGENT_TOKEN"
         value = coder_agent.main.token
       }
       # Use the Docker daemon in the "docker-sidecar" container
@@ -436,14 +436,14 @@ resource "kubernetes_pod" "dev" {
     container {
       name = "dev"
       env {
-        name  = "CODER_AGENT_TOKEN"
+        name  = "WIRTUAL_AGENT_TOKEN"
         value = coder_agent.main.token
       }
       image = "codercom/enterprise-base:ubuntu"
       command = ["sh", "-c", <<EOF
     # Start the Coder agent as the "coder" user
     # once systemd has started up
-    sudo -u coder --preserve-env=CODER_AGENT_TOKEN /bin/bash -- <<-'    EOT' &
+    sudo -u coder --preserve-env=WIRTUAL_AGENT_TOKEN /bin/bash -- <<-'    EOT' &
     while [[ ! $(systemctl is-system-running) =~ ^(running|degraded) ]]
     do
       echo "Waiting for system to start... $(systemctl is-system-running)"

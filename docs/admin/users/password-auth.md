@@ -6,7 +6,7 @@ setup is a username/password account.
 ## Disable password authentication
 
 To disable password authentication, use the
-[`CODER_DISABLE_PASSWORD_AUTH`](../../reference/cli/server.md#--disable-password-auth)
+[`WIRTUAL_DISABLE_PASSWORD_AUTH`](../../reference/cli/server.md#--disable-password-auth)
 flag on the Coder server.
 
 ## Restore the `Owner` user

@@ -537,7 +537,7 @@ func findAndParseHTMLFiles(files fs.FS) (*template.Template, error) {
 // extracts them into dest/bin if found. As a fallback, the provided FS is
 // checked for a /bin directory, if it is non-empty it is returned. Finally
 // dest/bin is returned as a fallback allowing binaries to be manually placed in
-// dest (usually ${CODER_CACHE_DIRECTORY}/site/bin).
+// dest (usually ${WIRTUAL_CACHE_DIRECTORY}/site/bin).
 //
 // Returns a http.FileSystem that serves unpacked binaries, and a map of binary
 // name to SHA1 hash. The returned hash map may be incomplete or contain hashes

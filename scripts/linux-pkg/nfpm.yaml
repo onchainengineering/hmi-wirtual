@@ -1,7 +1,7 @@
 name: coder
 platform: linux
 arch: "${GOARCH}"
-version: "${CODER_VERSION}"
+version: "${WIRTUAL_VERSION}"
 version_schema: semver
 release: 1
 

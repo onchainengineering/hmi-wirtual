@@ -100,7 +100,7 @@ func (r *RootCmd) supportBundle() *serpent.Command {
 			cliLog.Debug(inv.Context(), "invocation", slog.F("args", strings.Join(os.Args, " ")))
 
 			// Check if we're running inside a workspace
-			if val, found := os.LookupEnv("CODER"); found && val == "true" {
+			if val, found := os.LookupEnv("WIRTUAL"); found && val == "true" {
 				cliui.Warn(inv.Stderr, "Running inside Coder workspace; this can affect results!")
 				cliLog.Debug(inv.Context(), "running inside coder workspace")
 			}
@@ -202,13 +202,13 @@ func (r *RootCmd) supportBundle() *serpent.Command {
 		{
 			Flag:          "output-file",
 			FlagShorthand: "O",
-			Env:           "CODER_SUPPORT_BUNDLE_OUTPUT_FILE",
+			Env:           "WIRTUAL_SUPPORT_BUNDLE_OUTPUT_FILE",
 			Description:   "File path for writing the generated support bundle. Defaults to coder-support-$(date +%s).zip.",
 			Value:         serpent.StringOf(&outputPath),
 		},
 		{
 			Flag:        "url-override",
-			Env:         "CODER_SUPPORT_BUNDLE_URL_OVERRIDE",
+			Env:         "WIRTUAL_SUPPORT_BUNDLE_URL_OVERRIDE",
 			Description: "Override the URL to your Coder deployment. This may be useful, for example, if you need to troubleshoot a specific Coder replica.",
 			Value:       serpent.StringOf(&coderURLOverride),
 		},

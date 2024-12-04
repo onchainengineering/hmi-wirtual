@@ -26,7 +26,7 @@ In order for clients and workspaces to be able to connect:
 > - better than 0.5% random packet loss
 
 - All clients and agents must be able to establish a connection to the Coder
-  server (`CODER_ACCESS_URL`) over HTTP/HTTPS.
+  server (`WIRTUAL_ACCESS_URL`) over HTTP/HTTPS.
 - Any reverse proxy or ingress between the Coder control plane and
   clients/agents must support WebSockets.
 
@@ -180,7 +180,7 @@ more.
 
 Some Coder deployments require that all access is through the browser to comply
 with security policies. In these cases, pass the `--browser-only` flag to
-`coder server` or set `CODER_BROWSER_ONLY=true`.
+`coder server` or set `WIRTUAL_BROWSER_ONLY=true`.
 
 With browser-only connections, developers can only connect to their workspaces
 via the web terminal and

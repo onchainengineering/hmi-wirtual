@@ -84,8 +84,8 @@ if [ -n "${USE_CAP_NET_ADMIN:-}" ]; then
 	fi
 fi
 
-export CODER_AGENT_AUTH="${AUTH_TYPE}"
-export CODER_AGENT_URL="${ACCESS_URL}"
+export WIRTUAL_AGENT_AUTH="${AUTH_TYPE}"
+export WIRTUAL_AGENT_URL="${ACCESS_URL}"
 
 output=$(./${BINARY_NAME} --version | head -n1)
 if ! echo "${output}" | grep -q Coder; then

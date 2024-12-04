@@ -102,21 +102,21 @@ func (r *RootCmd) createToken() *serpent.Command {
 	cmd.Options = serpent.OptionSet{
 		{
 			Flag:        "lifetime",
-			Env:         "CODER_TOKEN_LIFETIME",
+			Env:         "WIRTUAL_TOKEN_LIFETIME",
 			Description: "Specify a duration for the lifetime of the token.",
 			Value:       serpent.StringOf(&tokenLifetime),
 		},
 		{
 			Flag:          "name",
 			FlagShorthand: "n",
-			Env:           "CODER_TOKEN_NAME",
+			Env:           "WIRTUAL_TOKEN_NAME",
 			Description:   "Specify a human-readable name.",
 			Value:         serpent.StringOf(&name),
 		},
 		{
 			Flag:          "user",
 			FlagShorthand: "u",
-			Env:           "CODER_TOKEN_USER",
+			Env:           "WIRTUAL_TOKEN_USER",
 			Description:   "Specify the user to create the token for (Only works if logged in user is admin).",
 			Value:         serpent.StringOf(&user),
 		},

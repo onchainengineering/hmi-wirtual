@@ -101,7 +101,7 @@ gather_logs() {
 	annotate_grafana_end "logs" "Gather logs"
 }
 
-set_appearance "${appearance_json}" "${service_banner_color}" "${service_banner_message} | Scaletest running: [${CODER_USER}/${CODER_WORKSPACE}](${CODER_URL}/@${CODER_USER}/${CODER_WORKSPACE})!"
+set_appearance "${appearance_json}" "${service_banner_color}" "${service_banner_message} | Scaletest running: [${WIRTUAL_USER}/${WIRTUAL_WORKSPACE}](${WIRTUAL_URL}/@${WIRTUAL_USER}/${WIRTUAL_WORKSPACE})!"
 
 # Show failure in the UI if script exits with error.
 on_exit() {
@@ -128,23 +128,23 @@ on_exit() {
 		;;
 	on_success)
 		if ((code == 0)); then
-			set_appearance "${appearance_json}" "${message_color}" "${service_banner_message} | Scaletest ${message_status}: [${CODER_USER}/${CODER_WORKSPACE}](${CODER_URL}/@${CODER_USER}/${CODER_WORKSPACE}), cleaning up..."
+			set_appearance "${appearance_json}" "${message_color}" "${service_banner_message} | Scaletest ${message_status}: [${WIRTUAL_USER}/${WIRTUAL_WORKSPACE}](${WIRTUAL_URL}/@${WIRTUAL_USER}/${WIRTUAL_WORKSPACE}), cleaning up..."
 			"${SCRIPTS_DIR}/cleanup.sh" "${SCALETEST_PARAM_CLEANUP_STRATEGY}"
 		fi
 		;;
 	on_error)
 		if ((code > 0)); then
-			set_appearance "${appearance_json}" "${message_color}" "${service_banner_message} | Scaletest ${message_status}: [${CODER_USER}/${CODER_WORKSPACE}](${CODER_URL}/@${CODER_USER}/${CODER_WORKSPACE}), cleaning up..."
+			set_appearance "${appearance_json}" "${message_color}" "${service_banner_message} | Scaletest ${message_status}: [${WIRTUAL_USER}/${WIRTUAL_WORKSPACE}](${WIRTUAL_URL}/@${WIRTUAL_USER}/${WIRTUAL_WORKSPACE}), cleaning up..."
 			"${SCRIPTS_DIR}/cleanup.sh" "${SCALETEST_PARAM_CLEANUP_STRATEGY}"
 		fi
 		;;
 	*)
-		set_appearance "${appearance_json}" "${message_color}" "${service_banner_message} | Scaletest ${message_status}: [${CODER_USER}/${CODER_WORKSPACE}](${CODER_URL}/@${CODER_USER}/${CODER_WORKSPACE}), cleaning up..."
+		set_appearance "${appearance_json}" "${message_color}" "${service_banner_message} | Scaletest ${message_status}: [${WIRTUAL_USER}/${WIRTUAL_WORKSPACE}](${WIRTUAL_URL}/@${WIRTUAL_USER}/${WIRTUAL_WORKSPACE}), cleaning up..."
 		"${SCRIPTS_DIR}/cleanup.sh" "${SCALETEST_PARAM_CLEANUP_STRATEGY}"
 		;;
 	esac
 
-	set_appearance "${appearance_json}" "${message_color}" "${service_banner_message} | Scaletest ${message_status}: [${CODER_USER}/${CODER_WORKSPACE}](${CODER_URL}/@${CODER_USER}/${CODER_WORKSPACE})!"
+	set_appearance "${appearance_json}" "${message_color}" "${service_banner_message} | Scaletest ${message_status}: [${WIRTUAL_USER}/${WIRTUAL_WORKSPACE}](${WIRTUAL_URL}/@${WIRTUAL_USER}/${WIRTUAL_WORKSPACE})!"
 
 	annotate_grafana_end "" "Start scaletest: ${SCALETEST_COMMENT}"
 
@@ -168,7 +168,7 @@ on_err() {
 trap on_err ERR
 
 # Pass session token since `prepare.sh` has not yet run.
-CODER_SESSION_TOKEN=$CODER_USER_TOKEN "${SCRIPTS_DIR}/report.sh" started
+WIRTUAL_SESSION_TOKEN=$WIRTUAL_USER_TOKEN "${SCRIPTS_DIR}/report.sh" started
 annotate_grafana "" "Start scaletest: ${SCALETEST_COMMENT}"
 
 "${SCRIPTS_DIR}/prepare.sh"

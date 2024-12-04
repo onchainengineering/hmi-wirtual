@@ -16,10 +16,10 @@ set -euo pipefail
 # shellcheck source=scripts/lib.sh
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
-agpl="${CODER_BUILD_AGPL:-0}"
+agpl="${WIRTUAL_BUILD_AGPL:-0}"
 output_path=""
 version=""
-sign_windows="${CODER_SIGN_WINDOWS:-0}"
+sign_windows="${WIRTUAL_SIGN_WINDOWS:-0}"
 
 args="$(getopt -o "" -l agpl,output:,version: -- "$@")"
 eval set -- "$args"
@@ -121,9 +121,9 @@ fi
 pushd "$temp_dir"
 makensis \
 	-V4 \
-	-DCODER_VERSION="$version" \
-	-DCODER_NSIS_VERSION="$nsis_version" \
-	-DCODER_YEAR="$(date +%Y)" \
+	-DWIRTUAL_VERSION="$version" \
+	-DWIRTUAL_NSIS_VERSION="$nsis_version" \
+	-DWIRTUAL_YEAR="$(date +%Y)" \
 	installer.nsi
 popd
 

@@ -6,9 +6,9 @@
    [configuration values](../admin/setup/index.md):
 
    ```env
-   CODER_HTTP_ADDRESS=127.0.0.1:3000
-   CODER_ACCESS_URL=https://coder.example.com
-   CODER_WILDCARD_ACCESS_URL=*.coder.example.com
+   WIRTUAL_HTTP_ADDRESS=127.0.0.1:3000
+   WIRTUAL_ACCESS_URL=https://coder.example.com
+   WIRTUAL_WILDCARD_ACCESS_URL=*.coder.example.com
    ```
 
    Throughout the guide, be sure to replace `coder.example.com` with the domain

@@ -142,7 +142,7 @@ func Agent(ctx context.Context, writer io.Writer, agentID uuid.UUID, opts AgentO
 			}
 			sw.Start(stage)
 			if follow {
-				sw.Log(time.Time{}, codersdk.LogLevelInfo, "==> ℹ︎ To connect immediately, reconnect with --wait=no or CODER_SSH_WAIT=no, see --help for more information.")
+				sw.Log(time.Time{}, codersdk.LogLevelInfo, "==> ℹ︎ To connect immediately, reconnect with --wait=no or WIRTUAL_SSH_WAIT=no, see --help for more information.")
 			}
 
 			err = func() error { // Use func because of defer in for loop.
@@ -411,7 +411,7 @@ func (d ConnDiags) splitDiagnostics() (general, client, agent []string) {
 	}
 
 	if d.DisableDirect {
-		general = append(general, "❗ Direct connections are disabled locally, by `--disable-direct-connections` or `CODER_DISABLE_DIRECT_CONNECTIONS`.\n"+
+		general = append(general, "❗ Direct connections are disabled locally, by `--disable-direct-connections` or `WIRTUAL_DISABLE_DIRECT_CONNECTIONS`.\n"+
 			"   They may still be established over a private network.")
 		if !d.Verbose {
 			return general, client, agent

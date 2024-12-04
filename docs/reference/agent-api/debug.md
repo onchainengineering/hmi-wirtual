@@ -5,12 +5,12 @@
 ### Code samples
 
 ```shell
-curl $CODER_AGENT_DEBUG_ADDRESS/debug/logs
+curl $WIRTUAL_AGENT_DEBUG_ADDRESS/debug/logs
 ```
 
 `GET /debug/logs`
 
-Get the first 10MiB of data from `$CODER_AGENT_LOG_DIR/coder-agent.log`.
+Get the first 10MiB of data from `$WIRTUAL_AGENT_LOG_DIR/coder-agent.log`.
 
 ### Responses
 
@@ -23,7 +23,7 @@ Get the first 10MiB of data from `$CODER_AGENT_LOG_DIR/coder-agent.log`.
 ### Code samples
 
 ```shell
-curl $CODER_AGENT_DEBUG_ADDRESS/debug/magicsock
+curl $WIRTUAL_AGENT_DEBUG_ADDRESS/debug/magicsock
 ```
 
 `GET /debug/magicsock`
@@ -36,7 +36,7 @@ See
 ### Code samples
 
 ```shell
-curl $CODER_AGENT_DEBUG_ADDRESS/debug/magicsock/debug-logging/true
+curl $WIRTUAL_AGENT_DEBUG_ADDRESS/debug/magicsock/debug-logging/true
 ```
 
 `GET /debug/magicsock/debug-logging/{state}`
@@ -62,7 +62,7 @@ for more information.
 ### Code samples
 
 ```shell
-curl $CODER_AGENT_DEBUG_ADDRESS/debug/manifest
+curl $WIRTUAL_AGENT_DEBUG_ADDRESS/debug/manifest
 ```
 
 `GET /debug/manifest`

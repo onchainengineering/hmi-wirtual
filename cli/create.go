@@ -223,7 +223,7 @@ func (r *RootCmd) create() *serpent.Command {
 				if template.OrganizationID != selectedOrg.ID {
 					orgNameFormat := "'--org=%q'"
 					if orgValueSource == serpent.ValueSourceEnv {
-						orgNameFormat = "CODER_ORGANIZATION=%q"
+						orgNameFormat = "WIRTUAL_ORGANIZATION=%q"
 					}
 
 					return xerrors.Errorf("template is in organization %q, but %s was specified. Use %s to use this template",
@@ -319,38 +319,38 @@ func (r *RootCmd) create() *serpent.Command {
 		serpent.Option{
 			Flag:          "template",
 			FlagShorthand: "t",
-			Env:           "CODER_TEMPLATE_NAME",
+			Env:           "WIRTUAL_TEMPLATE_NAME",
 			Description:   "Specify a template name.",
 			Value:         serpent.StringOf(&templateName),
 		},
 		serpent.Option{
 			Flag:        "template-version",
-			Env:         "CODER_TEMPLATE_VERSION",
+			Env:         "WIRTUAL_TEMPLATE_VERSION",
 			Description: "Specify a template version name.",
 			Value:       serpent.StringOf(&templateVersion),
 		},
 		serpent.Option{
 			Flag:        "start-at",
-			Env:         "CODER_WORKSPACE_START_AT",
+			Env:         "WIRTUAL_WORKSPACE_START_AT",
 			Description: "Specify the workspace autostart schedule. Check coder schedule start --help for the syntax.",
 			Value:       serpent.StringOf(&startAt),
 		},
 		serpent.Option{
 			Flag:        "stop-after",
-			Env:         "CODER_WORKSPACE_STOP_AFTER",
+			Env:         "WIRTUAL_WORKSPACE_STOP_AFTER",
 			Description: "Specify a duration after which the workspace should shut down (e.g. 8h).",
 			Value:       serpent.DurationOf(&stopAfter),
 		},
 		serpent.Option{
 			Flag:        "automatic-updates",
-			Env:         "CODER_WORKSPACE_AUTOMATIC_UPDATES",
+			Env:         "WIRTUAL_WORKSPACE_AUTOMATIC_UPDATES",
 			Description: "Specify automatic updates setting for the workspace (accepts 'always' or 'never').",
 			Default:     string(codersdk.AutomaticUpdatesNever),
 			Value:       serpent.StringOf(&autoUpdates),
 		},
 		serpent.Option{
 			Flag:        "copy-parameters-from",
-			Env:         "CODER_WORKSPACE_COPY_PARAMETERS_FROM",
+			Env:         "WIRTUAL_WORKSPACE_COPY_PARAMETERS_FROM",
 			Description: "Specify the source workspace name to copy parameters from.",
 			Value:       serpent.StringOf(&copyParametersFrom),
 		},

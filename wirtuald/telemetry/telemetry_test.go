@@ -196,7 +196,7 @@ func TestTelemetry(t *testing.T) {
 			// Coder registry
 			{source: "registry.coder.com/terraform/aws", want: telemetry.ModuleSourceTypeCoderRegistry},
 			{source: "registry.coder.com/modules/base", want: telemetry.ModuleSourceTypeCoderRegistry},
-			{source: "REGISTRY.CODER.COM/test/module", want: telemetry.ModuleSourceTypeCoderRegistry}, // case insensitive
+			{source: "REGISTRY.WIRTUAL.COM/test/module", want: telemetry.ModuleSourceTypeCoderRegistry}, // case insensitive
 
 			// GitHub
 			{source: "github.com/hashicorp/terraform-aws-vpc", want: telemetry.ModuleSourceTypeGitHub},
@@ -246,7 +246,7 @@ func TestTelemetry(t *testing.T) {
 
 // nolint:paralleltest
 func TestTelemetryInstallSource(t *testing.T) {
-	t.Setenv("CODER_TELEMETRY_INSTALL_SOURCE", "aws_marketplace")
+	t.Setenv("WIRTUAL_TELEMETRY_INSTALL_SOURCE", "aws_marketplace")
 	db := dbmem.New()
 	deployment, _ := collectSnapshot(t, db, nil)
 	require.Equal(t, "aws_marketplace", deployment.InstallSource)

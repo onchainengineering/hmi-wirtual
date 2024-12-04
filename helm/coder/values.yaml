@@ -5,20 +5,20 @@ coder:
   # for information about what environment variables can be set.
   # Note: The following environment variables are set by default and cannot be
   # overridden:
-  # - CODER_HTTP_ADDRESS: set to 0.0.0.0:8080 and cannot be changed.
-  # - CODER_TLS_ADDRESS: set to 0.0.0.0:8443 if tls.secretName is not empty.
-  # - CODER_TLS_ENABLE: set if tls.secretName is not empty.
-  # - CODER_TLS_CERT_FILE: set if tls.secretName is not empty.
-  # - CODER_TLS_KEY_FILE: set if tls.secretName is not empty.
-  # - CODER_PROMETHEUS_ADDRESS: set to 0.0.0.0:2112 and cannot be changed.
-  #   Prometheus must still be enabled by setting CODER_PROMETHEUS_ENABLE.
+  # - WIRTUAL_HTTP_ADDRESS: set to 0.0.0.0:8080 and cannot be changed.
+  # - WIRTUAL_TLS_ADDRESS: set to 0.0.0.0:8443 if tls.secretName is not empty.
+  # - WIRTUAL_TLS_ENABLE: set if tls.secretName is not empty.
+  # - WIRTUAL_TLS_CERT_FILE: set if tls.secretName is not empty.
+  # - WIRTUAL_TLS_KEY_FILE: set if tls.secretName is not empty.
+  # - WIRTUAL_PROMETHEUS_ADDRESS: set to 0.0.0.0:2112 and cannot be changed.
+  #   Prometheus must still be enabled by setting WIRTUAL_PROMETHEUS_ENABLE.
   # - KUBE_POD_IP
-  # - CODER_DERP_SERVER_RELAY_URL
+  # - WIRTUAL_DERP_SERVER_RELAY_URL
   #
-  # We will additionally set CODER_ACCESS_URL if unset to the cluster service
+  # We will additionally set WIRTUAL_ACCESS_URL if unset to the cluster service
   # URL, unless coder.envUseClusterAccessURL is set to false.
   env: []
-  # - name: "CODER_ACCESS_URL"
+  # - name: "WIRTUAL_ACCESS_URL"
   #   value: "https://coder.example.com"
 
   # coder.envFrom -- Secrets or ConfigMaps to use for Coder's environment
@@ -26,7 +26,7 @@ coder:
   # coder.env valueFrom. See the K8s docs for valueFrom here:
   # https://kubernetes.io/docs/tasks/inject-data-application/distribute-credentials-secure/#define-container-environment-variables-using-secret-data
   #
-  # If setting CODER_ACCESS_URL in coder.envFrom, then you must set
+  # If setting WIRTUAL_ACCESS_URL in coder.envFrom, then you must set
   # coder.envUseClusterAccessURL to false.
   envFrom: []
   # - configMapRef:
@@ -34,9 +34,9 @@ coder:
   # - secretRef:
   #     name: coder-config
 
-  # coder.envUseClusterAccessURL -- Determines whether the CODER_ACCESS_URL env
+  # coder.envUseClusterAccessURL -- Determines whether the WIRTUAL_ACCESS_URL env
   # is added to coder.env if it's not already set there. Set this to false if
-  # defining CODER_ACCESS_URL in coder.envFrom to avoid conflicts.
+  # defining WIRTUAL_ACCESS_URL in coder.envFrom to avoid conflicts.
   envUseClusterAccessURL: true
 
   # coder.image -- The image to use for Coder.
@@ -158,7 +158,7 @@ coder:
     # into the Coder pod. The secrets should exist in the same namespace as the
     # Helm deployment and should be of type "kubernetes.io/tls". The secrets
     # will be automatically mounted into the pod if specified, and the correct
-    # "CODER_TLS_*" environment variables will be set for you.
+    # "WIRTUAL_TLS_*" environment variables will be set for you.
     secretNames: []
 
   # coder.replicaCount -- The number of Kubernetes deployment replicas. This
@@ -173,7 +173,7 @@ coder:
   # proxied connections from the CLI. Workspace Proxies are optional and only
   # recommended for geographically sparse teams.
   #
-  # Make sure you set CODER_PRIMARY_ACCESS_URL and CODER_PROXY_SESSION_TOKEN in
+  # Make sure you set WIRTUAL_PRIMARY_ACCESS_URL and WIRTUAL_PROXY_SESSION_TOKEN in
   # the environment below. You can get a proxy token using the CLI:
   #   coder wsproxy create \
   #     --name "proxy-name" \
@@ -302,14 +302,14 @@ coder:
     # coder.ingress.className -- The name of the Ingress class to use.
     className: ""
     # coder.ingress.host -- The hostname to match on.
-    # Be sure to also set CODER_ACCESS_URL within coder.env[]
+    # Be sure to also set WIRTUAL_ACCESS_URL within coder.env[]
     host: ""
     # coder.ingress.wildcardHost -- The wildcard hostname to match on. Should be
     # in the form "*.example.com" or "*-suffix.example.com". If you are using a
     # suffix after the wildcard, the suffix will be stripped from the created
     # ingress to ensure that it is a legal ingress host. Optional if not using
     # applications over subdomains.
-    # Be sure to also set CODER_WILDCARD_ACCESS_URL within coder.env[]
+    # Be sure to also set WIRTUAL_WILDCARD_ACCESS_URL within coder.env[]
     wildcardHost: ""
     # coder.ingress.annotations -- The ingress annotations.
     annotations: {}

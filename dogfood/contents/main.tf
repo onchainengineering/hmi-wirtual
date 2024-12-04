@@ -347,7 +347,7 @@ resource "docker_container" "workspace" {
   memory  = data.coder_workspace_owner.me.name == "code-asher" ? 65536 : 32768
   runtime = "sysbox-runc"
   env = [
-    "CODER_AGENT_TOKEN=${coder_agent.dev.token}",
+    "WIRTUAL_AGENT_TOKEN=${coder_agent.dev.token}",
     "USE_CAP_NET_ADMIN=true",
   ]
   host {

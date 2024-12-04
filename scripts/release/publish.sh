@@ -125,7 +125,7 @@ popd
 
 # Sign the checksums file if we have a GPG key. We skip this step in dry-run
 # because we don't want to sign a fake release with our real key.
-if [[ "$dry_run" == 0 ]] && [[ "${CODER_GPG_RELEASE_KEY_BASE64:-}" != "" ]]; then
+if [[ "$dry_run" == 0 ]] && [[ "${WIRTUAL_GPG_RELEASE_KEY_BASE64:-}" != "" ]]; then
 	log "--- Signing checksums file"
 	log
 
@@ -133,7 +133,7 @@ if [[ "$dry_run" == 0 ]] && [[ "${CODER_GPG_RELEASE_KEY_BASE64:-}" != "" ]]; the
 	old_gnupg_home="${GNUPGHOME:-}"
 	gnupg_home_temp="$(mktemp -d)"
 	export GNUPGHOME="$gnupg_home_temp"
-	echo "$CODER_GPG_RELEASE_KEY_BASE64" | base64 -d | gpg --import 1>&2
+	echo "$WIRTUAL_GPG_RELEASE_KEY_BASE64" | base64 -d | gpg --import 1>&2
 
 	# Sign the checksums file. This generates a file in the same directory and
 	# with the same name as the checksums file but ending in ".asc".

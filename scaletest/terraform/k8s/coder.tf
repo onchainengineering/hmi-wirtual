@@ -115,60 +115,60 @@ coder:
               operator: "In"
               values:   ["${local.coder_release_name}"]
   env:
-    - name: "CODER_ACCESS_URL"
+    - name: "WIRTUAL_ACCESS_URL"
       value: "${local.coder_url}"
-    - name: "CODER_CACHE_DIRECTORY"
+    - name: "WIRTUAL_CACHE_DIRECTORY"
       value: "/tmp/coder"
-    - name: "CODER_TELEMETRY_ENABLE"
+    - name: "WIRTUAL_TELEMETRY_ENABLE"
       value: "false"
-    - name: "CODER_LOGGING_HUMAN"
+    - name: "WIRTUAL_LOGGING_HUMAN"
       value: "/dev/null"
-    - name: "CODER_LOGGING_STACKDRIVER"
+    - name: "WIRTUAL_LOGGING_STACKDRIVER"
       value: "/dev/stderr"
-    - name: "CODER_PG_CONNECTION_URL"
+    - name: "WIRTUAL_PG_CONNECTION_URL"
       valueFrom:
         secretKeyRef:
           name: "${kubernetes_secret.coder-db.metadata.0.name}"
           key: url
-    - name: "CODER_PPROF_ENABLE"
+    - name: "WIRTUAL_PPROF_ENABLE"
       value: "true"
-    - name: "CODER_PROMETHEUS_ENABLE"
+    - name: "WIRTUAL_PROMETHEUS_ENABLE"
       value: "true"
-    - name: "CODER_PROMETHEUS_COLLECT_AGENT_STATS"
+    - name: "WIRTUAL_PROMETHEUS_COLLECT_AGENT_STATS"
       value: "true"
-    - name: "CODER_PROMETHEUS_COLLECT_DB_METRICS"
+    - name: "WIRTUAL_PROMETHEUS_COLLECT_DB_METRICS"
       value: "true"
-    - name: "CODER_VERBOSE"
+    - name: "WIRTUAL_VERBOSE"
       value: "true"
-    - name: "CODER_EXPERIMENTS"
+    - name: "WIRTUAL_EXPERIMENTS"
       value: "${var.coder_experiments}"
-    - name: "CODER_DANGEROUS_DISABLE_RATE_LIMITS"
+    - name: "WIRTUAL_DANGEROUS_DISABLE_RATE_LIMITS"
       value: "true"
     # Disabling built-in provisioner daemons
-    - name: "CODER_PROVISIONER_DAEMONS"
+    - name: "WIRTUAL_PROVISIONER_DAEMONS"
       value: "0"
-    - name: CODER_PROVISIONER_DAEMON_PSK
+    - name: WIRTUAL_PROVISIONER_DAEMON_PSK
       valueFrom:
         secretKeyRef:
           key: psk
           name: "${kubernetes_secret.provisionerd_psk.metadata.0.name}"
     # Enable OIDC
-    - name: "CODER_OIDC_ISSUER_URL"
+    - name: "WIRTUAL_OIDC_ISSUER_URL"
       valueFrom:
         secretKeyRef:
           key: issuer-url
           name: "${data.kubernetes_secret.coder_oidc.metadata.0.name}"
-    - name: "CODER_OIDC_EMAIL_DOMAIN"
+    - name: "WIRTUAL_OIDC_EMAIL_DOMAIN"
       valueFrom:
         secretKeyRef:
           key: email-domain
           name: "${data.kubernetes_secret.coder_oidc.metadata.0.name}"
-    - name: "CODER_OIDC_CLIENT_ID"
+    - name: "WIRTUAL_OIDC_CLIENT_ID"
       valueFrom:
         secretKeyRef:
           key: client-id
           name: "${data.kubernetes_secret.coder_oidc.metadata.0.name}"
-    - name: "CODER_OIDC_CLIENT_SECRET"
+    - name: "WIRTUAL_OIDC_CLIENT_SECRET"
       valueFrom:
         secretKeyRef:
           key: client-secret
@@ -236,21 +236,21 @@ coder:
               operator: "In"
               values:   ["${local.coder_release_name}"]
   env:
-    - name: "CODER_URL"
+    - name: "WIRTUAL_URL"
       value: "${local.coder_url}"
-    - name: "CODER_VERBOSE"
+    - name: "WIRTUAL_VERBOSE"
       value: "true"
-    - name: "CODER_CACHE_DIRECTORY"
+    - name: "WIRTUAL_CACHE_DIRECTORY"
       value: "/tmp/coder"
-    - name: "CODER_TELEMETRY_ENABLE"
+    - name: "WIRTUAL_TELEMETRY_ENABLE"
       value: "false"
-    - name: "CODER_LOGGING_HUMAN"
+    - name: "WIRTUAL_LOGGING_HUMAN"
       value: "/dev/null"
-    - name: "CODER_LOGGING_STACKDRIVER"
+    - name: "WIRTUAL_LOGGING_STACKDRIVER"
       value: "/dev/stderr"
-    - name: "CODER_PROMETHEUS_ENABLE"
+    - name: "WIRTUAL_PROMETHEUS_ENABLE"
       value: "true"
-    - name: "CODER_PROVISIONERD_TAGS"
+    - name: "WIRTUAL_PROVISIONERD_TAGS"
       value = "socpe=organization"
   image:
     repo: ${var.provisionerd_image_repo}
@@ -331,7 +331,7 @@ resource "local_file" "kubernetes_template" {
             run_as_user = "1000"
           }
           env {
-            name  = "CODER_AGENT_TOKEN"
+            name  = "WIRTUAL_AGENT_TOKEN"
             value = coder_agent.main.token
           }
           resources {

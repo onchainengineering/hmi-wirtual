@@ -76,9 +76,9 @@ wait $!
 
 echo '== Starting Coder'
 hostname=$(hostname -f)
-export CODER_OIDC_ISSUER_URL="http://${hostname}:9080/realms/coder"
-export CODER_OIDC_CLIENT_ID=coder
-export CODER_OIDC_CLIENT_SECRET=coder
-export CODER_DEV_ACCESS_URL="http://${hostname}:8080"
+export WIRTUAL_OIDC_ISSUER_URL="http://${hostname}:9080/realms/coder"
+export WIRTUAL_OIDC_CLIENT_ID=coder
+export WIRTUAL_OIDC_CLIENT_SECRET=coder
+export WIRTUAL_DEV_ACCESS_URL="http://${hostname}:8080"
 
 exec "${SCRIPT_DIR}/develop.sh" "$@"

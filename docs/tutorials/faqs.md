@@ -57,9 +57,9 @@ troubleshooting.
 
 | Flag                                                                                          | Value       | Meaning                               |
 | --------------------------------------------------------------------------------------------- | ----------- | ------------------------------------- |
-| [`CODER_BLOCK_DIRECT`](../reference/cli/server.md#--block-direct-connections)                 | `true`      | Blocks direct connections             |
-| [`CODER_DERP_SERVER_STUN_ADDRESSES`](../reference/cli/server.md#--derp-server-stun-addresses) | `"disable"` | Disables STUN                         |
-| [`CODER_DERP_FORCE_WEBSOCKETS`](../reference/cli/server.md#--derp-force-websockets)           | `true`      | Forces websockets over Tailscale DERP |
+| [`WIRTUAL_BLOCK_DIRECT`](../reference/cli/server.md#--block-direct-connections)                 | `true`      | Blocks direct connections             |
+| [`WIRTUAL_DERP_SERVER_STUN_ADDRESSES`](../reference/cli/server.md#--derp-server-stun-addresses) | `"disable"` | Disables STUN                         |
+| [`WIRTUAL_DERP_FORCE_WEBSOCKETS`](../reference/cli/server.md#--derp-force-websockets)           | `true`      | Forces websockets over Tailscale DERP |
 
 ### How do I configure NGINX as the reverse proxy in front of Coder?
 
@@ -97,10 +97,10 @@ Set deployment (Kubernetes) to allow path app sharing
 
 ```yaml
 # allow authenticated users to access path-based workspace apps
-- name: CODER_DANGEROUS_ALLOW_PATH_APP_SHARING
+- name: WIRTUAL_DANGEROUS_ALLOW_PATH_APP_SHARING
   value: "true"
 # allow Coder owner roles to access path-based workspace apps
-- name: CODER_DANGEROUS_ALLOW_PATH_APP_SITE_OWNER_ACCESS
+- name: WIRTUAL_DANGEROUS_ALLOW_PATH_APP_SITE_OWNER_ACCESS
   value: "true"
 ```
 
@@ -123,7 +123,7 @@ resource "coder_app" "code-server" {
 An important concept to understand is that Coder creates workspaces which have
 an agent that must be able to reach the `coder server`.
 
-If the [`CODER_ACCESS_URL`](../admin/setup/index.md#access-url) is not
+If the [`WIRTUAL_ACCESS_URL`](../admin/setup/index.md#access-url) is not
 accessible from a workspace, the workspace may build, but the agent cannot reach
 Coder, and thus the missing icons. e.g., Terminal, IDEs, Apps.
 
@@ -206,7 +206,7 @@ certificates from Let's Encrypt.
 can start Caddy as a `systemd` service.
 
 The Caddyfile configuration will appear like this where `127.0.0.1:3000` is your
-`CODER_ACCESS_URL`:
+`WIRTUAL_ACCESS_URL`:
 
 ```text
 coder.example.com {
@@ -511,7 +511,7 @@ workspaces and prevent users from uploading or downloading resources using tools
 like `scp` or `rsync`.
 
 To achieve this, template admins can use the environment variable
-`CODER_AGENT_BLOCK_FILE_TRANSFER` to enable additional SSH command controls.
+`WIRTUAL_AGENT_BLOCK_FILE_TRANSFER` to enable additional SSH command controls.
 This variable allows the system to check if the executed application is on the
 block list, which includes `scp`, `rsync`, `ftp`, and `nc`.
 
@@ -519,8 +519,8 @@ block list, which includes `scp`, `rsync`, `ftp`, and `nc`.
 resource "docker_container" "workspace" {
   ...
   env = [
-    "CODER_AGENT_TOKEN=${coder_agent.main.token}",
-    "CODER_AGENT_BLOCK_FILE_TRANSFER=true",
+    "WIRTUAL_AGENT_TOKEN=${coder_agent.main.token}",
+    "WIRTUAL_AGENT_BLOCK_FILE_TRANSFER=true",
     ...
   ]
 }

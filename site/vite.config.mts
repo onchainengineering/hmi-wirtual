@@ -55,7 +55,7 @@ export default defineConfig({
 			"/api": {
 				ws: true,
 				changeOrigin: true,
-				target: process.env.CODER_HOST || "http://localhost:3000",
+				target: process.env.WIRTUAL_HOST || "http://localhost:3000",
 				secure: process.env.NODE_ENV === "production",
 				configure: (proxy) => {
 					// Vite does not catch socket errors, and stops the webserver.
@@ -65,7 +65,7 @@ export default defineConfig({
 						if (process.env.NODE_ENV === "development") {
 							proxyReq.setHeader(
 								"origin",
-								process.env.CODER_HOST || "http://localhost:3000",
+								process.env.WIRTUAL_HOST || "http://localhost:3000",
 							);
 						}
 
@@ -76,7 +76,7 @@ export default defineConfig({
 				},
 			},
 			"/swagger": {
-				target: process.env.CODER_HOST || "http://localhost:3000",
+				target: process.env.WIRTUAL_HOST || "http://localhost:3000",
 				secure: process.env.NODE_ENV === "production",
 			},
 		},

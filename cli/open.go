@@ -57,8 +57,8 @@ func (r *RootCmd) openVSCode() *serpent.Command {
 			// Check if we're inside a workspace, and especially inside _this_
 			// workspace so we can perform path resolution/expansion. Generally,
 			// we know that if we're inside a workspace, `open` can't be used.
-			insideAWorkspace := inv.Environ.Get("CODER") == "true"
-			inWorkspaceName := inv.Environ.Get("CODER_WORKSPACE_NAME") + "." + inv.Environ.Get("CODER_WORKSPACE_AGENT_NAME")
+			insideAWorkspace := inv.Environ.Get("WIRTUAL") == "true"
+			inWorkspaceName := inv.Environ.Get("WIRTUAL_WORKSPACE_NAME") + "." + inv.Environ.Get("WIRTUAL_WORKSPACE_AGENT_NAME")
 
 			// We need a started workspace to figure out e.g. expanded directory.
 			// Pehraps the vscode-coder extension could handle this by accepting
@@ -192,7 +192,7 @@ func (r *RootCmd) openVSCode() *serpent.Command {
 	cmd.Options = serpent.OptionSet{
 		{
 			Flag: "generate-token",
-			Env:  "CODER_OPEN_VSCODE_GENERATE_TOKEN",
+			Env:  "WIRTUAL_OPEN_VSCODE_GENERATE_TOKEN",
 			Description: fmt.Sprintf(
 				"Generate an auth token and include it in the vscode:// URI. This is for automagical configuration of %s and not needed if already configured. "+
 					"This flag does not need to be specified when running this command on a local machine unless automatic open fails.",

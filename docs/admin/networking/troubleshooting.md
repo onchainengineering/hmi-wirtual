@@ -34,7 +34,7 @@ Possible agent-side issues with direct connection:
 ### Disabled Deployment-wide
 
 Direct connections can be disabled at the deployment level by setting the
-`CODER_BLOCK_DIRECT` environment variable or the `--block-direct-connections`
+`WIRTUAL_BLOCK_DIRECT` environment variable or the `--block-direct-connections`
 flag on the server. When set, this will be reflected in the output of
 `coder ping`.
 

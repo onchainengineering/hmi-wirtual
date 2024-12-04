@@ -177,14 +177,14 @@ func TestConfigSSH_FileWriteAndOptionsFlow(t *testing.T) {
 	t.Parallel()
 
 	headerStart := strings.Join([]string{
-		"# ------------START-CODER-----------",
+		"# ------------START-WIRTUAL-----------",
 		"# This section is managed by coder. DO NOT EDIT.",
 		"#",
 		"# You should not hand-edit this section unless you are removing it, all",
 		"# changes will be lost when running \"coder config-ssh\".",
 		"#",
 	}, "\n")
-	headerEnd := "# ------------END-CODER------------"
+	headerEnd := "# ------------END-WIRTUAL------------"
 	baseHeader := strings.Join([]string{
 		headerStart,
 		headerEnd,

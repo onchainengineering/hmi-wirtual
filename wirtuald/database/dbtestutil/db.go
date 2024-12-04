@@ -98,7 +98,7 @@ func NewDB(t testing.TB, opts ...Option) (database.Store, pubsub.Pubsub) {
 	var db database.Store
 	var ps pubsub.Pubsub
 	if WillUsePostgres() {
-		connectionURL := os.Getenv("CODER_PG_CONNECTION_URL")
+		connectionURL := os.Getenv("WIRTUAL_PG_CONNECTION_URL")
 		if connectionURL == "" && o.url != "" {
 			connectionURL = o.url
 		}

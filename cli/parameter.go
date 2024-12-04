@@ -37,7 +37,7 @@ func (wpf *workspaceParameterFlags) cliEphemeralParameters() []serpent.Option {
 		// Deprecated - replaced with ephemeral-parameter
 		{
 			Flag:        "build-option",
-			Env:         "CODER_BUILD_OPTION",
+			Env:         "WIRTUAL_BUILD_OPTION",
 			Description: `Build option value in the format "name=value".`,
 			UseInstead:  []serpent.Option{{Flag: "ephemeral-parameter"}},
 			Value:       serpent.StringArrayOf(&wpf.ephemeralParameters),
@@ -51,13 +51,13 @@ func (wpf *workspaceParameterFlags) cliEphemeralParameters() []serpent.Option {
 		},
 		{
 			Flag:        "ephemeral-parameter",
-			Env:         "CODER_EPHEMERAL_PARAMETER",
+			Env:         "WIRTUAL_EPHEMERAL_PARAMETER",
 			Description: `Set the value of ephemeral parameters defined in the template. The format is "name=value".`,
 			Value:       serpent.StringArrayOf(&wpf.ephemeralParameters),
 		},
 		{
 			Flag:        "prompt-ephemeral-parameters",
-			Env:         "CODER_PROMPT_EPHEMERAL_PARAMETERS",
+			Env:         "WIRTUAL_PROMPT_EPHEMERAL_PARAMETERS",
 			Description: "Prompt to set values of ephemeral parameters defined in the template. If a value has been set via --ephemeral-parameter, it will not be prompted for.",
 			Value:       serpent.BoolOf(&wpf.promptEphemeralParameters),
 		},
@@ -68,13 +68,13 @@ func (wpf *workspaceParameterFlags) cliParameters() []serpent.Option {
 	return serpent.OptionSet{
 		serpent.Option{
 			Flag:        "parameter",
-			Env:         "CODER_RICH_PARAMETER",
+			Env:         "WIRTUAL_RICH_PARAMETER",
 			Description: `Rich parameter value in the format "name=value".`,
 			Value:       serpent.StringArrayOf(&wpf.richParameters),
 		},
 		serpent.Option{
 			Flag:        "rich-parameter-file",
-			Env:         "CODER_RICH_PARAMETER_FILE",
+			Env:         "WIRTUAL_RICH_PARAMETER_FILE",
 			Description: "Specify a file path with values for rich parameters defined in the template. The file should be in YAML format, containing key-value pairs for the parameters.",
 			Value:       serpent.StringOf(&wpf.richParameterFile),
 		},
@@ -85,7 +85,7 @@ func (wpf *workspaceParameterFlags) cliParameterDefaults() []serpent.Option {
 	return serpent.OptionSet{
 		serpent.Option{
 			Flag:        "parameter-default",
-			Env:         "CODER_RICH_PARAMETER_DEFAULT",
+			Env:         "WIRTUAL_RICH_PARAMETER_DEFAULT",
 			Description: `Rich parameter default values in the format "name=value".`,
 			Value:       serpent.StringArrayOf(&wpf.richParameterDefaults),
 		},

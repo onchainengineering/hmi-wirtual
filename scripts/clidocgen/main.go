@@ -29,9 +29,9 @@ type manifest struct {
 }
 
 func prepareEnv() {
-	// Unset CODER_ environment variables
+	// Unset WIRTUAL_ environment variables
 	for _, env := range os.Environ() {
-		if strings.HasPrefix(env, "CODER_") {
+		if strings.HasPrefix(env, "WIRTUAL_") {
 			split := strings.SplitN(env, "=", 2)
 			if err := os.Unsetenv(split[0]); err != nil {
 				panic(err)

@@ -6,13 +6,13 @@ coder:
   # variables can be set.
   # Note: The following environment variables are set by default and cannot be
   # overridden:
-  # - CODER_PROMETHEUS_ADDRESS: set to 0.0.0.0:2112 and cannot be changed.
-  #   Prometheus must still be enabled by setting CODER_PROMETHEUS_ENABLE.
+  # - WIRTUAL_PROMETHEUS_ADDRESS: set to 0.0.0.0:2112 and cannot be changed.
+  #   Prometheus must still be enabled by setting WIRTUAL_PROMETHEUS_ENABLE.
   #
-  # We will additionally set CODER_URL, if unset, to the cluster service
+  # We will additionally set WIRTUAL_URL, if unset, to the cluster service
   # URL.
   env: []
-  # - name: "CODER_URL"
+  # - name: "WIRTUAL_URL"
   #   value: "https://coder.example.com"
 
   # coder.image -- The image to use for Coder provisioner daemon.

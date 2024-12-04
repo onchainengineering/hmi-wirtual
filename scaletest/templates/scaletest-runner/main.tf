@@ -562,17 +562,17 @@ resource "coder_agent" "main" {
   env = {
     VERBOSE : data.coder_parameter.verbose.value ? "1" : "0",
     DRY_RUN : data.coder_parameter.dry_run.value ? "1" : "0",
-    CODER_CONFIG_DIR : "/home/coder/.config/coderv2",
-    CODER_USER_TOKEN : data.coder_workspace_owner.me.session_token,
-    CODER_URL : data.coder_workspace.me.access_url,
-    CODER_USER : data.coder_workspace_owner.me.name,
-    CODER_WORKSPACE : data.coder_workspace.me.name,
+    WIRTUAL_CONFIG_DIR : "/home/coder/.config/coderv2",
+    WIRTUAL_USER_TOKEN : data.coder_workspace_owner.me.session_token,
+    WIRTUAL_URL : data.coder_workspace.me.access_url,
+    WIRTUAL_USER : data.coder_workspace_owner.me.name,
+    WIRTUAL_WORKSPACE : data.coder_workspace.me.name,
 
     # Global scaletest envs that may affect each `coder exp scaletest` invocation.
-    CODER_SCALETEST_PROMETHEUS_ADDRESS : "0.0.0.0:21112",
-    CODER_SCALETEST_PROMETHEUS_WAIT : "60s",
-    CODER_SCALETEST_CONCURRENCY : "${data.coder_parameter.job_concurrency.value}",
-    CODER_SCALETEST_CLEANUP_CONCURRENCY : "${data.coder_parameter.cleanup_concurrency.value}",
+    WIRTUAL_SCALETEST_PROMETHEUS_ADDRESS : "0.0.0.0:21112",
+    WIRTUAL_SCALETEST_PROMETHEUS_WAIT : "60s",
+    WIRTUAL_SCALETEST_CONCURRENCY : "${data.coder_parameter.job_concurrency.value}",
+    WIRTUAL_SCALETEST_CLEANUP_CONCURRENCY : "${data.coder_parameter.cleanup_concurrency.value}",
 
     # Expose as params as well, for reporting (TODO(mafredri): refactor, only have one).
     SCALETEST_PARAM_SCALETEST_CONCURRENCY : "${data.coder_parameter.job_concurrency.value}",
@@ -829,11 +829,11 @@ resource "kubernetes_pod" "main" {
         run_as_user = "1000"
       }
       env {
-        name  = "CODER_AGENT_TOKEN"
+        name  = "WIRTUAL_AGENT_TOKEN"
         value = coder_agent.main.token
       }
       env {
-        name  = "CODER_AGENT_LOG_DIR"
+        name  = "WIRTUAL_AGENT_LOG_DIR"
         value = "${local.scaletest_run_dir}/logs"
       }
       env {

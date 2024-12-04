@@ -12,11 +12,11 @@ on Kubernetes or `journalctl -u coder` if you deployed Coder on a host
 machine/VM.
 
 - To change the log format/location, you can set
-  [`CODER_LOGGING_HUMAN`](../../reference/cli/server.md#--log-human) and
-  [`CODER_LOGGING_JSON](../../reference/cli/server.md#--log-json) server config.
+  [`WIRTUAL_LOGGING_HUMAN`](../../reference/cli/server.md#--log-human) and
+  [`WIRTUAL_LOGGING_JSON](../../reference/cli/server.md#--log-json) server config.
   options.
 - To only display certain types of logs, use
-  the[`CODER_LOG_FILTER`](../../reference/cli/server.md#-l---log-filter) server
+  the[`WIRTUAL_LOG_FILTER`](../../reference/cli/server.md#-l---log-filter) server
   config.
 
 Events such as server errors, audit logs, user activities, and SSO & OpenID

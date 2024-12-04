@@ -12,9 +12,9 @@
 # The --build-base parameter is optional and specifies to build the base image
 # in Dockerfile.base instead of pulling a copy from the registry. The string
 # value is the tag to use for the built image (not pushed). This also consumes
-# $CODER_IMAGE_BUILD_BASE_TAG for easily forcing a fresh build in CI.
+# $WIRTUAL_IMAGE_BUILD_BASE_TAG for easily forcing a fresh build in CI.
 #
-# The default base image can be controlled via $CODER_BASE_IMAGE_TAG.
+# The default base image can be controlled via $WIRTUAL_BASE_IMAGE_TAG.
 #
 # The image will be built and tagged against the image tag returned by
 # ./image_tag.sh unless a --target parameter is supplied.
@@ -29,11 +29,11 @@ set -euo pipefail
 # shellcheck source=scripts/lib.sh
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
-DEFAULT_BASE="${CODER_BASE_IMAGE_TAG:-ghcr.io/coder/coder-base:latest}"
+DEFAULT_BASE="${WIRTUAL_BASE_IMAGE_TAG:-ghcr.io/coder/coder-base:latest}"
 
 arch=""
 image_tag=""
-build_base="${CODER_IMAGE_BUILD_BASE_TAG:-}"
+build_base="${WIRTUAL_IMAGE_BUILD_BASE_TAG:-}"
 version=""
 push=0
 
@@ -139,7 +139,7 @@ log "--- Building Docker image for $arch ($image_tag)"
 docker build \
 	--platform "$arch" \
 	--build-arg "BASE_IMAGE=$base_image" \
-	--build-arg "CODER_VERSION=$version" \
+	--build-arg "WIRTUAL_VERSION=$version" \
 	--no-cache \
 	--tag "$image_tag" \
 	-f Dockerfile \

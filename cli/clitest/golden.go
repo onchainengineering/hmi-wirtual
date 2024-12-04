@@ -80,9 +80,9 @@ ExtractCommandPathsLoop:
 			inv, cfg := NewWithCommand(t, caseCmd, tt.Cmd...)
 			inv.Stderr = &outBuf
 			inv.Stdout = &outBuf
-			inv.Environ.Set("CODER_URL", rootClient.URL.String())
-			inv.Environ.Set("CODER_SESSION_TOKEN", rootClient.SessionToken())
-			inv.Environ.Set("CODER_CACHE_DIRECTORY", "~/.cache")
+			inv.Environ.Set("WIRTUAL_URL", rootClient.URL.String())
+			inv.Environ.Set("WIRTUAL_SESSION_TOKEN", rootClient.SessionToken())
+			inv.Environ.Set("WIRTUAL_CACHE_DIRECTORY", "~/.cache")
 
 			SetupConfig(t, rootClient, cfg)
 

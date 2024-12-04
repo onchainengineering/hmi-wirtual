@@ -31,7 +31,7 @@ import (
 	"github.com/coder/coder/v2/testutil"
 )
 
-const runTestEnv = "CODER_TAILNET_TESTS"
+const runTestEnv = "WIRTUAL_TAILNET_TESTS"
 
 var (
 	isSubprocess = flag.Bool("subprocess", false, "Signifies that this is a test subprocess")

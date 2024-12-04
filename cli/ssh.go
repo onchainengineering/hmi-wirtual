@@ -465,7 +465,7 @@ func (r *RootCmd) ssh() *serpent.Command {
 	}
 	waitOption := serpent.Option{
 		Flag:        "wait",
-		Env:         "CODER_SSH_WAIT",
+		Env:         "WIRTUAL_SSH_WAIT",
 		Description: "Specifies whether or not to wait for the startup script to finish executing. Auto means that the agent startup script behavior configured in the workspace template is used.",
 		Default:     "auto",
 		Value:       serpent.EnumOf(&waitEnum, "yes", "no", "auto"),
@@ -473,33 +473,33 @@ func (r *RootCmd) ssh() *serpent.Command {
 	cmd.Options = serpent.OptionSet{
 		{
 			Flag:        "stdio",
-			Env:         "CODER_SSH_STDIO",
+			Env:         "WIRTUAL_SSH_STDIO",
 			Description: "Specifies whether to emit SSH output over stdin/stdout.",
 			Value:       serpent.BoolOf(&stdio),
 		},
 		{
 			Flag:          "forward-agent",
 			FlagShorthand: "A",
-			Env:           "CODER_SSH_FORWARD_AGENT",
+			Env:           "WIRTUAL_SSH_FORWARD_AGENT",
 			Description:   "Specifies whether to forward the SSH agent specified in $SSH_AUTH_SOCK.",
 			Value:         serpent.BoolOf(&forwardAgent),
 		},
 		{
 			Flag:          "forward-gpg",
 			FlagShorthand: "G",
-			Env:           "CODER_SSH_FORWARD_GPG",
+			Env:           "WIRTUAL_SSH_FORWARD_GPG",
 			Description:   "Specifies whether to forward the GPG agent. Unsupported on Windows workspaces, but supports all clients. Requires gnupg (gpg, gpgconf) on both the client and workspace. The GPG agent must already be running locally and will not be started for you. If a GPG agent is already running in the workspace, it will be attempted to be killed.",
 			Value:         serpent.BoolOf(&forwardGPG),
 		},
 		{
 			Flag:        "identity-agent",
-			Env:         "CODER_SSH_IDENTITY_AGENT",
+			Env:         "WIRTUAL_SSH_IDENTITY_AGENT",
 			Description: "Specifies which identity agent to use (overrides $SSH_AUTH_SOCK), forward agent must also be enabled.",
 			Value:       serpent.StringOf(&identityAgent),
 		},
 		{
 			Flag:        "workspace-poll-interval",
-			Env:         "CODER_WORKSPACE_POLL_INTERVAL",
+			Env:         "WIRTUAL_WORKSPACE_POLL_INTERVAL",
 			Description: "Specifies how often to poll for workspace automated shutdown.",
 			Default:     "1m",
 			Value:       serpent.DurationOf(&wsPollInterval),
@@ -507,7 +507,7 @@ func (r *RootCmd) ssh() *serpent.Command {
 		waitOption,
 		{
 			Flag:        "no-wait",
-			Env:         "CODER_SSH_NO_WAIT",
+			Env:         "WIRTUAL_SSH_NO_WAIT",
 			Description: "Enter workspace immediately after the agent has connected. This is the default if the template has configured the agent startup script behavior as non-blocking.",
 			Value:       serpent.BoolOf(&noWait),
 			UseInstead:  []serpent.Option{waitOption},
@@ -515,28 +515,28 @@ func (r *RootCmd) ssh() *serpent.Command {
 		{
 			Flag:          "log-dir",
 			Description:   "Specify the directory containing SSH diagnostic log files.",
-			Env:           "CODER_SSH_LOG_DIR",
+			Env:           "WIRTUAL_SSH_LOG_DIR",
 			FlagShorthand: "l",
 			Value:         serpent.StringOf(&logDirPath),
 		},
 		{
 			Flag:          "remote-forward",
 			Description:   "Enable remote port forwarding (remote_port:local_address:local_port).",
-			Env:           "CODER_SSH_REMOTE_FORWARD",
+			Env:           "WIRTUAL_SSH_REMOTE_FORWARD",
 			FlagShorthand: "R",
 			Value:         serpent.StringArrayOf(&remoteForwards),
 		},
 		{
 			Flag:          "env",
 			Description:   "Set environment variable(s) for session (key1=value1,key2=value2,...).",
-			Env:           "CODER_SSH_ENV",
+			Env:           "WIRTUAL_SSH_ENV",
 			FlagShorthand: "e",
 			Value:         serpent.StringArrayOf(&env),
 		},
 		{
 			Flag:        "usage-app",
 			Description: "Specifies the usage app to use for workspace activity tracking.",
-			Env:         "CODER_SSH_USAGE_APP",
+			Env:         "WIRTUAL_SSH_USAGE_APP",
 			Value:       serpent.StringOf(&usageApp),
 			Hidden:      true,
 		},
@@ -1106,7 +1106,7 @@ func sshDisableAutostartOption(src *serpent.Bool) serpent.Option {
 	return serpent.Option{
 		Flag:        "disable-autostart",
 		Description: "Disable starting the workspace automatically when connecting via SSH.",
-		Env:         "CODER_SSH_DISABLE_AUTOSTART",
+		Env:         "WIRTUAL_SSH_DISABLE_AUTOSTART",
 		Value:       src,
 		Default:     "false",
 	}

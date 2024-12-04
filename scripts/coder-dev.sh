@@ -30,9 +30,9 @@ RELATIVE_BINARY_PATH="build/${BINARY_TYPE}_${GOOS}_${GOARCH}"
 # get absolute paths to everything.
 pushd "$PROJECT_ROOT"
 mkdir -p ./.coderv2
-CODER_DEV_BIN="$(realpath "$RELATIVE_BINARY_PATH")"
-CODER_DEV_DIR="$(realpath ./.coderv2)"
-CODER_DELVE_DEBUG_BIN=$(realpath "./build/coder_debug_${GOOS}_${GOARCH}")
+WIRTUAL_DEV_BIN="$(realpath "$RELATIVE_BINARY_PATH")"
+WIRTUAL_DEV_DIR="$(realpath ./.coderv2)"
+WIRTUAL_DELVE_DEBUG_BIN=$(realpath "./build/coder_debug_${GOOS}_${GOARCH}")
 popd
 
 case $BINARY_TYPE in
@@ -42,7 +42,7 @@ coder-slim)
 	make -j "${RELATIVE_BINARY_PATH}"
 	;;
 coder)
-	if [[ ! -x "${CODER_DEV_BIN}" ]]; then
+	if [[ ! -x "${WIRTUAL_DEV_BIN}" ]]; then
 		# A feature requiring the full binary was requested and the
 		# binary is missing, normally it's built by `develop.sh`, but
 		# it's an expensive operation, so we require manual action here.
@@ -57,13 +57,13 @@ coder)
 	;;
 esac
 
-runcmd=("${CODER_DEV_BIN}")
+runcmd=("${WIRTUAL_DEV_BIN}")
 if [[ "${DEBUG_DELVE}" == 1 ]]; then
 	set -x
 	build_flags=(
 		--os "$GOOS"
 		--arch "$GOARCH"
-		--output "$CODER_DELVE_DEBUG_BIN"
+		--output "$WIRTUAL_DELVE_DEBUG_BIN"
 		--debug
 	)
 	if [[ "$BINARY_TYPE" == "coder-slim" ]]; then
@@ -73,7 +73,7 @@ if [[ "${DEBUG_DELVE}" == 1 ]]; then
 	# binary, so we can just build the debug binary here without having to worry
 	# about/use the makefile.
 	./scripts/build_go.sh "${build_flags[@]}"
-	runcmd=(dlv exec --headless --continue --listen 127.0.0.1:12345 --accept-multiclient "$CODER_DELVE_DEBUG_BIN" --)
+	runcmd=(dlv exec --headless --continue --listen 127.0.0.1:12345 --accept-multiclient "$WIRTUAL_DELVE_DEBUG_BIN" --)
 fi
 
-exec "${runcmd[@]}" --global-config "${CODER_DEV_DIR}" "$@"
+exec "${runcmd[@]}" --global-config "${WIRTUAL_DEV_DIR}" "$@"

@@ -57,8 +57,8 @@ const (
 // EnvProcPrioMgmt determines whether we attempt to manage
 // process CPU and OOM Killer priority.
 const (
-	EnvProcPrioMgmt = "CODER_PROC_PRIO_MGMT"
-	EnvProcOOMScore = "CODER_PROC_OOM_SCORE"
+	EnvProcPrioMgmt = "WIRTUAL_PROC_PRIO_MGMT"
+	EnvProcOOMScore = "WIRTUAL_PROC_OOM_SCORE"
 )
 
 type Options struct {
@@ -1023,12 +1023,12 @@ func (a *agent) updateCommandEnv(current []string) (updated []string, err error)
 	// and then merge them with the current environment.
 	envs := map[string]string{
 		// Set env vars indicating we're inside a Coder workspace.
-		"CODER":                      "true",
-		"CODER_WORKSPACE_NAME":       manifest.WorkspaceName,
-		"CODER_WORKSPACE_AGENT_NAME": manifest.AgentName,
+		"WIRTUAL":                      "true",
+		"WIRTUAL_WORKSPACE_NAME":       manifest.WorkspaceName,
+		"WIRTUAL_WORKSPACE_AGENT_NAME": manifest.AgentName,
 
 		// Specific Coder subcommands require the agent token exposed!
-		"CODER_AGENT_TOKEN": *a.sessionToken.Load(),
+		"WIRTUAL_AGENT_TOKEN": *a.sessionToken.Load(),
 
 		// Git on Windows resolves with UNIX-style paths.
 		// If using backslashes, it's unable to find the executable.
@@ -1066,7 +1066,7 @@ func (a *agent) updateCommandEnv(current []string) (updated []string, err error)
 	}
 
 	// Agent-level environment variables should take over all. This is
-	// used for setting agent-specific variables like CODER_AGENT_TOKEN
+	// used for setting agent-specific variables like WIRTUAL_AGENT_TOKEN
 	// and GIT_ASKPASS.
 	for k, v := range a.environmentVariables {
 		envs[k] = v
@@ -1110,7 +1110,7 @@ func (a *agent) trackGoroutine(fn func()) error {
 }
 
 func (a *agent) createTailnet(ctx context.Context, agentID uuid.UUID, derpMap *tailcfg.DERPMap, derpForceWebSockets, disableDirectConnections bool) (_ *tailnet.Conn, err error) {
-	// Inject `CODER_AGENT_HEADER` into the DERP header.
+	// Inject `WIRTUAL_AGENT_HEADER` into the DERP header.
 	var header http.Header
 	if client, ok := a.client.(*agentsdk.Client); ok {
 		if headerTransport, ok := client.SDK.HTTPClient.Transport.(*codersdk.HeaderTransport); ok {
@@ -1651,7 +1651,7 @@ func expandDirectory(dir string) (string, error) {
 // EnvAgentSubsystem is the environment variable used to denote the
 // specialized environment in which the agent is running
 // (e.g. envbox, envbuilder).
-const EnvAgentSubsystem = "CODER_AGENT_SUBSYSTEM"
+const EnvAgentSubsystem = "WIRTUAL_AGENT_SUBSYSTEM"
 
 // eitherContext returns a context that is canceled when either context ends.
 func eitherContext(a, b context.Context) context.Context {

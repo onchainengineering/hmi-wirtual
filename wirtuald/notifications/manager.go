@@ -24,12 +24,12 @@ var ErrInvalidDispatchTimeout = xerrors.New("dispatch timeout must be less than 
 //
 // Manager maintains a notifier: this consumes the queue of notification messages in the store.
 //
-// The notifier dequeues messages from the store _CODER_NOTIFICATIONS_LEASE_COUNT_ at a time and concurrently "dispatches"
+// The notifier dequeues messages from the store _WIRTUAL_NOTIFICATIONS_LEASE_COUNT_ at a time and concurrently "dispatches"
 // these messages, meaning they are sent by their respective methods (email, webhook, etc).
 //
 // To reduce load on the store, successful and failed dispatches are accumulated in two separate buffers (success/failure)
-// of size CODER_NOTIFICATIONS_STORE_SYNC_INTERVAL in the Manager, and updates are sent to the store about which messages
-// succeeded or failed every CODER_NOTIFICATIONS_STORE_SYNC_INTERVAL seconds.
+// of size WIRTUAL_NOTIFICATIONS_STORE_SYNC_INTERVAL in the Manager, and updates are sent to the store about which messages
+// succeeded or failed every WIRTUAL_NOTIFICATIONS_STORE_SYNC_INTERVAL seconds.
 // These buffers are limited in size, and naturally introduce some backpressure; if there are hundreds of messages to be
 // sent but they start failing too quickly, the buffers (receive channels) will fill up and block senders, which will
 // slow down the dispatch rate.
