@@ -16,7 +16,6 @@ import (
 	"github.com/coder/coder/v2/coderd/schedule"
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/testutil"
-	"
 )
 
 func TestWorkspaceActivityBump(t *testing.T) {
