@@ -18,7 +18,6 @@ import (
 	"github.com/coder/coder/v2/provisionersdk/proto"
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/coder/v2/wirtuald/autobuild"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/notifications"
@@ -26,6 +25,7 @@ import (
 	"github.com/coder/coder/v2/wirtuald/schedule"
 	"github.com/coder/coder/v2/wirtuald/schedule/cron"
 	"github.com/coder/coder/v2/wirtuald/util/ptr"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -36,7 +36,7 @@ func TestExecutorAutostartOK(t *testing.T) {
 		sched   = mustSchedule(t, "CRON_TZ=UTC 0 * * * *")
 		tickCh  = make(chan time.Time)
 		statsCh = make(chan autobuild.Stats)
-		client  = coderdtest.New(t, &coderdtest.Options{
+		client  = wirtualdtest.New(t, &wirtualdtest.Options{
 			AutobuildTicker:          tickCh,
 			IncludeProvisionerDaemon: true,
 			AutobuildStats:           statsCh,
@@ -47,7 +47,7 @@ func TestExecutorAutostartOK(t *testing.T) {
 		})
 	)
 	// Given: workspace is stopped
-	workspace = coderdtest.MustTransitionWorkspace(t, client, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
+	workspace = wirtualdtest.MustTransitionWorkspace(t, client, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
 
 	// When: the autobuild executor ticks after the scheduled time
 	go func() {
@@ -62,7 +62,7 @@ func TestExecutorAutostartOK(t *testing.T) {
 	assert.Contains(t, stats.Transitions, workspace.ID)
 	assert.Equal(t, database.WorkspaceTransitionStart, stats.Transitions[workspace.ID])
 
-	workspace = coderdtest.MustWorkspace(t, client, workspace.ID)
+	workspace = wirtualdtest.MustWorkspace(t, client, workspace.ID)
 	assert.Equal(t, wirtualsdk.BuildReasonAutostart, workspace.LatestBuild.Reason)
 	// Assert some template props. If this is not set correctly, the test
 	// will fail.
@@ -118,7 +118,7 @@ func TestExecutorAutostartTemplateUpdated(t *testing.T) {
 				statsCh  = make(chan autobuild.Stats)
 				logger   = slogtest.Make(t, &slogtest.Options{IgnoreErrors: !tc.expectStart}).Leveled(slog.LevelDebug)
 				enqueuer = notificationstest.FakeEnqueuer{}
-				client   = coderdtest.New(t, &coderdtest.Options{
+				client   = wirtualdtest.New(t, &wirtualdtest.Options{
 					AutobuildTicker:          tickCh,
 					IncludeProvisionerDaemon: true,
 					AutobuildStats:           statsCh,
@@ -133,7 +133,7 @@ func TestExecutorAutostartTemplateUpdated(t *testing.T) {
 				})
 			)
 			// Given: workspace is stopped
-			workspace = coderdtest.MustTransitionWorkspace(
+			workspace = wirtualdtest.MustTransitionWorkspace(
 				t, client, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
 
 			orgs, err := client.OrganizationsByUser(ctx, workspace.OwnerID.String())
@@ -163,8 +163,8 @@ func TestExecutorAutostartTemplateUpdated(t *testing.T) {
 			}
 
 			// Given: the workspace template has been updated
-			newVersion := coderdtest.UpdateTemplateVersion(t, client, orgs[0].ID, res, workspace.TemplateID)
-			coderdtest.AwaitTemplateVersionJobCompleted(t, client, newVersion.ID)
+			newVersion := wirtualdtest.UpdateTemplateVersion(t, client, orgs[0].ID, res, workspace.TemplateID)
+			wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, newVersion.ID)
 			require.NoError(t, client.UpdateActiveTemplateVersion(
 				ctx, workspace.TemplateID, wirtualsdk.UpdateActiveTemplateVersion{
 					ID: newVersion.ID,
@@ -191,7 +191,7 @@ func TestExecutorAutostartTemplateUpdated(t *testing.T) {
 			assert.Len(t, stats.Transitions, 1)
 			assert.Contains(t, stats.Transitions, workspace.ID)
 			assert.Equal(t, database.WorkspaceTransitionStart, stats.Transitions[workspace.ID])
-			ws := coderdtest.MustWorkspace(t, client, workspace.ID)
+			ws := wirtualdtest.MustWorkspace(t, client, workspace.ID)
 			if tc.expectUpdate {
 				// Then: uses the updated version
 				assert.Equal(t, newVersion.ID, ws.LatestBuild.TemplateVersionID,
@@ -227,7 +227,7 @@ func TestExecutorAutostartAlreadyRunning(t *testing.T) {
 		sched   = mustSchedule(t, "CRON_TZ=UTC 0 * * * *")
 		tickCh  = make(chan time.Time)
 		statsCh = make(chan autobuild.Stats)
-		client  = coderdtest.New(t, &coderdtest.Options{
+		client  = wirtualdtest.New(t, &wirtualdtest.Options{
 			AutobuildTicker:          tickCh,
 			IncludeProvisionerDaemon: true,
 			AutobuildStats:           statsCh,
@@ -259,7 +259,7 @@ func TestExecutorAutostartNotEnabled(t *testing.T) {
 	var (
 		tickCh  = make(chan time.Time)
 		statsCh = make(chan autobuild.Stats)
-		client  = coderdtest.New(t, &coderdtest.Options{
+		client  = wirtualdtest.New(t, &wirtualdtest.Options{
 			AutobuildTicker:          tickCh,
 			IncludeProvisionerDaemon: true,
 			AutobuildStats:           statsCh,
@@ -274,7 +274,7 @@ func TestExecutorAutostartNotEnabled(t *testing.T) {
 	require.Empty(t, workspace.AutostartSchedule)
 
 	// Given: workspace is stopped
-	workspace = coderdtest.MustTransitionWorkspace(t, client, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
+	workspace = wirtualdtest.MustTransitionWorkspace(t, client, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
 
 	// When: the autobuild executor ticks way into the future
 	go func() {
@@ -296,26 +296,26 @@ func TestExecutorAutostartUserSuspended(t *testing.T) {
 		sched   = mustSchedule(t, "CRON_TZ=UTC 0 * * * *")
 		tickCh  = make(chan time.Time)
 		statsCh = make(chan autobuild.Stats)
-		client  = coderdtest.New(t, &coderdtest.Options{
+		client  = wirtualdtest.New(t, &wirtualdtest.Options{
 			AutobuildTicker:          tickCh,
 			IncludeProvisionerDaemon: true,
 			AutobuildStats:           statsCh,
 		})
 	)
 
-	admin := coderdtest.CreateFirstUser(t, client)
-	version := coderdtest.CreateTemplateVersion(t, client, admin.OrganizationID, nil)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	template := coderdtest.CreateTemplate(t, client, admin.OrganizationID, version.ID)
-	userClient, user := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
-	workspace := coderdtest.CreateWorkspace(t, userClient, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+	admin := wirtualdtest.CreateFirstUser(t, client)
+	version := wirtualdtest.CreateTemplateVersion(t, client, admin.OrganizationID, nil)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	template := wirtualdtest.CreateTemplate(t, client, admin.OrganizationID, version.ID)
+	userClient, user := wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+	workspace := wirtualdtest.CreateWorkspace(t, userClient, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 		cwr.AutostartSchedule = ptr.Ref(sched.String())
 	})
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, userClient, workspace.LatestBuild.ID)
-	workspace = coderdtest.MustWorkspace(t, userClient, workspace.ID)
+	wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, userClient, workspace.LatestBuild.ID)
+	workspace = wirtualdtest.MustWorkspace(t, userClient, workspace.ID)
 
 	// Given: workspace is stopped, and the user is suspended.
-	workspace = coderdtest.MustTransitionWorkspace(t, userClient, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
+	workspace = wirtualdtest.MustTransitionWorkspace(t, userClient, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
 
 	_, err := client.UpdateUserStatus(ctx, user.ID.String(), wirtualsdk.UserStatusSuspended)
 	require.NoError(t, err, "update user status")
@@ -338,7 +338,7 @@ func TestExecutorAutostopOK(t *testing.T) {
 	var (
 		tickCh  = make(chan time.Time)
 		statsCh = make(chan autobuild.Stats)
-		client  = coderdtest.New(t, &coderdtest.Options{
+		client  = wirtualdtest.New(t, &wirtualdtest.Options{
 			AutobuildTicker:          tickCh,
 			IncludeProvisionerDaemon: true,
 			AutobuildStats:           statsCh,
@@ -363,7 +363,7 @@ func TestExecutorAutostopOK(t *testing.T) {
 	assert.Contains(t, stats.Transitions, workspace.ID)
 	assert.Equal(t, database.WorkspaceTransitionStop, stats.Transitions[workspace.ID])
 
-	workspace = coderdtest.MustWorkspace(t, client, workspace.ID)
+	workspace = wirtualdtest.MustWorkspace(t, client, workspace.ID)
 	assert.Equal(t, wirtualsdk.BuildReasonAutostop, workspace.LatestBuild.Reason)
 }
 
@@ -374,7 +374,7 @@ func TestExecutorAutostopExtend(t *testing.T) {
 		ctx     = context.Background()
 		tickCh  = make(chan time.Time)
 		statsCh = make(chan autobuild.Stats)
-		client  = coderdtest.New(t, &coderdtest.Options{
+		client  = wirtualdtest.New(t, &wirtualdtest.Options{
 			AutobuildTicker:          tickCh,
 			IncludeProvisionerDaemon: true,
 			AutobuildStats:           statsCh,
@@ -424,7 +424,7 @@ func TestExecutorAutostopAlreadyStopped(t *testing.T) {
 	var (
 		tickCh  = make(chan time.Time)
 		statsCh = make(chan autobuild.Stats)
-		client  = coderdtest.New(t, &coderdtest.Options{
+		client  = wirtualdtest.New(t, &wirtualdtest.Options{
 			AutobuildTicker:          tickCh,
 			IncludeProvisionerDaemon: true,
 			AutobuildStats:           statsCh,
@@ -436,7 +436,7 @@ func TestExecutorAutostopAlreadyStopped(t *testing.T) {
 	)
 
 	// Given: workspace is stopped
-	workspace = coderdtest.MustTransitionWorkspace(t, client, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
+	workspace = wirtualdtest.MustTransitionWorkspace(t, client, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
 
 	// When: the autobuild executor ticks past the TTL
 	go func() {
@@ -456,7 +456,7 @@ func TestExecutorAutostopNotEnabled(t *testing.T) {
 	var (
 		tickCh  = make(chan time.Time)
 		statsCh = make(chan autobuild.Stats)
-		client  = coderdtest.New(t, &coderdtest.Options{
+		client  = wirtualdtest.New(t, &wirtualdtest.Options{
 			AutobuildTicker:          tickCh,
 			IncludeProvisionerDaemon: true,
 			AutobuildStats:           statsCh,
@@ -468,7 +468,7 @@ func TestExecutorAutostopNotEnabled(t *testing.T) {
 	)
 
 	// Given: workspace has no TTL set
-	workspace = coderdtest.MustWorkspace(t, client, workspace.ID)
+	workspace = wirtualdtest.MustWorkspace(t, client, workspace.ID)
 	require.Nil(t, workspace.TTLMillis)
 	require.Zero(t, workspace.LatestBuild.Deadline)
 	require.NotZero(t, workspace.LatestBuild.Job.CompletedAt)
@@ -495,7 +495,7 @@ func TestExecutorWorkspaceDeleted(t *testing.T) {
 		sched   = mustSchedule(t, "CRON_TZ=UTC 0 * * * *")
 		tickCh  = make(chan time.Time)
 		statsCh = make(chan autobuild.Stats)
-		client  = coderdtest.New(t, &coderdtest.Options{
+		client  = wirtualdtest.New(t, &wirtualdtest.Options{
 			AutobuildTicker:          tickCh,
 			IncludeProvisionerDaemon: true,
 			AutobuildStats:           statsCh,
@@ -507,7 +507,7 @@ func TestExecutorWorkspaceDeleted(t *testing.T) {
 	)
 
 	// Given: workspace is deleted
-	workspace = coderdtest.MustTransitionWorkspace(t, client, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionDelete)
+	workspace = wirtualdtest.MustTransitionWorkspace(t, client, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionDelete)
 
 	// When: the autobuild executor ticks
 	go func() {
@@ -528,7 +528,7 @@ func TestExecutorWorkspaceAutostartTooEarly(t *testing.T) {
 		sched   = mustSchedule(t, "CRON_TZ=UTC 0 * * * *")
 		tickCh  = make(chan time.Time)
 		statsCh = make(chan autobuild.Stats)
-		client  = coderdtest.New(t, &coderdtest.Options{
+		client  = wirtualdtest.New(t, &wirtualdtest.Options{
 			AutobuildTicker:          tickCh,
 			IncludeProvisionerDaemon: true,
 			AutobuildStats:           statsCh,
@@ -559,7 +559,7 @@ func TestExecutorWorkspaceAutostopBeforeDeadline(t *testing.T) {
 	var (
 		tickCh  = make(chan time.Time)
 		statsCh = make(chan autobuild.Stats)
-		client  = coderdtest.New(t, &coderdtest.Options{
+		client  = wirtualdtest.New(t, &wirtualdtest.Options{
 			AutobuildTicker:          tickCh,
 			IncludeProvisionerDaemon: true,
 			AutobuildStats:           statsCh,
@@ -591,23 +591,23 @@ func TestExecuteAutostopSuspendedUser(t *testing.T) {
 		ctx     = testutil.Context(t, testutil.WaitShort)
 		tickCh  = make(chan time.Time)
 		statsCh = make(chan autobuild.Stats)
-		client  = coderdtest.New(t, &coderdtest.Options{
+		client  = wirtualdtest.New(t, &wirtualdtest.Options{
 			AutobuildTicker:          tickCh,
 			IncludeProvisionerDaemon: true,
 			AutobuildStats:           statsCh,
 		})
 	)
 
-	admin := coderdtest.CreateFirstUser(t, client)
-	version := coderdtest.CreateTemplateVersion(t, client, admin.OrganizationID, nil)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	template := coderdtest.CreateTemplate(t, client, admin.OrganizationID, version.ID)
-	userClient, user := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
-	workspace := coderdtest.CreateWorkspace(t, userClient, template.ID)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, userClient, workspace.LatestBuild.ID)
+	admin := wirtualdtest.CreateFirstUser(t, client)
+	version := wirtualdtest.CreateTemplateVersion(t, client, admin.OrganizationID, nil)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	template := wirtualdtest.CreateTemplate(t, client, admin.OrganizationID, version.ID)
+	userClient, user := wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+	workspace := wirtualdtest.CreateWorkspace(t, userClient, template.ID)
+	wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, userClient, workspace.LatestBuild.ID)
 
 	// Given: workspace is running, and the user is suspended.
-	workspace = coderdtest.MustWorkspace(t, userClient, workspace.ID)
+	workspace = wirtualdtest.MustWorkspace(t, userClient, workspace.ID)
 	require.Equal(t, wirtualsdk.WorkspaceStatusRunning, workspace.LatestBuild.Status)
 	_, err := client.UpdateUserStatus(ctx, user.ID.String(), wirtualsdk.UserStatusSuspended)
 	require.NoError(t, err, "update user status")
@@ -625,8 +625,8 @@ func TestExecuteAutostopSuspendedUser(t *testing.T) {
 	assert.Equal(t, stats.Transitions[workspace.ID], database.WorkspaceTransitionStop)
 
 	// Wait for stop to complete
-	workspace = coderdtest.MustWorkspace(t, client, workspace.ID)
-	workspaceBuild := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	workspace = wirtualdtest.MustWorkspace(t, client, workspace.ID)
+	workspaceBuild := wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 	assert.Equal(t, wirtualsdk.WorkspaceStatusStopped, workspaceBuild.Status)
 }
 
@@ -637,7 +637,7 @@ func TestExecutorWorkspaceAutostopNoWaitChangedMyMind(t *testing.T) {
 		ctx     = context.Background()
 		tickCh  = make(chan time.Time)
 		statsCh = make(chan autobuild.Stats)
-		client  = coderdtest.New(t, &coderdtest.Options{
+		client  = wirtualdtest.New(t, &wirtualdtest.Options{
 			AutobuildTicker:          tickCh,
 			IncludeProvisionerDaemon: true,
 			AutobuildStats:           statsCh,
@@ -651,7 +651,7 @@ func TestExecutorWorkspaceAutostopNoWaitChangedMyMind(t *testing.T) {
 	require.NoError(t, err)
 
 	// Then: the deadline should still be the original value
-	updated := coderdtest.MustWorkspace(t, client, workspace.ID)
+	updated := wirtualdtest.MustWorkspace(t, client, workspace.ID)
 	assert.WithinDuration(t, workspace.LatestBuild.Deadline.Time, updated.LatestBuild.Deadline.Time, time.Minute)
 
 	// When: the autobuild executor ticks after the original deadline
@@ -666,11 +666,11 @@ func TestExecutorWorkspaceAutostopNoWaitChangedMyMind(t *testing.T) {
 	assert.Equal(t, stats.Transitions[workspace.ID], database.WorkspaceTransitionStop)
 
 	// Wait for stop to complete
-	updated = coderdtest.MustWorkspace(t, client, workspace.ID)
-	_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, updated.LatestBuild.ID)
+	updated = wirtualdtest.MustWorkspace(t, client, workspace.ID)
+	_ = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, updated.LatestBuild.ID)
 
 	// Start the workspace again
-	workspace = coderdtest.MustTransitionWorkspace(t, client, workspace.ID, database.WorkspaceTransitionStop, database.WorkspaceTransitionStart)
+	workspace = wirtualdtest.MustTransitionWorkspace(t, client, workspace.ID, database.WorkspaceTransitionStop, database.WorkspaceTransitionStart)
 
 	// Given: the user changes their mind again and wants to enable autostop
 	newTTL := 8 * time.Hour
@@ -678,7 +678,7 @@ func TestExecutorWorkspaceAutostopNoWaitChangedMyMind(t *testing.T) {
 	require.NoError(t, err)
 
 	// Then: the deadline should remain at the zero value
-	updated = coderdtest.MustWorkspace(t, client, workspace.ID)
+	updated = wirtualdtest.MustWorkspace(t, client, workspace.ID)
 	assert.Zero(t, updated.LatestBuild.Deadline)
 
 	// When: the relentless onward march of time continues
@@ -706,12 +706,12 @@ func TestExecutorAutostartMultipleOK(t *testing.T) {
 		tickCh2  = make(chan time.Time)
 		statsCh1 = make(chan autobuild.Stats)
 		statsCh2 = make(chan autobuild.Stats)
-		client   = coderdtest.New(t, &coderdtest.Options{
+		client   = wirtualdtest.New(t, &wirtualdtest.Options{
 			AutobuildTicker:          tickCh,
 			IncludeProvisionerDaemon: true,
 			AutobuildStats:           statsCh1,
 		})
-		_ = coderdtest.New(t, &coderdtest.Options{
+		_ = wirtualdtest.New(t, &wirtualdtest.Options{
 			AutobuildTicker:          tickCh2,
 			IncludeProvisionerDaemon: true,
 			AutobuildStats:           statsCh2,
@@ -722,7 +722,7 @@ func TestExecutorAutostartMultipleOK(t *testing.T) {
 		})
 	)
 	// Given: workspace is stopped
-	workspace = coderdtest.MustTransitionWorkspace(t, client, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
+	workspace = wirtualdtest.MustTransitionWorkspace(t, client, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
 
 	// When: the autobuild executor ticks past the scheduled time
 	go func() {
@@ -760,7 +760,7 @@ func TestExecutorAutostartWithParameters(t *testing.T) {
 		sched   = mustSchedule(t, "CRON_TZ=UTC 0 * * * *")
 		tickCh  = make(chan time.Time)
 		statsCh = make(chan autobuild.Stats)
-		client  = coderdtest.New(t, &coderdtest.Options{
+		client  = wirtualdtest.New(t, &wirtualdtest.Options{
 			AutobuildTicker:          tickCh,
 			IncludeProvisionerDaemon: true,
 			AutobuildStats:           statsCh,
@@ -787,7 +787,7 @@ func TestExecutorAutostartWithParameters(t *testing.T) {
 		})
 	)
 	// Given: workspace is stopped
-	workspace = coderdtest.MustTransitionWorkspace(t, client, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
+	workspace = wirtualdtest.MustTransitionWorkspace(t, client, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
 
 	// When: the autobuild executor ticks after the scheduled time
 	go func() {
@@ -802,7 +802,7 @@ func TestExecutorAutostartWithParameters(t *testing.T) {
 	assert.Contains(t, stats.Transitions, workspace.ID)
 	assert.Equal(t, database.WorkspaceTransitionStart, stats.Transitions[workspace.ID])
 
-	workspace = coderdtest.MustWorkspace(t, client, workspace.ID)
+	workspace = wirtualdtest.MustWorkspace(t, client, workspace.ID)
 	mustWorkspaceParameters(t, client, workspace.LatestBuild.ID)
 }
 
@@ -814,7 +814,7 @@ func TestExecutorAutostartTemplateDisabled(t *testing.T) {
 		tickCh  = make(chan time.Time)
 		statsCh = make(chan autobuild.Stats)
 
-		client = coderdtest.New(t, &coderdtest.Options{
+		client = wirtualdtest.New(t, &wirtualdtest.Options{
 			AutobuildTicker:          tickCh,
 			IncludeProvisionerDaemon: true,
 			AutobuildStats:           statsCh,
@@ -837,7 +837,7 @@ func TestExecutorAutostartTemplateDisabled(t *testing.T) {
 		})
 	)
 	// Given: workspace is stopped
-	workspace = coderdtest.MustTransitionWorkspace(t, client, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
+	workspace = wirtualdtest.MustTransitionWorkspace(t, client, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
 
 	// When: the autobuild executor ticks before the next scheduled time
 	go func() {
@@ -859,7 +859,7 @@ func TestExecutorAutostopTemplateDisabled(t *testing.T) {
 		tickCh  = make(chan time.Time)
 		statsCh = make(chan autobuild.Stats)
 
-		client = coderdtest.New(t, &coderdtest.Options{
+		client = wirtualdtest.New(t, &wirtualdtest.Options{
 			AutobuildTicker:          tickCh,
 			IncludeProvisionerDaemon: true,
 			AutobuildStats:           statsCh,
@@ -917,7 +917,7 @@ func TestExecutorRequireActiveVersion(t *testing.T) {
 		ticker = make(chan time.Time)
 		statCh = make(chan autobuild.Stats)
 
-		ownerClient, db = coderdtest.NewWithDatabase(t, &coderdtest.Options{
+		ownerClient, db = wirtualdtest.NewWithDatabase(t, &wirtualdtest.Options{
 			AutobuildTicker:          ticker,
 			IncludeProvisionerDaemon: true,
 			AutobuildStats:           statCh,
@@ -925,7 +925,7 @@ func TestExecutorRequireActiveVersion(t *testing.T) {
 		})
 	)
 	ctx := testutil.Context(t, testutil.WaitShort)
-	owner := coderdtest.CreateFirstUser(t, ownerClient)
+	owner := wirtualdtest.CreateFirstUser(t, ownerClient)
 	me, err := ownerClient.User(ctx, wirtualsdk.Me)
 	require.NoError(t, err)
 
@@ -933,27 +933,27 @@ func TestExecutorRequireActiveVersion(t *testing.T) {
 	// build a regular member's workspace using a non-active
 	// template version and assert that the field is not abided
 	// since there is no enterprise license.
-	activeVersion := coderdtest.CreateTemplateVersion(t, ownerClient, owner.OrganizationID, nil)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, ownerClient, activeVersion.ID)
-	template := coderdtest.CreateTemplate(t, ownerClient, owner.OrganizationID, activeVersion.ID)
+	activeVersion := wirtualdtest.CreateTemplateVersion(t, ownerClient, owner.OrganizationID, nil)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, ownerClient, activeVersion.ID)
+	template := wirtualdtest.CreateTemplate(t, ownerClient, owner.OrganizationID, activeVersion.ID)
 	//nolint We need to set this in the database directly, because the API will return an error
 	// letting you know that this feature requires an enterprise license.
-	err = db.UpdateTemplateAccessControlByID(dbauthz.As(ctx, coderdtest.AuthzUserSubject(me, owner.OrganizationID)), database.UpdateTemplateAccessControlByIDParams{
+	err = db.UpdateTemplateAccessControlByID(dbauthz.As(ctx, wirtualdtest.AuthzUserSubject(me, owner.OrganizationID)), database.UpdateTemplateAccessControlByIDParams{
 		ID:                   template.ID,
 		RequireActiveVersion: true,
 	})
 	require.NoError(t, err)
-	inactiveVersion := coderdtest.CreateTemplateVersion(t, ownerClient, owner.OrganizationID, nil, func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
+	inactiveVersion := wirtualdtest.CreateTemplateVersion(t, ownerClient, owner.OrganizationID, nil, func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
 		ctvr.TemplateID = template.ID
 	})
-	coderdtest.AwaitTemplateVersionJobCompleted(t, ownerClient, inactiveVersion.ID)
-	memberClient, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
-	ws := coderdtest.CreateWorkspace(t, memberClient, uuid.Nil, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, ownerClient, inactiveVersion.ID)
+	memberClient, _ := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+	ws := wirtualdtest.CreateWorkspace(t, memberClient, uuid.Nil, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 		cwr.TemplateVersionID = inactiveVersion.ID
 		cwr.AutostartSchedule = ptr.Ref(sched.String())
 	})
-	_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, ownerClient, ws.LatestBuild.ID)
-	ws = coderdtest.MustTransitionWorkspace(t, memberClient, ws.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop, func(req *wirtualsdk.CreateWorkspaceBuildRequest) {
+	_ = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, ownerClient, ws.LatestBuild.ID)
+	ws = wirtualdtest.MustTransitionWorkspace(t, memberClient, ws.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop, func(req *wirtualsdk.CreateWorkspaceBuildRequest) {
 		req.TemplateVersionID = inactiveVersion.ID
 	})
 	require.Equal(t, inactiveVersion.ID, ws.LatestBuild.TemplateVersionID)
@@ -961,14 +961,14 @@ func TestExecutorRequireActiveVersion(t *testing.T) {
 	stats := <-statCh
 	require.Len(t, stats.Transitions, 1)
 
-	ws = coderdtest.MustWorkspace(t, memberClient, ws.ID)
+	ws = wirtualdtest.MustWorkspace(t, memberClient, ws.ID)
 	require.Equal(t, inactiveVersion.ID, ws.LatestBuild.TemplateVersionID)
 }
 
 // TestExecutorFailedWorkspace test AGPL functionality which mainly
 // ensures that autostop actions as a result of a failed workspace
 // build do not trigger.
-// For enterprise functionality see enterprise/coderd/workspaces_test.go
+// For enterprise functionality see enterprise/wirtuald/workspaces_test.go
 func TestExecutorFailedWorkspace(t *testing.T) {
 	t.Parallel()
 
@@ -987,7 +987,7 @@ func TestExecutorFailedWorkspace(t *testing.T) {
 			})
 			failureTTL = time.Millisecond
 
-			client = coderdtest.New(t, &coderdtest.Options{
+			client = wirtualdtest.New(t, &wirtualdtest.Options{
 				Logger:                   &logger,
 				AutobuildTicker:          ticker,
 				IncludeProvisionerDaemon: true,
@@ -995,18 +995,18 @@ func TestExecutorFailedWorkspace(t *testing.T) {
 				TemplateScheduleStore:    schedule.NewAGPLTemplateScheduleStore(),
 			})
 		)
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionPlan:  echo.PlanComplete,
 			ProvisionApply: echo.ApplyFailed,
 		})
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			ctr.FailureTTLMillis = ptr.Ref[int64](failureTTL.Milliseconds())
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		ws := coderdtest.CreateWorkspace(t, client, template.ID)
-		build := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		ws := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		build := wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
 		require.Equal(t, wirtualsdk.WorkspaceStatusFailed, build.Status)
 		ticker <- build.Job.CompletedAt.Add(failureTTL * 2)
 		stats := <-statCh
@@ -1018,7 +1018,7 @@ func TestExecutorFailedWorkspace(t *testing.T) {
 // TestExecutorInactiveWorkspace test AGPL functionality which mainly
 // ensures that autostop actions as a result of an inactive workspace
 // do not trigger.
-// For enterprise functionality see enterprise/coderd/workspaces_test.go
+// For enterprise functionality see enterprise/wirtuald/workspaces_test.go
 func TestExecutorInactiveWorkspace(t *testing.T) {
 	t.Parallel()
 
@@ -1037,7 +1037,7 @@ func TestExecutorInactiveWorkspace(t *testing.T) {
 			})
 			inactiveTTL = time.Millisecond
 
-			client = coderdtest.New(t, &coderdtest.Options{
+			client = wirtualdtest.New(t, &wirtualdtest.Options{
 				Logger:                   &logger,
 				AutobuildTicker:          ticker,
 				IncludeProvisionerDaemon: true,
@@ -1045,18 +1045,18 @@ func TestExecutorInactiveWorkspace(t *testing.T) {
 				TemplateScheduleStore:    schedule.NewAGPLTemplateScheduleStore(),
 			})
 		)
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionPlan:  echo.PlanComplete,
 			ProvisionApply: echo.ApplyComplete,
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(ctr *wirtualsdk.CreateTemplateRequest) {
 			ctr.TimeTilDormantMillis = ptr.Ref[int64](inactiveTTL.Milliseconds())
 		})
-		ws := coderdtest.CreateWorkspace(t, client, template.ID)
-		build := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
+		ws := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		build := wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
 		require.Equal(t, wirtualsdk.WorkspaceStatusRunning, build.Status)
 		ticker <- ws.LastUsedAt.Add(inactiveTTL * 2)
 		stats := <-statCh
@@ -1077,7 +1077,7 @@ func TestNotifications(t *testing.T) {
 			statCh         = make(chan autobuild.Stats)
 			notifyEnq      = notificationstest.FakeEnqueuer{}
 			timeTilDormant = time.Minute
-			client         = coderdtest.New(t, &coderdtest.Options{
+			client         = wirtualdtest.New(t, &wirtualdtest.Options{
 				AutobuildTicker:          ticker,
 				AutobuildStats:           statCh,
 				IncludeProvisionerDaemon: true,
@@ -1094,19 +1094,19 @@ func TestNotifications(t *testing.T) {
 					},
 				},
 			})
-			admin   = coderdtest.CreateFirstUser(t, client)
-			version = coderdtest.CreateTemplateVersion(t, client, admin.OrganizationID, nil)
+			admin   = wirtualdtest.CreateFirstUser(t, client)
+			version = wirtualdtest.CreateTemplateVersion(t, client, admin.OrganizationID, nil)
 		)
 
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, admin.OrganizationID, version.ID)
-		userClient, _ := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
-		workspace := coderdtest.CreateWorkspace(t, userClient, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, userClient, workspace.LatestBuild.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, admin.OrganizationID, version.ID)
+		userClient, _ := wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+		workspace := wirtualdtest.CreateWorkspace(t, userClient, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, userClient, workspace.LatestBuild.ID)
 
 		// Stop workspace
-		workspace = coderdtest.MustTransitionWorkspace(t, client, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
-		_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, userClient, workspace.LatestBuild.ID)
+		workspace = wirtualdtest.MustTransitionWorkspace(t, client, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
+		_ = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, userClient, workspace.LatestBuild.ID)
 
 		// Wait for workspace to become dormant
 		notifyEnq.Clear()
@@ -1114,7 +1114,7 @@ func TestNotifications(t *testing.T) {
 		_ = testutil.RequireRecvCtx(testutil.Context(t, testutil.WaitShort), t, statCh)
 
 		// Check that the workspace is dormant
-		workspace = coderdtest.MustWorkspace(t, client, workspace.ID)
+		workspace = wirtualdtest.MustWorkspace(t, client, workspace.ID)
 		require.NotNil(t, workspace.DormantAt)
 
 		// Check that a notification was enqueued
@@ -1131,19 +1131,19 @@ func TestNotifications(t *testing.T) {
 
 func mustProvisionWorkspace(t *testing.T, client *wirtualsdk.Client, mut ...func(*wirtualsdk.CreateWorkspaceRequest)) wirtualsdk.Workspace {
 	t.Helper()
-	user := coderdtest.CreateFirstUser(t, client)
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	ws := coderdtest.CreateWorkspace(t, client, template.ID, mut...)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
-	return coderdtest.MustWorkspace(t, client, ws.ID)
+	user := wirtualdtest.CreateFirstUser(t, client)
+	version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	ws := wirtualdtest.CreateWorkspace(t, client, template.ID, mut...)
+	wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
+	return wirtualdtest.MustWorkspace(t, client, ws.ID)
 }
 
 func mustProvisionWorkspaceWithParameters(t *testing.T, client *wirtualsdk.Client, richParameters []*proto.RichParameter, mut ...func(*wirtualsdk.CreateWorkspaceRequest)) wirtualsdk.Workspace {
 	t.Helper()
-	user := coderdtest.CreateFirstUser(t, client)
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	user := wirtualdtest.CreateFirstUser(t, client)
+	version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse: echo.ParseComplete,
 		ProvisionPlan: []*proto.Response{
 			{
@@ -1156,11 +1156,11 @@ func mustProvisionWorkspaceWithParameters(t *testing.T, client *wirtualsdk.Clien
 		},
 		ProvisionApply: echo.ApplyComplete,
 	})
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	ws := coderdtest.CreateWorkspace(t, client, template.ID, mut...)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
-	return coderdtest.MustWorkspace(t, client, ws.ID)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	ws := wirtualdtest.CreateWorkspace(t, client, template.ID, mut...)
+	wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
+	return wirtualdtest.MustWorkspace(t, client, ws.ID)
 }
 
 func mustSchedule(t *testing.T, s string) *cron.Schedule {

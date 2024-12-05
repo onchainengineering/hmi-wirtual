@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -13,9 +13,9 @@ import (
 
 	"cdr.dev/slog/sloggers/slogtest"
 	"github.com/coder/coder/v2/wirtuald/audit"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -26,8 +26,8 @@ func TestAuditLogs(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		err := client.CreateTestAuditLog(ctx, wirtualsdk.CreateTestAuditLogRequest{
 			ResourceID: user.UserID,
@@ -49,9 +49,9 @@ func TestAuditLogs(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		client2, user2 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleOwner())
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		client2, user2 := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleOwner())
 
 		err := client2.CreateTestAuditLog(ctx, wirtualsdk.CreateTestAuditLogRequest{
 			ResourceID: user2.ID,
@@ -99,15 +99,15 @@ func TestAuditLogs(t *testing.T) {
 
 		var (
 			ctx      = context.Background()
-			client   = coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			user     = coderdtest.CreateFirstUser(t, client)
-			version  = coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-			template = coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+			client   = wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+			user     = wirtualdtest.CreateFirstUser(t, client)
+			version  = wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+			template = wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 		)
 
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		buildResourceInfo := audit.AdditionalFields{
 			WorkspaceName: workspace.Name,
@@ -144,11 +144,11 @@ func TestAuditLogs(t *testing.T) {
 			IgnoreErrors: true,
 		})
 		ctx := context.Background()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			Logger: &logger,
 		})
-		owner := coderdtest.CreateFirstUser(t, client)
-		orgAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.ScopedRoleOrgAdmin(owner.OrganizationID))
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		orgAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.ScopedRoleOrgAdmin(owner.OrganizationID))
 
 		err := client.CreateTestAuditLog(ctx, wirtualsdk.CreateTestAuditLogRequest{
 			ResourceID:     owner.UserID,
@@ -203,11 +203,11 @@ func TestAuditLogs(t *testing.T) {
 			IgnoreErrors: true,
 		})
 		ctx := context.Background()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			Logger: &logger,
 		})
-		owner := coderdtest.CreateFirstUser(t, client)
-		orgAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.ScopedRoleOrgAdmin(owner.OrganizationID))
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		orgAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.ScopedRoleOrgAdmin(owner.OrganizationID))
 
 		_, err := orgAdmin.AuditLogs(ctx, wirtualsdk.AuditLogsRequest{
 			SearchQuery: fmt.Sprintf("organization:%s", "random-name"),
@@ -227,14 +227,14 @@ func TestAuditLogsFilter(t *testing.T) {
 
 		var (
 			ctx      = context.Background()
-			client   = coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			user     = coderdtest.CreateFirstUser(t, client)
-			version  = coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-			template = coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+			client   = wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+			user     = wirtualdtest.CreateFirstUser(t, client)
+			version  = wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+			template = wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 		)
 
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
 
 		// Create two logs with "Create"
 		err := client.CreateTestAuditLog(ctx, wirtualsdk.CreateTestAuditLogRequest{
@@ -308,12 +308,12 @@ func TestAuditLogsFilter(t *testing.T) {
 			},
 			{
 				Name:           "FilterByEmail",
-				SearchQuery:    "email:" + coderdtest.FirstUserParams.Email,
+				SearchQuery:    "email:" + wirtualdtest.FirstUserParams.Email,
 				ExpectedResult: 5,
 			},
 			{
 				Name:           "FilterByUsername",
-				SearchQuery:    "username:" + coderdtest.FirstUserParams.Username,
+				SearchQuery:    "username:" + wirtualdtest.FirstUserParams.Username,
 				ExpectedResult: 5,
 			},
 			{

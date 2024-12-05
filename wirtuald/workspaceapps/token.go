@@ -55,7 +55,7 @@ type EncryptedAPIKeyPayload struct {
 }
 
 func (e *EncryptedAPIKeyPayload) Fill(now time.Time) {
-	e.Issuer = "coderd"
+	e.Issuer = "wirtuald"
 	e.Audience = jwt.Audience{"wsproxy"}
 	e.Expiry = jwt.NewNumericDate(now.Add(time.Minute))
 	e.NotBefore = jwt.NewNumericDate(now.Add(-time.Minute))
@@ -66,7 +66,7 @@ func (e EncryptedAPIKeyPayload) Validate(ex jwt.Expected) error {
 		return xerrors.Errorf("not before is required")
 	}
 
-	ex.Issuer = "coderd"
+	ex.Issuer = "wirtuald"
 	ex.AnyAudience = jwt.Audience{"wsproxy"}
 
 	return e.RegisteredClaims.Validate(ex)

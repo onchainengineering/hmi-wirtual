@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"net/http"
@@ -7,14 +7,14 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/idpsync"
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtuald/runtimeconfig"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 )
@@ -25,15 +25,15 @@ func TestGetGroupSyncConfig(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		owner, db, user := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, db, user := wirtualdenttest.NewWithDatabase(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureCustomRoles:           1,
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
-		orgAdmin, _ := coderdtest.CreateAnotherUser(t, owner, user.OrganizationID, rbac.ScopedRoleOrgAdmin(user.OrganizationID))
+		orgAdmin, _ := wirtualdtest.CreateAnotherUser(t, owner, user.OrganizationID, rbac.ScopedRoleOrgAdmin(user.OrganizationID))
 
 		ctx := testutil.Context(t, testutil.WaitShort)
 		dbresv := runtimeconfig.OrganizationResolver(user.OrganizationID, runtimeconfig.NewStoreResolver(db))
@@ -50,7 +50,7 @@ func TestGetGroupSyncConfig(t *testing.T) {
 	t.Run("Legacy", func(t *testing.T) {
 		t.Parallel()
 
-		dv := coderdtest.DeploymentValues(t)
+		dv := wirtualdtest.DeploymentValues(t)
 		dv.OIDC.GroupField = "legacy-group"
 		dv.OIDC.GroupRegexFilter = serpent.Regexp(*regexp.MustCompile("legacy-filter"))
 		dv.OIDC.GroupMapping = serpent.Struct[map[string]string]{
@@ -59,18 +59,18 @@ func TestGetGroupSyncConfig(t *testing.T) {
 			},
 		}
 
-		owner, user := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		owner, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				DeploymentValues: dv,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureCustomRoles:           1,
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
-		orgAdmin, _ := coderdtest.CreateAnotherUser(t, owner, user.OrganizationID, rbac.ScopedRoleOrgAdmin(user.OrganizationID))
+		orgAdmin, _ := wirtualdtest.CreateAnotherUser(t, owner, user.OrganizationID, rbac.ScopedRoleOrgAdmin(user.OrganizationID))
 
 		ctx := testutil.Context(t, testutil.WaitShort)
 
@@ -88,8 +88,8 @@ func TestPostGroupSyncConfig(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		owner, user := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureCustomRoles:           1,
 					wirtualsdk.FeatureMultipleOrganizations: 1,
@@ -97,7 +97,7 @@ func TestPostGroupSyncConfig(t *testing.T) {
 			},
 		})
 
-		orgAdmin, _ := coderdtest.CreateAnotherUser(t, owner, user.OrganizationID, rbac.ScopedRoleOrgAdmin(user.OrganizationID))
+		orgAdmin, _ := wirtualdtest.CreateAnotherUser(t, owner, user.OrganizationID, rbac.ScopedRoleOrgAdmin(user.OrganizationID))
 
 		// Test as org admin
 		ctx := testutil.Context(t, testutil.WaitShort)
@@ -115,8 +115,8 @@ func TestPostGroupSyncConfig(t *testing.T) {
 	t.Run("NotAuthorized", func(t *testing.T) {
 		t.Parallel()
 
-		owner, user := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureCustomRoles:           1,
 					wirtualsdk.FeatureMultipleOrganizations: 1,
@@ -124,7 +124,7 @@ func TestPostGroupSyncConfig(t *testing.T) {
 			},
 		})
 
-		member, _ := coderdtest.CreateAnotherUser(t, owner, user.OrganizationID)
+		member, _ := wirtualdtest.CreateAnotherUser(t, owner, user.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitShort)
 		_, err := member.PatchGroupIDPSyncSettings(ctx, user.OrganizationID.String(), wirtualsdk.GroupSyncSettings{
@@ -146,15 +146,15 @@ func TestGetRoleSyncConfig(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		owner, _, _, user := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, _, _, user := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureCustomRoles:           1,
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
-		orgAdmin, _ := coderdtest.CreateAnotherUser(t, owner, user.OrganizationID, rbac.ScopedRoleOrgAdmin(user.OrganizationID))
+		orgAdmin, _ := wirtualdtest.CreateAnotherUser(t, owner, user.OrganizationID, rbac.ScopedRoleOrgAdmin(user.OrganizationID))
 
 		ctx := testutil.Context(t, testutil.WaitShort)
 		settings, err := orgAdmin.PatchRoleIDPSyncSettings(ctx, user.OrganizationID.String(), wirtualsdk.RoleSyncSettings{
@@ -180,8 +180,8 @@ func TestPostRoleSyncConfig(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		owner, user := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureCustomRoles:           1,
 					wirtualsdk.FeatureMultipleOrganizations: 1,
@@ -189,7 +189,7 @@ func TestPostRoleSyncConfig(t *testing.T) {
 			},
 		})
 
-		orgAdmin, _ := coderdtest.CreateAnotherUser(t, owner, user.OrganizationID, rbac.ScopedRoleOrgAdmin(user.OrganizationID))
+		orgAdmin, _ := wirtualdtest.CreateAnotherUser(t, owner, user.OrganizationID, rbac.ScopedRoleOrgAdmin(user.OrganizationID))
 
 		// Test as org admin
 		ctx := testutil.Context(t, testutil.WaitShort)
@@ -207,8 +207,8 @@ func TestPostRoleSyncConfig(t *testing.T) {
 	t.Run("NotAuthorized", func(t *testing.T) {
 		t.Parallel()
 
-		owner, user := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureCustomRoles:           1,
 					wirtualsdk.FeatureMultipleOrganizations: 1,
@@ -216,7 +216,7 @@ func TestPostRoleSyncConfig(t *testing.T) {
 			},
 		})
 
-		member, _ := coderdtest.CreateAnotherUser(t, owner, user.OrganizationID)
+		member, _ := wirtualdtest.CreateAnotherUser(t, owner, user.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitShort)
 		_, err := member.PatchRoleIDPSyncSettings(ctx, user.OrganizationID.String(), wirtualsdk.RoleSyncSettings{

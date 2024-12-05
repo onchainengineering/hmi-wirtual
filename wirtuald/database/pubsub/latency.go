@@ -15,7 +15,7 @@ import (
 // LatencyMeasurer is used to measure the send & receive latencies of the underlying Pubsub implementation. We use these
 // measurements to export metrics which can indicate when a Pubsub implementation's queue is overloaded and/or full.
 type LatencyMeasurer struct {
-	// Create unique pubsub channel names so that multiple coderd replicas do not clash when performing latency measurements.
+	// Create unique pubsub channel names so that multiple wirtuald replicas do not clash when performing latency measurements.
 	channel uuid.UUID
 	logger  slog.Logger
 }

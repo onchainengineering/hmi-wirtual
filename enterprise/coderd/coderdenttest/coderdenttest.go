@@ -1,4 +1,4 @@
-package coderdenttest
+package wirtualdenttest
 
 import (
 	"context"
@@ -18,18 +18,20 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/enterprise/coderd"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/enterprise/dbcrypt"
+
+	"github.com/coder/coder/v2/enterprise/wirtuald"
 	"github.com/coder/coder/v2/enterprise/dbcrypt"
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/provisionerd"
 	provisionerdproto "github.com/coder/coder/v2/provisionerd/proto"
 	"github.com/coder/coder/v2/provisionersdk"
 	sdkproto "github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbmem"
+hub.com/coder/coder/v2/wirtuald/database/pubsub"
+	"gi
 	"github.com/coder/coder/v2/wirtuald/database/pubsub"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/wirtualsdk/drpc"
@@ -56,7 +58,7 @@ func init() {
 }
 
 type Options struct {
-	*coderdtest.Options
+	*wirtualdtest.Options
 	AuditLogging               bool
 	BrowserOnly                bool
 	EntitlementsUpdateInterval time.Duration
@@ -84,7 +86,7 @@ func NewWithDatabase(t *testing.T, options *Options) (*wirtualsdk.Client, databa
 }
 
 func NewWithAPI(t *testing.T, options *Options) (
-	*wirtualsdk.Client, io.Closer, *coderd.API, wirtualsdk.CreateFirstUserResponse,
+	*wirtualsdk.Client, io.Closer, *wirtuald.API, wirtualsdk.CreateFirstUserResponse,
 ) {
 	t.Helper()
 
@@ -92,11 +94,11 @@ func NewWithAPI(t *testing.T, options *Options) (
 		options = &Options{}
 	}
 	if options.Options == nil {
-		options.Options = &coderdtest.Options{}
+		options.Options = &wirtualdtest.Options{}
 	}
 	require.False(t, options.DontAddFirstUser && !options.DontAddLicense, "DontAddFirstUser requires DontAddLicense")
-	setHandler, cancelFunc, serverURL, oop := coderdtest.NewOptions(t, options.Options)
-	coderAPI, err := coderd.New(context.Background(), &coderd.Options{
+	setHandler, cancelFunc, serverURL, oop := wirtualdtest.NewOptions(t, options.Options)
+	coderAPI, err := wirtuald.New(context.Background(), &wirtuald.Options{
 		RBAC:                       true,
 		AuditLogging:               options.AuditLogging,
 		BrowserOnly:                options.BrowserOnly,
@@ -117,7 +119,7 @@ func NewWithAPI(t *testing.T, options *Options) (
 	setHandler(coderAPI.AGPL.RootHandler)
 	var provisionerCloser io.Closer = nopcloser{}
 	if options.IncludeProvisionerDaemon {
-		provisionerCloser = coderdtest.NewProvisionerDaemon(t, coderAPI.AGPL)
+		provisionerCloser = wirtualdtest.NewProvisionerDaemon(t, coderAPI.AGPL)
 	}
 
 	t.Cleanup(func() {
@@ -136,7 +138,7 @@ func NewWithAPI(t *testing.T, options *Options) (
 	}
 	var user wirtualsdk.CreateFirstUserResponse
 	if !options.DontAddFirstUser {
-		user = coderdtest.CreateFirstUser(t, client)
+		user = wirtualdtest.CreateFirstUser(t, client)
 		if !options.DontAddLicense {
 			lo := LicenseOptions{}
 			if options.LicenseOptions != nil {
@@ -312,7 +314,7 @@ func NewExternalProvisionerDaemon(t testing.TB, client *wirtualsdk.Client, org u
 	if err != nil {
 		// AGPL instances will throw this error. They cannot use external
 		// provisioners.
-		t.Errorf("external provisioners requires a license with entitlements. The client failed to fetch the entitlements, is this an enterprise instance of coderd?")
+		t.Errorf("external provisioners requires a license with entitlements. The client failed to fetch the entitlements, is this an enterprise instance of wirtuald?")
 		t.FailNow()
 		return nil
 	}
@@ -357,7 +359,7 @@ func NewExternalProvisionerDaemon(t testing.TB, client *wirtualsdk.Client, org u
 			string(database.ProvisionerTypeEcho): sdkproto.NewDRPCProvisionerClient(echoClient),
 		},
 	})
-	closer := coderdtest.NewProvisionerDaemonCloser(daemon)
+	closer := wirtualdtest.NewProvisionerDaemonCloser(daemon)
 	t.Cleanup(func() {
 		_ = closer.Close()
 	})

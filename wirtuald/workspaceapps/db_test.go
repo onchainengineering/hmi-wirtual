@@ -22,9 +22,10 @@ import (
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/provisionersdk/proto"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/httpmw"
 	"github.com/coder/coder/v2/wirtuald/jwtutils"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
+
 	"github.com/coder/coder/v2/wirtuald/workspaceapps"
 	"github.com/coder/coder/v2/wirtuald/workspaceapps/appurl"
 	"github.com/coder/coder/v2/wirtualsdk"
@@ -71,12 +72,12 @@ func Test_ResolveRequest(t *testing.T) {
 	})
 	initializingURL := fmt.Sprintf("http://%s", initializingServer.Addr().String())
 
-	deploymentValues := coderdtest.DeploymentValues(t)
+	deploymentValues := wirtualdtest.DeploymentValues(t)
 	deploymentValues.DisablePathApps = false
 	deploymentValues.Dangerous.AllowPathAppSharing = true
 	deploymentValues.Dangerous.AllowPathAppSiteOwnerAccess = true
 
-	client, closer, api := coderdtest.NewWithAPI(t, &coderdtest.Options{
+	client, closer, api := wirtualdtest.NewWithAPI(t, &wirtualdtest.Options{
 		AppHostname:                 "*.test.coder.com",
 		DeploymentValues:            deploymentValues,
 		IncludeProvisionerDaemon:    true,
@@ -98,14 +99,14 @@ func Test_ResolveRequest(t *testing.T) {
 
 	ctx := testutil.Context(t, testutil.WaitMedium)
 
-	firstUser := coderdtest.CreateFirstUser(t, client)
+	firstUser := wirtualdtest.CreateFirstUser(t, client)
 	me, err := client.User(ctx, wirtualsdk.Me)
 	require.NoError(t, err)
 
-	secondUserClient, _ := coderdtest.CreateAnotherUser(t, client, firstUser.OrganizationID)
+	secondUserClient, _ := wirtualdtest.CreateAnotherUser(t, client, firstUser.OrganizationID)
 
 	agentAuthToken := uuid.NewString()
-	version := coderdtest.CreateTemplateVersion(t, client, firstUser.OrganizationID, &echo.Responses{
+	version := wirtualdtest.CreateTemplateVersion(t, client, firstUser.OrganizationID, &echo.Responses{
 		Parse:         echo.ParseComplete,
 		ProvisionPlan: echo.PlanComplete,
 		ProvisionApply: []*proto.Response{{
@@ -197,13 +198,13 @@ func Test_ResolveRequest(t *testing.T) {
 			},
 		}},
 	})
-	template := coderdtest.CreateTemplate(t, client, firstUser.OrganizationID, version.ID)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	template := wirtualdtest.CreateTemplate(t, client, firstUser.OrganizationID, version.ID)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+	wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 	_ = agenttest.New(t, client.URL, agentAuthToken)
-	resources := coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID, agentName)
+	resources := wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID, agentName)
 
 	agentID := uuid.Nil
 	for _, resource := range resources {

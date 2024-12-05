@@ -19,7 +19,6 @@ import (
 	"cdr.dev/slog"
 	"github.com/coder/coder/v2/wirtuald/rbac/policy"
 
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/database/dbmem"
@@ -27,6 +26,7 @@ import (
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtuald/rbac/regosql"
 	"github.com/coder/coder/v2/wirtuald/util/slice"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 )
 
 var errMatchAny = xerrors.New("match any error")
@@ -67,7 +67,7 @@ func (s *MethodTestSuite) SetupSuite() {
 	mockStore := dbmock.NewMockStore(ctrl)
 	// We intentionally set no expectations apart from this.
 	mockStore.EXPECT().Wrappers().Return([]string{}).AnyTimes()
-	az := dbauthz.New(mockStore, nil, slog.Make(), coderdtest.AccessControlStorePointer())
+	az := dbauthz.New(mockStore, nil, slog.Make(), wirtualdtest.AccessControlStorePointer())
 	// Take the underlying type of the interface.
 	azt := reflect.TypeOf(az)
 	require.Greater(s.T(), azt.NumMethod(), 0, "no methods found on querier")
@@ -115,11 +115,11 @@ func (s *MethodTestSuite) Subtest(testCaseF func(db database.Store, check *expec
 		s.methodAccounting[methodName]++
 
 		db := dbmem.New()
-		fakeAuthorizer := &coderdtest.FakeAuthorizer{}
-		rec := &coderdtest.RecordingAuthorizer{
+		fakeAuthorizer := &wirtualdtest.FakeAuthorizer{}
+		rec := &wirtualdtest.RecordingAuthorizer{
 			Wrapped: fakeAuthorizer,
 		}
-		az := dbauthz.New(db, rec, slog.Make(), coderdtest.AccessControlStorePointer())
+		az := dbauthz.New(db, rec, slog.Make(), wirtualdtest.AccessControlStorePointer())
 		actor := rbac.Subject{
 			ID:     testActorID.String(),
 			Roles:  rbac.RoleIdentifiers{rbac.RoleOwner()},
@@ -207,10 +207,10 @@ func (s *MethodTestSuite) Subtest(testCaseF func(db database.Store, check *expec
 				}
 			}
 
-			var pairs []coderdtest.ActionObjectPair
+			var pairs []wirtualdtest.ActionObjectPair
 			for _, assrt := range testCase.assertions {
 				for _, action := range assrt.Actions {
-					pairs = append(pairs, coderdtest.ActionObjectPair{
+					pairs = append(pairs, wirtualdtest.ActionObjectPair{
 						Action: action,
 						Object: assrt.Object,
 					})
@@ -233,7 +233,7 @@ func (s *MethodTestSuite) NoActorErrorTest(callMethod func(ctx context.Context) 
 
 // NotAuthorizedErrorTest runs the given method with an authorizer that will fail authz.
 // Asserts that the error returned is a NotAuthorizedError.
-func (s *MethodTestSuite) NotAuthorizedErrorTest(ctx context.Context, az *coderdtest.FakeAuthorizer, testCase expects, callMethod func(ctx context.Context) ([]reflect.Value, error)) {
+func (s *MethodTestSuite) NotAuthorizedErrorTest(ctx context.Context, az *wirtualdtest.FakeAuthorizer, testCase expects, callMethod func(ctx context.Context) ([]reflect.Value, error)) {
 	s.Run("NotAuthorized", func() {
 		az.AlwaysReturn(rbac.ForbiddenWithInternal(xerrors.New("Always fail authz"), rbac.Subject{}, "", rbac.Object{}, nil))
 

@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"archive/tar"
@@ -13,7 +13,7 @@ import (
 	"github.com/coder/coder/v2/archive"
 	"github.com/coder/coder/v2/archive/archivetest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -21,8 +21,8 @@ func TestPostFiles(t *testing.T) {
 	t.Parallel()
 	t.Run("BadContentType", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -33,8 +33,8 @@ func TestPostFiles(t *testing.T) {
 
 	t.Run("Insert", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -45,8 +45,8 @@ func TestPostFiles(t *testing.T) {
 
 	t.Run("InsertWindowsZip", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -57,8 +57,8 @@ func TestPostFiles(t *testing.T) {
 
 	t.Run("InsertAlreadyExists", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -75,8 +75,8 @@ func TestDownload(t *testing.T) {
 	t.Parallel()
 	t.Run("NotFound", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -89,8 +89,8 @@ func TestDownload(t *testing.T) {
 
 	t.Run("InsertTar_DownloadTar", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		// given
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
@@ -113,8 +113,8 @@ func TestDownload(t *testing.T) {
 
 	t.Run("InsertZip_DownloadTar", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		// given
 		zipContent := archivetest.TestZipFileBytes()
@@ -138,8 +138,8 @@ func TestDownload(t *testing.T) {
 
 	t.Run("InsertTar_DownloadZip", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		// given
 		tarball := archivetest.TestTarFileBytes()

@@ -22,7 +22,6 @@ import (
 
 	"github.com/coder/coder/v2/provisionersdk"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/database/dbgen"
@@ -30,6 +29,7 @@ import (
 	"github.com/coder/coder/v2/wirtuald/database/dbtime"
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtuald/util/slice"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 )
 
 func TestAsNoActor(t *testing.T) {
@@ -48,7 +48,7 @@ func TestAsNoActor(t *testing.T) {
 
 	t.Run("AsActor", func(t *testing.T) {
 		t.Parallel()
-		ctx := dbauthz.As(context.Background(), coderdtest.RandomRBACSubject())
+		ctx := dbauthz.As(context.Background(), wirtualdtest.RandomRBACSubject())
 		_, ok := dbauthz.ActorFromContext(ctx)
 		require.True(t, ok, "actor present")
 	})
@@ -56,7 +56,7 @@ func TestAsNoActor(t *testing.T) {
 	t.Run("DeleteActor", func(t *testing.T) {
 		t.Parallel()
 		// First set an actor
-		ctx := dbauthz.As(context.Background(), coderdtest.RandomRBACSubject())
+		ctx := dbauthz.As(context.Background(), wirtualdtest.RandomRBACSubject())
 		_, ok := dbauthz.ActorFromContext(ctx)
 		require.True(t, ok, "actor present")
 
@@ -70,7 +70,7 @@ func TestAsNoActor(t *testing.T) {
 func TestPing(t *testing.T) {
 	t.Parallel()
 
-	q := dbauthz.New(dbmem.New(), &coderdtest.RecordingAuthorizer{}, slog.Make(), coderdtest.AccessControlStorePointer())
+	q := dbauthz.New(dbmem.New(), &wirtualdtest.RecordingAuthorizer{}, slog.Make(), wirtualdtest.AccessControlStorePointer())
 	_, err := q.Ping(context.Background())
 	require.NoError(t, err, "must not error")
 }
@@ -80,9 +80,9 @@ func TestInTX(t *testing.T) {
 	t.Parallel()
 
 	db := dbmem.New()
-	q := dbauthz.New(db, &coderdtest.RecordingAuthorizer{
-		Wrapped: (&coderdtest.FakeAuthorizer{}).AlwaysReturn(xerrors.New("custom error")),
-	}, slog.Make(), coderdtest.AccessControlStorePointer())
+	q := dbauthz.New(db, &wirtualdtest.RecordingAuthorizer{
+		Wrapped: (&wirtualdtest.FakeAuthorizer{}).AlwaysReturn(xerrors.New("custom error")),
+	}, slog.Make(), wirtualdtest.AccessControlStorePointer())
 	actor := rbac.Subject{
 		ID:     uuid.NewString(),
 		Roles:  rbac.RoleIdentifiers{rbac.RoleOwner()},
@@ -109,8 +109,8 @@ func TestNew(t *testing.T) {
 	var (
 		db  = dbmem.New()
 		exp = dbgen.Workspace(t, db, database.WorkspaceTable{})
-		rec = &coderdtest.RecordingAuthorizer{
-			Wrapped: &coderdtest.FakeAuthorizer{},
+		rec = &wirtualdtest.RecordingAuthorizer{
+			Wrapped: &wirtualdtest.FakeAuthorizer{},
 		}
 		subj = rbac.Subject{}
 		ctx  = dbauthz.As(context.Background(), rbac.Subject{})
@@ -118,8 +118,8 @@ func TestNew(t *testing.T) {
 
 	// Double wrap should not cause an actual double wrap. So only 1 rbac call
 	// should be made.
-	az := dbauthz.New(db, rec, slog.Make(), coderdtest.AccessControlStorePointer())
-	az = dbauthz.New(az, rec, slog.Make(), coderdtest.AccessControlStorePointer())
+	az := dbauthz.New(db, rec, slog.Make(), wirtualdtest.AccessControlStorePointer())
+	az = dbauthz.New(az, rec, slog.Make(), wirtualdtest.AccessControlStorePointer())
 
 	w, err := az.GetWorkspaceByID(ctx, exp.ID)
 	require.NoError(t, err, "must not error")
@@ -134,9 +134,9 @@ func TestNew(t *testing.T) {
 // as only the first db call will be made. But it is better than nothing.
 func TestDBAuthzRecursive(t *testing.T) {
 	t.Parallel()
-	q := dbauthz.New(dbmem.New(), &coderdtest.RecordingAuthorizer{
-		Wrapped: &coderdtest.FakeAuthorizer{},
-	}, slog.Make(), coderdtest.AccessControlStorePointer())
+	q := dbauthz.New(dbmem.New(), &wirtualdtest.RecordingAuthorizer{
+		Wrapped: &wirtualdtest.FakeAuthorizer{},
+	}, slog.Make(), wirtualdtest.AccessControlStorePointer())
 	actor := rbac.Subject{
 		ID:     uuid.NewString(),
 		Roles:  rbac.RoleIdentifiers{rbac.RoleOwner()},
@@ -2012,8 +2012,8 @@ func (s *MethodTestSuite) TestProvisionerKeys() {
 			ID:             uuid.New(),
 			CreatedAt:      time.Now(),
 			OrganizationID: org.ID,
-			Name:           strings.ToLower(coderdtest.RandomName(s.T())),
-			HashedSecret:   []byte(coderdtest.RandomName(s.T())),
+			Name:           strings.ToLower(wirtualdtest.RandomName(s.T())),
+			HashedSecret:   []byte(wirtualdtest.RandomName(s.T())),
 		}
 		//nolint:gosimple // casting is not a simplification
 		check.Args(database.InsertProvisionerKeyParams{

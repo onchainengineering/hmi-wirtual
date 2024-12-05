@@ -10,8 +10,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtualsdk"
@@ -23,8 +23,8 @@ func TestUpdateGroupSync(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		owner, first := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, first := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
@@ -74,8 +74,8 @@ func TestUpdateRoleSync(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		owner, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
@@ -122,8 +122,8 @@ func TestUpdateOrganizationSync(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		owner, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},

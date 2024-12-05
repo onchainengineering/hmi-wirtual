@@ -59,7 +59,7 @@ The basic setup of scale tests environment involves:
 4. Provisioner: 50 instances (0.5 vCPU, 512 MB RAM)
 
 The test is deemed successful if users did not experience interruptions in their
-workflows, `coderd` did not crash or require restarts, and no other internal
+workflows, `wirtuald` did not crash or require restarts, and no other internal
 errors were observed.
 
 ## Traffic Projections
@@ -70,7 +70,7 @@ seconds. Here are the resulting metrics:
 
 Coder:
 
-- Median CPU usage for _coderd_: 3 vCPU, peaking at 3.7 vCPU while all tests are
+- Median CPU usage for _wirtuald_: 3 vCPU, peaking at 3.7 vCPU while all tests are
   running concurrently.
 - Median API request rate: 350 RPS during dashboard tests, 250 RPS during Web
   Terminal and workspace apps tests.
@@ -98,7 +98,7 @@ Database:
 
 ## Hardware recommendation
 
-### Control plane: coderd
+### Control plane: wirtuald
 
 To ensure stability and reliability of the Coder control plane, it's essential
 to focus on node sizing, resource limits, and the number of replicas. We
@@ -107,7 +107,7 @@ guidance on optimal configurations. A reasonable approach involves using scaling
 formulas based on factors like CPU, memory, and the number of users.
 
 While the minimum requirements specify 1 CPU core and 2 GB of memory per
-`coderd` replica, it is recommended to allocate additional resources depending
+`wirtuald` replica, it is recommended to allocate additional resources depending
 on the workload size to ensure deployment stability.
 
 #### CPU and memory usage
@@ -154,14 +154,14 @@ with a deployment of Coder
 
 **Node Autoscaling**
 
-We recommend disabling the autoscaling for `coderd` nodes. Autoscaling can cause
+We recommend disabling the autoscaling for `wirtuald` nodes. Autoscaling can cause
 interruptions for user connections, see
 [Autoscaling](./scale-utility.md#autoscaling) for more details.
 
 ### Control plane: Workspace Proxies
 
 When scaling [workspace proxies](../networking/workspace-proxies.md), follow the
-same guidelines as for `coderd` above:
+same guidelines as for `wirtuald` above:
 
 - `1 vCPU x 2 GB memory` for every 250 users.
 - Disable autoscaling.
@@ -174,7 +174,7 @@ workspaces at the same time.
 
 By default, the Coder server runs 3 built-in provisioner daemons, but the
 _Premium_ Coder release allows for running external provisioners to separate the
-load caused by workspace provisioning on the `coderd` nodes.
+load caused by workspace provisioning on the `wirtuald` nodes.
 
 #### Scaling formula
 

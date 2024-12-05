@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -9,16 +9,16 @@ import (
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/provisionersdk/proto"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 )
 
 func TestProvisionerJobLogs(t *testing.T) {
 	t.Parallel()
 	t.Run("StreamAfterComplete", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionApply: []*proto.Response{{
 				Type: &proto.Response_Log{
@@ -33,10 +33,10 @@ func TestProvisionerJobLogs(t *testing.T) {
 				},
 			}},
 		})
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -55,9 +55,9 @@ func TestProvisionerJobLogs(t *testing.T) {
 
 	t.Run("StreamWhileRunning", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionApply: []*proto.Response{{
 				Type: &proto.Response_Log{
@@ -72,9 +72,9 @@ func TestProvisionerJobLogs(t *testing.T) {
 				},
 			}},
 		})
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()

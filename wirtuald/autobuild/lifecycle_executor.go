@@ -74,7 +74,7 @@ func NewExecutor(ctx context.Context, db database.Store, ps pubsub.Pubsub, reg p
 		reg:                   reg,
 		metrics: executorMetrics{
 			autobuildExecutionDuration: factory.NewHistogram(prometheus.HistogramOpts{
-				Namespace: "coderd",
+				Namespace: "wirtuald",
 				Subsystem: "lifecycle",
 				Name:      "autobuild_execution_duration_seconds",
 				Help:      "Duration of each autobuild execution.",

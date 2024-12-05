@@ -17,7 +17,7 @@ import (
 // The options passed to agent.New() can be modified by passing an optional
 // variadic func(*agent.Options).
 // Returns the agent. Closing the agent is handled by the test cleanup.
-// It is the responsibility of the caller to call coderdtest.AwaitWorkspaceAgents
+// It is the responsibility of the caller to call wirtualdtest.AwaitWorkspaceAgents
 // to ensure agent is connected.
 func New(t testing.TB, coderURL *url.URL, agentToken string, opts ...func(*agent.Options)) agent.Agent {
 	t.Helper()

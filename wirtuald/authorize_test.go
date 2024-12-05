@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -19,21 +19,21 @@ func TestCheckPermissions(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	t.Cleanup(cancel)
 
-	adminClient := coderdtest.New(t, &coderdtest.Options{
+	adminClient := wirtualdtest.New(t, &wirtualdtest.Options{
 		IncludeProvisionerDaemon: true,
 	})
 	// Create adminClient, member, and org adminClient
-	adminUser := coderdtest.CreateFirstUser(t, adminClient)
-	memberClient, _ := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
+	adminUser := wirtualdtest.CreateFirstUser(t, adminClient)
+	memberClient, _ := wirtualdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
 	memberUser, err := memberClient.User(ctx, wirtualsdk.Me)
 	require.NoError(t, err)
-	orgAdminClient, _ := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID, rbac.ScopedRoleOrgAdmin(adminUser.OrganizationID))
+	orgAdminClient, _ := wirtualdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID, rbac.ScopedRoleOrgAdmin(adminUser.OrganizationID))
 	orgAdminUser, err := orgAdminClient.User(ctx, wirtualsdk.Me)
 	require.NoError(t, err)
 
-	version := coderdtest.CreateTemplateVersion(t, adminClient, adminUser.OrganizationID, nil)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, adminClient, version.ID)
-	template := coderdtest.CreateTemplate(t, adminClient, adminUser.OrganizationID, version.ID)
+	version := wirtualdtest.CreateTemplateVersion(t, adminClient, adminUser.OrganizationID, nil)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, adminClient, version.ID)
+	template := wirtualdtest.CreateTemplate(t, adminClient, adminUser.OrganizationID, version.ID)
 
 	// With admin, member, and org admin
 	const (

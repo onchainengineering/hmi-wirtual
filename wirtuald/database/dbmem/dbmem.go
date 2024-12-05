@@ -277,7 +277,7 @@ func validateDatabaseTypeWithValid(v reflect.Value) (handled bool, err error) {
 	}
 
 	if v.CanInterface() {
-		if !strings.Contains(v.Type().PkgPath(), "coderd/database") {
+		if !strings.Contains(v.Type().PkgPath(), "wirtuald/database") {
 			return true, nil
 		}
 		if valid, ok := v.Interface().(interface{ Valid() bool }); ok {
@@ -421,7 +421,7 @@ func convertUsers(users []database.User, count int64) []database.GetUsersRow {
 }
 
 // mapAgentStatus determines the agent status based on different timestamps like created_at, last_connected_at, disconnected_at, etc.
-// The function must be in sync with: coderd/workspaceagents.go:convertWorkspaceAgent.
+// The function must be in sync with: wirtuald/workspaceagents.go:convertWorkspaceAgent.
 func mapAgentStatus(dbAgent database.WorkspaceAgent, agentInactiveDisconnectTimeoutSeconds int64) string {
 	var status string
 	connectionTimeout := time.Duration(dbAgent.ConnectionTimeoutSeconds) * time.Second
@@ -1204,7 +1204,7 @@ func (q *FakeQuerier) AcquireProvisionerJob(_ context.Context, arg database.Acqu
 		}
 
 		// Special case for untagged provisioners: only match untagged jobs.
-		// Ref: coderd/database/queries/provisionerjobs.sql:24-30
+		// Ref: wirtuald/database/queries/provisionerjobs.sql:24-30
 		// CASE WHEN nested.tags :: jsonb = '{"scope": "organization", "owner": ""}' :: jsonb
 		//      THEN nested.tags :: jsonb = @tags :: jsonb
 		if tagsEqual(provisionerJob.Tags, tagsUntagged) && !tagsEqual(provisionerJob.Tags, tags) {
@@ -3637,7 +3637,7 @@ func (q *FakeQuerier) GetProvisionerDaemonsByOrganization(_ context.Context, arg
 			continue
 		}
 		// Special case for untagged provisioners: only match untagged jobs.
-		// Ref: coderd/database/queries/provisionerjobs.sql:24-30
+		// Ref: wirtuald/database/queries/provisionerjobs.sql:24-30
 		// CASE WHEN nested.tags :: jsonb = '{"scope": "organization", "owner": ""}' :: jsonb
 		//      THEN nested.tags :: jsonb = @tags :: jsonb
 		if tagsEqual(arg.WantTags, tagsUntagged) && !tagsEqual(arg.WantTags, daemon.Tags) {

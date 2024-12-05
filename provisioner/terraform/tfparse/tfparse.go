@@ -27,7 +27,7 @@ import (
 	"cdr.dev/slog"
 )
 
-// NOTE: This is duplicated from coderd but we can't import it here without
+// NOTE: This is duplicated from wirtuald but we can't import it here without
 // introducing a circular dependency
 const maxFileSizeBytes = 10 * (10 << 20) // 10 MB
 

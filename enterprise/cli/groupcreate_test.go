@@ -10,11 +10,11 @@ import (
 
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/pty/ptytest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -24,12 +24,12 @@ func TestCreateGroup(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		client, admin := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, admin := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleUserAdmin())
+		anotherClient, _ := wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleUserAdmin())
 
 		var (
 			groupName = "test"

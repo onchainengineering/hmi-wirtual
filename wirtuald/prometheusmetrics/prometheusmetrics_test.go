@@ -28,13 +28,13 @@ import (
 	"github.com/coder/coder/v2/tailnet/tailnettest"
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/coder/v2/wirtuald/agentmetrics"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbgen"
 	"github.com/coder/coder/v2/wirtuald/database/dbmem"
 	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
 	"github.com/coder/coder/v2/wirtuald/database/dbtime"
 	"github.com/coder/coder/v2/wirtuald/prometheusmetrics"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/workspacestats"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
@@ -255,7 +255,7 @@ func TestWorkspaceLatestBuildTotals(t *testing.T) {
 				assert.NoError(t, err)
 				sum := 0
 				for _, m := range metrics {
-					if m.GetName() != "coderd_api_workspace_latest_build" {
+					if m.GetName() != "wirtuald_api_workspace_latest_build" {
 						continue
 					}
 
@@ -330,7 +330,7 @@ func TestWorkspaceLatestBuildStatuses(t *testing.T) {
 
 				stMap := map[wirtualsdk.ProvisionerJobStatus]int{}
 				for _, m := range metrics {
-					if m.GetName() != "coderd_workspace_latest_build_status" {
+					if m.GetName() != "wirtuald_workspace_latest_build_status" {
 						continue
 					}
 
@@ -368,11 +368,11 @@ func TestAgents(t *testing.T) {
 	t.Parallel()
 
 	// Build a sample workspace with test agent and fake application
-	client, _, api := coderdtest.NewWithAPI(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
+	client, _, api := wirtualdtest.NewWithAPI(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
 	db := api.Database
 
-	user := coderdtest.CreateFirstUser(t, client)
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	user := wirtualdtest.CreateFirstUser(t, client)
+	version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse:         echo.ParseComplete,
 		ProvisionPlan: echo.PlanComplete,
 		ProvisionApply: []*proto.Response{{
@@ -403,10 +403,10 @@ func TestAgents(t *testing.T) {
 			},
 		}},
 	})
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+	wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 	// given
 	derpMap, _ := tailnettest.RunDERPAndSTUN(t)
@@ -444,14 +444,14 @@ func TestAgents(t *testing.T) {
 
 		for _, metric := range metrics {
 			switch metric.GetName() {
-			case "coderd_agents_up":
+			case "wirtuald_agents_up":
 				assert.Equal(t, template.Name, metric.Metric[0].Label[0].GetValue())  // Template name
 				assert.Equal(t, version.Name, metric.Metric[0].Label[1].GetValue())   // Template version name
 				assert.Equal(t, "testuser", metric.Metric[0].Label[2].GetValue())     // Username
 				assert.Equal(t, workspace.Name, metric.Metric[0].Label[3].GetValue()) // Workspace name
 				assert.Equal(t, 1, int(metric.Metric[0].Gauge.GetValue()))            // Metric value
 				agentsUp = true
-			case "coderd_agents_connections":
+			case "wirtuald_agents_connections":
 				assert.Equal(t, "testagent", metric.Metric[0].Label[0].GetValue())    // Agent name
 				assert.Equal(t, "created", metric.Metric[0].Label[1].GetValue())      // Lifecycle state
 				assert.Equal(t, "connecting", metric.Metric[0].Label[2].GetValue())   // Status
@@ -460,7 +460,7 @@ func TestAgents(t *testing.T) {
 				assert.Equal(t, workspace.Name, metric.Metric[0].Label[5].GetValue()) // Workspace name
 				assert.Equal(t, 1, int(metric.Metric[0].Gauge.GetValue()))            // Metric value
 				agentsConnections = true
-			case "coderd_agents_apps":
+			case "wirtuald_agents_apps":
 				assert.Equal(t, "testagent", metric.Metric[0].Label[0].GetValue())        // Agent name
 				assert.Equal(t, "Fake application", metric.Metric[0].Label[1].GetValue()) // App name
 				assert.Equal(t, "disabled", metric.Metric[0].Label[2].GetValue())         // Health
@@ -468,7 +468,7 @@ func TestAgents(t *testing.T) {
 				assert.Equal(t, workspace.Name, metric.Metric[0].Label[4].GetValue())     // Workspace name
 				assert.Equal(t, 1, int(metric.Metric[0].Gauge.GetValue()))                // Metric value
 				agentsApps = true
-			case "coderd_prometheusmetrics_agents_execution_seconds":
+			case "wirtuald_prometheusmetrics_agents_execution_seconds":
 				agentsExecutionInSeconds = true
 			default:
 				require.FailNowf(t, "unexpected metric collected", "metric: %s", metric.GetName())
@@ -501,7 +501,7 @@ func TestAgentStats(t *testing.T) {
 
 	tLogger := testutil.Logger(t)
 	// Build sample workspaces with test agents and fake agent client
-	client, _, _ := coderdtest.NewWithAPI(t, &coderdtest.Options{
+	client, _, _ := wirtualdtest.NewWithAPI(t, &wirtualdtest.Options{
 		Database:                 db,
 		IncludeProvisionerDaemon: true,
 		Pubsub:                   pubsub,
@@ -509,7 +509,7 @@ func TestAgentStats(t *testing.T) {
 		Logger:                   &tLogger,
 	})
 
-	user := coderdtest.CreateFirstUser(t, client)
+	user := wirtualdtest.CreateFirstUser(t, client)
 
 	agent1 := prepareWorkspaceAndAgent(ctx, t, client, user, 1)
 	agent2 := prepareWorkspaceAndAgent(ctx, t, client, user, 2)
@@ -588,16 +588,16 @@ func TestAgentStats(t *testing.T) {
 
 		for _, metric := range metrics {
 			switch metric.GetName() {
-			case "coderd_prometheusmetrics_agentstats_execution_seconds":
+			case "wirtuald_prometheusmetrics_agentstats_execution_seconds":
 				executionSeconds = true
-			case "coderd_agentstats_connection_count",
-				"coderd_agentstats_connection_median_latency_seconds",
-				"coderd_agentstats_rx_bytes",
-				"coderd_agentstats_tx_bytes",
-				"coderd_agentstats_session_count_jetbrains",
-				"coderd_agentstats_session_count_reconnecting_pty",
-				"coderd_agentstats_session_count_ssh",
-				"coderd_agentstats_session_count_vscode":
+			case "wirtuald_agentstats_connection_count",
+				"wirtuald_agentstats_connection_median_latency_seconds",
+				"wirtuald_agentstats_rx_bytes",
+				"wirtuald_agentstats_tx_bytes",
+				"wirtuald_agentstats_session_count_jetbrains",
+				"wirtuald_agentstats_session_count_reconnecting_pty",
+				"wirtuald_agentstats_session_count_ssh",
+				"wirtuald_agentstats_session_count_vscode":
 				for _, m := range metric.Metric {
 					// username:workspace:agent:metric = value
 					collected[m.Label[1].GetValue()+":"+m.Label[2].GetValue()+":"+m.Label[0].GetValue()+":"+metric.GetName()] = int(m.Gauge.GetValue())
@@ -664,7 +664,7 @@ func TestExperimentsMetric(t *testing.T) {
 			seen := make(map[wirtualsdk.Experiment]float64)
 
 			for _, metric := range out[0].GetMetric() {
-				require.Equal(t, "coderd_experiments", out[0].GetName())
+				require.Equal(t, "wirtuald_experiments", out[0].GetName())
 
 				labels := metric.GetLabel()
 				require.Lenf(t, labels, 1, "unexpected number of labels")
@@ -704,17 +704,17 @@ func TestExperimentsMetric(t *testing.T) {
 func prepareWorkspaceAndAgent(ctx context.Context, t *testing.T, client *wirtualsdk.Client, user wirtualsdk.CreateFirstUserResponse, workspaceNum int) agentproto.DRPCAgentClient {
 	authToken := uuid.NewString()
 
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse:          echo.ParseComplete,
 		ProvisionPlan:  echo.PlanComplete,
 		ProvisionApply: echo.ProvisionApplyWithAgent(authToken),
 	})
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+	template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	workspace := wirtualdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 		cwr.Name = fmt.Sprintf("workspace-%d", workspaceNum)
 	})
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 	ac := agentsdk.New(client.URL)
 	ac.SetSessionToken(authToken)

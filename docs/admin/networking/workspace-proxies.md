@@ -18,7 +18,7 @@ over workspace proxies.
 
 Each workspace proxy should be a unique instance. At no point should 2 workspace
 proxy instances share the same authentication token. They only require port 443
-to be open and are expected to have network connectivity to the coderd
+to be open and are expected to have network connectivity to the wirtuald
 dashboard. Workspace proxies **do not** make any database connections.
 
 Workspace proxies can be used in the browser by navigating to the user
@@ -33,7 +33,7 @@ Workspace proxies can be used in the browser by navigating to the user
 
 Create the workspace proxy and make sure to save the returned authentication
 token for said proxy. This is the token the workspace proxy will use to
-authenticate back to primary coderd.
+authenticate back to primary wirtuald.
 
 ```bash
 $ coder wsproxy create --name=newyork --display-name="USA East" --icon="/emojis/2194.png"
@@ -51,7 +51,7 @@ newyork                             unregistered
 
 ## Step 2: Deploy the proxy
 
-Deploying the workspace proxy will also register the proxy with coderd and make
+Deploying the workspace proxy will also register the proxy with wirtuald and make
 the workspace proxy usable. If the proxy deployment is successful,
 `coder wsproxy ls` will show an `ok` status code:
 
@@ -76,22 +76,22 @@ Other Status codes:
 
 ### Configuration
 
-Workspace proxy configuration overlaps with a subset of the coderd
+Workspace proxy configuration overlaps with a subset of the wirtuald
 configuration. To see the full list of configuration options:
 `coder wsproxy server --help`
 
 ```bash
 # Proxy specific configuration. These are REQUIRED
-# Example: https://coderd.example.com
-WIRTUAL_PRIMARY_ACCESS_URL="https://<url_of_coderd_dashboard>"
+# Example: https://wirtuald.example.com
+WIRTUAL_PRIMARY_ACCESS_URL="https://<url_of_wirtuald_dashboard>"
 WIRTUAL_PROXY_SESSION_TOKEN="<session_token_from_proxy_create>"
 
 # Runtime variables for "coder start".
 WIRTUAL_HTTP_ADDRESS=0.0.0.0:80
 WIRTUAL_TLS_ADDRESS=0.0.0.0:443
-# Example: https://east.coderd.example.com
+# Example: https://east.wirtuald.example.com
 WIRTUAL_ACCESS_URL="https://<access_url_of_proxy>"
-# Example: *.east.coderd.example.com
+# Example: *.east.wirtuald.example.com
 WIRTUAL_WILDCARD_ACCESS_URL="*.<app_hostname_of_proxy>"
 
 WIRTUAL_TLS_ENABLE=true
@@ -113,13 +113,13 @@ Make a `values-wsproxy.yaml` with the workspace proxy configuration:
 coder:
   env:
     - name: WIRTUAL_PRIMARY_ACCESS_URL
-      value: "https://<url_of_coderd_dashboard>"
+      value: "https://<url_of_wirtuald_dashboard>"
     - name: WIRTUAL_PROXY_SESSION_TOKEN
       value: "<session_token_from_proxy_create>"
-    # Example: https://east.coderd.example.com
+    # Example: https://east.wirtuald.example.com
     - name: WIRTUAL_ACCESS_URL
       value: "https://<access_url_of_proxy>"
-    # Example: *.east.coderd.example.com
+    # Example: *.east.wirtuald.example.com
     - name: WIRTUAL_WILDCARD_ACCESS_URL
       value: "*.<app_hostname_of_proxy>"
 

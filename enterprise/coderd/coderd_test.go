@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"bytes"
@@ -33,14 +33,13 @@ import (
 	"github.com/coder/coder/v2/wirtuald/util/ptr"
 
 	"github.com/coder/coder/v2/enterprise/audit"
-	"github.com/coder/coder/v2/enterprise/coderd"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
 	"github.com/coder/coder/v2/enterprise/dbcrypt"
 	"github.com/coder/coder/v2/enterprise/replicasync"
+	"github.com/coder/coder/v2/enterprise/wirtuald"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/testutil"
 	agplaudit "github.com/coder/coder/v2/wirtuald/audit"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/database/dbfake"
@@ -48,6 +47,7 @@ import (
 	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
 	"github.com/coder/coder/v2/wirtuald/database/dbtime"
 	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 	"github.com/coder/retry"
@@ -62,10 +62,10 @@ func TestEntitlements(t *testing.T) {
 	t.Parallel()
 	t.Run("NoLicense", func(t *testing.T) {
 		t.Parallel()
-		adminClient, _, api, adminUser := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
+		adminClient, _, api, adminUser := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{
 			DontAddLicense: true,
 		})
-		anotherClient, _ := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
+		anotherClient, _ := wirtualdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
 		res, err := anotherClient.Entitlements(context.Background())
 		require.NoError(t, err)
 		require.False(t, res.HasLicense)
@@ -80,7 +80,7 @@ func TestEntitlements(t *testing.T) {
 			t.Skip("test only with postgres")
 		}
 		t.Parallel()
-		adminClient, _ := coderdenttest.New(t, &coderdenttest.Options{
+		adminClient, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			AuditLogging:   true,
 			DontAddLicense: true,
 		})
@@ -90,7 +90,7 @@ func TestEntitlements(t *testing.T) {
 			features[feature] = 1
 		}
 		features[wirtualsdk.FeatureUserLimit] = 100
-		coderdenttest.AddLicense(t, adminClient, coderdenttest.LicenseOptions{
+		wirtualdenttest.AddLicense(t, adminClient, wirtualdenttest.LicenseOptions{
 			Features: features,
 			GraceAt:  time.Now().Add(59 * 24 * time.Hour),
 		})
@@ -115,12 +115,12 @@ func TestEntitlements(t *testing.T) {
 	})
 	t.Run("FullLicenseToNone", func(t *testing.T) {
 		t.Parallel()
-		adminClient, adminUser := coderdenttest.New(t, &coderdenttest.Options{
+		adminClient, adminUser := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			AuditLogging:   true,
 			DontAddLicense: true,
 		})
-		anotherClient, _ := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
-		license := coderdenttest.AddLicense(t, adminClient, coderdenttest.LicenseOptions{
+		anotherClient, _ := wirtualdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
+		license := wirtualdenttest.AddLicense(t, adminClient, wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureUserLimit: 100,
 				wirtualsdk.FeatureAuditLog:  1,
@@ -145,8 +145,8 @@ func TestEntitlements(t *testing.T) {
 	})
 	t.Run("Pubsub", func(t *testing.T) {
 		t.Parallel()
-		adminClient, _, api, adminUser := coderdenttest.NewWithAPI(t, &coderdenttest.Options{DontAddLicense: true})
-		anotherClient, _ := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
+		adminClient, _, api, adminUser := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{DontAddLicense: true})
+		anotherClient, _ := wirtualdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
 		entitlements, err := anotherClient.Entitlements(context.Background())
 		require.NoError(t, err)
 		require.False(t, entitlements.HasLicense)
@@ -155,14 +155,14 @@ func TestEntitlements(t *testing.T) {
 		_, err = api.Database.InsertLicense(ctx, database.InsertLicenseParams{
 			UploadedAt: dbtime.Now(),
 			Exp:        dbtime.Now().AddDate(1, 0, 0),
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureAuditLog: 1,
 				},
 			}),
 		})
 		require.NoError(t, err)
-		err = api.Pubsub.Publish(coderd.PubsubEventLicenses, []byte{})
+		err = api.Pubsub.Publish(wirtuald.PubsubEventLicenses, []byte{})
 		require.NoError(t, err)
 		require.Eventually(t, func() bool {
 			entitlements, err := anotherClient.Entitlements(context.Background())
@@ -172,11 +172,11 @@ func TestEntitlements(t *testing.T) {
 	})
 	t.Run("Resync", func(t *testing.T) {
 		t.Parallel()
-		adminClient, _, api, adminUser := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
+		adminClient, _, api, adminUser := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{
 			EntitlementsUpdateInterval: 25 * time.Millisecond,
 			DontAddLicense:             true,
 		})
-		anotherClient, _ := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
+		anotherClient, _ := wirtualdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
 		entitlements, err := anotherClient.Entitlements(context.Background())
 		require.NoError(t, err)
 		require.False(t, entitlements.HasLicense)
@@ -186,7 +186,7 @@ func TestEntitlements(t *testing.T) {
 		_, err = api.Database.InsertLicense(testDBAuthzRole(ctx), database.InsertLicenseParams{
 			UploadedAt: dbtime.Now(),
 			Exp:        dbtime.Now().AddDate(1, 0, 0),
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureAuditLog: 1,
 				},
@@ -198,7 +198,7 @@ func TestEntitlements(t *testing.T) {
 		_, err = api.Database.InsertLicense(testDBAuthzRole(ctx), database.InsertLicenseParams{
 			UploadedAt: dbtime.Now(),
 			Exp:        dbtime.Now().AddDate(-1, 0, 0),
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 				ExpiresAt: dbtime.Now().AddDate(-1, 0, 0),
 			}),
 		})
@@ -223,9 +223,9 @@ func TestEntitlements_HeaderWarnings(t *testing.T) {
 	t.Parallel()
 	t.Run("ExistForAdmin", func(t *testing.T) {
 		t.Parallel()
-		adminClient, _ := coderdenttest.New(t, &coderdenttest.Options{
+		adminClient, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			AuditLogging: true,
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				AllFeatures: false,
 			},
 		})
@@ -238,13 +238,13 @@ func TestEntitlements_HeaderWarnings(t *testing.T) {
 	})
 	t.Run("NoneForNormalUser", func(t *testing.T) {
 		t.Parallel()
-		adminClient, adminUser := coderdenttest.New(t, &coderdenttest.Options{
+		adminClient, adminUser := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			AuditLogging: true,
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				AllFeatures: false,
 			},
 		})
-		anotherClient, _ := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
+		anotherClient, _ := wirtualdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
 		res, err := anotherClient.Request(context.Background(), http.MethodGet, "/api/v2/users/me", nil)
 		require.NoError(t, err)
 		defer res.Body.Close()
@@ -257,12 +257,12 @@ func TestAuditLogging(t *testing.T) {
 	t.Parallel()
 	t.Run("Enabled", func(t *testing.T) {
 		t.Parallel()
-		_, _, api, _ := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
+		_, _, api, _ := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{
 			AuditLogging: true,
-			Options: &coderdtest.Options{
+			Options: &wirtualdtest.Options{
 				Auditor: audit.NewAuditor(dbmem.New(), audit.DefaultFilter),
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureAuditLog: 1,
 				},
@@ -275,7 +275,7 @@ func TestAuditLogging(t *testing.T) {
 	})
 	t.Run("Disabled", func(t *testing.T) {
 		t.Parallel()
-		_, _, api, _ := coderdenttest.NewWithAPI(t, &coderdenttest.Options{DontAddLicense: true})
+		_, _, api, _ := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{DontAddLicense: true})
 		auditor := *api.AGPL.Auditor.Load()
 		ea := agplaudit.NewNop()
 		t.Logf("%T = %T", auditor, ea)
@@ -286,8 +286,8 @@ func TestAuditLogging(t *testing.T) {
 	t.Run("FullBuild", func(t *testing.T) {
 		t.Parallel()
 		ctx := testutil.Context(t, testutil.WaitLong)
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
 			DontAddLicense: true,
@@ -299,8 +299,8 @@ func TestAuditLogging(t *testing.T) {
 		connected := conn.AwaitReachable(ctx)
 		require.True(t, connected)
 		_ = r.agent.Close() // close first so we don't drop error logs from outdated build
-		build := coderdtest.CreateWorkspaceBuild(t, client, r.workspace, database.WorkspaceTransitionStop)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
+		build := wirtualdtest.CreateWorkspaceBuild(t, client, r.workspace, database.WorkspaceTransitionStop)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
 	})
 }
 
@@ -314,15 +314,15 @@ func TestExternalTokenEncryption(t *testing.T) {
 		db, ps := dbtestutil.NewDB(t)
 		ciphers, err := dbcrypt.NewCiphers(bytes.Repeat([]byte("a"), 32))
 		require.NoError(t, err)
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			EntitlementsUpdateInterval: 25 * time.Millisecond,
 			ExternalTokenEncryption:    ciphers,
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalTokenEncryption: 1,
 				},
 			},
-			Options: &coderdtest.Options{
+			Options: &wirtualdtest.Options{
 				Database: db,
 				Pubsub:   ps,
 			},
@@ -356,11 +356,11 @@ func TestExternalTokenEncryption(t *testing.T) {
 		db, ps := dbtestutil.NewDB(t)
 		ciphers, err := dbcrypt.NewCiphers()
 		require.NoError(t, err)
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			DontAddLicense:             true,
 			EntitlementsUpdateInterval: 25 * time.Millisecond,
 			ExternalTokenEncryption:    ciphers,
-			Options: &coderdtest.Options{
+			Options: &wirtualdtest.Options{
 				Database: db,
 				Pubsub:   ps,
 			},
@@ -388,7 +388,7 @@ func TestExternalTokenEncryption(t *testing.T) {
 
 	t.Run("PreviouslyEnabledButMissingFromLicense", func(t *testing.T) {
 		// If this test fails, it potentially means that a customer who has
-		// actively been using this feature is now unable _start coderd_
+		// actively been using this feature is now unable _start wirtuald_
 		// because of a licensing issue. This should never happen.
 		t.Parallel()
 
@@ -404,11 +404,11 @@ func TestExternalTokenEncryption(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, keys, 1)
 
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			DontAddLicense:             true,
 			EntitlementsUpdateInterval: 25 * time.Millisecond,
 			ExternalTokenEncryption:    ciphers,
-			Options: &coderdtest.Options{
+			Options: &wirtualdtest.Options{
 				Database: db,
 				Pubsub:   ps,
 			},
@@ -439,10 +439,10 @@ func TestMultiReplica_EmptyRelayAddress(t *testing.T) {
 	db, ps := dbtestutil.NewDB(t)
 	logger := testutil.Logger(t)
 
-	_, _ = coderdenttest.New(t, &coderdenttest.Options{
+	_, _ = wirtualdenttest.New(t, &wirtualdenttest.Options{
 		EntitlementsUpdateInterval: 25 * time.Millisecond,
 		ReplicaSyncUpdateInterval:  25 * time.Millisecond,
-		Options: &coderdtest.Options{
+		Options: &wirtualdtest.Options{
 			Logger:   &logger,
 			Database: db,
 			Pubsub:   ps,
@@ -458,7 +458,7 @@ func TestMultiReplica_EmptyRelayAddress(t *testing.T) {
 	require.NoError(t, err)
 	defer mgr.Close()
 
-	// Send a bunch of updates to see if the coderd will log errors.
+	// Send a bunch of updates to see if the wirtuald will log errors.
 	{
 		ctx, cancel := context.WithTimeout(ctx, testutil.IntervalMedium)
 		for r := retry.New(testutil.IntervalFast, testutil.IntervalFast); r.Wait(ctx); {
@@ -481,14 +481,14 @@ func TestMultiReplica_EmptyRelayAddress_DisabledDERP(t *testing.T) {
 	db, ps := dbtestutil.NewDB(t)
 	logger := testutil.Logger(t)
 
-	dv := coderdtest.DeploymentValues(t)
+	dv := wirtualdtest.DeploymentValues(t)
 	dv.DERP.Server.Enable = serpent.Bool(false)
 	dv.DERP.Config.URL = serpent.String(srv.URL)
 
-	_, _ = coderdenttest.New(t, &coderdenttest.Options{
+	_, _ = wirtualdenttest.New(t, &wirtualdenttest.Options{
 		EntitlementsUpdateInterval: 25 * time.Millisecond,
 		ReplicaSyncUpdateInterval:  25 * time.Millisecond,
-		Options: &coderdtest.Options{
+		Options: &wirtualdtest.Options{
 			Logger:           &logger,
 			Database:         db,
 			Pubsub:           ps,
@@ -505,7 +505,7 @@ func TestMultiReplica_EmptyRelayAddress_DisabledDERP(t *testing.T) {
 	require.NoError(t, err)
 	defer mgr.Close()
 
-	// Send a bunch of updates to see if the coderd will log errors.
+	// Send a bunch of updates to see if the wirtuald will log errors.
 	{
 		ctx, cancel := context.WithTimeout(ctx, testutil.IntervalMedium)
 		for r := retry.New(testutil.IntervalFast, testutil.IntervalFast); r.Wait(ctx); {
@@ -518,7 +518,7 @@ func TestMultiReplica_EmptyRelayAddress_DisabledDERP(t *testing.T) {
 func TestSCIMDisabled(t *testing.T) {
 	t.Parallel()
 
-	cli, _ := coderdenttest.New(t, &coderdenttest.Options{})
+	cli, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{})
 
 	checkPaths := []string{
 		"/scim/v2",
@@ -604,18 +604,18 @@ func (l *restartableListener) CloseConnections() {
 }
 
 type restartableTestServer struct {
-	options *coderdenttest.Options
+	options *wirtualdenttest.Options
 	rl      *restartableListener
 
 	mu     sync.Mutex
-	api    *coderd.API
+	api    *wirtuald.API
 	closer io.Closer
 }
 
-func newRestartableTestServer(t *testing.T, options *coderdenttest.Options) (*wirtualsdk.Client, wirtualsdk.CreateFirstUserResponse, *restartableTestServer) {
+func newRestartableTestServer(t *testing.T, options *wirtualdenttest.Options) (*wirtualsdk.Client, wirtualsdk.CreateFirstUserResponse, *restartableTestServer) {
 	t.Helper()
 	if options == nil {
-		options = &coderdenttest.Options{}
+		options = &wirtualdenttest.Options{}
 	}
 
 	s := &restartableTestServer{
@@ -684,7 +684,7 @@ func (s *restartableTestServer) startWithFirstUser(t *testing.T) (client *wirtua
 	}
 	// This creates it's own TCP listener unfortunately, but it's not being
 	// used in this test.
-	client, s.closer, s.api, firstUser = coderdenttest.NewWithAPI(t, s.options)
+	client, s.closer, s.api, firstUser = wirtualdenttest.NewWithAPI(t, s.options)
 
 	// Never add the first user or license on subsequent restarts.
 	s.options.DontAddFirstUser = true
@@ -730,32 +730,32 @@ func TestConn_CoordinatorRollingRestart(t *testing.T) {
 			t.Parallel()
 
 			store, ps := dbtestutil.NewDB(t)
-			dv := coderdtest.DeploymentValues(t, func(dv *wirtualsdk.DeploymentValues) {
+			dv := wirtualdtest.DeploymentValues(t, func(dv *wirtualsdk.DeploymentValues) {
 				dv.DERP.Config.BlockDirect = serpent.Bool(!direct)
 			})
 			logger := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true}).Leveled(slog.LevelDebug)
 
 			// Create two restartable test servers with the same database.
-			client1, user, s1 := newRestartableTestServer(t, &coderdenttest.Options{
+			client1, user, s1 := newRestartableTestServer(t, &wirtualdenttest.Options{
 				DontAddFirstUser: false,
 				DontAddLicense:   false,
-				Options: &coderdtest.Options{
+				Options: &wirtualdtest.Options{
 					Logger:                   ptr.Ref(logger.Named("server1")),
 					Database:                 store,
 					Pubsub:                   ps,
 					DeploymentValues:         dv,
 					IncludeProvisionerDaemon: true,
 				},
-				LicenseOptions: &coderdenttest.LicenseOptions{
+				LicenseOptions: &wirtualdenttest.LicenseOptions{
 					Features: license.Features{
 						wirtualsdk.FeatureHighAvailability: 1,
 					},
 				},
 			})
-			client2, _, s2 := newRestartableTestServer(t, &coderdenttest.Options{
+			client2, _, s2 := newRestartableTestServer(t, &wirtualdenttest.Options{
 				DontAddFirstUser: true,
 				DontAddLicense:   true,
-				Options: &coderdtest.Options{
+				Options: &wirtualdtest.Options{
 					Logger:           ptr.Ref(logger.Named("server2")),
 					Database:         store,
 					Pubsub:           ps,
@@ -773,7 +773,7 @@ func TestConn_CoordinatorRollingRestart(t *testing.T) {
 			_ = agenttest.New(t, client1.URL, workspace.AgentToken, func(o *agent.Options) {
 				o.Logger = logger.Named("agent1")
 			})
-			resources := coderdtest.NewWorkspaceAgentWaiter(t, client1, workspace.Workspace.ID).Wait()
+			resources := wirtualdtest.NewWorkspaceAgentWaiter(t, client1, workspace.Workspace.ID).Wait()
 
 			agentID := uuid.Nil
 			for _, r := range resources {

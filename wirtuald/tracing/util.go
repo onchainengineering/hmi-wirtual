@@ -17,7 +17,7 @@ func init() {
 	_, NoopSpan = tracer.Start(context.Background(), "")
 }
 
-const TracerName = "coderd"
+const TracerName = "wirtuald"
 
 func FuncName() string {
 	return FuncNameSkip(1)

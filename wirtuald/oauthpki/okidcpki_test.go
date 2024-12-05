@@ -20,8 +20,9 @@ import (
 
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/coder/v2/wirtuald"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest/oidctest"
+	"github.com/coder/coder/v2/wirtuald/oauthpki"
+	"g
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/oauthpki"
 )
 
@@ -144,7 +145,7 @@ func TestAzureAKPKIWithCoderd(t *testing.T) {
 		}),
 		oidctest.WithServing(),
 	)
-	cfg := fake.OIDCConfig(t, scopes, func(cfg *coderd.OIDCConfig) {
+	cfg := fake.OIDCConfig(t, scopes, func(cfg *wirtuald.OIDCConfig) {
 		cfg.AllowSignups = true
 	})
 
@@ -161,7 +162,7 @@ func TestAzureAKPKIWithCoderd(t *testing.T) {
 	require.NoError(t, err)
 	cfg.OAuth2Config = pki
 
-	owner, _, api := coderdtest.NewWithAPI(t, &coderdtest.Options{
+	owner, _, api := wirtualdtest.NewWithAPI(t, &wirtualdtest.Options{
 		OIDCConfig: cfg,
 	})
 

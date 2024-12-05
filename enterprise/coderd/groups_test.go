@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"net/http"
@@ -9,15 +9,15 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/coder/v2/wirtuald/audit"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtuald/util/ptr"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -27,12 +27,12 @@ func TestCreateGroup(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
 		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name:      "hi",
@@ -50,20 +50,20 @@ func TestCreateGroup(t *testing.T) {
 		t.Parallel()
 
 		auditor := audit.NewMock()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			AuditLogging: true,
-			Options: &coderdtest.Options{
+			Options: &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 				Auditor:                  auditor,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureTemplateRBAC: 1,
 					wirtualsdk.FeatureAuditLog:     1,
 				},
 			},
 		})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 
@@ -83,12 +83,12 @@ func TestCreateGroup(t *testing.T) {
 	t.Run("Conflict", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
 		_, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
@@ -107,12 +107,12 @@ func TestCreateGroup(t *testing.T) {
 	t.Run("ReservedName", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
 		_, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "new",
@@ -127,12 +127,12 @@ func TestCreateGroup(t *testing.T) {
 	t.Run("allUsers", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
 		_, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: database.EveryoneGroup,
@@ -150,12 +150,12 @@ func TestPatchGroup(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		const displayName = "foobar"
 		ctx := testutil.Context(t, testutil.WaitLong)
 		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
@@ -183,12 +183,12 @@ func TestPatchGroup(t *testing.T) {
 	t.Run("DisplayNameUnchanged", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		const displayName = "foobar"
 		ctx := testutil.Context(t, testutil.WaitLong)
 		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
@@ -218,12 +218,12 @@ func TestPatchGroup(t *testing.T) {
 	t.Run("SameNameOK", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
 		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
@@ -240,14 +240,14 @@ func TestPatchGroup(t *testing.T) {
 	t.Run("AddUsers", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
-		_, user2 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
-		_, user3 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		_, user2 := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		_, user3 := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
@@ -266,15 +266,15 @@ func TestPatchGroup(t *testing.T) {
 	t.Run("RemoveUsers", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
-		_, user2 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
-		_, user3 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
-		_, user4 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		_, user2 := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		_, user3 := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		_, user4 := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
@@ -302,20 +302,20 @@ func TestPatchGroup(t *testing.T) {
 		t.Parallel()
 
 		auditor := audit.NewMock()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			AuditLogging: true,
-			Options: &coderdtest.Options{
+			Options: &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 				Auditor:                  auditor,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureTemplateRBAC: 1,
 					wirtualsdk.FeatureAuditLog:     1,
 				},
 			},
 		})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
 
 		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
@@ -337,12 +337,12 @@ func TestPatchGroup(t *testing.T) {
 	t.Run("NameConflict", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
 		group1, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name:      "hi",
@@ -368,12 +368,12 @@ func TestPatchGroup(t *testing.T) {
 	t.Run("UserNotExist", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
 		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
@@ -392,12 +392,12 @@ func TestPatchGroup(t *testing.T) {
 	t.Run("MalformedUUID", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
 		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
@@ -416,13 +416,13 @@ func TestPatchGroup(t *testing.T) {
 	t.Run("AddDuplicateUser", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
-		_, user2 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		_, user2 := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 		ctx := testutil.Context(t, testutil.WaitLong)
 		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
@@ -442,12 +442,12 @@ func TestPatchGroup(t *testing.T) {
 	t.Run("ReservedName", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
 		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
@@ -468,12 +468,12 @@ func TestPatchGroup(t *testing.T) {
 		t.Run("NoUpdateName", func(t *testing.T) {
 			t.Parallel()
 
-			client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+			client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureTemplateRBAC: 1,
 				},
 			}})
-			userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+			userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 			ctx := testutil.Context(t, testutil.WaitLong)
 			_, err := userAdminClient.PatchGroup(ctx, user.OrganizationID, wirtualsdk.PatchGroupRequest{
 				Name: "hi",
@@ -487,12 +487,12 @@ func TestPatchGroup(t *testing.T) {
 		t.Run("NoUpdateDisplayName", func(t *testing.T) {
 			t.Parallel()
 
-			client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+			client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureTemplateRBAC: 1,
 				},
 			}})
-			userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+			userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 			ctx := testutil.Context(t, testutil.WaitLong)
 			_, err := userAdminClient.PatchGroup(ctx, user.OrganizationID, wirtualsdk.PatchGroupRequest{
 				DisplayName: ptr.Ref("hi"),
@@ -506,13 +506,13 @@ func TestPatchGroup(t *testing.T) {
 		t.Run("NoAddUsers", func(t *testing.T) {
 			t.Parallel()
 
-			client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+			client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureTemplateRBAC: 1,
 				},
 			}})
-			userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
-			_, user2 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+			userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+			_, user2 := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 			ctx := testutil.Context(t, testutil.WaitLong)
 			_, err := userAdminClient.PatchGroup(ctx, user.OrganizationID, wirtualsdk.PatchGroupRequest{
@@ -527,12 +527,12 @@ func TestPatchGroup(t *testing.T) {
 		t.Run("NoRmUsers", func(t *testing.T) {
 			t.Parallel()
 
-			client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+			client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureTemplateRBAC: 1,
 				},
 			}})
-			userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+			userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 
 			ctx := testutil.Context(t, testutil.WaitLong)
 			_, err := userAdminClient.PatchGroup(ctx, user.OrganizationID, wirtualsdk.PatchGroupRequest{
@@ -547,12 +547,12 @@ func TestPatchGroup(t *testing.T) {
 		t.Run("UpdateQuota", func(t *testing.T) {
 			t.Parallel()
 
-			client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+			client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureTemplateRBAC: 1,
 				},
 			}})
-			userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+			userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 
 			ctx := testutil.Context(t, testutil.WaitLong)
 			group, err := userAdminClient.Group(ctx, user.OrganizationID)
@@ -595,12 +595,12 @@ func TestGroup(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
 		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
@@ -615,12 +615,12 @@ func TestGroup(t *testing.T) {
 	t.Run("ByName", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
 		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
@@ -635,14 +635,14 @@ func TestGroup(t *testing.T) {
 	t.Run("WithUsers", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
-		_, user2 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
-		_, user3 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		_, user2 := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		_, user3 := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
@@ -668,12 +668,12 @@ func TestGroup(t *testing.T) {
 	t.Run("RegularUserReadGroup", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		client1, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		client1, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 		//nolint:gocritic // test setup
@@ -689,15 +689,15 @@ func TestGroup(t *testing.T) {
 	t.Run("FilterDeletedUsers", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 
-		_, user1 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
-		_, user2 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		_, user1 := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		_, user2 := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
@@ -723,15 +723,15 @@ func TestGroup(t *testing.T) {
 	t.Run("IncludeSuspendedAndDormantUsers", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 
-		_, user1 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
-		_, user2 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		_, user1 := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		_, user2 := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 		group, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
@@ -782,12 +782,12 @@ func TestGroup(t *testing.T) {
 	t.Run("ByIDs", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 		groupA, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
@@ -821,14 +821,14 @@ func TestGroup(t *testing.T) {
 	t.Run("everyoneGroupReturnsEmpty", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
-		_, user1 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
-		_, user2 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		_, user1 := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		_, user2 := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 		// The 'Everyone' group always has an ID that matches the organization ID.
@@ -851,16 +851,16 @@ func TestGroups(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
-		_, user2 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
-		_, user3 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
-		_, user4 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
-		user5Client, user5 := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		_, user2 := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		_, user3 := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		_, user4 := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		user5Client, user5 := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 		group1, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
@@ -944,12 +944,12 @@ func TestDeleteGroup(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
 		group1, err := userAdminClient.CreateGroup(ctx, user.OrganizationID, wirtualsdk.CreateGroupRequest{
 			Name: "hi",
@@ -970,16 +970,16 @@ func TestDeleteGroup(t *testing.T) {
 		t.Parallel()
 
 		auditor := audit.NewMock()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			AuditLogging: true,
-			Options: &coderdtest.Options{
+			Options: &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 				Auditor:                  auditor,
 			},
 		})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 
-		_ = coderdenttest.AddLicense(t, client, coderdenttest.LicenseOptions{
+		_ = wirtualdenttest.AddLicense(t, client, wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 				wirtualsdk.FeatureAuditLog:     1,
@@ -1007,12 +1007,12 @@ func TestDeleteGroup(t *testing.T) {
 	t.Run("allUsers", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		userAdminClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
+		userAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleUserAdmin())
 		ctx := testutil.Context(t, testutil.WaitLong)
 		err := userAdminClient.DeleteGroup(ctx, user.OrganizationID)
 		require.Error(t, err)

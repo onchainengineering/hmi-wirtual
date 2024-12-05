@@ -59,7 +59,7 @@ type listeningPortsHandler struct {
 	mtime time.Time
 }
 
-// handler returns a list of listening ports. This is tested by coderd's
+// handler returns a list of listening ports. This is tested by wirtuald's
 // TestWorkspaceAgentListeningPorts test.
 func (lp *listeningPortsHandler) handler(rw http.ResponseWriter, r *http.Request) {
 	ports, err := lp.getListeningPorts()

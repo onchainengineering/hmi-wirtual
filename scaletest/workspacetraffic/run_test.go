@@ -20,7 +20,7 @@ import (
 	"github.com/coder/coder/v2/provisionersdk/proto"
 	"github.com/coder/coder/v2/scaletest/workspacetraffic"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 
 	"github.com/google/uuid"
@@ -40,13 +40,13 @@ func TestRun(t *testing.T) {
 	//nolint:dupl
 	t.Run("RPTY", func(t *testing.T) {
 		t.Parallel()
-		// We need to stand up an in-memory coderd and run a fake workspace.
+		// We need to stand up an in-memory wirtuald and run a fake workspace.
 		var (
-			client    = coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			firstUser = coderdtest.CreateFirstUser(t, client)
+			client    = wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+			firstUser = wirtualdtest.CreateFirstUser(t, client)
 			authToken = uuid.NewString()
 			agentName = "agent"
-			version   = coderdtest.CreateTemplateVersion(t, client, firstUser.OrganizationID, &echo.Responses{
+			version   = wirtualdtest.CreateTemplateVersion(t, client, firstUser.OrganizationID, &echo.Responses{
 				Parse:         echo.ParseComplete,
 				ProvisionPlan: echo.PlanComplete,
 				ProvisionApply: []*proto.Response{{
@@ -68,18 +68,18 @@ func TestRun(t *testing.T) {
 					},
 				}},
 			})
-			template = coderdtest.CreateTemplate(t, client, firstUser.OrganizationID, version.ID)
-			_        = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			template = wirtualdtest.CreateTemplate(t, client, firstUser.OrganizationID, version.ID)
+			_        = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 			// In order to be picked up as a scaletest workspace, the workspace must be named specifically
-			ws = coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+			ws = wirtualdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 				cwr.Name = "scaletest-test"
 			})
-			_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
+			_ = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
 		)
 
 		// We also need a running agent to run this test.
 		_ = agenttest.New(t, client.URL, authToken)
-		resources := coderdtest.AwaitWorkspaceAgents(t, client, ws.ID)
+		resources := wirtualdtest.AwaitWorkspaceAgents(t, client, ws.ID)
 		ctx, cancel := context.WithCancel(context.Background())
 		t.Cleanup(cancel)
 
@@ -159,13 +159,13 @@ func TestRun(t *testing.T) {
 	//nolint:dupl
 	t.Run("SSH", func(t *testing.T) {
 		t.Parallel()
-		// We need to stand up an in-memory coderd and run a fake workspace.
+		// We need to stand up an in-memory wirtuald and run a fake workspace.
 		var (
-			client    = coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			firstUser = coderdtest.CreateFirstUser(t, client)
+			client    = wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+			firstUser = wirtualdtest.CreateFirstUser(t, client)
 			authToken = uuid.NewString()
 			agentName = "agent"
-			version   = coderdtest.CreateTemplateVersion(t, client, firstUser.OrganizationID, &echo.Responses{
+			version   = wirtualdtest.CreateTemplateVersion(t, client, firstUser.OrganizationID, &echo.Responses{
 				Parse:         echo.ParseComplete,
 				ProvisionPlan: echo.PlanComplete,
 				ProvisionApply: []*proto.Response{{
@@ -187,18 +187,18 @@ func TestRun(t *testing.T) {
 					},
 				}},
 			})
-			template = coderdtest.CreateTemplate(t, client, firstUser.OrganizationID, version.ID)
-			_        = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			template = wirtualdtest.CreateTemplate(t, client, firstUser.OrganizationID, version.ID)
+			_        = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 			// In order to be picked up as a scaletest workspace, the workspace must be named specifically
-			ws = coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+			ws = wirtualdtest.CreateWorkspace(t, client, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 				cwr.Name = "scaletest-test"
 			})
-			_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
+			_ = wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
 		)
 
 		// We also need a running agent to run this test.
 		_ = agenttest.New(t, client.URL, authToken)
-		resources := coderdtest.AwaitWorkspaceAgents(t, client, ws.ID)
+		resources := wirtualdtest.AwaitWorkspaceAgents(t, client, ws.ID)
 
 		ctx, cancel := context.WithCancel(context.Background())
 		t.Cleanup(cancel)
@@ -280,7 +280,7 @@ func TestRun(t *testing.T) {
 		t.Parallel()
 
 		// Start a test server that will echo back the request body, this skips
-		// the roundtrip to coderd/agent and simply tests the http request conn
+		// the roundtrip to wirtuald/agent and simply tests the http request conn
 		// directly.
 		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			c, err := websocket.Accept(w, r, &websocket.AcceptOptions{})

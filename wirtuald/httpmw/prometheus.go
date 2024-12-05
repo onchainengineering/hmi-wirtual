@@ -17,25 +17,25 @@ import (
 func Prometheus(register prometheus.Registerer) func(http.Handler) http.Handler {
 	factory := promauto.With(register)
 	requestsProcessed := factory.NewCounterVec(prometheus.CounterOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "api",
 		Name:      "requests_processed_total",
 		Help:      "The total number of processed API requests",
 	}, []string{"code", "method", "path"})
 	requestsConcurrent := factory.NewGauge(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "api",
 		Name:      "concurrent_requests",
 		Help:      "The number of concurrent API requests.",
 	})
 	websocketsConcurrent := factory.NewGauge(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "api",
 		Name:      "concurrent_websockets",
 		Help:      "The total number of concurrent API websockets.",
 	})
 	websocketsDist := factory.NewHistogramVec(prometheus.HistogramOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "api",
 		Name:      "websocket_durations_seconds",
 		Help:      "Websocket duration distribution of requests in seconds.",
@@ -49,7 +49,7 @@ func Prometheus(register prometheus.Registerer) func(http.Handler) http.Handler 
 		},
 	}, []string{"path"})
 	requestsDist := factory.NewHistogramVec(prometheus.HistogramOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "api",
 		Name:      "request_latencies_seconds",
 		Help:      "Latency distribution of requests in seconds.",

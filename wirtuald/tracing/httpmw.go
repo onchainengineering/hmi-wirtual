@@ -81,7 +81,7 @@ func EndHTTPSpan(r *http.Request, status int, span trace.Span) {
 	route := chi.RouteContext(r.Context()).RoutePattern()
 	span.SetName(fmt.Sprintf("%s %s", r.Method, route))
 	span.SetAttributes(netconv.Transport("tcp"))
-	span.SetAttributes(httpconv.ServerRequest("coderd", r)...)
+	span.SetAttributes(httpconv.ServerRequest("wirtuald", r)...)
 	span.SetAttributes(semconv.HTTPRouteKey.String(route))
 
 	// 0 status means one has not yet been sent in which case net/http library will write StatusOK

@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -10,11 +10,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -38,17 +38,17 @@ func TestTemplateInsightsWithTemplateAdminACL(t *testing.T) {
 		t.Run(fmt.Sprintf("with interval=%q", tt.interval), func(t *testing.T) {
 			t.Parallel()
 
-			client, admin := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+			client, admin := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureTemplateRBAC: 1,
 				},
 			}})
-			templateAdminClient, _ := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleTemplateAdmin())
+			templateAdminClient, _ := wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleTemplateAdmin())
 
-			version := coderdtest.CreateTemplateVersion(t, client, admin.OrganizationID, nil)
-			template := coderdtest.CreateTemplate(t, client, admin.OrganizationID, version.ID)
+			version := wirtualdtest.CreateTemplateVersion(t, client, admin.OrganizationID, nil)
+			template := wirtualdtest.CreateTemplate(t, client, admin.OrganizationID, version.ID)
 
-			regular, regularUser := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+			regular, regularUser := wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID)
 
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 			defer cancel()
@@ -98,15 +98,15 @@ func TestTemplateInsightsWithRole(t *testing.T) {
 		t.Run(fmt.Sprintf("with interval=%q role=%q", tt.interval, tt.role), func(t *testing.T) {
 			t.Parallel()
 
-			client, admin := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+			client, admin := wirtualdenttest.New(t, &wirtualdenttest.Options{LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureTemplateRBAC: 1,
 				},
 			}})
-			version := coderdtest.CreateTemplateVersion(t, client, admin.OrganizationID, nil)
-			template := coderdtest.CreateTemplate(t, client, admin.OrganizationID, version.ID)
+			version := wirtualdtest.CreateTemplateVersion(t, client, admin.OrganizationID, nil)
+			template := wirtualdtest.CreateTemplate(t, client, admin.OrganizationID, version.ID)
 
-			aud, _ := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID, tt.role)
+			aud, _ := wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID, tt.role)
 
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 			defer cancel()

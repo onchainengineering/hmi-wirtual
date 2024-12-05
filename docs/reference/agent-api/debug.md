@@ -67,7 +67,7 @@ curl $WIRTUAL_AGENT_DEBUG_ADDRESS/debug/manifest
 
 `GET /debug/manifest`
 
-Get the manifest the agent fetched from `coderd` upon startup.
+Get the manifest the agent fetched from `wirtuald` upon startup.
 
 ### Responses
 

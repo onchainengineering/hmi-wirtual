@@ -13,8 +13,8 @@ import (
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/cli/cliui"
 	"github.com/coder/coder/v2/pty/ptytest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -24,12 +24,12 @@ func TestTemplateDelete(t *testing.T) {
 	t.Run("Ok", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		inv, root := clitest.New(t, "templates", "delete", template.Name)
 
@@ -53,15 +53,15 @@ func TestTemplateDelete(t *testing.T) {
 	t.Run("Multiple --yes", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 		templates := []wirtualsdk.Template{}
 		templateNames := []string{}
 		for i := 0; i < 3; i++ {
-			version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+			version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+			_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 			templates = append(templates, template)
 			templateNames = append(templateNames, template.Name)
 		}
@@ -79,15 +79,15 @@ func TestTemplateDelete(t *testing.T) {
 	t.Run("Multiple prompted", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 		templates := []wirtualsdk.Template{}
 		templateNames := []string{}
 		for i := 0; i < 3; i++ {
-			version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+			version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+			_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 			templates = append(templates, template)
 			templateNames = append(templateNames, template.Name)
 		}
@@ -115,12 +115,12 @@ func TestTemplateDelete(t *testing.T) {
 	t.Run("Selector", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		inv, root := clitest.New(t, "templates", "delete")
 		clitest.SetupConfig(t, templateAdmin, root)

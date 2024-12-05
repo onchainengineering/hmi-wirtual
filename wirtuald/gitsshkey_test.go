@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -11,9 +11,9 @@ import (
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/coder/v2/wirtuald/audit"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/gitsshkey"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
 )
 
@@ -21,8 +21,8 @@ func TestGitSSHKey(t *testing.T) {
 	t.Parallel()
 	t.Run("None", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		res := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		res := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -33,10 +33,10 @@ func TestGitSSHKey(t *testing.T) {
 	})
 	t.Run("Ed25519", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			SSHKeygenAlgorithm: gitsshkey.AlgorithmEd25519,
 		})
-		res := coderdtest.CreateFirstUser(t, client)
+		res := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -47,10 +47,10 @@ func TestGitSSHKey(t *testing.T) {
 	})
 	t.Run("ECDSA", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			SSHKeygenAlgorithm: gitsshkey.AlgorithmECDSA,
 		})
-		res := coderdtest.CreateFirstUser(t, client)
+		res := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -61,10 +61,10 @@ func TestGitSSHKey(t *testing.T) {
 	})
 	t.Run("RSA4096", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			SSHKeygenAlgorithm: gitsshkey.AlgorithmRSA4096,
 		})
-		res := coderdtest.CreateFirstUser(t, client)
+		res := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -76,11 +76,11 @@ func TestGitSSHKey(t *testing.T) {
 	t.Run("Regenerate", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			SSHKeygenAlgorithm: gitsshkey.AlgorithmEd25519,
 			Auditor:            auditor,
 		})
-		res := coderdtest.CreateFirstUser(t, client)
+		res := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -101,20 +101,20 @@ func TestGitSSHKey(t *testing.T) {
 func TestAgentGitSSHKey(t *testing.T) {
 	t.Parallel()
 
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := wirtualdtest.New(t, &wirtualdtest.Options{
 		IncludeProvisionerDaemon: true,
 	})
-	user := coderdtest.CreateFirstUser(t, client)
+	user := wirtualdtest.CreateFirstUser(t, client)
 	authToken := uuid.NewString()
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse:          echo.ParseComplete,
 		ProvisionPlan:  echo.PlanComplete,
 		ProvisionApply: echo.ProvisionApplyWithAgent(authToken),
 	})
-	project := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, client, project.ID)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	project := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	workspace := wirtualdtest.CreateWorkspace(t, client, project.ID)
+	wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 	agentClient := agentsdk.New(client.URL)
 	agentClient.SetSessionToken(authToken)

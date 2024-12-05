@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -97,7 +97,7 @@ func TestWorkspaceUpdates(t *testing.T) {
 			cbs: map[string]pubsub.ListenerWithErr{},
 		}
 
-		updateProvider := coderd.NewUpdatesProvider(testutil.Logger(t), ps, db, &mockAuthorizer{})
+		updateProvider := wirtuald.NewUpdatesProvider(testutil.Logger(t), ps, db, &mockAuthorizer{})
 		t.Cleanup(func() {
 			_ = updateProvider.Close()
 		})
@@ -254,7 +254,7 @@ func TestWorkspaceUpdates(t *testing.T) {
 			cbs: map[string]pubsub.ListenerWithErr{},
 		}
 
-		updateProvider := coderd.NewUpdatesProvider(testutil.Logger(t), ps, db, &mockAuthorizer{})
+		updateProvider := wirtuald.NewUpdatesProvider(testutil.Logger(t), ps, db, &mockAuthorizer{})
 		t.Cleanup(func() {
 			_ = updateProvider.Close()
 		})
@@ -324,7 +324,7 @@ func (*mockWorkspaceStore) GetWorkspaceByAgentID(context.Context, uuid.UUID) (da
 	return database.Workspace{}, nil
 }
 
-var _ coderd.UpdatesQuerier = (*mockWorkspaceStore)(nil)
+var _ wirtuald.UpdatesQuerier = (*mockWorkspaceStore)(nil)
 
 type mockPubsub struct {
 	cbs map[string]pubsub.ListenerWithErr

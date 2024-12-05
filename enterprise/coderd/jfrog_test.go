@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"net/http"
@@ -6,13 +6,13 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbfake"
 	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -21,20 +21,20 @@ func TestJFrogXrayScan(t *testing.T) {
 
 	t.Run("Post/Get", func(t *testing.T) {
 		t.Parallel()
-		ownerClient, db, owner := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		ownerClient, db, owner := wirtualdenttest.NewWithDatabase(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{wirtualsdk.FeatureMultipleExternalAuth: 1},
 			},
 		})
 
-		tac, ta := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		tac, ta := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 		wsResp := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: owner.OrganizationID,
 			OwnerID:        ta.ID,
 		}).WithAgent().Do()
 
-		ws := coderdtest.MustWorkspace(t, tac, wsResp.Workspace.ID)
+		ws := wirtualdtest.MustWorkspace(t, tac, wsResp.Workspace.ID)
 		require.Len(t, ws.LatestBuild.Resources, 1)
 		require.Len(t, ws.LatestBuild.Resources[0].Agents, 1)
 
@@ -77,20 +77,20 @@ func TestJFrogXrayScan(t *testing.T) {
 	t.Run("MemberPostUnauthorized", func(t *testing.T) {
 		t.Parallel()
 
-		ownerClient, db, owner := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		ownerClient, db, owner := wirtualdenttest.NewWithDatabase(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{wirtualsdk.FeatureMultipleExternalAuth: 1},
 			},
 		})
 
-		memberClient, member := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+		memberClient, member := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
 
 		wsResp := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: owner.OrganizationID,
 			OwnerID:        member.ID,
 		}).WithAgent().Do()
 
-		ws := coderdtest.MustWorkspace(t, memberClient, wsResp.Workspace.ID)
+		ws := wirtualdtest.MustWorkspace(t, memberClient, wsResp.Workspace.ID)
 		require.Len(t, ws.LatestBuild.Resources, 1)
 		require.Len(t, ws.LatestBuild.Resources[0].Agents, 1)
 

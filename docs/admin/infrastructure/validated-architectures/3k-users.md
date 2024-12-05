@@ -20,7 +20,7 @@ continuously improve the reliability and performance of the platform.
 
 | Users       | Node capacity        | Replicas          | GCP             | AWS         | Azure             |
 | ----------- | -------------------- | ----------------- | --------------- | ----------- | ----------------- |
-| Up to 3,000 | 8 vCPU, 32 GB memory | 4 / 1 coderd each | `n1-standard-4` | `t3.xlarge` | `Standard_D4s_v3` |
+| Up to 3,000 | 8 vCPU, 32 GB memory | 4 / 1 wirtuald each | `n1-standard-4` | `t3.xlarge` | `Standard_D4s_v3` |
 
 ### Provisioner nodes
 
@@ -31,7 +31,7 @@ continuously improve the reliability and performance of the platform.
 **Footnotes**:
 
 - An external provisioner is deployed as Kubernetes pod.
-- It is strongly discouraged to run provisioner daemons on `coderd` nodes at
+- It is strongly discouraged to run provisioner daemons on `wirtuald` nodes at
   this level of scale.
 - Separate provisioners into different namespaces in favor of zero-trust or
   multi-cloud deployments.

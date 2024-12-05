@@ -9,13 +9,13 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cdr.dev/slog/sloggers/slogtest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/database/dbgen"
 	"github.com/coder/coder/v2/wirtuald/database/dbmem"
 	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
 	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 )
 
 // nolint:tparallel
@@ -30,7 +30,7 @@ func TestGroupsAuth(t *testing.T) {
 
 	db := dbauthz.New(dbmem.New(), authz, slogtest.Make(t, &slogtest.Options{
 		IgnoreErrors: true,
-	}), coderdtest.AccessControlStorePointer())
+	}), wirtualdtest.AccessControlStorePointer())
 
 	ownerCtx := dbauthz.As(context.Background(), rbac.Subject{
 		ID:     "owner",

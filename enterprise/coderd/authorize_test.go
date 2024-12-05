@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -7,11 +7,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -21,27 +21,27 @@ func TestCheckACLPermissions(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	t.Cleanup(cancel)
 
-	adminClient, adminUser := coderdenttest.New(t, &coderdenttest.Options{
-		Options: &coderdtest.Options{
+	adminClient, adminUser := wirtualdenttest.New(t, &wirtualdenttest.Options{
+		Options: &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 		},
-		LicenseOptions: &coderdenttest.LicenseOptions{
+		LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureTemplateRBAC: 1,
 			},
 		},
 	})
 	// Create member and org adminClient
-	memberClient, _ := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
+	memberClient, _ := wirtualdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
 	memberUser, err := memberClient.User(ctx, wirtualsdk.Me)
 	require.NoError(t, err)
-	orgAdminClient, _ := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID, rbac.ScopedRoleOrgAdmin(adminUser.OrganizationID))
+	orgAdminClient, _ := wirtualdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID, rbac.ScopedRoleOrgAdmin(adminUser.OrganizationID))
 	orgAdminUser, err := orgAdminClient.User(ctx, wirtualsdk.Me)
 	require.NoError(t, err)
 
-	version := coderdtest.CreateTemplateVersion(t, adminClient, adminUser.OrganizationID, nil)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, adminClient, version.ID)
-	template := coderdtest.CreateTemplate(t, adminClient, adminUser.OrganizationID, version.ID)
+	version := wirtualdtest.CreateTemplateVersion(t, adminClient, adminUser.OrganizationID, nil)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, adminClient, version.ID)
+	template := wirtualdtest.CreateTemplate(t, adminClient, adminUser.OrganizationID, version.ID)
 
 	err = adminClient.UpdateTemplateACL(ctx, template.ID, wirtualsdk.UpdateTemplateACL{
 		UserPerms: map[string]wirtualsdk.TemplateRole{

@@ -1,4 +1,4 @@
-package coderd
+package wirtuald
 
 import (
 	"context"
@@ -89,7 +89,7 @@ import (
 
 // We must only ever instantiate one httpSwagger.Handler because of a data race
 // inside the handler. This issue is triggered by tests that create multiple
-// coderd instances.
+// wirtuald instances.
 //
 // See https://github.com/swaggo/http-swagger/issues/78
 var globalHTTPSwaggerHandler http.HandlerFunc
@@ -260,7 +260,7 @@ type Options struct {
 
 // @title Coder API
 // @version 2.0
-// @description Coderd is the service created by running coder server. It is a thin API that connects workspaces, provisioners and users. coderd stores its state in Postgres and is the only service that communicates with Postgres.
+// @description Coderd is the service created by running coder server. It is a thin API that connects workspaces, provisioners and users. wirtuald stores its state in Postgres and is the only service that communicates with Postgres.
 // @termsOfService https://coder.com/legal/terms-of-service
 
 // @contact.name API Support
@@ -330,7 +330,7 @@ func New(options *Options) *API {
 		options.Logger, options.DeploymentValues.Experiments.Value(),
 	)
 	if options.AppHostname != "" && options.AppHostnameRegex == nil || options.AppHostname == "" && options.AppHostnameRegex != nil {
-		panic("coderd: both AppHostname and AppHostnameRegex must be set or unset")
+		panic("wirtuald: both AppHostname and AppHostnameRegex must be set or unset")
 	}
 	if options.AgentConnectionUpdateFrequency == 0 {
 		options.AgentConnectionUpdateFrequency = 15 * time.Second
@@ -1518,7 +1518,7 @@ func (api *API) Close() error {
 		close(wsDone)
 	}()
 	// This will technically leak the above func if the timer fires, but this is
-	// maintly a last ditch effort to un-stuck coderd on shutdown. This
+	// maintly a last ditch effort to un-stuck wirtuald on shutdown. This
 	// shouldn't affect tests at all.
 	select {
 	case <-wsDone:
@@ -1577,7 +1577,7 @@ func compressHandler(h http.Handler) http.Handler {
 }
 
 // CreateInMemoryProvisionerDaemon is an in-memory connection to a provisionerd.
-// Useful when starting coderd and provisionerd in the same process.
+// Useful when starting wirtuald and provisionerd in the same process.
 func (api *API) CreateInMemoryProvisionerDaemon(dialCtx context.Context, name string, provisionerTypes []wirtualsdk.ProvisionerType) (client proto.DRPCProvisionerDaemonClient, err error) {
 	return api.CreateInMemoryTaggedProvisionerDaemon(dialCtx, name, provisionerTypes, nil)
 }

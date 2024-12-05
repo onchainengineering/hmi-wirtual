@@ -11,9 +11,9 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtuald/rbac/policy"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 )
 
 type benchmarkCase struct {
@@ -288,7 +288,7 @@ func benchmarkSetup(orgs []uuid.UUID, users []uuid.UUID, size int, opts ...func(
 // BenchmarkCacher benchmarks the performance of the cacher.
 func BenchmarkCacher(b *testing.B) {
 	ctx := context.Background()
-	authz := rbac.Cacher(&coderdtest.FakeAuthorizer{})
+	authz := rbac.Cacher(&wirtualdtest.FakeAuthorizer{})
 
 	rats := []int{1, 10, 100}
 
@@ -304,7 +304,7 @@ func BenchmarkCacher(b *testing.B) {
 				if i%rat == 0 {
 					// Cache miss
 					b.StopTimer()
-					subj, obj, action = coderdtest.RandomRBACSubject(), coderdtest.RandomRBACObject(), coderdtest.RandomRBACAction()
+					subj, obj, action = wirtualdtest.RandomRBACSubject(), wirtualdtest.RandomRBACObject(), wirtualdtest.RandomRBACAction()
 					b.StartTimer()
 				}
 
@@ -321,10 +321,10 @@ func TestCache(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		rec := &coderdtest.RecordingAuthorizer{
-			Wrapped: &coderdtest.FakeAuthorizer{},
+		rec := &wirtualdtest.RecordingAuthorizer{
+			Wrapped: &wirtualdtest.FakeAuthorizer{},
 		}
-		subj, obj, action := coderdtest.RandomRBACSubject(), coderdtest.RandomRBACObject(), coderdtest.RandomRBACAction()
+		subj, obj, action := wirtualdtest.RandomRBACSubject(), wirtualdtest.RandomRBACObject(), wirtualdtest.RandomRBACAction()
 
 		// Two identical calls
 		_ = rec.Authorize(ctx, subj, action, obj)
@@ -339,11 +339,11 @@ func TestCache(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		rec := &coderdtest.RecordingAuthorizer{
-			Wrapped: &coderdtest.FakeAuthorizer{},
+		rec := &wirtualdtest.RecordingAuthorizer{
+			Wrapped: &wirtualdtest.FakeAuthorizer{},
 		}
 		authz := rbac.Cacher(rec)
-		subj, obj, action := coderdtest.RandomRBACSubject(), coderdtest.RandomRBACObject(), coderdtest.RandomRBACAction()
+		subj, obj, action := wirtualdtest.RandomRBACSubject(), wirtualdtest.RandomRBACObject(), wirtualdtest.RandomRBACAction()
 
 		// Two identical calls
 		_ = authz.Authorize(ctx, subj, action, obj)
@@ -365,9 +365,9 @@ func TestCache(t *testing.T) {
 				return testutil.RequireRecvCtx(ctx, t, authOut)
 			}
 			ma                = &rbac.MockAuthorizer{AuthorizeFunc: authorizeFunc}
-			rec               = &coderdtest.RecordingAuthorizer{Wrapped: ma}
+			rec               = &wirtualdtest.RecordingAuthorizer{Wrapped: ma}
 			authz             = rbac.Cacher(rec)
-			subj, obj, action = coderdtest.RandomRBACSubject(), coderdtest.RandomRBACObject(), coderdtest.RandomRBACAction()
+			subj, obj, action = wirtualdtest.RandomRBACSubject(), wirtualdtest.RandomRBACObject(), wirtualdtest.RandomRBACAction()
 		)
 
 		// First call will result in a transient error. This should not be cached.
@@ -384,7 +384,7 @@ func TestCache(t *testing.T) {
 		assert.NoError(t, err)
 
 		// Let's change the subject.
-		subj, obj, action = coderdtest.RandomRBACSubject(), coderdtest.RandomRBACObject(), coderdtest.RandomRBACAction()
+		subj, obj, action = wirtualdtest.RandomRBACSubject(), wirtualdtest.RandomRBACObject(), wirtualdtest.RandomRBACAction()
 
 		// A third will be a legit error
 		testutil.RequireSendCtx(ctx, t, authOut, assert.AnError)
@@ -399,23 +399,23 @@ func TestCache(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		rec := &coderdtest.RecordingAuthorizer{
-			Wrapped: &coderdtest.FakeAuthorizer{},
+		rec := &wirtualdtest.RecordingAuthorizer{
+			Wrapped: &wirtualdtest.FakeAuthorizer{},
 		}
 		authz := rbac.Cacher(rec)
-		subj1, obj1, action1 := coderdtest.RandomRBACSubject(), coderdtest.RandomRBACObject(), coderdtest.RandomRBACAction()
+		subj1, obj1, action1 := wirtualdtest.RandomRBACSubject(), wirtualdtest.RandomRBACObject(), wirtualdtest.RandomRBACAction()
 
 		// Two identical calls
 		_ = authz.Authorize(ctx, subj1, action1, obj1)
 		_ = authz.Authorize(ctx, subj1, action1, obj1)
 
 		// Extra unique calls
-		var pairs []coderdtest.ActionObjectPair
-		subj2, obj2, action2 := coderdtest.RandomRBACSubject(), coderdtest.RandomRBACObject(), coderdtest.RandomRBACAction()
+		var pairs []wirtualdtest.ActionObjectPair
+		subj2, obj2, action2 := wirtualdtest.RandomRBACSubject(), wirtualdtest.RandomRBACObject(), wirtualdtest.RandomRBACAction()
 		_ = authz.Authorize(ctx, subj2, action2, obj2)
 		pairs = append(pairs, rec.Pair(action2, obj2))
 
-		obj3, action3 := coderdtest.RandomRBACObject(), coderdtest.RandomRBACAction()
+		obj3, action3 := wirtualdtest.RandomRBACObject(), wirtualdtest.RandomRBACAction()
 		_ = authz.Authorize(ctx, subj2, action3, obj3)
 		pairs = append(pairs, rec.Pair(action3, obj3))
 

@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -30,8 +30,6 @@ import (
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/coder/v2/wirtuald"
 	"github.com/coder/coder/v2/wirtuald/audit"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest/oidctest"
 	"github.com/coder/coder/v2/wirtuald/cryptokeys"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
@@ -41,6 +39,8 @@ import (
 	"github.com/coder/coder/v2/wirtuald/notifications"
 	"github.com/coder/coder/v2/wirtuald/notifications/notificationstest"
 	"github.com/coder/coder/v2/wirtuald/promoauth"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest/oidctest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -58,12 +58,12 @@ func TestOIDCOauthLoginWithExisting(t *testing.T) {
 		oidctest.WithServing(),
 	)
 
-	cfg := fake.OIDCConfig(t, nil, func(cfg *coderd.OIDCConfig) {
+	cfg := fake.OIDCConfig(t, nil, func(cfg *wirtuald.OIDCConfig) {
 		cfg.AllowSignups = true
 		cfg.IgnoreUserInfo = true
 	})
 
-	client, _, api := coderdtest.NewWithAPI(t, &coderdtest.Options{
+	client, _, api := wirtualdtest.NewWithAPI(t, &wirtualdtest.Options{
 		OIDCConfig: cfg,
 	})
 
@@ -89,9 +89,9 @@ func TestUserLogin(t *testing.T) {
 	t.Parallel()
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		anotherClient, anotherUser := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		anotherClient, anotherUser := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 		_, err := anotherClient.LoginWithPassword(context.Background(), wirtualsdk.LoginWithPasswordRequest{
 			Email:    anotherUser.Email,
 			Password: "SomeSecurePassword!",
@@ -100,9 +100,9 @@ func TestUserLogin(t *testing.T) {
 	})
 	t.Run("UserDeleted", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		anotherClient, anotherUser := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		anotherClient, anotherUser := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 		client.DeleteUser(context.Background(), anotherUser.ID)
 		_, err := anotherClient.LoginWithPassword(context.Background(), wirtualsdk.LoginWithPasswordRequest{
 			Email:    anotherUser.Email,
@@ -116,9 +116,9 @@ func TestUserLogin(t *testing.T) {
 
 	t.Run("LoginTypeNone", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		anotherClient, anotherUser := coderdtest.CreateAnotherUserMutators(t, client, user.OrganizationID, nil, func(r *wirtualsdk.CreateUserRequestWithOrgs) {
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		anotherClient, anotherUser := wirtualdtest.CreateAnotherUserMutators(t, client, user.OrganizationID, nil, func(r *wirtualsdk.CreateUserRequestWithOrgs) {
 			r.Password = ""
 			r.UserLoginType = wirtualsdk.LoginTypeNone
 		})
@@ -135,7 +135,7 @@ func TestUserAuthMethods(t *testing.T) {
 	t.Parallel()
 	t.Run("Password", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
+		client := wirtualdtest.New(t, nil)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -147,8 +147,8 @@ func TestUserAuthMethods(t *testing.T) {
 	})
 	t.Run("Github", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
-			GithubOAuth2Config: &coderd.GithubOAuth2Config{},
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
+			GithubOAuth2Config: &wirtuald.GithubOAuth2Config{},
 		})
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
@@ -170,8 +170,8 @@ func TestUserOAuth2Github(t *testing.T) {
 
 	t.Run("NotInAllowedOrganization", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
-			GithubOAuth2Config: &coderd.GithubOAuth2Config{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
+			GithubOAuth2Config: &wirtuald.GithubOAuth2Config{
 				OAuth2Config: &testutil.OAuth2Config{},
 				ListOrganizationMemberships: func(ctx context.Context, client *http.Client) ([]*github.Membership, error) {
 					return []*github.Membership{{
@@ -189,10 +189,10 @@ func TestUserOAuth2Github(t *testing.T) {
 	})
 	t.Run("NotInAllowedTeam", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
-			GithubOAuth2Config: &coderd.GithubOAuth2Config{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
+			GithubOAuth2Config: &wirtuald.GithubOAuth2Config{
 				AllowOrganizations: []string{"coder"},
-				AllowTeams:         []coderd.GithubOAuth2Team{{"another", "something"}, {"coder", "frontend"}},
+				AllowTeams:         []wirtuald.GithubOAuth2Team{{"another", "something"}, {"coder", "frontend"}},
 				OAuth2Config:       &testutil.OAuth2Config{},
 				ListOrganizationMemberships: func(ctx context.Context, client *http.Client) ([]*github.Membership, error) {
 					return []*github.Membership{{
@@ -220,8 +220,8 @@ func TestUserOAuth2Github(t *testing.T) {
 	})
 	t.Run("UnverifiedEmail", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
-			GithubOAuth2Config: &coderd.GithubOAuth2Config{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
+			GithubOAuth2Config: &wirtuald.GithubOAuth2Config{
 				OAuth2Config:       &testutil.OAuth2Config{},
 				AllowOrganizations: []string{"coder"},
 				ListOrganizationMemberships: func(ctx context.Context, client *http.Client) ([]*github.Membership, error) {
@@ -244,7 +244,7 @@ func TestUserOAuth2Github(t *testing.T) {
 			},
 		})
 
-		_ = coderdtest.CreateFirstUser(t, client)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		resp := oauth2Callback(t, client)
 
@@ -252,8 +252,8 @@ func TestUserOAuth2Github(t *testing.T) {
 	})
 	t.Run("BlockSignups", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
-			GithubOAuth2Config: &coderd.GithubOAuth2Config{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
+			GithubOAuth2Config: &wirtuald.GithubOAuth2Config{
 				OAuth2Config:       &testutil.OAuth2Config{},
 				AllowOrganizations: []string{"coder"},
 				ListOrganizationMemberships: func(ctx context.Context, client *http.Client) ([]*github.Membership, error) {
@@ -287,8 +287,8 @@ func TestUserOAuth2Github(t *testing.T) {
 	})
 	t.Run("MultiLoginNotAllowed", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
-			GithubOAuth2Config: &coderd.GithubOAuth2Config{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
+			GithubOAuth2Config: &wirtuald.GithubOAuth2Config{
 				OAuth2Config:       &testutil.OAuth2Config{},
 				AllowOrganizations: []string{"coder"},
 				ListOrganizationMemberships: func(ctx context.Context, client *http.Client) ([]*github.Membership, error) {
@@ -317,7 +317,7 @@ func TestUserOAuth2Github(t *testing.T) {
 		})
 
 		// Creates the first user with login_type 'password'.
-		_ = coderdtest.CreateFirstUser(t, client)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		// Attempting to login should give us a 403 since the user
 		// already has a login_type of 'password'.
@@ -328,9 +328,9 @@ func TestUserOAuth2Github(t *testing.T) {
 	t.Run("Signup", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			Auditor: auditor,
-			GithubOAuth2Config: &coderd.GithubOAuth2Config{
+			GithubOAuth2Config: &wirtuald.GithubOAuth2Config{
 				OAuth2Config:       &testutil.OAuth2Config{},
 				AllowOrganizations: []string{"coder"},
 				AllowSignups:       true,
@@ -396,9 +396,9 @@ func TestUserOAuth2Github(t *testing.T) {
 	t.Run("SignupWeirdName", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			Auditor: auditor,
-			GithubOAuth2Config: &coderd.GithubOAuth2Config{
+			GithubOAuth2Config: &wirtuald.GithubOAuth2Config{
 				OAuth2Config:       &testutil.OAuth2Config{},
 				AllowOrganizations: []string{"coder"},
 				AllowSignups:       true,
@@ -450,12 +450,12 @@ func TestUserOAuth2Github(t *testing.T) {
 	t.Run("SignupAllowedTeam", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			Auditor: auditor,
-			GithubOAuth2Config: &coderd.GithubOAuth2Config{
+			GithubOAuth2Config: &wirtuald.GithubOAuth2Config{
 				AllowSignups:       true,
 				AllowOrganizations: []string{"coder"},
-				AllowTeams:         []coderd.GithubOAuth2Team{{"coder", "frontend"}},
+				AllowTeams:         []wirtuald.GithubOAuth2Team{{"coder", "frontend"}},
 				OAuth2Config:       &testutil.OAuth2Config{},
 				ListOrganizationMemberships: func(ctx context.Context, client *http.Client) ([]*github.Membership, error) {
 					return []*github.Membership{{
@@ -507,12 +507,12 @@ func TestUserOAuth2Github(t *testing.T) {
 	t.Run("SignupAllowedTeamInFirstOrganization", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			Auditor: auditor,
-			GithubOAuth2Config: &coderd.GithubOAuth2Config{
+			GithubOAuth2Config: &wirtuald.GithubOAuth2Config{
 				AllowSignups:       true,
 				AllowOrganizations: []string{"coder", "nil"},
-				AllowTeams:         []coderd.GithubOAuth2Team{{"coder", "backend"}},
+				AllowTeams:         []wirtuald.GithubOAuth2Team{{"coder", "backend"}},
 				OAuth2Config:       &testutil.OAuth2Config{},
 				ListOrganizationMemberships: func(ctx context.Context, client *http.Client) ([]*github.Membership, error) {
 					return []*github.Membership{
@@ -570,12 +570,12 @@ func TestUserOAuth2Github(t *testing.T) {
 	t.Run("SignupAllowedTeamInSecondOrganization", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			Auditor: auditor,
-			GithubOAuth2Config: &coderd.GithubOAuth2Config{
+			GithubOAuth2Config: &wirtuald.GithubOAuth2Config{
 				AllowSignups:       true,
 				AllowOrganizations: []string{"coder", "nil"},
-				AllowTeams:         []coderd.GithubOAuth2Team{{"nil", "null"}},
+				AllowTeams:         []wirtuald.GithubOAuth2Team{{"nil", "null"}},
 				OAuth2Config:       &testutil.OAuth2Config{},
 				ListOrganizationMemberships: func(ctx context.Context, client *http.Client) ([]*github.Membership, error) {
 					return []*github.Membership{
@@ -632,9 +632,9 @@ func TestUserOAuth2Github(t *testing.T) {
 	t.Run("SignupAllowEveryone", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			Auditor: auditor,
-			GithubOAuth2Config: &coderd.GithubOAuth2Config{
+			GithubOAuth2Config: &wirtuald.GithubOAuth2Config{
 				AllowSignups:  true,
 				AllowEveryone: true,
 				OAuth2Config:  &testutil.OAuth2Config{},
@@ -679,9 +679,9 @@ func TestUserOAuth2Github(t *testing.T) {
 	t.Run("SignupReplaceUnderscores", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			Auditor: auditor,
-			GithubOAuth2Config: &coderd.GithubOAuth2Config{
+			GithubOAuth2Config: &wirtuald.GithubOAuth2Config{
 				AllowSignups:  true,
 				AllowEveryone: true,
 				OAuth2Config:  &testutil.OAuth2Config{},
@@ -722,11 +722,11 @@ func TestUserOAuth2Github(t *testing.T) {
 	})
 	t.Run("SignupFailedInactiveInOrg", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{
-			GithubOAuth2Config: &coderd.GithubOAuth2Config{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
+			GithubOAuth2Config: &wirtuald.GithubOAuth2Config{
 				AllowSignups:       true,
 				AllowOrganizations: []string{"coder"},
-				AllowTeams:         []coderd.GithubOAuth2Team{{"coder", "frontend"}},
+				AllowTeams:         []wirtuald.GithubOAuth2Team{{"coder", "frontend"}},
 				OAuth2Config:       &testutil.OAuth2Config{},
 				ListOrganizationMemberships: func(ctx context.Context, client *http.Client) ([]*github.Membership, error) {
 					return []*github.Membership{{
@@ -789,9 +789,9 @@ func TestUserOAuth2Github(t *testing.T) {
 			coderEmail,
 		}
 
-		owner, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
+		owner, db := wirtualdtest.NewWithDatabase(t, &wirtualdtest.Options{
 			Auditor: auditor,
-			GithubOAuth2Config: &coderd.GithubOAuth2Config{
+			GithubOAuth2Config: &wirtuald.GithubOAuth2Config{
 				AllowSignups:  true,
 				AllowEveryone: true,
 				OAuth2Config:  promoauth.NewFactory(prometheus.NewRegistry()).NewGithub("test-github", fake.OIDCConfig(t, []string{})),
@@ -813,7 +813,7 @@ func TestUserOAuth2Github(t *testing.T) {
 				},
 			},
 		})
-		first := coderdtest.CreateFirstUser(t, owner)
+		first := wirtualdtest.CreateFirstUser(t, owner)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 		ownerUser, err := owner.User(context.Background(), "me")
@@ -830,7 +830,7 @@ func TestUserOAuth2Github(t *testing.T) {
 		err = owner.DeleteUser(ctx, deleted.ID)
 		require.NoError(t, err)
 		// Check no user links for the user
-		links, err := db.GetUserLinksByUserID(dbauthz.As(ctx, coderdtest.AuthzUserSubject(ownerUser, first.OrganizationID)), deleted.ID)
+		links, err := db.GetUserLinksByUserID(dbauthz.As(ctx, wirtualdtest.AuthzUserSubject(ownerUser, first.OrganizationID)), deleted.ID)
 		require.NoError(t, err)
 		require.Empty(t, links)
 
@@ -1262,7 +1262,7 @@ func TestUserOIDC(t *testing.T) {
 				oidctest.WithServing(),
 				oidctest.WithStaticUserInfo(tc.UserInfoClaims),
 			)
-			cfg := fake.OIDCConfig(t, nil, func(cfg *coderd.OIDCConfig) {
+			cfg := fake.OIDCConfig(t, nil, func(cfg *wirtuald.OIDCConfig) {
 				cfg.AllowSignups = tc.AllowSignups
 				cfg.EmailDomain = tc.EmailDomain
 				cfg.IgnoreEmailVerified = tc.IgnoreEmailVerified
@@ -1272,7 +1272,7 @@ func TestUserOIDC(t *testing.T) {
 
 			auditor := audit.NewMock()
 			logger := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true}).Leveled(slog.LevelDebug)
-			owner := coderdtest.New(t, &coderdtest.Options{
+			owner := wirtualdtest.New(t, &wirtualdtest.Options{
 				Auditor:    auditor,
 				OIDCConfig: cfg,
 				Logger:     &logger,
@@ -1312,12 +1312,12 @@ func TestUserOIDC(t *testing.T) {
 			}),
 			oidctest.WithServing(),
 		)
-		cfg := fake.OIDCConfig(t, nil, func(cfg *coderd.OIDCConfig) {
+		cfg := fake.OIDCConfig(t, nil, func(cfg *wirtuald.OIDCConfig) {
 			cfg.AllowSignups = true
 		})
 
 		logger := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true}).Leveled(slog.LevelDebug)
-		owner, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
+		owner, db := wirtualdtest.NewWithDatabase(t, &wirtualdtest.Options{
 			Auditor:    auditor,
 			OIDCConfig: cfg,
 			Logger:     &logger,
@@ -1354,17 +1354,17 @@ func TestUserOIDC(t *testing.T) {
 			}),
 			oidctest.WithServing(),
 		)
-		cfg := fake.OIDCConfig(t, nil, func(cfg *coderd.OIDCConfig) {
+		cfg := fake.OIDCConfig(t, nil, func(cfg *wirtuald.OIDCConfig) {
 			cfg.AllowSignups = true
 		})
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			Auditor:    auditor,
 			OIDCConfig: cfg,
 		})
 
-		owner := coderdtest.CreateFirstUser(t, client)
-		user, userData := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		user, userData := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 		require.Equal(t, wirtualsdk.LoginTypePassword, userData.LoginType)
 
 		claims := jwt.MapClaims{
@@ -1414,7 +1414,7 @@ func TestUserOIDC(t *testing.T) {
 			}),
 			oidctest.WithServing(),
 		)
-		cfg := fake.OIDCConfig(t, nil, func(cfg *coderd.OIDCConfig) {
+		cfg := fake.OIDCConfig(t, nil, func(cfg *wirtuald.OIDCConfig) {
 			cfg.AllowSignups = true
 		})
 
@@ -1426,7 +1426,7 @@ func TestUserOIDC(t *testing.T) {
 		kc, err := cryptokeys.NewSigningCache(ctx, logger, fetcher, wirtualsdk.CryptoKeyFeatureOIDCConvert)
 		require.NoError(t, err)
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			Auditor:             auditor,
 			OIDCConfig:          cfg,
 			Database:            db,
@@ -1434,8 +1434,8 @@ func TestUserOIDC(t *testing.T) {
 			OIDCConvertKeyCache: kc,
 		})
 
-		owner := coderdtest.CreateFirstUser(t, client)
-		user, userData := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		user, userData := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		claims := jwt.MapClaims{
 			"email": userData.Email,
@@ -1460,12 +1460,12 @@ func TestUserOIDC(t *testing.T) {
 
 			cookies := user.HTTPClient.Jar.Cookies(user.URL)
 			for i, cookie := range cookies {
-				if cookie.Name != coderd.OAuthConvertCookieValue {
+				if cookie.Name != wirtuald.OAuthConvertCookieValue {
 					continue
 				}
 
 				jwt := cookie.Value
-				var claims coderd.OAuthConvertStateClaims
+				var claims wirtuald.OAuthConvertStateClaims
 				err := jwtutils.Verify(ctx, kc, jwt, &claims)
 				require.NoError(t, err)
 				badJWT := generateBadJWT(t, claims)
@@ -1497,11 +1497,11 @@ func TestUserOIDC(t *testing.T) {
 			}),
 			oidctest.WithServing(),
 		)
-		cfg := fake.OIDCConfig(t, nil, func(cfg *coderd.OIDCConfig) {
+		cfg := fake.OIDCConfig(t, nil, func(cfg *wirtuald.OIDCConfig) {
 			cfg.AllowSignups = true
 		})
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			Auditor:    auditor,
 			OIDCConfig: cfg,
 		})
@@ -1537,7 +1537,7 @@ func TestUserOIDC(t *testing.T) {
 
 	t.Run("Disabled", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
+		client := wirtualdtest.New(t, nil)
 		oauthURL, err := client.URL.Parse("/api/v2/users/oidc/callback")
 		require.NoError(t, err)
 
@@ -1558,11 +1558,11 @@ func TestUserOIDC(t *testing.T) {
 			}),
 			oidctest.WithServing(),
 		)
-		cfg := fake.OIDCConfig(t, nil, func(cfg *coderd.OIDCConfig) {
+		cfg := fake.OIDCConfig(t, nil, func(cfg *wirtuald.OIDCConfig) {
 			cfg.AllowSignups = true
 		})
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			OIDCConfig: cfg,
 		})
 
@@ -1583,13 +1583,13 @@ func TestUserOIDC(t *testing.T) {
 			}),
 			oidctest.WithServing(),
 		)
-		cfg := fake.OIDCConfig(t, nil, func(cfg *coderd.OIDCConfig) {
+		cfg := fake.OIDCConfig(t, nil, func(cfg *wirtuald.OIDCConfig) {
 			cfg.AllowSignups = true
 			cfg.Provider = badProvider
 			cfg.Verifier = badVerifier
 		})
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			OIDCConfig: cfg,
 		})
 
@@ -1612,11 +1612,11 @@ func TestUserOIDC(t *testing.T) {
 			oidctest.WithServing(),
 			oidctest.WithCallbackPath(callbackPath),
 		)
-		cfg := fake.OIDCConfig(t, nil, func(cfg *coderd.OIDCConfig) {
+		cfg := fake.OIDCConfig(t, nil, func(cfg *wirtuald.OIDCConfig) {
 			cfg.AllowSignups = true
 		})
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			OIDCConfig: cfg,
 		})
 
@@ -1658,11 +1658,11 @@ func TestUserLogout(t *testing.T) {
 	// testing.
 	db, pubSub := dbtestutil.NewDB(t)
 
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := wirtualdtest.New(t, &wirtualdtest.Options{
 		Database: db,
 		Pubsub:   pubSub,
 	})
-	firstUser := coderdtest.CreateFirstUser(t, client)
+	firstUser := wirtualdtest.CreateFirstUser(t, client)
 
 	ctx := testutil.Context(t, testutil.WaitLong)
 
@@ -1755,7 +1755,7 @@ func TestUserLogout(t *testing.T) {
 	}
 }
 
-// TestOIDCSkipIssuer verifies coderd can run without checking the issuer url
+// TestOIDCSkipIssuer verifies wirtuald can run without checking the issuer url
 // in the OIDC exchange. This means the WIRTUAL_OIDC_ISSUER_URL does not need
 // to match the id_token `iss` field, or the value returned in the well-known
 // config.
@@ -1782,8 +1782,8 @@ func TestOIDCSkipIssuer(t *testing.T) {
 		}),
 	)
 
-	owner := coderdtest.New(t, &coderdtest.Options{
-		OIDCConfig: fake.OIDCConfigSkipIssuerChecks(t, nil, func(cfg *coderd.OIDCConfig) {
+	owner := wirtualdtest.New(t, &wirtualdtest.Options{
+		OIDCConfig: fake.OIDCConfigSkipIssuerChecks(t, nil, func(cfg *wirtuald.OIDCConfig) {
 			cfg.AllowSignups = true
 		}),
 	})
@@ -1857,15 +1857,15 @@ func TestUserForgotPassword(t *testing.T) {
 
 		notifyEnq := &notificationstest.FakeEnqueuer{}
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			NotificationsEnqueuer: notifyEnq,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		anotherClient, anotherUser := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		anotherClient, anotherUser := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		// First try to login before changing our password. We expected this to error
 		// as we haven't change the password yet.
@@ -1898,16 +1898,16 @@ func TestUserForgotPassword(t *testing.T) {
 
 		notifyEnq := &notificationstest.FakeEnqueuer{}
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			NotificationsEnqueuer:         notifyEnq,
 			OneTimePasscodeValidityPeriod: oneTimePasscodeValidityPeriod,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		anotherClient, anotherUser := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		anotherClient, anotherUser := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		oneTimePasscode := requireRequestOneTimePasscode(t, ctx, anotherClient, notifyEnq, anotherUser.Email, anotherUser.ID)
 
@@ -1935,15 +1935,15 @@ func TestUserForgotPassword(t *testing.T) {
 
 		notifyEnq := &notificationstest.FakeEnqueuer{}
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			NotificationsEnqueuer: notifyEnq,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		anotherClient, anotherUser := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		anotherClient, anotherUser := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		err := anotherClient.ChangePasswordWithOneTimePasscode(ctx, wirtualsdk.ChangePasswordWithOneTimePasscodeRequest{
 			Email:           anotherUser.Email,
@@ -1964,15 +1964,15 @@ func TestUserForgotPassword(t *testing.T) {
 
 		notifyEnq := &notificationstest.FakeEnqueuer{}
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			NotificationsEnqueuer: notifyEnq,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		anotherClient, anotherUser := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		anotherClient, anotherUser := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		_ = requireRequestOneTimePasscode(t, ctx, anotherClient, notifyEnq, anotherUser.Email, anotherUser.ID)
 
@@ -1995,15 +1995,15 @@ func TestUserForgotPassword(t *testing.T) {
 
 		notifyEnq := &notificationstest.FakeEnqueuer{}
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			NotificationsEnqueuer: notifyEnq,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		anotherClient, anotherUser := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		anotherClient, anotherUser := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		_ = requireRequestOneTimePasscode(t, ctx, anotherClient, notifyEnq, anotherUser.Email, anotherUser.ID)
 
@@ -2028,15 +2028,15 @@ func TestUserForgotPassword(t *testing.T) {
 
 		notifyEnq := &notificationstest.FakeEnqueuer{}
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			NotificationsEnqueuer: notifyEnq,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		anotherClient, anotherUser := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		anotherClient, anotherUser := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		oneTimePasscode := requireRequestOneTimePasscode(t, ctx, anotherClient, notifyEnq, anotherUser.Email, anotherUser.ID)
 
@@ -2061,16 +2061,16 @@ func TestUserForgotPassword(t *testing.T) {
 
 		notifyEnq := &notificationstest.FakeEnqueuer{}
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			NotificationsEnqueuer: notifyEnq,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		anotherClient, anotherUser := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
-		thirdClient, thirdUser := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		anotherClient, anotherUser := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		thirdClient, thirdUser := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		// Request a One-Time Passcode for `anotherUser`
 		oneTimePasscode := requireRequestOneTimePasscode(t, ctx, anotherClient, notifyEnq, anotherUser.Email, anotherUser.ID)
@@ -2096,15 +2096,15 @@ func TestUserForgotPassword(t *testing.T) {
 
 		notifyEnq := &notificationstest.FakeEnqueuer{}
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			NotificationsEnqueuer: notifyEnq,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		anotherClient, _ := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 
 		err := anotherClient.RequestOneTimePasscode(ctx, wirtualsdk.RequestOneTimePasscodeRequest{
 			Email: "not-a-member@coder.com",

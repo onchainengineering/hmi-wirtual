@@ -498,7 +498,7 @@ func (c *DeviceAuth) formatDeviceCodeURL() (string, error) {
 }
 
 // ConvertConfig converts the SDK configuration entry format
-// to the parsed and ready-to-consume in coderd provider type.
+// to the parsed and ready-to-consume in wirtuald provider type.
 func ConvertConfig(instrument *promoauth.Factory, entries []wirtualsdk.ExternalAuthConfig, accessURL *url.URL) ([]*Config, error) {
 	ids := map[string]struct{}{}
 	configs := []*Config{}

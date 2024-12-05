@@ -12,8 +12,8 @@ import (
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -21,14 +21,14 @@ func TestDelete(t *testing.T) {
 	t.Parallel()
 	t.Run("WithParameter", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, member, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		member, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, member, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 		inv, root := clitest.New(t, "delete", workspace.Name, "-y")
 		clitest.SetupConfig(t, member, root)
 		doneChan := make(chan struct{})
@@ -47,13 +47,13 @@ func TestDelete(t *testing.T) {
 
 	t.Run("Orphan", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 		inv, root := clitest.New(t, "delete", workspace.Name, "-y", "--orphan")
 
 		//nolint:gocritic // Deleting orphaned workspaces requires an admin.
@@ -80,14 +80,14 @@ func TestDelete(t *testing.T) {
 	// force a delete action on the workspace.
 	t.Run("OrphanDeletedUser", func(t *testing.T) {
 		t.Parallel()
-		client, _, api := coderdtest.NewWithAPI(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		deleteMeClient, deleteMeUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, deleteMeClient, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, deleteMeClient, workspace.LatestBuild.ID)
+		client, _, api := wirtualdtest.NewWithAPI(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		deleteMeClient, deleteMeUser := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, deleteMeClient, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, deleteMeClient, workspace.LatestBuild.ID)
 
 		// The API checks if the user has any workspaces, so we cannot delete a user
 		// this way.
@@ -117,18 +117,18 @@ func TestDelete(t *testing.T) {
 
 	t.Run("DifferentUser", func(t *testing.T) {
 		t.Parallel()
-		adminClient := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		adminUser := coderdtest.CreateFirstUser(t, adminClient)
+		adminClient := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		adminUser := wirtualdtest.CreateFirstUser(t, adminClient)
 		orgID := adminUser.OrganizationID
-		client, _ := coderdtest.CreateAnotherUser(t, adminClient, orgID)
+		client, _ := wirtualdtest.CreateAnotherUser(t, adminClient, orgID)
 		user, err := client.User(context.Background(), wirtualsdk.Me)
 		require.NoError(t, err)
 
-		version := coderdtest.CreateTemplateVersion(t, adminClient, orgID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, adminClient, version.ID)
-		template := coderdtest.CreateTemplate(t, adminClient, orgID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		version := wirtualdtest.CreateTemplateVersion(t, adminClient, orgID, nil)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, adminClient, version.ID)
+		template := wirtualdtest.CreateTemplate(t, adminClient, orgID, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		inv, root := clitest.New(t, "delete", user.Username+"/"+workspace.Name, "-y")
 		//nolint:gocritic // This requires an admin.
@@ -153,7 +153,7 @@ func TestDelete(t *testing.T) {
 
 	t.Run("InvalidWorkspaceIdentifier", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
+		client := wirtualdtest.New(t, nil)
 		inv, root := clitest.New(t, "delete", "a/b/c", "-y")
 		clitest.SetupConfig(t, client, root)
 		doneChan := make(chan struct{})

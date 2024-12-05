@@ -1,4 +1,4 @@
-package coderd
+package wirtuald
 
 import (
 	"context"
@@ -148,7 +148,7 @@ func (api *API) postConvertLoginType(rw http.ResponseWriter, r *http.Request) {
 	stateString = fmt.Sprintf("%s%s", mergeStateStringPrefix, stateString)
 
 	// This JWT is the signed payload to authorize the convert to oauth request.
-	// When the user does the oauth flow, this jwt will be sent back to coderd.
+	// When the user does the oauth flow, this jwt will be sent back to wirtuald.
 	// The included information in this payload links it to a state string, so
 	// this request is tied 1:1 with an oauth state.
 	// This JWT also includes information to tie it 1:1 with a coder deployment

@@ -10,8 +10,8 @@ import (
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/cli/config"
 	"github.com/coder/coder/v2/enterprise/cli"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/serpent"
 )
 
@@ -37,8 +37,8 @@ func TestCheckWarnings(t *testing.T) {
 
 	t.Run("LicenseWarningForPrivilegedRoles", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				ExpiresAt: time.Now().Add(time.Hour * 24),
 			},
 		})
@@ -57,13 +57,13 @@ func TestCheckWarnings(t *testing.T) {
 
 	t.Run("NoLicenseWarningForRegularUser", func(t *testing.T) {
 		t.Parallel()
-		adminClient, admin := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		adminClient, admin := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				ExpiresAt: time.Now().Add(time.Hour * 24),
 			},
 		})
 
-		client, _ := coderdtest.CreateAnotherUser(t, adminClient, admin.OrganizationID)
+		client, _ := wirtualdtest.CreateAnotherUser(t, adminClient, admin.OrganizationID)
 
 		inv, conf := newCLI(t, "list")
 

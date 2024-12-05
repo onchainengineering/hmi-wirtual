@@ -6,7 +6,7 @@ Learn how to spin up & manage Coder infrastructure.
 
 Coder is a self-hosted platform that runs on your own servers. For large
 deployments, we recommend running the control plane on Kubernetes. Workspaces
-can be run as VMs or Kubernetes pods. The control plane (`coderd`) runs in a
+can be run as VMs or Kubernetes pods. The control plane (`wirtuald`) runs in a
 single region. However, workspace proxies, provisioners, and workspaces can run
 across regions or even cloud providers for the optimal developer experience.
 

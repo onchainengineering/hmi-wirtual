@@ -9,25 +9,25 @@ import (
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 )
 
 func TestRename(t *testing.T) {
 	t.Parallel()
 
-	client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true, AllowWorkspaceRenames: true})
-	owner := coderdtest.CreateFirstUser(t, client)
-	member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-	version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, member, template.ID)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true, AllowWorkspaceRenames: true})
+	owner := wirtualdtest.CreateFirstUser(t, client)
+	member, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+	version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+	workspace := wirtualdtest.CreateWorkspace(t, member, template.ID)
+	wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
 
-	want := coderdtest.RandomUsername(t)
+	want := wirtualdtest.RandomUsername(t)
 	inv, root := clitest.New(t, "rename", workspace.Name, want, "--yes")
 	clitest.SetupConfig(t, member, root)
 	pty := ptytest.New(t)

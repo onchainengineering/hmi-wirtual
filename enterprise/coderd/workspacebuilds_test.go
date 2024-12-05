@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"net/http"
@@ -6,11 +6,11 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -20,11 +20,11 @@ func TestWorkspaceBuild(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		ownerClient, owner := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		ownerClient, owner := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureAccessControl:              1,
 					wirtualsdk.FeatureTemplateRBAC:               1,
@@ -34,32 +34,32 @@ func TestWorkspaceBuild(t *testing.T) {
 		})
 
 		// Create an initial version.
-		oldVersion := coderdtest.CreateTemplateVersion(t, ownerClient, owner.OrganizationID, nil)
+		oldVersion := wirtualdtest.CreateTemplateVersion(t, ownerClient, owner.OrganizationID, nil)
 		// Create a template that mandates the promoted version.
 		// This should be enforced for everyone except template admins.
-		template := coderdtest.CreateTemplate(t, ownerClient, owner.OrganizationID, oldVersion.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, ownerClient, oldVersion.ID)
+		template := wirtualdtest.CreateTemplate(t, ownerClient, owner.OrganizationID, oldVersion.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, ownerClient, oldVersion.ID)
 		require.Equal(t, oldVersion.ID, template.ActiveVersionID)
-		template = coderdtest.UpdateTemplateMeta(t, ownerClient, template.ID, wirtualsdk.UpdateTemplateMeta{
+		template = wirtualdtest.UpdateTemplateMeta(t, ownerClient, template.ID, wirtualsdk.UpdateTemplateMeta{
 			RequireActiveVersion: true,
 		})
 		require.True(t, template.RequireActiveVersion)
 
 		// Create a new version that we will promote.
-		activeVersion := coderdtest.CreateTemplateVersion(t, ownerClient, owner.OrganizationID, nil, func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
+		activeVersion := wirtualdtest.CreateTemplateVersion(t, ownerClient, owner.OrganizationID, nil, func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
 			ctvr.TemplateID = template.ID
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, ownerClient, activeVersion.ID)
-		coderdtest.UpdateActiveTemplateVersion(t, ownerClient, template.ID, activeVersion.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, ownerClient, activeVersion.ID)
+		wirtualdtest.UpdateActiveTemplateVersion(t, ownerClient, template.ID, activeVersion.ID)
 
-		templateAdminClient, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		templateACLAdminClient, templateACLAdmin := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
-		templateGroupACLAdminClient, templateGroupACLAdmin := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
-		memberClient, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+		templateAdminClient, _ := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		templateACLAdminClient, templateACLAdmin := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+		templateGroupACLAdminClient, templateGroupACLAdmin := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+		memberClient, _ := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
 
 		// Create a group so we can also test group template admin ownership.
 		// Add the user who gains template admin via group membership.
-		group := coderdtest.CreateGroup(t, ownerClient, owner.OrganizationID, "test", templateGroupACLAdmin)
+		group := wirtualdtest.CreateGroup(t, ownerClient, owner.OrganizationID, "test", templateGroupACLAdmin)
 
 		// Update the template for both users and groups.
 		//nolint:gocritic // test setup

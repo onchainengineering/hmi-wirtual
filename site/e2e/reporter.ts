@@ -10,7 +10,7 @@ import type {
 	TestResult,
 } from "@playwright/test/reporter";
 import { API } from "api/api";
-import { coderdPProfPort, license } from "./constants";
+import { wirtualdPProfPort, license } from "./constants";
 
 class CoderReporter implements Reporter {
 	config: FullConfig | null = null;
@@ -144,7 +144,7 @@ const logLines = (chunk: string | Buffer): string[] => {
 const exportDebugPprof = async (outputFile: string) => {
 	const axiosInstance = API.getAxiosInstance();
 	const response = await axiosInstance.get(
-		`http://127.0.0.1:${coderdPProfPort}/debug/pprof/goroutine?debug=1`,
+		`http://127.0.0.1:${wirtualdPProfPort}/debug/pprof/goroutine?debug=1`,
 	);
 
 	if (response.status !== 200) {

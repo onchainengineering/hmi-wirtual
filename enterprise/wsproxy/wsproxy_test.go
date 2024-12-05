@@ -25,17 +25,17 @@ import (
 	"github.com/coder/coder/v2/agent/agenttest"
 	"github.com/coder/coder/v2/buildinfo"
 	"github.com/coder/coder/v2/cryptorand"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/enterprise/wsproxy/wsproxysdk"
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbgen"
 	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
 	"github.com/coder/coder/v2/wirtuald/healthcheck/derphealth"
 	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/workspaceapps/apptest"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
@@ -45,13 +45,13 @@ import (
 func TestDERPOnly(t *testing.T) {
 	t.Parallel()
 
-	deploymentValues := coderdtest.DeploymentValues(t)
+	deploymentValues := wirtualdtest.DeploymentValues(t)
 	deploymentValues.Experiments = []string{
 		"*",
 	}
 
-	client, closer, api, _ := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-		Options: &coderdtest.Options{
+	client, closer, api, _ := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{
+		Options: &wirtualdtest.Options{
 			DeploymentValues:         deploymentValues,
 			AppHostname:              "*.primary.test.coder.com",
 			IncludeProvisionerDaemon: true,
@@ -65,7 +65,7 @@ func TestDERPOnly(t *testing.T) {
 				},
 			},
 		},
-		LicenseOptions: &coderdenttest.LicenseOptions{
+		LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureWorkspaceProxy:        1,
 				wirtualsdk.FeatureMultipleOrganizations: 1,
@@ -77,7 +77,7 @@ func TestDERPOnly(t *testing.T) {
 	})
 
 	// Create an external proxy.
-	_ = coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
+	_ = wirtualdenttest.NewWorkspaceProxyReplica(t, api, client, &wirtualdenttest.ProxyOptions{
 		Name:     "best-proxy",
 		DerpOnly: true,
 	})
@@ -93,13 +93,13 @@ func TestDERPOnly(t *testing.T) {
 func TestDERP(t *testing.T) {
 	t.Parallel()
 
-	deploymentValues := coderdtest.DeploymentValues(t)
+	deploymentValues := wirtualdtest.DeploymentValues(t)
 	deploymentValues.Experiments = []string{
 		"*",
 	}
 
-	client, closer, api, user := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-		Options: &coderdtest.Options{
+	client, closer, api, user := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{
+		Options: &wirtualdtest.Options{
 			DeploymentValues:         deploymentValues,
 			AppHostname:              "*.primary.test.coder.com",
 			IncludeProvisionerDaemon: true,
@@ -113,7 +113,7 @@ func TestDERP(t *testing.T) {
 				},
 			},
 		},
-		LicenseOptions: &coderdenttest.LicenseOptions{
+		LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureWorkspaceProxy:        1,
 				wirtualsdk.FeatureMultipleOrganizations: 1,
@@ -125,15 +125,15 @@ func TestDERP(t *testing.T) {
 	})
 
 	// Create two running external proxies.
-	proxyAPI1 := coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
+	proxyAPI1 := wirtualdenttest.NewWorkspaceProxyReplica(t, api, client, &wirtualdenttest.ProxyOptions{
 		Name: "best-proxy",
 	})
-	proxyAPI2 := coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
+	proxyAPI2 := wirtualdenttest.NewWorkspaceProxyReplica(t, api, client, &wirtualdenttest.ProxyOptions{
 		Name: "worst-proxy",
 	})
 
 	// Create a running external proxy with DERP disabled.
-	proxyAPI3 := coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
+	proxyAPI3 := wirtualdenttest.NewWorkspaceProxyReplica(t, api, client, &wirtualdenttest.ProxyOptions{
 		Name:         "no-derp-proxy",
 		DerpDisabled: true,
 	})
@@ -174,14 +174,14 @@ func TestDERP(t *testing.T) {
 
 	// Create a workspace + apps
 	authToken := uuid.NewString()
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse:          echo.ParseComplete,
 		ProvisionApply: echo.ProvisionApplyWithAgent(authToken),
 	})
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-	build := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+	build := wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 	workspace.LatestBuild = build
 
 	agentID := uuid.Nil
@@ -196,7 +196,7 @@ resourceLoop:
 
 	// Connect an agent to the workspace
 	_ = agenttest.New(t, client.URL, authToken)
-	_ = coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+	_ = wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 	t.Run("ReturnedInDERPMap", func(t *testing.T) {
 		t.Parallel()
@@ -325,14 +325,14 @@ resourceLoop:
 func TestDERPEndToEnd(t *testing.T) {
 	t.Parallel()
 
-	deploymentValues := coderdtest.DeploymentValues(t)
+	deploymentValues := wirtualdtest.DeploymentValues(t)
 	deploymentValues.Experiments = []string{
 		"*",
 	}
 	deploymentValues.DERP.Config.BlockDirect = true
 
-	client, closer, api, user := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-		Options: &coderdtest.Options{
+	client, closer, api, user := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{
+		Options: &wirtualdtest.Options{
 			DeploymentValues:         deploymentValues,
 			AppHostname:              "*.primary.test.coder.com",
 			IncludeProvisionerDaemon: true,
@@ -346,7 +346,7 @@ func TestDERPEndToEnd(t *testing.T) {
 				},
 			},
 		},
-		LicenseOptions: &coderdenttest.LicenseOptions{
+		LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureWorkspaceProxy:        1,
 				wirtualsdk.FeatureMultipleOrganizations: 1,
@@ -357,7 +357,7 @@ func TestDERPEndToEnd(t *testing.T) {
 		_ = closer.Close()
 	})
 
-	coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
+	wirtualdenttest.NewWorkspaceProxyReplica(t, api, client, &wirtualdenttest.ProxyOptions{
 		Name: "best-proxy",
 	})
 
@@ -412,14 +412,14 @@ func TestDERPEndToEnd(t *testing.T) {
 
 	// Create a workspace + apps
 	authToken := uuid.NewString()
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse:          echo.ParseComplete,
 		ProvisionApply: echo.ProvisionApplyWithAgent(authToken),
 	})
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-	build := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+	build := wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 	workspace.LatestBuild = build
 
 	agentID := uuid.Nil
@@ -434,7 +434,7 @@ resourceLoop:
 
 	// Connect an agent to the workspace
 	_ = agenttest.New(t, client.URL, authToken)
-	_ = coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+	_ = wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 	// Connect to the workspace agent.
 	conn, err := workspacesdk.New(client).
@@ -464,13 +464,13 @@ resourceLoop:
 func TestDERPMesh(t *testing.T) {
 	t.Parallel()
 
-	deploymentValues := coderdtest.DeploymentValues(t)
+	deploymentValues := wirtualdtest.DeploymentValues(t)
 	deploymentValues.Experiments = []string{
 		"*",
 	}
 
-	client, closer, api, _ := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-		Options: &coderdtest.Options{
+	client, closer, api, _ := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{
+		Options: &wirtualdtest.Options{
 			DeploymentValues:         deploymentValues,
 			AppHostname:              "*.primary.test.coder.com",
 			IncludeProvisionerDaemon: true,
@@ -484,7 +484,7 @@ func TestDERPMesh(t *testing.T) {
 				},
 			},
 		},
-		LicenseOptions: &coderdenttest.LicenseOptions{
+		LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureWorkspaceProxy:        1,
 				wirtualsdk.FeatureMultipleOrganizations: 1,
@@ -502,11 +502,11 @@ func TestDERPMesh(t *testing.T) {
 	const count = 6
 	var (
 		sessionToken = ""
-		proxies      = [count]coderdenttest.WorkspaceProxy{}
+		proxies      = [count]wirtualdenttest.WorkspaceProxy{}
 		derpURLs     = [count]string{}
 	)
 	for i := range proxies {
-		proxies[i] = coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
+		proxies[i] = wirtualdenttest.NewWorkspaceProxyReplica(t, api, client, &wirtualdenttest.ProxyOptions{
 			Name:     "best-proxy",
 			Token:    sessionToken,
 			ProxyURL: proxyURL,
@@ -606,13 +606,13 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 	t.Run("ProbeOK", func(t *testing.T) {
 		t.Parallel()
 
-		deploymentValues := coderdtest.DeploymentValues(t)
+		deploymentValues := wirtualdtest.DeploymentValues(t)
 		deploymentValues.Experiments = []string{
 			"*",
 		}
 
-		client, closer, api, _ := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, closer, api, _ := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				DeploymentValues:         deploymentValues,
 				AppHostname:              "*.primary.test.coder.com",
 				IncludeProvisionerDaemon: true,
@@ -626,7 +626,7 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 					},
 				},
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureWorkspaceProxy:        1,
 					wirtualsdk.FeatureMultipleOrganizations: 1,
@@ -650,12 +650,12 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 		const count = 6
 		var (
 			sessionToken    = ""
-			proxies         = [count]coderdenttest.WorkspaceProxy{}
+			proxies         = [count]wirtualdenttest.WorkspaceProxy{}
 			replicaPingDone = [count]bool{}
 		)
 		for i := range proxies {
 			i := i
-			proxies[i] = coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
+			proxies[i] = wirtualdenttest.NewWorkspaceProxyReplica(t, api, client, &wirtualdenttest.ProxyOptions{
 				Name:     "proxy-1",
 				Token:    sessionToken,
 				ProxyURL: proxyURL,
@@ -717,13 +717,13 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 	t.Run("ProbeFail", func(t *testing.T) {
 		t.Parallel()
 
-		deploymentValues := coderdtest.DeploymentValues(t)
+		deploymentValues := wirtualdtest.DeploymentValues(t)
 		deploymentValues.Experiments = []string{
 			"*",
 		}
 
-		client, closer, api, _ := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, closer, api, _ := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				DeploymentValues:         deploymentValues,
 				AppHostname:              "*.primary.test.coder.com",
 				IncludeProvisionerDaemon: true,
@@ -737,7 +737,7 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 					},
 				},
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureWorkspaceProxy:        1,
 					wirtualsdk.FeatureMultipleOrganizations: 1,
@@ -754,7 +754,7 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 		// Create 1 real proxy replica.
 		const fakeCount = 5
 		replicaPingErr := make(chan string, 4)
-		proxy := coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
+		proxy := wirtualdenttest.NewWorkspaceProxyReplica(t, api, client, &wirtualdenttest.ProxyOptions{
 			Name:     "proxy-2",
 			ProxyURL: proxyURL,
 			ReplicaPingCallback: func(replicas []wirtualsdk.Replica, err string) {
@@ -805,13 +805,13 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 	t.Run("HealthyZero", func(t *testing.T) {
 		t.Parallel()
 
-		deploymentValues := coderdtest.DeploymentValues(t)
+		deploymentValues := wirtualdtest.DeploymentValues(t)
 		deploymentValues.Experiments = []string{
 			"*",
 		}
 
-		client, closer, api, _ := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, closer, api, _ := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				DeploymentValues:         deploymentValues,
 				AppHostname:              "*.primary.test.coder.com",
 				IncludeProvisionerDaemon: true,
@@ -825,7 +825,7 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 					},
 				},
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureWorkspaceProxy:        1,
 					wirtualsdk.FeatureMultipleOrganizations: 1,
@@ -841,7 +841,7 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 
 		// Create 1 real proxy replica.
 		replicaPingErr := make(chan string, 4)
-		proxy := coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
+		proxy := wirtualdenttest.NewWorkspaceProxyReplica(t, api, client, &wirtualdenttest.ProxyOptions{
 			Name:     "proxy-2",
 			ProxyURL: proxyURL,
 			ReplicaPingCallback: func(_ []wirtualsdk.Replica, err string) {
@@ -917,7 +917,7 @@ func TestWorkspaceProxyWorkspaceApps(t *testing.T) {
 	t.Parallel()
 
 	apptest.Run(t, false, func(t *testing.T, opts *apptest.DeploymentOptions) *apptest.Deployment {
-		deploymentValues := coderdtest.DeploymentValues(t)
+		deploymentValues := wirtualdtest.DeploymentValues(t)
 		deploymentValues.DisablePathApps = serpent.Bool(opts.DisablePathApps)
 		deploymentValues.Dangerous.AllowPathAppSharing = serpent.Bool(opts.DangerousAllowPathAppSharing)
 		deploymentValues.Dangerous.AllowPathAppSiteOwnerAccess = serpent.Bool(opts.DangerousAllowPathAppSiteOwnerAccess)
@@ -938,8 +938,8 @@ func TestWorkspaceProxyWorkspaceApps(t *testing.T) {
 
 		db, pubsub := dbtestutil.NewDB(t)
 
-		client, closer, api, user := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, closer, api, user := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				DeploymentValues:         deploymentValues,
 				AppHostname:              opts.PrimaryAppHost,
 				IncludeProvisionerDaemon: true,
@@ -956,7 +956,7 @@ func TestWorkspaceProxyWorkspaceApps(t *testing.T) {
 				Database:                           db,
 				Pubsub:                             pubsub,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureWorkspaceProxy:        1,
 					wirtualsdk.FeatureMultipleOrganizations: 1,
@@ -978,7 +978,7 @@ func TestWorkspaceProxyWorkspaceApps(t *testing.T) {
 		if opts.DisableSubdomainApps {
 			opts.AppHost = ""
 		}
-		proxyAPI := coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
+		proxyAPI := wirtualdenttest.NewWorkspaceProxyReplica(t, api, client, &wirtualdenttest.ProxyOptions{
 			Name:            "best-proxy",
 			AppHostname:     opts.AppHost,
 			DisablePathApps: opts.DisablePathApps,
@@ -999,7 +999,7 @@ func TestWorkspaceProxyWorkspaceApps_BlockDirect(t *testing.T) {
 	t.Parallel()
 
 	apptest.Run(t, false, func(t *testing.T, opts *apptest.DeploymentOptions) *apptest.Deployment {
-		deploymentValues := coderdtest.DeploymentValues(t)
+		deploymentValues := wirtualdtest.DeploymentValues(t)
 		deploymentValues.DisablePathApps = serpent.Bool(opts.DisablePathApps)
 		deploymentValues.Dangerous.AllowPathAppSharing = serpent.Bool(opts.DangerousAllowPathAppSharing)
 		deploymentValues.Dangerous.AllowPathAppSiteOwnerAccess = serpent.Bool(opts.DangerousAllowPathAppSiteOwnerAccess)
@@ -1019,8 +1019,8 @@ func TestWorkspaceProxyWorkspaceApps_BlockDirect(t *testing.T) {
 		}
 
 		db, pubsub := dbtestutil.NewDB(t)
-		client, closer, api, user := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, closer, api, user := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				DeploymentValues:         deploymentValues,
 				AppHostname:              opts.PrimaryAppHost,
 				IncludeProvisionerDaemon: true,
@@ -1037,7 +1037,7 @@ func TestWorkspaceProxyWorkspaceApps_BlockDirect(t *testing.T) {
 				Database:                           db,
 				Pubsub:                             pubsub,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureWorkspaceProxy:        1,
 					wirtualsdk.FeatureMultipleOrganizations: 1,
@@ -1059,7 +1059,7 @@ func TestWorkspaceProxyWorkspaceApps_BlockDirect(t *testing.T) {
 		if opts.DisableSubdomainApps {
 			opts.AppHost = ""
 		}
-		proxyAPI := coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
+		proxyAPI := wirtualdenttest.NewWorkspaceProxyReplica(t, api, client, &wirtualdenttest.ProxyOptions{
 			Name:            "best-proxy",
 			AppHostname:     opts.AppHost,
 			DisablePathApps: opts.DisablePathApps,

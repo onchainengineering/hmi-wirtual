@@ -356,7 +356,7 @@ func TestCryptoKeyCache(t *testing.T) {
 		}
 		ff.keys = []wirtualsdk.CryptoKey{newKey}
 
-		// The ticker should fire and cause a request to coderd.
+		// The ticker should fire and cause a request to wirtuald.
 		dur, advance := clock.AdvanceNext()
 		advance.MustWait(ctx)
 		require.Equal(t, 2, ff.called)

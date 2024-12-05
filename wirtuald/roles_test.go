@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"slices"
@@ -8,11 +8,11 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbgen"
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtuald/rbac/policy"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -22,8 +22,8 @@ func TestListCustomRoles(t *testing.T) {
 	t.Run("Organizations", func(t *testing.T) {
 		t.Parallel()
 
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
+		client, db := wirtualdtest.NewWithDatabase(t, nil)
+		owner := wirtualdtest.CreateFirstUser(t, client)
 
 		const roleName = "random_role"
 		dbgen.CustomRole(t, db, database.CustomRole{

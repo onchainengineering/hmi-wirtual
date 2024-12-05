@@ -35,7 +35,7 @@ func ActiveUsers(ctx context.Context, logger slog.Logger, registerer prometheus.
 	}
 
 	gauge := prometheus.NewGauge(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "api",
 		Name:      "active_users_duration_hour",
 		Help:      "The number of users that have been active within the last hour.",
@@ -84,7 +84,7 @@ func Users(ctx context.Context, logger slog.Logger, clk quartz.Clock, registerer
 	}
 
 	gauge := prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "api",
 		Name:      "total_user_count",
 		Help:      "The total number of registered users, partitioned by status.",
@@ -137,17 +137,17 @@ func Workspaces(ctx context.Context, logger slog.Logger, registerer prometheus.R
 	// See: https://github.com/coder/coder/issues/12999
 	// Deprecation reason: gauge metrics should avoid suffix `_total``
 	workspaceLatestBuildTotalsDeprecated := prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "api",
 		Name:      "workspace_latest_build_total",
-		Help:      "DEPRECATED: use coderd_api_workspace_latest_build instead",
+		Help:      "DEPRECATED: use wirtuald_api_workspace_latest_build instead",
 	}, []string{"status"})
 	if err := registerer.Register(workspaceLatestBuildTotalsDeprecated); err != nil {
 		return nil, err
 	}
 
 	workspaceLatestBuildTotals := prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "api",
 		Name:      "workspace_latest_build",
 		Help:      "The current number of workspace builds by status.",
@@ -157,7 +157,7 @@ func Workspaces(ctx context.Context, logger slog.Logger, registerer prometheus.R
 	}
 
 	workspaceLatestBuildStatuses := prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Name:      "workspace_latest_build_status",
 		Help:      "The current workspace statuses by template, transition, and owner.",
 	}, []string{"status", "template_name", "template_version", "workspace_owner", "workspace_transition"})
@@ -259,7 +259,7 @@ func Agents(ctx context.Context, logger slog.Logger, registerer prometheus.Regis
 	}
 
 	agentsGauge := NewCachedGaugeVec(prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "agents",
 		Name:      "up",
 		Help:      "The number of active agents per workspace.",
@@ -270,7 +270,7 @@ func Agents(ctx context.Context, logger slog.Logger, registerer prometheus.Regis
 	}
 
 	agentsConnectionsGauge := NewCachedGaugeVec(prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "agents",
 		Name:      "connections",
 		Help:      "Agent connections with statuses.",
@@ -281,7 +281,7 @@ func Agents(ctx context.Context, logger slog.Logger, registerer prometheus.Regis
 	}
 
 	agentsConnectionLatenciesGauge := NewCachedGaugeVec(prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "agents",
 		Name:      "connection_latencies_seconds",
 		Help:      "Agent connection latencies in seconds.",
@@ -292,7 +292,7 @@ func Agents(ctx context.Context, logger slog.Logger, registerer prometheus.Regis
 	}
 
 	agentsAppsGauge := NewCachedGaugeVec(prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "agents",
 		Name:      "apps",
 		Help:      "Agent applications with statuses.",
@@ -303,7 +303,7 @@ func Agents(ctx context.Context, logger slog.Logger, registerer prometheus.Regis
 	}
 
 	metricsCollectorAgents := prometheus.NewHistogram(prometheus.HistogramOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "prometheusmetrics",
 		Name:      "agents_execution_seconds",
 		Help:      "Histogram for duration of agents metrics collection in seconds.",
@@ -455,7 +455,7 @@ func AgentStats(ctx context.Context, logger slog.Logger, registerer prometheus.R
 	aggregateByLabels = filterAcceptableAgentLabels(aggregateByLabels)
 
 	metricsCollectorAgentStats := prometheus.NewHistogram(prometheus.HistogramOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "prometheusmetrics",
 		Name:      "agentstats_execution_seconds",
 		Help:      "Histogram for duration of agent stats metrics collection in seconds.",
@@ -467,7 +467,7 @@ func AgentStats(ctx context.Context, logger slog.Logger, registerer prometheus.R
 	}
 
 	agentStatsTxBytesGauge := NewCachedGaugeVec(prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "agentstats",
 		Name:      "tx_bytes",
 		Help:      "Agent Tx bytes",
@@ -478,7 +478,7 @@ func AgentStats(ctx context.Context, logger slog.Logger, registerer prometheus.R
 	}
 
 	agentStatsRxBytesGauge := NewCachedGaugeVec(prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "agentstats",
 		Name:      "rx_bytes",
 		Help:      "Agent Rx bytes",
@@ -489,7 +489,7 @@ func AgentStats(ctx context.Context, logger slog.Logger, registerer prometheus.R
 	}
 
 	agentStatsConnectionCountGauge := NewCachedGaugeVec(prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "agentstats",
 		Name:      "connection_count",
 		Help:      "The number of established connections by agent",
@@ -500,7 +500,7 @@ func AgentStats(ctx context.Context, logger slog.Logger, registerer prometheus.R
 	}
 
 	agentStatsConnectionMedianLatencyGauge := NewCachedGaugeVec(prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "agentstats",
 		Name:      "connection_median_latency_seconds",
 		Help:      "The median agent connection latency in seconds",
@@ -511,7 +511,7 @@ func AgentStats(ctx context.Context, logger slog.Logger, registerer prometheus.R
 	}
 
 	agentStatsSessionCountJetBrainsGauge := NewCachedGaugeVec(prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "agentstats",
 		Name:      "session_count_jetbrains",
 		Help:      "The number of session established by JetBrains",
@@ -522,7 +522,7 @@ func AgentStats(ctx context.Context, logger slog.Logger, registerer prometheus.R
 	}
 
 	agentStatsSessionCountReconnectingPTYGauge := NewCachedGaugeVec(prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "agentstats",
 		Name:      "session_count_reconnecting_pty",
 		Help:      "The number of session established by reconnecting PTY",
@@ -533,7 +533,7 @@ func AgentStats(ctx context.Context, logger slog.Logger, registerer prometheus.R
 	}
 
 	agentStatsSessionCountSSHGauge := NewCachedGaugeVec(prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "agentstats",
 		Name:      "session_count_ssh",
 		Help:      "The number of session established by SSH",
@@ -544,7 +544,7 @@ func AgentStats(ctx context.Context, logger slog.Logger, registerer prometheus.R
 	}
 
 	agentStatsSessionCountVSCodeGauge := NewCachedGaugeVec(prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "agentstats",
 		Name:      "session_count_vscode",
 		Help:      "The number of session established by VSCode",
@@ -647,7 +647,7 @@ func AgentStats(ctx context.Context, logger slog.Logger, registerer prometheus.R
 // Experiments registers a metric which indicates whether each experiment is enabled or not.
 func Experiments(registerer prometheus.Registerer, active wirtualsdk.Experiments) error {
 	experimentsGauge := prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Name:      "experiments",
 		Help:      "Indicates whether each experiment is enabled (1) or not (0)",
 	}, []string{"experiment"})

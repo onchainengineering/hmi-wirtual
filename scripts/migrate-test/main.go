@@ -46,7 +46,7 @@ func main() {
 	}
 
 	_, _ = fmt.Fprintf(os.Stderr, "Read schema at version %q\n", migrateToVersion)
-	expectedSchemaAfter, err := gitShow("coderd/database/dump.sql", migrateToVersion)
+	expectedSchemaAfter, err := gitShow("wirtuald/database/dump.sql", migrateToVersion)
 	if err != nil {
 		panic(err)
 	}
@@ -116,7 +116,7 @@ func friendlyError(w io.Writer, err error, v1, v2 string) {
 
 func makeMigrateFS(version string) (fs.FS, error) {
 	// Export the migrations from the requested version to a zip archive
-	out, err := exec.Command("git", "archive", "--format=zip", version, "coderd/database/migrations").CombinedOutput()
+	out, err := exec.Command("git", "archive", "--format=zip", version, "wirtuald/database/migrations").CombinedOutput()
 	if err != nil {
 		return nil, xerrors.Errorf("git archive: %s\n", out)
 	}
@@ -126,7 +126,7 @@ func makeMigrateFS(version string) (fs.FS, error) {
 		return nil, xerrors.Errorf("create zip reader: %w", err)
 	}
 	// Sub-FS to it's rooted at migrations dir.
-	subbed, err := fs.Sub(zr, "coderd/database/migrations")
+	subbed, err := fs.Sub(zr, "wirtuald/database/migrations")
 	if err != nil {
 		return nil, xerrors.Errorf("sub fs: %w", err)
 	}

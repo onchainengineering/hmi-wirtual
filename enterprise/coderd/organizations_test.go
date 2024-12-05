@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"bytes"
@@ -8,18 +8,18 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/util/ptr"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 func TestMultiOrgFetch(t *testing.T) {
 	t.Parallel()
-	client, _ := coderdenttest.New(t, &coderdenttest.Options{
-		LicenseOptions: &coderdenttest.LicenseOptions{
+	client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+		LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureMultipleOrganizations: 1,
 			},
@@ -55,8 +55,8 @@ func TestOrganizationsByUser(t *testing.T) {
 	t.Run("IsDefault", func(t *testing.T) {
 		t.Parallel()
 
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
@@ -83,14 +83,14 @@ func TestOrganizationsByUser(t *testing.T) {
 
 	t.Run("NoMember", func(t *testing.T) {
 		t.Parallel()
-		client, first := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, first := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
-		other, _ := coderdtest.CreateAnotherUser(t, client, first.OrganizationID)
+		other, _ := wirtualdtest.CreateAnotherUser(t, client, first.OrganizationID)
 		ctx := testutil.Context(t, testutil.WaitLong)
 
 		//nolint:gocritic // owner is required to make orgs
@@ -113,15 +113,15 @@ func TestAddOrganizationMembers(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		ownerClient, owner := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		ownerClient, owner := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
 
-		_, user := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+		_, user := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		//nolint:gocritic // must be an owner, only owners can create orgs
@@ -154,8 +154,8 @@ func TestDeleteOrganizationsByUser(t *testing.T) {
 	t.Parallel()
 	t.Run("Default", func(t *testing.T) {
 		t.Parallel()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
@@ -176,8 +176,8 @@ func TestDeleteOrganizationsByUser(t *testing.T) {
 
 	t.Run("DeleteById", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
@@ -185,7 +185,7 @@ func TestDeleteOrganizationsByUser(t *testing.T) {
 		})
 		ctx := testutil.Context(t, testutil.WaitMedium)
 
-		o := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{})
+		o := wirtualdenttest.CreateOrganization(t, client, wirtualdenttest.CreateOrganizationOptions{})
 
 		// nolint:gocritic // only owners can delete orgs
 		err := client.DeleteOrganization(ctx, o.ID.String())
@@ -194,8 +194,8 @@ func TestDeleteOrganizationsByUser(t *testing.T) {
 
 	t.Run("DeleteByName", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
@@ -203,7 +203,7 @@ func TestDeleteOrganizationsByUser(t *testing.T) {
 		})
 		ctx := testutil.Context(t, testutil.WaitMedium)
 
-		o := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{})
+		o := wirtualdenttest.CreateOrganization(t, client, wirtualdenttest.CreateOrganizationOptions{})
 
 		// nolint:gocritic // only owners can delete orgs
 		err := client.DeleteOrganization(ctx, o.Name)
@@ -215,8 +215,8 @@ func TestPatchOrganizationsByUser(t *testing.T) {
 	t.Parallel()
 	t.Run("Conflict", func(t *testing.T) {
 		t.Parallel()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
@@ -228,7 +228,7 @@ func TestPatchOrganizationsByUser(t *testing.T) {
 		originalOrg, err := client.Organization(ctx, user.OrganizationID)
 		require.NoError(t, err)
 
-		o := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{})
+		o := wirtualdenttest.CreateOrganization(t, client, wirtualdenttest.CreateOrganizationOptions{})
 
 		// nolint:gocritic // owner used above to make the org
 		_, err = client.UpdateOrganization(ctx, o.ID.String(), wirtualsdk.UpdateOrganizationRequest{
@@ -241,8 +241,8 @@ func TestPatchOrganizationsByUser(t *testing.T) {
 
 	t.Run("ReservedName", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
@@ -251,7 +251,7 @@ func TestPatchOrganizationsByUser(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitMedium)
 
 		var err error
-		o := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{})
+		o := wirtualdenttest.CreateOrganization(t, client, wirtualdenttest.CreateOrganizationOptions{})
 
 		_, err = client.UpdateOrganization(ctx, o.ID.String(), wirtualsdk.UpdateOrganizationRequest{
 			Name: wirtualsdk.DefaultOrganization,
@@ -263,8 +263,8 @@ func TestPatchOrganizationsByUser(t *testing.T) {
 
 	t.Run("InvalidName", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
@@ -273,7 +273,7 @@ func TestPatchOrganizationsByUser(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitMedium)
 
 		var err error
-		o := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{})
+		o := wirtualdenttest.CreateOrganization(t, client, wirtualdenttest.CreateOrganizationOptions{})
 
 		_, err = client.UpdateOrganization(ctx, o.ID.String(), wirtualsdk.UpdateOrganizationRequest{
 			Name: "something unique but not url safe",
@@ -285,8 +285,8 @@ func TestPatchOrganizationsByUser(t *testing.T) {
 
 	t.Run("UpdateById", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
@@ -295,7 +295,7 @@ func TestPatchOrganizationsByUser(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitMedium)
 
 		var err error
-		o := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{})
+		o := wirtualdenttest.CreateOrganization(t, client, wirtualdenttest.CreateOrganizationOptions{})
 
 		o, err = client.UpdateOrganization(ctx, o.ID.String(), wirtualsdk.UpdateOrganizationRequest{
 			Name: "new-new-org",
@@ -306,8 +306,8 @@ func TestPatchOrganizationsByUser(t *testing.T) {
 
 	t.Run("UpdateByName", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
@@ -317,7 +317,7 @@ func TestPatchOrganizationsByUser(t *testing.T) {
 
 		const displayName = "New Organization"
 		var err error
-		o := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{}, func(request *wirtualsdk.CreateOrganizationRequest) {
+		o := wirtualdenttest.CreateOrganization(t, client, wirtualdenttest.CreateOrganizationOptions{}, func(request *wirtualsdk.CreateOrganizationRequest) {
 			request.DisplayName = displayName
 		})
 
@@ -331,8 +331,8 @@ func TestPatchOrganizationsByUser(t *testing.T) {
 
 	t.Run("UpdateDisplayName", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
@@ -342,7 +342,7 @@ func TestPatchOrganizationsByUser(t *testing.T) {
 
 		var err error
 		const name = "new-org"
-		o := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{}, func(request *wirtualsdk.CreateOrganizationRequest) {
+		o := wirtualdenttest.CreateOrganization(t, client, wirtualdenttest.CreateOrganizationOptions{}, func(request *wirtualsdk.CreateOrganizationRequest) {
 			request.Name = name
 		})
 
@@ -357,8 +357,8 @@ func TestPatchOrganizationsByUser(t *testing.T) {
 
 	t.Run("UpdateDescription", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
@@ -368,7 +368,7 @@ func TestPatchOrganizationsByUser(t *testing.T) {
 
 		const displayName = "New Organization"
 		var err error
-		o := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{}, func(request *wirtualsdk.CreateOrganizationRequest) {
+		o := wirtualdenttest.CreateOrganization(t, client, wirtualdenttest.CreateOrganizationOptions{}, func(request *wirtualsdk.CreateOrganizationRequest) {
 			request.DisplayName = displayName
 			request.Name = "new-org"
 		})
@@ -386,8 +386,8 @@ func TestPatchOrganizationsByUser(t *testing.T) {
 
 	t.Run("UpdateIcon", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
@@ -397,7 +397,7 @@ func TestPatchOrganizationsByUser(t *testing.T) {
 
 		const displayName = "New Organization"
 		var err error
-		o := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{}, func(request *wirtualsdk.CreateOrganizationRequest) {
+		o := wirtualdenttest.CreateOrganization(t, client, wirtualdenttest.CreateOrganizationOptions{}, func(request *wirtualsdk.CreateOrganizationRequest) {
 			request.DisplayName = displayName
 			request.Icon = "/emojis/random.png"
 			request.Name = "new-org"
@@ -416,8 +416,8 @@ func TestPatchOrganizationsByUser(t *testing.T) {
 
 	t.Run("RevokedLicense", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
@@ -426,7 +426,7 @@ func TestPatchOrganizationsByUser(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitMedium)
 
 		const displayName = "New Organization"
-		o := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{}, func(request *wirtualsdk.CreateOrganizationRequest) {
+		o := wirtualdenttest.CreateOrganization(t, client, wirtualdenttest.CreateOrganizationOptions{}, func(request *wirtualsdk.CreateOrganizationRequest) {
 			request.DisplayName = displayName
 			request.Icon = "/emojis/random.png"
 			request.Name = "new-org"
@@ -454,8 +454,8 @@ func TestPostOrganizationsByUser(t *testing.T) {
 	t.Parallel()
 	t.Run("Conflict", func(t *testing.T) {
 		t.Parallel()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
@@ -479,8 +479,8 @@ func TestPostOrganizationsByUser(t *testing.T) {
 
 	t.Run("InvalidName", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
@@ -500,8 +500,8 @@ func TestPostOrganizationsByUser(t *testing.T) {
 
 	t.Run("Create", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},
@@ -525,8 +525,8 @@ func TestPostOrganizationsByUser(t *testing.T) {
 
 	t.Run("CreateWithoutExplicitDisplayName", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},

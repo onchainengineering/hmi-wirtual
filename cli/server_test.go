@@ -45,10 +45,10 @@ import (
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/tailnet/tailnettest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
 	"github.com/coder/coder/v2/wirtuald/httpapi"
 	"github.com/coder/coder/v2/wirtuald/telemetry"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -980,11 +980,11 @@ func TestServer(t *testing.T) {
 				for scanner.Scan() {
 					// This metric is manually registered to be tracked in the server. That's
 					// why we test it's tracked here.
-					if strings.HasPrefix(scanner.Text(), "coderd_api_active_users_duration_hour") {
+					if strings.HasPrefix(scanner.Text(), "wirtuald_api_active_users_duration_hour") {
 						hasActiveUsers = true
 						continue
 					}
-					if strings.HasPrefix(scanner.Text(), "coderd_db_query_latencies_seconds") {
+					if strings.HasPrefix(scanner.Text(), "wirtuald_db_query_latencies_seconds") {
 						t.Fatal("db metrics should not be tracked when --prometheus-collect-db-metrics is not enabled")
 					}
 					t.Logf("scanned %s", scanner.Text())
@@ -995,7 +995,7 @@ func TestServer(t *testing.T) {
 				}
 
 				return hasActiveUsers
-			}, testutil.WaitShort, testutil.IntervalFast, "didn't find coderd_api_active_users_duration_hour in time")
+			}, testutil.WaitShort, testutil.IntervalFast, "didn't find wirtuald_api_active_users_duration_hour in time")
 		})
 
 		t.Run("DBMetricsEnabled", func(t *testing.T) {
@@ -1034,7 +1034,7 @@ func TestServer(t *testing.T) {
 				scanner := bufio.NewScanner(res.Body)
 				hasDBMetrics := false
 				for scanner.Scan() {
-					if strings.HasPrefix(scanner.Text(), "coderd_db_query_latencies_seconds") {
+					if strings.HasPrefix(scanner.Text(), "wirtuald_db_query_latencies_seconds") {
 						hasDBMetrics = true
 					}
 					t.Logf("scanned %s", scanner.Text())
@@ -1044,7 +1044,7 @@ func TestServer(t *testing.T) {
 					return false
 				}
 				return hasDBMetrics
-			}, testutil.WaitShort, testutil.IntervalFast, "didn't find coderd_db_query_latencies_seconds in time")
+			}, testutil.WaitShort, testutil.IntervalFast, "didn't find wirtuald_db_query_latencies_seconds in time")
 		})
 	})
 	t.Run("GitHubOAuth", func(t *testing.T) {
@@ -1530,7 +1530,7 @@ func TestServer(t *testing.T) {
 			gotURL := waitAccessURL(t, cfg)
 			client := wirtualsdk.New(gotURL)
 
-			_ = coderdtest.CreateFirstUser(t, client)
+			_ = wirtualdtest.CreateFirstUser(t, client)
 			wantConfig, err := client.DeploymentConfig(ctx)
 			require.NoError(t, err)
 			cancel()
@@ -1556,7 +1556,7 @@ func TestServer(t *testing.T) {
 			inv, cfg = clitest.New(t, "server", "--config="+fi.Name())
 			w = clitest.StartWithWaiter(t, inv)
 			client = wirtualsdk.New(waitAccessURL(t, cfg))
-			_ = coderdtest.CreateFirstUser(t, client)
+			_ = wirtualdtest.CreateFirstUser(t, client)
 			gotConfig, err := client.DeploymentConfig(ctx)
 			require.NoError(t, err, "config:\n%s\nargs: %+v", conf.String(), inv.Args)
 			gotConfig.Options.ByName("Config Path").Value.Set("")
@@ -1614,7 +1614,7 @@ func TestServer_Production(t *testing.T) {
 	accessURL := waitAccessURL(t, cfg)
 	client := wirtualsdk.New(accessURL)
 
-	_, err = client.CreateFirstUser(ctx, coderdtest.FirstUserParams)
+	_, err = client.CreateFirstUser(ctx, wirtualdtest.FirstUserParams)
 	require.NoError(t, err)
 }
 

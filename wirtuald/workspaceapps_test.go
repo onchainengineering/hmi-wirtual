@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -11,12 +11,12 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/cryptokeys"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbgen"
 	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
 	"github.com/coder/coder/v2/wirtuald/jwtutils"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/workspaceapps"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/quartz"
@@ -64,7 +64,7 @@ func TestGetAppHost(t *testing.T) {
 			accessURL, err := url.Parse(c.accessURL)
 			require.NoError(t, err)
 
-			client := coderdtest.New(t, &coderdtest.Options{
+			client := wirtualdtest.New(t, &wirtualdtest.Options{
 				AccessURL:   accessURL,
 				AppHostname: c.appHostname,
 			})
@@ -77,7 +77,7 @@ func TestGetAppHost(t *testing.T) {
 			require.Error(t, err)
 			require.Equal(t, "", host.Host)
 
-			_ = coderdtest.CreateFirstUser(t, client)
+			_ = wirtualdtest.CreateFirstUser(t, client)
 			host, err = client.AppHost(ctx)
 			require.NoError(t, err)
 			require.Equal(t, c.expected, host.Host)
@@ -201,7 +201,7 @@ func TestWorkspaceApplicationAuth(t *testing.T) {
 
 			clock := quartz.NewMock(t)
 
-			client := coderdtest.New(t, &coderdtest.Options{
+			client := wirtualdtest.New(t, &wirtualdtest.Options{
 				AccessURL:             accessURL,
 				AppHostname:           c.appHostname,
 				Database:              db,
@@ -209,7 +209,7 @@ func TestWorkspaceApplicationAuth(t *testing.T) {
 				APIKeyEncryptionCache: kc,
 				Clock:                 clock,
 			})
-			_ = coderdtest.CreateFirstUser(t, client)
+			_ = wirtualdtest.CreateFirstUser(t, client)
 
 			// Disable redirects.
 			client.HTTPClient.CheckRedirect = func(_ *http.Request, _ []*http.Request) error {
@@ -261,7 +261,7 @@ func TestWorkspaceApplicationAuth(t *testing.T) {
 			err = jwtutils.Decrypt(ctx, kc, encryptedAPIKey, &token, jwtutils.WithDecryptExpected(jwt.Expected{
 				Time:        clock.Now(),
 				AnyAudience: jwt.Audience{"wsproxy"},
-				Issuer:      "coderd",
+				Issuer:      "wirtuald",
 			}))
 			require.NoError(t, err)
 			require.Equal(t, jwt.NewNumericDate(clock.Now().Add(time.Minute)), token.Expiry)

@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/coder/coder/v2/wirtuald"
-	"github.com/coder/coder/v2/wirtuald/coderdtest/oidctest"
 	"github.com/coder/coder/v2/wirtuald/notifications"
 	"github.com/coder/coder/v2/wirtuald/notifications/notificationstest"
 	"github.com/coder/coder/v2/wirtuald/rbac/policy"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest/oidctest"
 	"github.com/coder/serpent"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -25,7 +25,6 @@ import (
 
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/coder/v2/wirtuald/audit"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/database/dbfake"
@@ -34,6 +33,7 @@ import (
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtuald/util/ptr"
 	"github.com/coder/coder/v2/wirtuald/util/slice"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -41,7 +41,7 @@ func TestFirstUser(t *testing.T) {
 	t.Parallel()
 	t.Run("BadRequest", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
+		client := wirtualdtest.New(t, nil)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -56,8 +56,8 @@ func TestFirstUser(t *testing.T) {
 
 	t.Run("AlreadyExists", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -75,13 +75,13 @@ func TestFirstUser(t *testing.T) {
 	t.Run("Create", func(t *testing.T) {
 		t.Parallel()
 		ctx := testutil.Context(t, testutil.WaitShort)
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 		u, err := client.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err)
-		assert.Equal(t, coderdtest.FirstUserParams.Name, u.Name)
-		assert.Equal(t, coderdtest.FirstUserParams.Email, u.Email)
-		assert.Equal(t, coderdtest.FirstUserParams.Username, u.Username)
+		assert.Equal(t, wirtualdtest.FirstUserParams.Name, u.Name)
+		assert.Equal(t, wirtualdtest.FirstUserParams.Email, u.Email)
+		assert.Equal(t, wirtualdtest.FirstUserParams.Username, u.Username)
 	})
 
 	t.Run("Trial", func(t *testing.T) {
@@ -89,7 +89,7 @@ func TestFirstUser(t *testing.T) {
 		trialGenerated := make(chan struct{})
 		entitlementsRefreshed := make(chan struct{})
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			TrialGenerator: func(context.Context, wirtualsdk.LicensorTrialRequest) error {
 				close(trialGenerated)
 				return nil
@@ -122,7 +122,7 @@ func TestPostLogin(t *testing.T) {
 	t.Parallel()
 	t.Run("InvalidUser", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
+		client := wirtualdtest.New(t, nil)
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
@@ -138,7 +138,7 @@ func TestPostLogin(t *testing.T) {
 	t.Run("BadPassword", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client := coderdtest.New(t, &coderdtest.Options{Auditor: auditor})
+		client := wirtualdtest.New(t, &wirtualdtest.Options{Auditor: auditor})
 		numLogs := len(auditor.AuditLogs())
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
@@ -167,13 +167,13 @@ func TestPostLogin(t *testing.T) {
 	t.Run("Suspended", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client := coderdtest.New(t, &coderdtest.Options{Auditor: auditor})
+		client := wirtualdtest.New(t, &wirtualdtest.Options{Auditor: auditor})
 		numLogs := len(auditor.AuditLogs())
-		first := coderdtest.CreateFirstUser(t, client)
+		first := wirtualdtest.CreateFirstUser(t, client)
 		numLogs++ // add an audit log for create user
 		numLogs++ // add an audit log for login
 
-		member, _ := coderdtest.CreateAnotherUser(t, client, first.OrganizationID)
+		member, _ := wirtualdtest.CreateAnotherUser(t, client, first.OrganizationID)
 		numLogs++ // add an audit log for create user
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
@@ -210,12 +210,12 @@ func TestPostLogin(t *testing.T) {
 	t.Run("DisabledPasswordAuth", func(t *testing.T) {
 		t.Parallel()
 
-		dc := coderdtest.DeploymentValues(t)
-		client := coderdtest.New(t, &coderdtest.Options{
+		dc := wirtualdtest.DeploymentValues(t)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			DeploymentValues: dc,
 		})
 
-		first := coderdtest.CreateFirstUser(t, client)
+		first := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -247,7 +247,7 @@ func TestPostLogin(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client := coderdtest.New(t, &coderdtest.Options{Auditor: auditor})
+		client := wirtualdtest.New(t, &wirtualdtest.Options{Auditor: auditor})
 		numLogs := len(auditor.AuditLogs())
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
@@ -283,8 +283,8 @@ func TestPostLogin(t *testing.T) {
 	t.Run("Lifetime&Expire", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		owner := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -311,11 +311,11 @@ func TestDeleteUser(t *testing.T) {
 	t.Parallel()
 	t.Run("Works", func(t *testing.T) {
 		t.Parallel()
-		client, _, api := coderdtest.NewWithAPI(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		authz := coderdtest.AssertRBAC(t, api, client)
+		client, _, api := wirtualdtest.NewWithAPI(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		authz := wirtualdtest.AssertRBAC(t, api, client)
 
-		anotherClient, another := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		anotherClient, another := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
 		err := client.DeleteUser(context.Background(), another.ID)
 		require.NoError(t, err)
 		// Attempt to create a user with the same email and username, and delete them again.
@@ -342,9 +342,9 @@ func TestDeleteUser(t *testing.T) {
 	})
 	t.Run("NoPermission", func(t *testing.T) {
 		t.Parallel()
-		api := coderdtest.New(t, nil)
-		firstUser := coderdtest.CreateFirstUser(t, api)
-		client, _ := coderdtest.CreateAnotherUser(t, api, firstUser.OrganizationID)
+		api := wirtualdtest.New(t, nil)
+		firstUser := wirtualdtest.CreateFirstUser(t, api)
+		client, _ := wirtualdtest.CreateAnotherUser(t, api, firstUser.OrganizationID)
 		err := client.DeleteUser(context.Background(), firstUser.UserID)
 		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
@@ -352,13 +352,13 @@ func TestDeleteUser(t *testing.T) {
 	})
 	t.Run("HasWorkspaces", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdtest.NewWithProvisionerCloser(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
-		anotherClient, another := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		coderdtest.CreateWorkspace(t, anotherClient, template.ID)
+		client, _ := wirtualdtest.NewWithProvisionerCloser(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
+		anotherClient, another := wirtualdtest.CreateAnotherUser(t, client, user.OrganizationID)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.CreateWorkspace(t, anotherClient, template.ID)
 		err := client.DeleteUser(context.Background(), another.ID)
 		var apiErr *wirtualsdk.Error
 		require.ErrorAs(t, err, &apiErr)
@@ -366,12 +366,12 @@ func TestDeleteUser(t *testing.T) {
 	})
 	t.Run("Self", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		err := client.DeleteUser(context.Background(), user.UserID)
 		var apiErr *wirtualsdk.Error
 		require.Error(t, err, "should not be able to delete self")
-		require.ErrorAs(t, err, &apiErr, "should be a coderd error")
+		require.ErrorAs(t, err, &apiErr, "should be a wirtuald error")
 		require.Equal(t, http.StatusForbidden, apiErr.StatusCode(), "should be forbidden")
 	})
 }
@@ -407,15 +407,15 @@ func TestNotifyUserStatusChanged(t *testing.T) {
 		t.Parallel()
 
 		notifyEnq := &notificationstest.FakeEnqueuer{}
-		adminClient := coderdtest.New(t, &coderdtest.Options{
+		adminClient := wirtualdtest.New(t, &wirtualdtest.Options{
 			NotificationsEnqueuer: notifyEnq,
 		})
-		firstUser := coderdtest.CreateFirstUser(t, adminClient)
+		firstUser := wirtualdtest.CreateFirstUser(t, adminClient)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_, userAdmin := coderdtest.CreateAnotherUser(t, adminClient, firstUser.OrganizationID, rbac.RoleUserAdmin())
+		_, userAdmin := wirtualdtest.CreateAnotherUser(t, adminClient, firstUser.OrganizationID, rbac.RoleUserAdmin())
 
 		member, err := adminClient.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			OrganizationIDs: []uuid.UUID{firstUser.OrganizationID},
@@ -444,15 +444,15 @@ func TestNotifyUserStatusChanged(t *testing.T) {
 
 		// given
 		notifyEnq := &notificationstest.FakeEnqueuer{}
-		adminClient := coderdtest.New(t, &coderdtest.Options{
+		adminClient := wirtualdtest.New(t, &wirtualdtest.Options{
 			NotificationsEnqueuer: notifyEnq,
 		})
-		firstUser := coderdtest.CreateFirstUser(t, adminClient)
+		firstUser := wirtualdtest.CreateFirstUser(t, adminClient)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_, userAdmin := coderdtest.CreateAnotherUser(t, adminClient, firstUser.OrganizationID, rbac.RoleUserAdmin())
+		_, userAdmin := wirtualdtest.CreateAnotherUser(t, adminClient, firstUser.OrganizationID, rbac.RoleUserAdmin())
 
 		member, err := adminClient.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			OrganizationIDs: []uuid.UUID{firstUser.OrganizationID},
@@ -488,10 +488,10 @@ func TestNotifyDeletedUser(t *testing.T) {
 
 		// given
 		notifyEnq := &notificationstest.FakeEnqueuer{}
-		adminClient := coderdtest.New(t, &coderdtest.Options{
+		adminClient := wirtualdtest.New(t, &wirtualdtest.Options{
 			NotificationsEnqueuer: notifyEnq,
 		})
-		firstUserResponse := coderdtest.CreateFirstUser(t, adminClient)
+		firstUserResponse := wirtualdtest.CreateFirstUser(t, adminClient)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -527,15 +527,15 @@ func TestNotifyDeletedUser(t *testing.T) {
 
 		// given
 		notifyEnq := &notificationstest.FakeEnqueuer{}
-		adminClient := coderdtest.New(t, &coderdtest.Options{
+		adminClient := wirtualdtest.New(t, &wirtualdtest.Options{
 			NotificationsEnqueuer: notifyEnq,
 		})
-		firstUser := coderdtest.CreateFirstUser(t, adminClient)
+		firstUser := wirtualdtest.CreateFirstUser(t, adminClient)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		_, userAdmin := coderdtest.CreateAnotherUser(t, adminClient, firstUser.OrganizationID, rbac.RoleUserAdmin())
+		_, userAdmin := wirtualdtest.CreateAnotherUser(t, adminClient, firstUser.OrganizationID, rbac.RoleUserAdmin())
 
 		member, err := adminClient.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 			OrganizationIDs: []uuid.UUID{firstUser.OrganizationID},
@@ -577,10 +577,10 @@ func TestPostLogout(t *testing.T) {
 	t.Run("Logout", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client := coderdtest.New(t, &coderdtest.Options{Auditor: auditor})
+		client := wirtualdtest.New(t, &wirtualdtest.Options{Auditor: auditor})
 		numLogs := len(auditor.AuditLogs())
 
-		owner := coderdtest.CreateFirstUser(t, client)
+		owner := wirtualdtest.CreateFirstUser(t, client)
 		numLogs++ // add an audit log for login
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
@@ -628,7 +628,7 @@ func TestPostUsers(t *testing.T) {
 	t.Parallel()
 	t.Run("NoAuth", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
+		client := wirtualdtest.New(t, nil)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -639,8 +639,8 @@ func TestPostUsers(t *testing.T) {
 
 	t.Run("Conflicting", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -660,8 +660,8 @@ func TestPostUsers(t *testing.T) {
 
 	t.Run("OrganizationNotFound", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -680,10 +680,10 @@ func TestPostUsers(t *testing.T) {
 	t.Run("Create", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client := coderdtest.New(t, &coderdtest.Options{Auditor: auditor})
+		client := wirtualdtest.New(t, &wirtualdtest.Options{Auditor: auditor})
 		numLogs := len(auditor.AuditLogs())
 
-		firstUser := coderdtest.CreateFirstUser(t, client)
+		firstUser := wirtualdtest.CreateFirstUser(t, client)
 		numLogs++ // add an audit log for user create
 		numLogs++ // add an audit log for login
 
@@ -712,10 +712,10 @@ func TestPostUsers(t *testing.T) {
 	t.Run("CreateWithStatus", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client := coderdtest.New(t, &coderdtest.Options{Auditor: auditor})
+		client := wirtualdtest.New(t, &wirtualdtest.Options{Auditor: auditor})
 		numLogs := len(auditor.AuditLogs())
 
-		firstUser := coderdtest.CreateFirstUser(t, client)
+		firstUser := wirtualdtest.CreateFirstUser(t, client)
 		numLogs++ // add an audit log for user create
 		numLogs++ // add an audit log for login
 
@@ -746,13 +746,13 @@ func TestPostUsers(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		client := coderdtest.New(t, nil)
-		firstUserResp := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		firstUserResp := wirtualdtest.CreateFirstUser(t, client)
 
 		firstUser, err := client.User(ctx, firstUserResp.UserID.String())
 		require.NoError(t, err)
 
-		_, _ = coderdtest.CreateAnotherUser(t, client, firstUserResp.OrganizationID)
+		_, _ = wirtualdtest.CreateAnotherUser(t, client, firstUserResp.OrganizationID)
 
 		allUsersRes, err := client.Users(ctx, wirtualsdk.UsersRequest{})
 		require.NoError(t, err)
@@ -772,8 +772,8 @@ func TestPostUsers(t *testing.T) {
 
 	t.Run("CreateNoneLoginType", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		first := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		first := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -798,14 +798,14 @@ func TestPostUsers(t *testing.T) {
 		fake := oidctest.NewFakeIDP(t,
 			oidctest.WithServing(),
 		)
-		cfg := fake.OIDCConfig(t, nil, func(cfg *coderd.OIDCConfig) {
+		cfg := fake.OIDCConfig(t, nil, func(cfg *wirtuald.OIDCConfig) {
 			cfg.AllowSignups = true
 		})
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			OIDCConfig: cfg,
 		})
-		first := coderdtest.CreateFirstUser(t, client)
+		first := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -838,10 +838,10 @@ func TestNotifyCreatedUser(t *testing.T) {
 
 		// given
 		notifyEnq := &notificationstest.FakeEnqueuer{}
-		adminClient := coderdtest.New(t, &coderdtest.Options{
+		adminClient := wirtualdtest.New(t, &wirtualdtest.Options{
 			NotificationsEnqueuer: notifyEnq,
 		})
-		firstUser := coderdtest.CreateFirstUser(t, adminClient)
+		firstUser := wirtualdtest.CreateFirstUser(t, adminClient)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -868,10 +868,10 @@ func TestNotifyCreatedUser(t *testing.T) {
 
 		// given
 		notifyEnq := &notificationstest.FakeEnqueuer{}
-		adminClient := coderdtest.New(t, &coderdtest.Options{
+		adminClient := wirtualdtest.New(t, &wirtualdtest.Options{
 			NotificationsEnqueuer: notifyEnq,
 		})
-		firstUser := coderdtest.CreateFirstUser(t, adminClient)
+		firstUser := wirtualdtest.CreateFirstUser(t, adminClient)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -928,8 +928,8 @@ func TestUpdateUserProfile(t *testing.T) {
 	t.Parallel()
 	t.Run("UserNotFound", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -946,8 +946,8 @@ func TestUpdateUserProfile(t *testing.T) {
 
 	t.Run("ConflictingUsername", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -970,10 +970,10 @@ func TestUpdateUserProfile(t *testing.T) {
 	t.Run("UpdateSelf", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client := coderdtest.New(t, &coderdtest.Options{Auditor: auditor})
+		client := wirtualdtest.New(t, &wirtualdtest.Options{Auditor: auditor})
 		numLogs := len(auditor.AuditLogs())
 
-		coderdtest.CreateFirstUser(t, client)
+		wirtualdtest.CreateFirstUser(t, client)
 		numLogs++ // add an audit log for login
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
@@ -999,13 +999,13 @@ func TestUpdateUserProfile(t *testing.T) {
 	t.Run("UpdateSelfAsMember", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client := coderdtest.New(t, &coderdtest.Options{Auditor: auditor})
+		client := wirtualdtest.New(t, &wirtualdtest.Options{Auditor: auditor})
 		numLogs := len(auditor.AuditLogs())
 
-		firstUser := coderdtest.CreateFirstUser(t, client)
+		firstUser := wirtualdtest.CreateFirstUser(t, client)
 		numLogs++ // add an audit log for login
 
-		memberClient, memberUser := coderdtest.CreateAnotherUser(t, client, firstUser.OrganizationID)
+		memberClient, memberUser := wirtualdtest.CreateAnotherUser(t, client, firstUser.OrganizationID)
 		numLogs++ // add an audit log for user creation
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
@@ -1028,8 +1028,8 @@ func TestUpdateUserProfile(t *testing.T) {
 
 	t.Run("InvalidRealUserName", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1055,9 +1055,9 @@ func TestUpdateUserPassword(t *testing.T) {
 
 	t.Run("MemberCantUpdateAdminPassword", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := wirtualdtest.New(t, nil)
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		member, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1070,8 +1070,8 @@ func TestUpdateUserPassword(t *testing.T) {
 
 	t.Run("AdminCanUpdateMemberPassword", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		owner := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1097,10 +1097,10 @@ func TestUpdateUserPassword(t *testing.T) {
 
 	t.Run("AuditorCantUpdateOtherUserPassword", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		owner := wirtualdtest.CreateFirstUser(t, client)
 
-		auditor, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleAuditor())
+		auditor, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleAuditor())
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1123,14 +1123,14 @@ func TestUpdateUserPassword(t *testing.T) {
 	t.Run("MemberCanUpdateOwnPassword", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client := coderdtest.New(t, &coderdtest.Options{Auditor: auditor})
+		client := wirtualdtest.New(t, &wirtualdtest.Options{Auditor: auditor})
 		numLogs := len(auditor.AuditLogs())
 
-		owner := coderdtest.CreateFirstUser(t, client)
+		owner := wirtualdtest.CreateFirstUser(t, client)
 		numLogs++ // add an audit log for user create
 		numLogs++ // add an audit log for login
 
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		member, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 		numLogs++ // add an audit log for user create
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
@@ -1150,9 +1150,9 @@ func TestUpdateUserPassword(t *testing.T) {
 
 	t.Run("MemberCantUpdateOwnPasswordWithoutOldPassword", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := wirtualdtest.New(t, nil)
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		member, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1167,16 +1167,16 @@ func TestUpdateUserPassword(t *testing.T) {
 	t.Run("AuditorCantTellIfPasswordIncorrect", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		adminClient := coderdtest.New(t, &coderdtest.Options{Auditor: auditor})
+		adminClient := wirtualdtest.New(t, &wirtualdtest.Options{Auditor: auditor})
 
-		adminUser := coderdtest.CreateFirstUser(t, adminClient)
+		adminUser := wirtualdtest.CreateFirstUser(t, adminClient)
 
-		auditorClient, _ := coderdtest.CreateAnotherUser(t, adminClient,
+		auditorClient, _ := wirtualdtest.CreateAnotherUser(t, adminClient,
 			adminUser.OrganizationID,
 			rbac.RoleAuditor(),
 		)
 
-		_, memberUser := coderdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
+		_, memberUser := wirtualdtest.CreateAnotherUser(t, adminClient, adminUser.OrganizationID)
 		numLogs := len(auditor.AuditLogs())
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
@@ -1201,10 +1201,10 @@ func TestUpdateUserPassword(t *testing.T) {
 	t.Run("AdminCantUpdateOwnPasswordWithoutOldPassword", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client := coderdtest.New(t, &coderdtest.Options{Auditor: auditor})
+		client := wirtualdtest.New(t, &wirtualdtest.Options{Auditor: auditor})
 		numLogs := len(auditor.AuditLogs())
 
-		_ = coderdtest.CreateFirstUser(t, client)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 		numLogs++ // add an audit log for login
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
@@ -1225,9 +1225,9 @@ func TestUpdateUserPassword(t *testing.T) {
 	t.Run("ValidateUserPassword", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client := coderdtest.New(t, &coderdtest.Options{Auditor: auditor})
+		client := wirtualdtest.New(t, &wirtualdtest.Options{Auditor: auditor})
 
-		_ = coderdtest.CreateFirstUser(t, client)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1243,8 +1243,8 @@ func TestUpdateUserPassword(t *testing.T) {
 	t.Run("ChangingPasswordDeletesKeys", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		ctx := testutil.Context(t, testutil.WaitLong)
 
 		apikey1, err := client.CreateToken(ctx, user.UserID.String(), wirtualsdk.CreateTokenRequest{})
@@ -1263,11 +1263,11 @@ func TestUpdateUserPassword(t *testing.T) {
 		// has been deleted.
 		_, err = client.APIKeyByID(ctx, user.UserID.String(), apikey1.Key)
 		require.Error(t, err)
-		cerr := coderdtest.SDKError(t, err)
+		cerr := wirtualdtest.SDKError(t, err)
 		require.Equal(t, http.StatusUnauthorized, cerr.StatusCode())
 
 		resp, err := client.LoginWithPassword(ctx, wirtualsdk.LoginWithPasswordRequest{
-			Email:    coderdtest.FirstUserParams.Email,
+			Email:    wirtualdtest.FirstUserParams.Email,
 			Password: "MyNewSecurePassword!",
 		})
 		require.NoError(t, err)
@@ -1278,27 +1278,27 @@ func TestUpdateUserPassword(t *testing.T) {
 		// on password change.
 		_, err = client.APIKeyByID(ctx, user.UserID.String(), apikey1.Key)
 		require.Error(t, err)
-		cerr = coderdtest.SDKError(t, err)
+		cerr = wirtualdtest.SDKError(t, err)
 		require.Equal(t, http.StatusNotFound, cerr.StatusCode())
 
 		_, err = client.APIKeyByID(ctx, user.UserID.String(), apikey2.Key)
 		require.Error(t, err)
-		cerr = coderdtest.SDKError(t, err)
+		cerr = wirtualdtest.SDKError(t, err)
 		require.Equal(t, http.StatusNotFound, cerr.StatusCode())
 	})
 
 	t.Run("PasswordsMustDiffer", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 		ctx := testutil.Context(t, testutil.WaitLong)
 
 		err := client.UpdateUserPassword(ctx, "me", wirtualsdk.UpdateUserPasswordRequest{
-			Password: coderdtest.FirstUserParams.Password,
+			Password: wirtualdtest.FirstUserParams.Password,
 		})
 		require.Error(t, err)
-		cerr := coderdtest.SDKError(t, err)
+		cerr := wirtualdtest.SDKError(t, err)
 		require.Equal(t, http.StatusBadRequest, cerr.StatusCode())
 	})
 }
@@ -1307,8 +1307,8 @@ func TestUpdateUserPassword(t *testing.T) {
 func TestInitialRoles(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	client := coderdtest.New(t, nil)
-	first := coderdtest.CreateFirstUser(t, client)
+	client := wirtualdtest.New(t, nil)
+	first := wirtualdtest.CreateFirstUser(t, client)
 
 	roles, err := client.UserRoles(ctx, wirtualsdk.Me)
 	require.NoError(t, err)
@@ -1324,9 +1324,9 @@ func TestPutUserSuspend(t *testing.T) {
 
 	t.Run("SuspendAnOwner", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		me := coderdtest.CreateFirstUser(t, client)
-		_, user := coderdtest.CreateAnotherUser(t, client, me.OrganizationID, rbac.RoleOwner())
+		client := wirtualdtest.New(t, nil)
+		me := wirtualdtest.CreateFirstUser(t, client)
+		_, user := wirtualdtest.CreateAnotherUser(t, client, me.OrganizationID, rbac.RoleOwner())
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1338,14 +1338,14 @@ func TestPutUserSuspend(t *testing.T) {
 	t.Run("SuspendAnotherUser", func(t *testing.T) {
 		t.Parallel()
 		auditor := audit.NewMock()
-		client := coderdtest.New(t, &coderdtest.Options{Auditor: auditor})
+		client := wirtualdtest.New(t, &wirtualdtest.Options{Auditor: auditor})
 		numLogs := len(auditor.AuditLogs())
 
-		me := coderdtest.CreateFirstUser(t, client)
+		me := wirtualdtest.CreateFirstUser(t, client)
 		numLogs++ // add an audit log for user create
 		numLogs++ // add an audit log for login
 
-		_, user := coderdtest.CreateAnotherUser(t, client, me.OrganizationID)
+		_, user := wirtualdtest.CreateAnotherUser(t, client, me.OrganizationID)
 		numLogs++ // add an audit log for user create
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
@@ -1362,8 +1362,8 @@ func TestPutUserSuspend(t *testing.T) {
 
 	t.Run("SuspendItSelf", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1377,10 +1377,10 @@ func TestPutUserSuspend(t *testing.T) {
 
 func TestActivateDormantUser(t *testing.T) {
 	t.Parallel()
-	client := coderdtest.New(t, nil)
+	client := wirtualdtest.New(t, nil)
 
 	// Create users
-	me := coderdtest.CreateFirstUser(t, client)
+	me := wirtualdtest.CreateFirstUser(t, client)
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
 	anotherUser, err := client.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
@@ -1410,8 +1410,8 @@ func TestGetUser(t *testing.T) {
 	t.Run("ByMe", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		firstUser := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		firstUser := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1425,8 +1425,8 @@ func TestGetUser(t *testing.T) {
 	t.Run("ByID", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		firstUser := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		firstUser := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1440,8 +1440,8 @@ func TestGetUser(t *testing.T) {
 	t.Run("ByUsername", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		firstUser := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		firstUser := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1459,8 +1459,8 @@ func TestGetUser(t *testing.T) {
 func TestUsersFilter(t *testing.T) {
 	t.Parallel()
 
-	client, _, api := coderdtest.NewWithAPI(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-	first := coderdtest.CreateFirstUser(t, client)
+	client, _, api := wirtualdtest.NewWithAPI(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+	first := wirtualdtest.CreateFirstUser(t, client)
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	t.Cleanup(cancel)
@@ -1485,7 +1485,7 @@ func TestUsersFilter(t *testing.T) {
 		if i%3 == 0 {
 			roles = append(roles, rbac.RoleAuditor())
 		}
-		userClient, userData := coderdtest.CreateAnotherUser(t, client, first.OrganizationID, roles...)
+		userClient, userData := wirtualdtest.CreateAnotherUser(t, client, first.OrganizationID, roles...)
 		// Set the last seen for each user to a unique day
 		// nolint:gocritic // Unit test
 		_, err := api.Database.UpdateUserLastSeenAt(dbauthz.AsSystemRestricted(ctx), database.UpdateUserLastSeenAtParams{
@@ -1684,8 +1684,8 @@ func TestGetUsers(t *testing.T) {
 	t.Parallel()
 	t.Run("AllUsers", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1705,8 +1705,8 @@ func TestGetUsers(t *testing.T) {
 	t.Run("ActiveUsers", func(t *testing.T) {
 		t.Parallel()
 		active := make([]wirtualsdk.User, 0)
-		client := coderdtest.New(t, nil)
-		first := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		first := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1750,8 +1750,8 @@ func TestGetUsers(t *testing.T) {
 
 func TestGetUsersPagination(t *testing.T) {
 	t.Parallel()
-	client := coderdtest.New(t, nil)
-	first := coderdtest.CreateFirstUser(t, client)
+	client := wirtualdtest.New(t, nil)
+	first := wirtualdtest.CreateFirstUser(t, client)
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
@@ -1804,8 +1804,8 @@ func TestGetUsersPagination(t *testing.T) {
 
 func TestPostTokens(t *testing.T) {
 	t.Parallel()
-	client := coderdtest.New(t, nil)
-	_ = coderdtest.CreateFirstUser(t, client)
+	client := wirtualdtest.New(t, nil)
+	_ = wirtualdtest.CreateFirstUser(t, client)
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
@@ -1820,8 +1820,8 @@ func TestWorkspacesByUser(t *testing.T) {
 	t.Parallel()
 	t.Run("Empty", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1834,8 +1834,8 @@ func TestWorkspacesByUser(t *testing.T) {
 	})
 	t.Run("Access", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		user := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		user := wirtualdtest.CreateFirstUser(t, client)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1855,10 +1855,10 @@ func TestWorkspacesByUser(t *testing.T) {
 
 		newUserClient := wirtualsdk.New(client.URL)
 		newUserClient.SetSessionToken(auth.SessionToken)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		coderdtest.CreateWorkspace(t, client, template.ID)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.CreateWorkspace(t, client, template.ID)
 
 		res, err := newUserClient.Workspaces(ctx, wirtualsdk.WorkspaceFilter{Owner: wirtualsdk.Me})
 		require.NoError(t, err)
@@ -1873,8 +1873,8 @@ func TestWorkspacesByUser(t *testing.T) {
 func TestDormantUser(t *testing.T) {
 	t.Parallel()
 
-	client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-	user := coderdtest.CreateFirstUser(t, client)
+	client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+	user := wirtualdtest.CreateFirstUser(t, client)
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
@@ -1915,8 +1915,8 @@ func TestDormantUser(t *testing.T) {
 func TestSuspendedPagination(t *testing.T) {
 	t.Parallel()
 	t.Skip("This fails when two users are created at the exact same time. The reason is unknown... See: https://github.com/coder/coder/actions/runs/3057047622/jobs/4931863163")
-	client := coderdtest.New(t, nil)
-	coderdtest.CreateFirstUser(t, client)
+	client := wirtualdtest.New(t, nil)
+	wirtualdtest.CreateFirstUser(t, client)
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	t.Cleanup(cancel)
@@ -1960,11 +1960,11 @@ func TestUserAutofillParameters(t *testing.T) {
 	t.Parallel()
 	t.Run("NotSelf", func(t *testing.T) {
 		t.Parallel()
-		client1, _, api := coderdtest.NewWithAPI(t, &coderdtest.Options{})
+		client1, _, api := wirtualdtest.NewWithAPI(t, &wirtualdtest.Options{})
 
-		u1 := coderdtest.CreateFirstUser(t, client1)
+		u1 := wirtualdtest.CreateFirstUser(t, client1)
 
-		client2, u2 := coderdtest.CreateAnotherUser(t, client1, u1.OrganizationID)
+		client2, u2 := wirtualdtest.CreateAnotherUser(t, client1, u1.OrganizationID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -2000,11 +2000,11 @@ func TestUserAutofillParameters(t *testing.T) {
 
 	t.Run("FindsParameters", func(t *testing.T) {
 		t.Parallel()
-		client1, _, api := coderdtest.NewWithAPI(t, &coderdtest.Options{})
+		client1, _, api := wirtualdtest.NewWithAPI(t, &wirtualdtest.Options{})
 
-		u1 := coderdtest.CreateFirstUser(t, client1)
+		u1 := wirtualdtest.CreateFirstUser(t, client1)
 
-		client2, u2 := coderdtest.CreateAnotherUser(t, client1, u1.OrganizationID)
+		client2, u2 := wirtualdtest.CreateAnotherUser(t, client1, u1.OrganizationID)
 
 		db := api.Database
 
@@ -2083,8 +2083,8 @@ func TestUserAutofillParameters(t *testing.T) {
 // them using different page sizes.
 func TestPaginatedUsers(t *testing.T) {
 	t.Parallel()
-	client, db := coderdtest.NewWithDatabase(t, nil)
-	coderdtest.CreateFirstUser(t, client)
+	client, db := wirtualdtest.NewWithDatabase(t, nil)
+	wirtualdtest.CreateFirstUser(t, client)
 
 	// This test takes longer than a long time.
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong*4)
@@ -2274,8 +2274,8 @@ func onlyUsernames[U wirtualsdk.User | database.User](users []U) []string {
 }
 
 func BenchmarkUsersMe(b *testing.B) {
-	client := coderdtest.New(b, nil)
-	_ = coderdtest.CreateFirstUser(b, client)
+	client := wirtualdtest.New(b, nil)
+	_ = wirtualdtest.CreateFirstUser(b, client)
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()

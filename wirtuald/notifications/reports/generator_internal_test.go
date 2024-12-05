@@ -14,7 +14,6 @@ import (
 	"cdr.dev/slog/sloggers/slogtest"
 	"github.com/coder/quartz"
 
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/database/dbgen"
@@ -23,6 +22,7 @@ import (
 	"github.com/coder/coder/v2/wirtuald/notifications"
 	"github.com/coder/coder/v2/wirtuald/notifications/notificationstest"
 	"github.com/coder/coder/v2/wirtuald/rbac"
+
 )
 
 const dayDuration = 24 * time.Hour
@@ -474,5 +474,5 @@ func setup(t *testing.T) (context.Context, slog.Logger, database.Store, pubsub.P
 
 func authedDB(t *testing.T, db database.Store, logger slog.Logger) database.Store {
 	t.Helper()
-	return dbauthz.New(db, rbac.NewAuthorizer(prometheus.NewRegistry()), logger, coderdtest.AccessControlStorePointer())
+	return dbauthz.New(db, rbac.NewAuthorizer(prometheus.NewRegistry()), logger, wirtualdtest.AccessControlStorePointer())
 }

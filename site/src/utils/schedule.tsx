@@ -20,7 +20,7 @@ dayjs.extend(duration);
 dayjs.extend(relativeTime);
 dayjs.extend(timezone);
 /**
- * @fileoverview Client-side counterpart of the coderd/autostart/schedule Go
+ * @fileoverview Client-side counterpart of the wirtuald/autostart/schedule Go
  * package. This package is a variation on crontab that uses minute, hour and
  * day of week.
  */

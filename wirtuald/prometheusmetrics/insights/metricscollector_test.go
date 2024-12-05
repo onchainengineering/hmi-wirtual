@@ -20,12 +20,12 @@ import (
 	"cdr.dev/slog/sloggers/slogtest"
 	agentproto "github.com/coder/coder/v2/agent/proto"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/database/dbgen"
 	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
 	"github.com/coder/coder/v2/wirtuald/prometheusmetrics/insights"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/workspaceapps"
 	"github.com/coder/coder/v2/wirtuald/workspacestats"
 	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
@@ -37,16 +37,16 @@ func TestCollectInsights(t *testing.T) {
 	logger := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true})
 	db, ps := dbtestutil.NewDB(t, dbtestutil.WithDumpOnFailure())
 
-	options := &coderdtest.Options{
+	options := &wirtualdtest.Options{
 		IncludeProvisionerDaemon:  true,
 		AgentStatsRefreshInterval: time.Millisecond * 100,
 		Database:                  db,
 		Pubsub:                    ps,
 	}
-	ownerClient := coderdtest.New(t, options)
+	ownerClient := wirtualdtest.New(t, options)
 	ownerClient.SetLogger(logger.Named("ownerClient").Leveled(slog.LevelDebug))
-	owner := coderdtest.CreateFirstUser(t, ownerClient)
-	client, user := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+	owner := wirtualdtest.CreateFirstUser(t, ownerClient)
+	client, user := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
 
 	// Given
 	// Initialize metrics collector
@@ -194,7 +194,7 @@ func TestCollectInsights(t *testing.T) {
 		for _, metric := range metrics {
 			t.Logf("metric: %s: %#v", metric.GetName(), metric)
 			switch metric.GetName() {
-			case "coderd_insights_applications_usage_seconds", "coderd_insights_templates_active_users", "coderd_insights_parameters":
+			case "wirtuald_insights_applications_usage_seconds", "wirtuald_insights_templates_active_users", "wirtuald_insights_parameters":
 				for _, m := range metric.Metric {
 					key := metric.GetName()
 					if len(m.Label) > 0 {

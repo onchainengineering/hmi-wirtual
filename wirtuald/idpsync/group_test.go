@@ -14,7 +14,6 @@ import (
 
 	"cdr.dev/slog/sloggers/slogtest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
@@ -23,6 +22,7 @@ import (
 	"github.com/coder/coder/v2/wirtuald/idpsync"
 	"github.com/coder/coder/v2/wirtuald/runtimeconfig"
 	"github.com/coder/coder/v2/wirtuald/util/ptr"
+	"github.com/coder/coder/v2/wirtuald/wi
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -81,7 +81,7 @@ func TestGroupSyncTable(t *testing.T) {
 		},
 	}
 
-	ids := coderdtest.NewDeterministicUUIDGenerator()
+	ids := wirtualdtest.NewDeterministicUUIDGenerator()
 	testCases := []orgSetupDefinition{
 		{
 			Name: "SwitchGroups",
@@ -388,7 +388,7 @@ func TestSyncDisabled(t *testing.T) {
 		idpsync.DeploymentSyncSettings{},
 	)
 
-	ids := coderdtest.NewDeterministicUUIDGenerator()
+	ids := wirtualdtest.NewDeterministicUUIDGenerator()
 	ctx := testutil.Context(t, testutil.WaitSuperLong)
 	user := dbgen.User(t, db, database.User{})
 	orgID := uuid.New()
@@ -434,7 +434,7 @@ func TestSyncDisabled(t *testing.T) {
 func TestApplyGroupDifference(t *testing.T) {
 	t.Parallel()
 
-	ids := coderdtest.NewDeterministicUUIDGenerator()
+	ids := wirtualdtest.NewDeterministicUUIDGenerator()
 	testCase := []struct {
 		Name   string
 		Before map[uuid.UUID]bool
@@ -564,7 +564,7 @@ func TestApplyGroupDifference(t *testing.T) {
 				}
 			}
 
-			s := idpsync.NewAGPLSync(slogtest.Make(t, &slogtest.Options{}), mgr, idpsync.FromDeploymentValues(coderdtest.DeploymentValues(t)))
+			s := idpsync.NewAGPLSync(slogtest.Make(t, &slogtest.Options{}), mgr, idpsync.FromDeploymentValues(wirtualdtest.DeploymentValues(t)))
 			err = s.ApplyGroupDifference(context.Background(), db, user, tc.Add, tc.Remove)
 			require.NoError(t, err)
 
@@ -587,7 +587,7 @@ func TestApplyGroupDifference(t *testing.T) {
 func TestExpectedGroupEqual(t *testing.T) {
 	t.Parallel()
 
-	ids := coderdtest.NewDeterministicUUIDGenerator()
+	ids := wirtualdtest.NewDeterministicUUIDGenerator()
 	testCases := []struct {
 		Name  string
 		A     idpsync.ExpectedGroup

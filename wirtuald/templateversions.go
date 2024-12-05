@@ -1,4 +1,4 @@
-package coderd
+package wirtuald
 
 import (
 	"context"
@@ -1639,7 +1639,7 @@ func (api *API) postTemplateVersionsByOrganization(rw http.ResponseWriter, r *ht
 
 // templateVersionResources returns the workspace agent resources associated
 // with a template version. A template can specify more than one resource to be
-// provisioned, each resource can have an agent that dials back to coderd. The
+// provisioned, each resource can have an agent that dials back to wirtuald. The
 // agents returned are informative of the template version, and do not return
 // agents associated with any particular workspace.
 //

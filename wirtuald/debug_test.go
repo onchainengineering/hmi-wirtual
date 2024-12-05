@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 	"cdr.dev/slog/sloggers/slogtest"
 
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk/healthsdk"
 )
 
@@ -28,7 +28,7 @@ func TestDebugHealth(t *testing.T) {
 			calls        = atomic.Int64{}
 			ctx, cancel  = context.WithTimeout(context.Background(), testutil.WaitShort)
 			sessionToken string
-			client       = coderdtest.New(t, &coderdtest.Options{
+			client       = wirtualdtest.New(t, &wirtualdtest.Options{
 				HealthcheckFunc: func(_ context.Context, apiKey string) *healthsdk.HealthcheckReport {
 					calls.Add(1)
 					assert.Equal(t, sessionToken, apiKey)
@@ -38,7 +38,7 @@ func TestDebugHealth(t *testing.T) {
 				},
 				HealthcheckRefresh: time.Hour, // Avoid flakes.
 			})
-			_ = coderdtest.CreateFirstUser(t, client)
+			_ = wirtualdtest.CreateFirstUser(t, client)
 		)
 		defer cancel()
 
@@ -61,7 +61,7 @@ func TestDebugHealth(t *testing.T) {
 			calls        = atomic.Int64{}
 			ctx, cancel  = context.WithTimeout(context.Background(), testutil.WaitShort)
 			sessionToken string
-			client       = coderdtest.New(t, &coderdtest.Options{
+			client       = wirtualdtest.New(t, &wirtualdtest.Options{
 				HealthcheckFunc: func(_ context.Context, apiKey string) *healthsdk.HealthcheckReport {
 					calls.Add(1)
 					assert.Equal(t, sessionToken, apiKey)
@@ -71,7 +71,7 @@ func TestDebugHealth(t *testing.T) {
 				},
 				HealthcheckRefresh: time.Hour, // Avoid flakes.
 			})
-			_ = coderdtest.CreateFirstUser(t, client)
+			_ = wirtualdtest.CreateFirstUser(t, client)
 		)
 		defer cancel()
 
@@ -94,7 +94,7 @@ func TestDebugHealth(t *testing.T) {
 			// Need to ignore errors due to ctx timeout
 			logger      = slogtest.Make(t, &slogtest.Options{IgnoreErrors: true})
 			ctx, cancel = context.WithTimeout(context.Background(), testutil.WaitShort)
-			client      = coderdtest.New(t, &coderdtest.Options{
+			client      = wirtualdtest.New(t, &wirtualdtest.Options{
 				Logger:             &logger,
 				HealthcheckTimeout: time.Microsecond,
 				HealthcheckFunc: func(context.Context, string) *healthsdk.HealthcheckReport {
@@ -109,7 +109,7 @@ func TestDebugHealth(t *testing.T) {
 					}
 				},
 			})
-			_ = coderdtest.CreateFirstUser(t, client)
+			_ = wirtualdtest.CreateFirstUser(t, client)
 		)
 		defer cancel()
 
@@ -127,14 +127,14 @@ func TestDebugHealth(t *testing.T) {
 			calls       = make(chan struct{})
 			callsDone   = make(chan struct{})
 			ctx, cancel = context.WithTimeout(context.Background(), testutil.WaitShort)
-			client      = coderdtest.New(t, &coderdtest.Options{
+			client      = wirtualdtest.New(t, &wirtualdtest.Options{
 				HealthcheckRefresh: time.Microsecond,
 				HealthcheckFunc: func(context.Context, string) *healthsdk.HealthcheckReport {
 					calls <- struct{}{}
 					return &healthsdk.HealthcheckReport{}
 				},
 			})
-			_ = coderdtest.CreateFirstUser(t, client)
+			_ = wirtualdtest.CreateFirstUser(t, client)
 		)
 
 		defer cancel()
@@ -171,7 +171,7 @@ func TestDebugHealth(t *testing.T) {
 		var (
 			ctx, cancel = context.WithTimeout(context.Background(), testutil.WaitShort)
 			calls       int
-			client      = coderdtest.New(t, &coderdtest.Options{
+			client      = wirtualdtest.New(t, &wirtualdtest.Options{
 				HealthcheckRefresh: time.Hour,
 				HealthcheckTimeout: time.Hour,
 				HealthcheckFunc: func(context.Context, string) *healthsdk.HealthcheckReport {
@@ -181,7 +181,7 @@ func TestDebugHealth(t *testing.T) {
 					}
 				},
 			})
-			_ = coderdtest.CreateFirstUser(t, client)
+			_ = wirtualdtest.CreateFirstUser(t, client)
 		)
 		defer cancel()
 
@@ -207,7 +207,7 @@ func TestDebugHealth(t *testing.T) {
 		var (
 			ctx, cancel  = context.WithTimeout(context.Background(), testutil.WaitShort)
 			sessionToken string
-			client       = coderdtest.New(t, &coderdtest.Options{
+			client       = wirtualdtest.New(t, &wirtualdtest.Options{
 				HealthcheckFunc: func(_ context.Context, apiKey string) *healthsdk.HealthcheckReport {
 					assert.Equal(t, sessionToken, apiKey)
 					return &healthsdk.HealthcheckReport{
@@ -217,7 +217,7 @@ func TestDebugHealth(t *testing.T) {
 					}
 				},
 			})
-			_ = coderdtest.CreateFirstUser(t, client)
+			_ = wirtualdtest.CreateFirstUser(t, client)
 		)
 		defer cancel()
 
@@ -247,8 +247,8 @@ func TestHealthSettings(t *testing.T) {
 		defer cancel()
 
 		// given
-		adminClient := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, adminClient)
+		adminClient := wirtualdtest.New(t, nil)
+		_ = wirtualdtest.CreateFirstUser(t, adminClient)
 
 		// when
 		settings, err := healthsdk.New(adminClient).HealthSettings(ctx)
@@ -265,8 +265,8 @@ func TestHealthSettings(t *testing.T) {
 		defer cancel()
 
 		// given
-		adminClient := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, adminClient)
+		adminClient := wirtualdtest.New(t, nil)
+		_ = wirtualdtest.CreateFirstUser(t, adminClient)
 
 		expected := healthsdk.HealthSettings{
 			DismissedHealthchecks: []healthsdk.HealthSection{healthsdk.HealthSectionDERP, healthsdk.HealthSectionWebsocket},
@@ -300,8 +300,8 @@ func TestHealthSettings(t *testing.T) {
 		defer cancel()
 
 		// given
-		adminClient := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, adminClient)
+		adminClient := wirtualdtest.New(t, nil)
+		_ = wirtualdtest.CreateFirstUser(t, adminClient)
 
 		initial := healthsdk.HealthSettings{
 			DismissedHealthchecks: []healthsdk.HealthSection{healthsdk.HealthSectionDERP, healthsdk.HealthSectionWebsocket},
@@ -342,8 +342,8 @@ func TestHealthSettings(t *testing.T) {
 		defer cancel()
 
 		// given
-		adminClient := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, adminClient)
+		adminClient := wirtualdtest.New(t, nil)
+		_ = wirtualdtest.CreateFirstUser(t, adminClient)
 
 		expected := healthsdk.HealthSettings{
 			DismissedHealthchecks: []healthsdk.HealthSection{healthsdk.HealthSectionDERP, healthsdk.HealthSectionWebsocket},

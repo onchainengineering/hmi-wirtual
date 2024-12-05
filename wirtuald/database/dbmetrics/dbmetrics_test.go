@@ -11,10 +11,10 @@ import (
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/sloghuman"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest/promhelp"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbmem"
 	"github.com/coder/coder/v2/wirtuald/database/dbmetrics"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest/promhelp"
 )
 
 func TestInTxMetrics(t *testing.T) {
@@ -24,8 +24,8 @@ func TestInTxMetrics(t *testing.T) {
 		"success": "true",
 		"tx_id":   "unlabeled",
 	}
-	const inTxHistMetricName = "coderd_db_tx_duration_seconds"
-	const inTxCountMetricName = "coderd_db_tx_executions_count"
+	const inTxHistMetricName = "wirtuald_db_tx_duration_seconds"
+	const inTxCountMetricName = "wirtuald_db_tx_executions_count"
 	t.Run("QueryMetrics", func(t *testing.T) {
 		t.Parallel()
 

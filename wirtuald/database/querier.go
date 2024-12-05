@@ -84,7 +84,7 @@ type sqlcQuerier interface {
 	// Delete all notification messages which have not been updated for over a week.
 	DeleteOldNotificationMessages(ctx context.Context) error
 	// Delete provisioner daemons that have been created at least a week ago
-	// and have not connected to coderd since a week.
+	// and have not connected to wirtuald since a week.
 	// A provisioner daemon with "zeroed" last_seen_at column indicates possible
 	// connectivity issues (no provisioner daemon activity since registration).
 	DeleteOldProvisionerDaemons(ctx context.Context) error

@@ -7,21 +7,21 @@ import (
 
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/pty/ptytest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 )
 
 func TestShow(t *testing.T) {
 	t.Parallel()
 	t.Run("Exists", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithAgent())
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, member, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		member, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithAgent())
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, member, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		args := []string{
 			"show",

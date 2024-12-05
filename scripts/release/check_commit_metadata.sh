@@ -61,10 +61,10 @@ main() {
 	# Order is important here, first partial match wins.
 	declare -A humanized_areas=(
 		["agent/agentssh"]="Agent SSH"
-		["coderd/database"]="Database"
+		["wirtuald/database"]="Database"
 		["enterprise/audit"]="Auditing"
 		["enterprise/cli"]="CLI"
-		["enterprise/coderd"]="Server"
+		["enterprise/wirtuald"]="Server"
 		["enterprise/dbcrypt"]="Database"
 		["enterprise/derpmesh"]="Networking"
 		["enterprise/provisionerd"]="Provisioner"
@@ -72,7 +72,7 @@ main() {
 		["enterprise/wsproxy"]="Workspace Proxy"
 		[agent]="Agent"
 		[cli]="CLI"
-		[coderd]="Server"
+		[wirtuald]="Server"
 		[wirtualsdk]="SDK"
 		[docs]="Documentation"
 		[enterprise]="Enterprise"

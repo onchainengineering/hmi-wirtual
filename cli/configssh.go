@@ -376,7 +376,7 @@ func (r *RootCmd) configSSH() *serpent.Command {
 				return xerrors.Errorf("fetch workspace configs failed: %w", err)
 			}
 
-			coderdConfig, err := client.SSHConfiguration(ctx)
+			wirtualdConfig, err := client.SSHConfiguration(ctx)
 			if err != nil {
 				// If the error is 404, this deployment does not support
 				// this endpoint yet. Do not error, just assume defaults.
@@ -384,14 +384,14 @@ func (r *RootCmd) configSSH() *serpent.Command {
 				// 	and remove this 404 check.
 				var sdkErr *wirtualsdk.Error
 				if !(xerrors.As(err, &sdkErr) && sdkErr.StatusCode() == http.StatusNotFound) {
-					return xerrors.Errorf("fetch coderd config failed: %w", err)
+					return xerrors.Errorf("fetch wirtuald config failed: %w", err)
 				}
-				coderdConfig.HostnamePrefix = "coder."
+				wirtualdConfig.HostnamePrefix = "coder."
 			}
 
 			if sshConfigOpts.userHostPrefix != "" {
 				// Override with user flag.
-				coderdConfig.HostnamePrefix = sshConfigOpts.userHostPrefix
+				wirtualdConfig.HostnamePrefix = sshConfigOpts.userHostPrefix
 			}
 
 			// Ensure stable sorting of output.
@@ -402,7 +402,7 @@ func (r *RootCmd) configSSH() *serpent.Command {
 				sort.Strings(wc.Hosts)
 				// Write agent configuration.
 				for _, workspaceHostname := range wc.Hosts {
-					sshHostname := fmt.Sprintf("%s%s", coderdConfig.HostnamePrefix, workspaceHostname)
+					sshHostname := fmt.Sprintf("%s%s", wirtualdConfig.HostnamePrefix, workspaceHostname)
 					defaultOptions := []string{
 						"HostName " + sshHostname,
 						"ConnectTimeout=0",
@@ -452,11 +452,11 @@ func (r *RootCmd) configSSH() *serpent.Command {
 
 					// Deployment options second, allow them to
 					// override standard options.
-					for k, v := range coderdConfig.SSHConfigOptions {
+					for k, v := range wirtualdConfig.SSHConfigOptions {
 						opt := fmt.Sprintf("%s %s", k, v)
 						err := configOptions.addOptions(opt)
 						if err != nil {
-							return xerrors.Errorf("add coderd config option %q: %w", opt, err)
+							return xerrors.Errorf("add wirtuald config option %q: %w", opt, err)
 						}
 					}
 
@@ -534,7 +534,7 @@ func (r *RootCmd) configSSH() *serpent.Command {
 
 			if len(workspaceConfigs) > 0 {
 				_, _ = fmt.Fprintln(out, "You should now be able to ssh into your workspace.")
-				_, _ = fmt.Fprintf(out, "For example, try running:\n\n\t$ ssh %s%s\n", coderdConfig.HostnamePrefix, workspaceConfigs[0].Name)
+				_, _ = fmt.Fprintf(out, "For example, try running:\n\n\t$ ssh %s%s\n", wirtualdConfig.HostnamePrefix, workspaceConfigs[0].Name)
 			} else {
 				_, _ = fmt.Fprint(out, "You don't have any workspaces yet, try creating one with:\n\n\t$ coder create <workspace>\n")
 			}

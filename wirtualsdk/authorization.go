@@ -42,7 +42,7 @@ type AuthorizationCheck struct {
 // @Description all workspaces across the entire product.
 type AuthorizationObject struct {
 	// ResourceType is the name of the resource.
-	// `./coderd/rbac/object.go` has the list of valid resource types.
+	// `./wirtuald/rbac/object.go` has the list of valid resource types.
 	ResourceType RBACResource `json:"resource_type"`
 	// OwnerID (optional) adds the set constraint to all resources owned by a given user.
 	OwnerID string `json:"owner_id,omitempty"`

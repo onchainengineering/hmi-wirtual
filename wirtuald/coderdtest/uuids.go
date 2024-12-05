@@ -1,4 +1,4 @@
-package coderdtest
+package wirtualdtest
 
 import "github.com/google/uuid"
 

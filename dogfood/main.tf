@@ -1,7 +1,7 @@
 terraform {
   required_providers {
-    coderd = {
-      source = "coder/coderd"
+    wirtuald = {
+      source = "coder/wirtuald"
     }
   }
   backend "gcs" {
@@ -9,11 +9,11 @@ terraform {
   }
 }
 
-data "coderd_organization" "default" {
+data "wirtuald_organization" "default" {
   is_default = true
 }
 
-data "coderd_user" "machine" {
+data "wirtuald_user" "machine" {
   username = "machine"
 }
 
@@ -33,7 +33,7 @@ variable "WIRTUAL_TEMPLATE_MESSAGE" {
   type = string
 }
 
-resource "coderd_template" "dogfood" {
+resource "wirtuald_template" "dogfood" {
   name            = var.WIRTUAL_TEMPLATE_NAME
   display_name    = "Write Coder on Coder"
   description     = "The template to use when developing Coder on Coder!"
@@ -49,11 +49,11 @@ resource "coderd_template" "dogfood" {
   ]
   acl = {
     groups = [{
-      id   = data.coderd_organization.default.id
+      id   = data.wirtuald_organization.default.id
       role = "use"
     }]
     users = [{
-      id   = data.coderd_user.machine.id
+      id   = data.wirtuald_user.machine.id
       role = "admin"
     }]
   }

@@ -1,4 +1,4 @@
-package coderdtest_test
+package wirtualdtest_test
 
 import (
 	"context"
@@ -7,9 +7,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtuald/rbac/policy"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 )
 
 func TestAuthzRecorder(t *testing.T) {
@@ -18,10 +18,10 @@ func TestAuthzRecorder(t *testing.T) {
 	t.Run("Authorize", func(t *testing.T) {
 		t.Parallel()
 
-		rec := &coderdtest.RecordingAuthorizer{
-			Wrapped: &coderdtest.FakeAuthorizer{},
+		rec := &wirtualdtest.RecordingAuthorizer{
+			Wrapped: &wirtualdtest.FakeAuthorizer{},
 		}
-		sub := coderdtest.RandomRBACSubject()
+		sub := wirtualdtest.RandomRBACSubject()
 		pairs := fuzzAuthz(t, sub, rec, 10)
 		rec.AssertActor(t, sub, pairs...)
 		require.NoError(t, rec.AllAsserted(), "all assertions should have been made")
@@ -30,13 +30,13 @@ func TestAuthzRecorder(t *testing.T) {
 	t.Run("Authorize2Subjects", func(t *testing.T) {
 		t.Parallel()
 
-		rec := &coderdtest.RecordingAuthorizer{
-			Wrapped: &coderdtest.FakeAuthorizer{},
+		rec := &wirtualdtest.RecordingAuthorizer{
+			Wrapped: &wirtualdtest.FakeAuthorizer{},
 		}
-		a := coderdtest.RandomRBACSubject()
+		a := wirtualdtest.RandomRBACSubject()
 		aPairs := fuzzAuthz(t, a, rec, 10)
 
-		b := coderdtest.RandomRBACSubject()
+		b := wirtualdtest.RandomRBACSubject()
 		bPairs := fuzzAuthz(t, b, rec, 10)
 
 		rec.AssertActor(t, b, bPairs...)
@@ -47,15 +47,15 @@ func TestAuthzRecorder(t *testing.T) {
 	t.Run("Authorize&Prepared", func(t *testing.T) {
 		t.Parallel()
 
-		rec := &coderdtest.RecordingAuthorizer{
-			Wrapped: &coderdtest.FakeAuthorizer{},
+		rec := &wirtualdtest.RecordingAuthorizer{
+			Wrapped: &wirtualdtest.FakeAuthorizer{},
 		}
-		a := coderdtest.RandomRBACSubject()
+		a := wirtualdtest.RandomRBACSubject()
 		aPairs := fuzzAuthz(t, a, rec, 10)
 
-		b := coderdtest.RandomRBACSubject()
+		b := wirtualdtest.RandomRBACSubject()
 
-		act, objTy := coderdtest.RandomRBACAction(), coderdtest.RandomRBACObject().Type
+		act, objTy := wirtualdtest.RandomRBACAction(), wirtualdtest.RandomRBACObject().Type
 		prep, _ := rec.Prepare(context.Background(), b, act, objTy)
 		bPairs := fuzzAuthzPrep(t, prep, 10, act, objTy)
 
@@ -67,10 +67,10 @@ func TestAuthzRecorder(t *testing.T) {
 	t.Run("AuthorizeOutOfOrder", func(t *testing.T) {
 		t.Parallel()
 
-		rec := &coderdtest.RecordingAuthorizer{
-			Wrapped: &coderdtest.FakeAuthorizer{},
+		rec := &wirtualdtest.RecordingAuthorizer{
+			Wrapped: &wirtualdtest.FakeAuthorizer{},
 		}
-		sub := coderdtest.RandomRBACSubject()
+		sub := wirtualdtest.RandomRBACSubject()
 		pairs := fuzzAuthz(t, sub, rec, 10)
 		rand.Shuffle(len(pairs), func(i, j int) {
 			pairs[i], pairs[j] = pairs[j], pairs[i]
@@ -83,14 +83,14 @@ func TestAuthzRecorder(t *testing.T) {
 	t.Run("AllCalls", func(t *testing.T) {
 		t.Parallel()
 
-		rec := &coderdtest.RecordingAuthorizer{
-			Wrapped: &coderdtest.FakeAuthorizer{},
+		rec := &wirtualdtest.RecordingAuthorizer{
+			Wrapped: &wirtualdtest.FakeAuthorizer{},
 		}
-		sub := coderdtest.RandomRBACSubject()
+		sub := wirtualdtest.RandomRBACSubject()
 		calls := rec.AllCalls(&sub)
-		pairs := make([]coderdtest.ActionObjectPair, 0, len(calls))
+		pairs := make([]wirtualdtest.ActionObjectPair, 0, len(calls))
 		for _, call := range calls {
-			pairs = append(pairs, coderdtest.ActionObjectPair{
+			pairs = append(pairs, wirtualdtest.ActionObjectPair{
 				Action: call.Action,
 				Object: call.Object,
 			})
@@ -102,26 +102,26 @@ func TestAuthzRecorder(t *testing.T) {
 }
 
 // fuzzAuthzPrep has same action and object types for all calls.
-func fuzzAuthzPrep(t *testing.T, prep rbac.PreparedAuthorized, n int, action policy.Action, objectType string) []coderdtest.ActionObjectPair {
+func fuzzAuthzPrep(t *testing.T, prep rbac.PreparedAuthorized, n int, action policy.Action, objectType string) []wirtualdtest.ActionObjectPair {
 	t.Helper()
-	pairs := make([]coderdtest.ActionObjectPair, 0, n)
+	pairs := make([]wirtualdtest.ActionObjectPair, 0, n)
 
 	for i := 0; i < n; i++ {
-		obj := coderdtest.RandomRBACObject()
+		obj := wirtualdtest.RandomRBACObject()
 		obj.Type = objectType
-		p := coderdtest.ActionObjectPair{Action: action, Object: obj}
+		p := wirtualdtest.ActionObjectPair{Action: action, Object: obj}
 		_ = prep.Authorize(context.Background(), p.Object)
 		pairs = append(pairs, p)
 	}
 	return pairs
 }
 
-func fuzzAuthz(t *testing.T, sub rbac.Subject, rec rbac.Authorizer, n int) []coderdtest.ActionObjectPair {
+func fuzzAuthz(t *testing.T, sub rbac.Subject, rec rbac.Authorizer, n int) []wirtualdtest.ActionObjectPair {
 	t.Helper()
-	pairs := make([]coderdtest.ActionObjectPair, 0, n)
+	pairs := make([]wirtualdtest.ActionObjectPair, 0, n)
 
 	for i := 0; i < n; i++ {
-		p := coderdtest.ActionObjectPair{Action: coderdtest.RandomRBACAction(), Object: coderdtest.RandomRBACObject()}
+		p := wirtualdtest.ActionObjectPair{Action: wirtualdtest.RandomRBACAction(), Object: wirtualdtest.RandomRBACObject()}
 		_ = rec.Authorize(context.Background(), sub, p.Action, p.Object)
 		pairs = append(pairs, p)
 	}

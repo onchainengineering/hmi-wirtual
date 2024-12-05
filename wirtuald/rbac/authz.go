@@ -307,7 +307,7 @@ func NewAuthorizer(registry prometheus.Registerer) *RegoAuthorizer {
 
 	factory := promauto.With(registry)
 	authorizeHistogram := factory.NewHistogramVec(prometheus.HistogramOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "authz",
 		Name:      "authorize_duration_seconds",
 		Help:      "Duration of the 'Authorize' call in seconds. Only counts calls that succeed.",
@@ -315,7 +315,7 @@ func NewAuthorizer(registry prometheus.Registerer) *RegoAuthorizer {
 	}, []string{"allowed"})
 
 	prepareHistogram := factory.NewHistogram(prometheus.HistogramOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "authz",
 		Name:      "prepare_authorize_duration_seconds",
 		Help:      "Duration of the 'PrepareAuthorize' call in seconds.",

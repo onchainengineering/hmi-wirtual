@@ -1,4 +1,4 @@
-package coderdtest
+package wirtualdtest
 
 import (
 	"context"
@@ -38,7 +38,7 @@ type RBACAsserter struct {
 // AssertRBAC returns an RBACAsserter for the given user. This asserter will
 // allow asserting that the correct RBAC checks are performed for the given user.
 // All checks that are not run against this user will be ignored.
-func AssertRBAC(t *testing.T, api *coderd.API, client *wirtualsdk.Client) RBACAsserter {
+func AssertRBAC(t *testing.T, api *wirtuald.API, client *wirtualsdk.Client) RBACAsserter {
 	if client.SessionToken() == "" {
 		t.Fatal("client must be logged in")
 	}

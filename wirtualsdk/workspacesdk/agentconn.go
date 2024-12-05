@@ -27,7 +27,7 @@ import (
 )
 
 // NewAgentConn creates a new WorkspaceAgentConn. `conn` may be unique
-// to the WorkspaceAgentConn, or it may be shared in the case of coderd. If the
+// to the WorkspaceAgentConn, or it may be shared in the case of wirtuald. If the
 // conn is shared and closing it is undesirable, you may return ErrNoClose from
 // opts.CloseFunc. This will ensure the underlying conn is not closed.
 func NewAgentConn(conn *tailnet.Conn, opts AgentConnOptions) *AgentConn {

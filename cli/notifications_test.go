@@ -12,15 +12,15 @@ import (
 
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
-func createOpts(t *testing.T) *coderdtest.Options {
+func createOpts(t *testing.T) *wirtualdtest.Options {
 	t.Helper()
 
-	dt := coderdtest.DeploymentValues(t)
-	return &coderdtest.Options{
+	dt := wirtualdtest.DeploymentValues(t)
+	return &wirtualdtest.Options{
 		DeploymentValues: dt,
 	}
 }
@@ -51,8 +51,8 @@ func TestNotifications(t *testing.T) {
 			t.Parallel()
 
 			// given
-			ownerClient, db := coderdtest.NewWithDatabase(t, createOpts(t))
-			_ = coderdtest.CreateFirstUser(t, ownerClient)
+			ownerClient, db := wirtualdtest.NewWithDatabase(t, createOpts(t))
+			_ = wirtualdtest.CreateFirstUser(t, ownerClient)
 
 			// when
 			inv, root := clitest.New(t, "notifications", tt.command)
@@ -81,9 +81,9 @@ func TestPauseNotifications_RegularUser(t *testing.T) {
 	t.Parallel()
 
 	// given
-	ownerClient, db := coderdtest.NewWithDatabase(t, createOpts(t))
-	owner := coderdtest.CreateFirstUser(t, ownerClient)
-	anotherClient, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+	ownerClient, db := wirtualdtest.NewWithDatabase(t, createOpts(t))
+	owner := wirtualdtest.CreateFirstUser(t, ownerClient)
+	anotherClient, _ := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
 
 	// when
 	inv, root := clitest.New(t, "notifications", "pause")

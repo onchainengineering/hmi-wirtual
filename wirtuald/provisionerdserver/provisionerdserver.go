@@ -1710,7 +1710,7 @@ func (s *server) CompleteJob(ctx context.Context, completed *proto.CompletedJob)
 		if completed.Type == nil {
 			return nil, xerrors.Errorf("type payload must be provided")
 		}
-		return nil, xerrors.Errorf("unknown job type %q; ensure coderd and provisionerd versions match",
+		return nil, xerrors.Errorf("unknown job type %q; ensure wirtuald and provisionerd versions match",
 			reflect.TypeOf(completed.Type).String())
 	}
 
@@ -1767,7 +1767,7 @@ func (s *server) notifyWorkspaceDeleted(ctx context.Context, workspace database.
 
 func (s *server) startTrace(ctx context.Context, name string, opts ...trace.SpanStartOption) (context.Context, trace.Span) {
 	return s.Tracer.Start(ctx, name, append(opts, trace.WithAttributes(
-		semconv.ServiceNameKey.String("coderd.provisionerd"),
+		semconv.ServiceNameKey.String("wirtuald.provisionerd"),
 	))...)
 }
 

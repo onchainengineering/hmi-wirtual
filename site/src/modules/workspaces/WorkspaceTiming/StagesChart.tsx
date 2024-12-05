@@ -241,7 +241,7 @@ export const provisioningStages: Stage[] = [
 				<>
 					<TooltipTitle>Terraform graph</TooltipTitle>
 					<TooltipShortDescription>
-						List all resources in plan, used to update coderd database.
+						List all resources in plan, used to update wirtuald database.
 					</TooltipShortDescription>
 				</>
 			),

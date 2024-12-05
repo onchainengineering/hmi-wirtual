@@ -9,13 +9,13 @@ import (
 
 	"cdr.dev/slog"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/db2sdk"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/database/dbmem"
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtuald/rbac/policy"
+	"github.com/coder/coder/v2/wirtuald/wi
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -222,10 +222,10 @@ func TestInsertCustomRoles(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			db := dbmem.New()
-			rec := &coderdtest.RecordingAuthorizer{
+			rec := &wirtualdtest.RecordingAuthorizer{
 				Wrapped: rbac.NewAuthorizer(prometheus.NewRegistry()),
 			}
-			az := dbauthz.New(db, rec, slog.Make(), coderdtest.AccessControlStorePointer())
+			az := dbauthz.New(db, rec, slog.Make(), wirtualdtest.AccessControlStorePointer())
 
 			subject := subjectFromRoles(tc.subject)
 			ctx := testutil.Context(t, testutil.WaitMedium)

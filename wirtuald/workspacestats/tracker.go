@@ -135,7 +135,7 @@ func (tr *UsageTracker) flush(now time.Time) {
 		IDs:        ids,
 	}); err != nil {
 		// A single failure to flush is likely not a huge problem. If the workspace is still connected at
-		// the next iteration, either another coderd instance will likely have this data or the CLI
+		// the next iteration, either another wirtuald instance will likely have this data or the CLI
 		// will tell us again that the workspace is in use.
 		tr.flushErrors++
 		if tr.flushErrors > 1 {

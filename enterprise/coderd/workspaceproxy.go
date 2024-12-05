@@ -1,4 +1,4 @@
-package coderd
+package wirtuald
 
 import (
 	"context"
@@ -16,8 +16,8 @@ import (
 
 	"cdr.dev/slog"
 	"github.com/coder/coder/v2/cryptorand"
-	"github.com/coder/coder/v2/enterprise/coderd/proxyhealth"
 	"github.com/coder/coder/v2/enterprise/replicasync"
+	"github.com/coder/coder/v2/enterprise/wirtuald/proxyhealth"
 	"github.com/coder/coder/v2/enterprise/wsproxy/wsproxysdk"
 	agpl "github.com/coder/coder/v2/wirtuald"
 	"github.com/coder/coder/v2/wirtuald/audit"

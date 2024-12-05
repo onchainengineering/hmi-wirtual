@@ -11,8 +11,8 @@ import (
 
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/pty/ptytest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -20,9 +20,9 @@ func TestUserList(t *testing.T) {
 	t.Parallel()
 	t.Run("Table", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		userAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleUserAdmin())
+		client := wirtualdtest.New(t, nil)
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		userAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleUserAdmin())
 		inv, root := clitest.New(t, "users", "list")
 		clitest.SetupConfig(t, userAdmin, root)
 		pty := ptytest.New(t).Attach(inv)
@@ -36,9 +36,9 @@ func TestUserList(t *testing.T) {
 	t.Run("JSON", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		userAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleUserAdmin())
+		client := wirtualdtest.New(t, nil)
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		userAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleUserAdmin())
 		inv, root := clitest.New(t, "users", "list", "-o", "json")
 		clitest.SetupConfig(t, userAdmin, root)
 		doneChan := make(chan struct{})
@@ -76,7 +76,7 @@ func TestUserList(t *testing.T) {
 	t.Run("SessionAuthErrorHasHelperText", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
+		client := wirtualdtest.New(t, nil)
 		inv, root := clitest.New(t, "users", "list")
 		clitest.SetupConfig(t, client, root)
 
@@ -93,10 +93,10 @@ func TestUserShow(t *testing.T) {
 
 	t.Run("Table", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		userAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleUserAdmin())
-		_, otherUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := wirtualdtest.New(t, nil)
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		userAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleUserAdmin())
+		_, otherUser := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 		inv, root := clitest.New(t, "users", "show", otherUser.Username)
 		clitest.SetupConfig(t, userAdmin, root)
 		doneChan := make(chan struct{})
@@ -114,10 +114,10 @@ func TestUserShow(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		client := coderdtest.New(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		userAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleUserAdmin())
-		other, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := wirtualdtest.New(t, nil)
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		userAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleUserAdmin())
+		other, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 		otherUser, err := other.User(ctx, wirtualsdk.Me)
 		require.NoError(t, err, "fetch other user")
 		inv, root := clitest.New(t, "users", "show", otherUser.Username, "-o", "json")

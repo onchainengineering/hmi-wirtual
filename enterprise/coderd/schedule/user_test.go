@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
-	"github.com/coder/coder/v2/enterprise/coderd/schedule"
+	"github.com/coder/coder/v2/enterprise/wirtuald/schedule"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbmock"
 	agpl "github.com/coder/coder/v2/wirtuald/schedule"

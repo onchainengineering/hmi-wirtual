@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbfake"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 
 	"github.com/stretchr/testify/require"
 )
@@ -16,9 +16,9 @@ func TestFavoriteUnfavorite(t *testing.T) {
 	t.Parallel()
 
 	var (
-		client, db           = coderdtest.NewWithDatabase(t, nil)
-		owner                = coderdtest.CreateFirstUser(t, client)
-		memberClient, member = coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client, db           = wirtualdtest.NewWithDatabase(t, nil)
+		owner                = wirtualdtest.CreateFirstUser(t, client)
+		memberClient, member = wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 		ws                   = dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{OwnerID: member.ID, OrganizationID: owner.OrganizationID}).Do()
 	)
 
@@ -30,7 +30,7 @@ func TestFavoriteUnfavorite(t *testing.T) {
 	err := inv.Run()
 	require.NoError(t, err)
 
-	updated := coderdtest.MustWorkspace(t, memberClient, ws.Workspace.ID)
+	updated := wirtualdtest.MustWorkspace(t, memberClient, ws.Workspace.ID)
 	require.True(t, updated.Favorite)
 
 	buf.Reset()
@@ -40,6 +40,6 @@ func TestFavoriteUnfavorite(t *testing.T) {
 	inv.Stdout = &buf
 	err = inv.Run()
 	require.NoError(t, err)
-	updated = coderdtest.MustWorkspace(t, memberClient, ws.Workspace.ID)
+	updated = wirtualdtest.MustWorkspace(t, memberClient, ws.Workspace.ID)
 	require.False(t, updated.Favorite)
 }

@@ -20,9 +20,9 @@ import (
 	"github.com/coder/coder/v2/provisionersdk/proto"
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/coder/v2/wirtuald"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbfake"
+	"github.com/coder/coder/v2/wirtuald/wi
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 )
@@ -33,8 +33,8 @@ func TestWorkspaceAgent(t *testing.T) {
 	t.Run("LogDirectory", func(t *testing.T) {
 		t.Parallel()
 
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client, db := wirtualdtest.NewWithDatabase(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: user.OrganizationID,
 			OwnerID:        user.UserID,
@@ -52,7 +52,7 @@ func TestWorkspaceAgent(t *testing.T) {
 
 		clitest.Start(t, inv)
 
-		coderdtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
+		wirtualdtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
 
 		require.Eventually(t, func() bool {
 			info, err := os.Stat(filepath.Join(logDir, "coder-agent.log"))
@@ -66,11 +66,11 @@ func TestWorkspaceAgent(t *testing.T) {
 	t.Run("Azure", func(t *testing.T) {
 		t.Parallel()
 		instanceID := "instanceidentifier"
-		certificates, metadataClient := coderdtest.NewAzureInstanceIdentity(t, instanceID)
-		client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
+		certificates, metadataClient := wirtualdtest.NewAzureInstanceIdentity(t, instanceID)
+		client, db := wirtualdtest.NewWithDatabase(t, &wirtualdtest.Options{
 			AzureCertificates: certificates,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: user.OrganizationID,
 			OwnerID:        user.UserID,
@@ -87,7 +87,7 @@ func TestWorkspaceAgent(t *testing.T) {
 
 		ctx := inv.Context()
 		clitest.Start(t, inv)
-		coderdtest.NewWorkspaceAgentWaiter(t, client, r.Workspace.ID).
+		wirtualdtest.NewWorkspaceAgentWaiter(t, client, r.Workspace.ID).
 			MatchResources(matchAgentWithVersion).Wait()
 		workspace, err := client.Workspace(ctx, r.Workspace.ID)
 		require.NoError(t, err)
@@ -105,11 +105,11 @@ func TestWorkspaceAgent(t *testing.T) {
 	t.Run("AWS", func(t *testing.T) {
 		t.Parallel()
 		instanceID := "instanceidentifier"
-		certificates, metadataClient := coderdtest.NewAWSInstanceIdentity(t, instanceID)
-		client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
+		certificates, metadataClient := wirtualdtest.NewAWSInstanceIdentity(t, instanceID)
+		client, db := wirtualdtest.NewWithDatabase(t, &wirtualdtest.Options{
 			AWSCertificates: certificates,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: user.OrganizationID,
 			OwnerID:        user.UserID,
@@ -126,7 +126,7 @@ func TestWorkspaceAgent(t *testing.T) {
 
 		clitest.Start(t, inv)
 		ctx := inv.Context()
-		coderdtest.NewWorkspaceAgentWaiter(t, client, r.Workspace.ID).
+		wirtualdtest.NewWorkspaceAgentWaiter(t, client, r.Workspace.ID).
 			MatchResources(matchAgentWithVersion).
 			Wait()
 		workspace, err := client.Workspace(ctx, r.Workspace.ID)
@@ -145,12 +145,12 @@ func TestWorkspaceAgent(t *testing.T) {
 	t.Run("GoogleCloud", func(t *testing.T) {
 		t.Parallel()
 		instanceID := "instanceidentifier"
-		validator, metadataClient := coderdtest.NewGoogleInstanceIdentity(t, instanceID, false)
-		client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
+		validator, metadataClient := wirtualdtest.NewGoogleInstanceIdentity(t, instanceID, false)
+		client, db := wirtualdtest.NewWithDatabase(t, &wirtualdtest.Options{
 			GoogleTokenValidator: validator,
 		})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, memberUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		member, memberUser := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: owner.OrganizationID,
 			OwnerID:        memberUser.ID,
@@ -170,7 +170,7 @@ func TestWorkspaceAgent(t *testing.T) {
 		)
 
 		ctx := inv.Context()
-		coderdtest.NewWorkspaceAgentWaiter(t, client, r.Workspace.ID).
+		wirtualdtest.NewWorkspaceAgentWaiter(t, client, r.Workspace.ID).
 			MatchResources(matchAgentWithVersion).
 			Wait()
 		workspace, err := client.Workspace(ctx, r.Workspace.ID)
@@ -203,8 +203,8 @@ func TestWorkspaceAgent(t *testing.T) {
 	t.Run("PostStartup", func(t *testing.T) {
 		t.Parallel()
 
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client, db := wirtualdtest.NewWithDatabase(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: user.OrganizationID,
 			OwnerID:        user.UserID,
@@ -223,7 +223,7 @@ func TestWorkspaceAgent(t *testing.T) {
 
 		clitest.Start(t, inv)
 
-		resources := coderdtest.NewWorkspaceAgentWaiter(t, client, r.Workspace.ID).
+		resources := wirtualdtest.NewWorkspaceAgentWaiter(t, client, r.Workspace.ID).
 			MatchResources(matchAgentWithSubsystems).Wait()
 		require.Len(t, resources, 1)
 		require.Len(t, resources[0].Agents, 1)
@@ -235,18 +235,18 @@ func TestWorkspaceAgent(t *testing.T) {
 	t.Run("Headers&DERPHeaders", func(t *testing.T) {
 		t.Parallel()
 
-		// Create a coderd API instance the hard way since we need to change the
+		// Create a wirtuald API instance the hard way since we need to change the
 		// handler to inject our custom /derp handler.
-		dv := coderdtest.DeploymentValues(t)
+		dv := wirtualdtest.DeploymentValues(t)
 		dv.DERP.Config.BlockDirect = true
-		setHandler, cancelFunc, serverURL, newOptions := coderdtest.NewOptions(t, &coderdtest.Options{
+		setHandler, cancelFunc, serverURL, newOptions := wirtualdtest.NewOptions(t, &wirtualdtest.Options{
 			DeploymentValues: dv,
 		})
 
 		// We set the handler after server creation for the access URL.
-		coderAPI := coderd.New(newOptions)
+		coderAPI := wirtuald.New(newOptions)
 		setHandler(coderAPI.RootHandler)
-		provisionerCloser := coderdtest.NewProvisionerDaemon(t, coderAPI)
+		provisionerCloser := wirtualdtest.NewProvisionerDaemon(t, coderAPI)
 		t.Cleanup(func() {
 			_ = provisionerCloser.Close()
 		})
@@ -259,8 +259,8 @@ func TestWorkspaceAgent(t *testing.T) {
 		})
 
 		var (
-			admin              = coderdtest.CreateFirstUser(t, client)
-			member, memberUser = coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+			admin              = wirtualdtest.CreateFirstUser(t, client)
+			member, memberUser = wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID)
 			called             int64
 			derpCalled         int64
 		)
@@ -301,7 +301,7 @@ func TestWorkspaceAgent(t *testing.T) {
 			"--agent-header-command", "printf X-Process-Testing=very-wow-"+coderURLEnv+"'\\r\\n'X-Process-Testing2=more-wow",
 		)
 		clitest.Start(t, agentInv)
-		coderdtest.NewWorkspaceAgentWaiter(t, client, r.Workspace.ID).
+		wirtualdtest.NewWorkspaceAgentWaiter(t, client, r.Workspace.ID).
 			MatchResources(matchAgentWithVersion).Wait()
 
 		ctx := testutil.Context(t, testutil.WaitLong)
@@ -316,7 +316,7 @@ func TestWorkspaceAgent(t *testing.T) {
 		err := clientInv.WithContext(ctx).Run()
 		require.NoError(t, err)
 
-		require.Greater(t, atomic.LoadInt64(&called), int64(0), "expected coderd to be reached with custom headers")
+		require.Greater(t, atomic.LoadInt64(&called), int64(0), "expected wirtuald to be reached with custom headers")
 		require.Greater(t, atomic.LoadInt64(&derpCalled), int64(0), "expected /derp to be called with custom headers")
 	})
 }

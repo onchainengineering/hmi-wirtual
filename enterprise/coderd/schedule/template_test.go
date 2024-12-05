@@ -16,7 +16,7 @@ import (
 	"cdr.dev/slog/sloggers/slogtest"
 
 	"github.com/coder/coder/v2/cryptorand"
-	"github.com/coder/coder/v2/enterprise/coderd/schedule"
+	"github.com/coder/coder/v2/enterprise/wirtuald/schedule"
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"

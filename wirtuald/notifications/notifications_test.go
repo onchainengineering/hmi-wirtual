@@ -36,7 +36,6 @@ import (
 
 	"cdr.dev/slog"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/database/dbgen"
@@ -47,6 +46,7 @@ import (
 	"github.com/coder/coder/v2/wirtuald/notifications/types"
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtuald/util/syncmap"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/quartz"
 	"github.com/coder/serpent"
@@ -698,7 +698,7 @@ func TestNotifierPaused(t *testing.T) {
 //go:embed events.go
 var events []byte
 
-// enumerateAllTemplates gets all the template names from the coderd/notifications/events.go file.
+// enumerateAllTemplates gets all the template names from the wirtuald/notifications/events.go file.
 // TODO(dannyk): use code-generation to create a list of all templates: https://github.com/coder/team-coconut/issues/36
 func enumerateAllTemplates(t *testing.T) ([]string, error) {
 	t.Helper()
@@ -1061,11 +1061,11 @@ func TestNotificationTemplates_Golden(t *testing.T) {
 
 				// Spin up the DB
 				db, logger, user := func() (*database.Store, *slog.Logger, *wirtualsdk.User) {
-					adminClient, _, api := coderdtest.NewWithAPI(t, nil)
+					adminClient, _, api := wirtualdtest.NewWithAPI(t, nil)
 					db := api.Database
-					firstUser := coderdtest.CreateFirstUser(t, adminClient)
+					firstUser := wirtualdtest.CreateFirstUser(t, adminClient)
 
-					_, user := coderdtest.CreateAnotherUserMutators(
+					_, user := wirtualdtest.CreateAnotherUserMutators(
 						t,
 						adminClient,
 						firstUser.OrganizationID,
@@ -1230,11 +1230,11 @@ func TestNotificationTemplates_Golden(t *testing.T) {
 
 				// Spin up the DB
 				db, logger, user := func() (*database.Store, *slog.Logger, *wirtualsdk.User) {
-					adminClient, _, api := coderdtest.NewWithAPI(t, nil)
+					adminClient, _, api := wirtualdtest.NewWithAPI(t, nil)
 					db := api.Database
-					firstUser := coderdtest.CreateFirstUser(t, adminClient)
+					firstUser := wirtualdtest.CreateFirstUser(t, adminClient)
 
-					_, user := coderdtest.CreateAnotherUserMutators(
+					_, user := wirtualdtest.CreateAnotherUserMutators(
 						t,
 						adminClient,
 						firstUser.OrganizationID,
@@ -1588,11 +1588,11 @@ func TestNotificationsTemplates(t *testing.T) {
 
 	// nolint:gocritic // Unit test.
 	ctx := dbauthz.AsNotifier(testutil.Context(t, testutil.WaitSuperLong))
-	api := coderdtest.New(t, createOpts(t))
+	api := wirtualdtest.New(t, createOpts(t))
 
 	// GIVEN: the first user (owner) and a regular member
-	firstUser := coderdtest.CreateFirstUser(t, api)
-	memberClient, _ := coderdtest.CreateAnotherUser(t, api, firstUser.OrganizationID, rbac.RoleMember())
+	firstUser := wirtualdtest.CreateFirstUser(t, api)
+	memberClient, _ := wirtualdtest.CreateAnotherUser(t, api, firstUser.OrganizationID, rbac.RoleMember())
 
 	// WHEN: requesting system notification templates as owner should work
 	templates, err := api.GetSystemNotificationTemplates(ctx)
@@ -1605,11 +1605,11 @@ func TestNotificationsTemplates(t *testing.T) {
 	require.True(t, len(templates) > 1)
 }
 
-func createOpts(t *testing.T) *coderdtest.Options {
+func createOpts(t *testing.T) *wirtualdtest.Options {
 	t.Helper()
 
-	dt := coderdtest.DeploymentValues(t)
-	return &coderdtest.Options{
+	dt := wirtualdtest.DeploymentValues(t)
+	return &wirtualdtest.Options{
 		DeploymentValues: dt,
 	}
 }

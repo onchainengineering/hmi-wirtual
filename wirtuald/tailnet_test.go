@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -389,7 +389,7 @@ type agentWithID struct {
 	agent.Agent
 }
 
-func setupServerTailnetAgent(t *testing.T, agentNum int, opts ...tailnettest.DERPAndStunOption) ([]agentWithID, *coderd.ServerTailnet) {
+func setupServerTailnetAgent(t *testing.T, agentNum int, opts ...tailnettest.DERPAndStunOption) ([]agentWithID, *wirtuald.ServerTailnet) {
 	logger := testutil.Logger(t)
 	derpMap, derpServer := tailnettest.RunDERPAndSTUN(t, opts...)
 
@@ -430,13 +430,13 @@ func setupServerTailnetAgent(t *testing.T, agentNum int, opts ...tailnettest.DER
 		agents = append(agents, agentWithID{id: manifest.AgentID, Agent: ag})
 	}
 
-	dialer := &coderd.InmemTailnetDialer{
+	dialer := &wirtuald.InmemTailnetDialer{
 		CoordPtr: &coordPtr,
 		DERPFn:   func() *tailcfg.DERPMap { return derpMap },
 		Logger:   logger,
 		ClientID: uuid.UUID{5},
 	}
-	serverTailnet, err := coderd.NewServerTailnet(
+	serverTailnet, err := wirtuald.NewServerTailnet(
 		context.Background(),
 		logger,
 		derpServer,

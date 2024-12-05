@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/pty/ptytest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -19,8 +19,8 @@ func TestFeaturesList(t *testing.T) {
 	t.Parallel()
 	t.Run("Table", func(t *testing.T) {
 		t.Parallel()
-		client, admin := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
-		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+		client, admin := wirtualdenttest.New(t, &wirtualdenttest.Options{DontAddLicense: true})
+		anotherClient, _ := wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID)
 		inv, conf := newCLI(t, "features", "list")
 		clitest.SetupConfig(t, anotherClient, conf)
 		pty := ptytest.New(t).Attach(inv)
@@ -31,8 +31,8 @@ func TestFeaturesList(t *testing.T) {
 	t.Run("JSON", func(t *testing.T) {
 		t.Parallel()
 
-		client, admin := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
-		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+		client, admin := wirtualdenttest.New(t, &wirtualdenttest.Options{DontAddLicense: true})
+		anotherClient, _ := wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID)
 		inv, conf := newCLI(t, "features", "list", "-o", "json")
 		clitest.SetupConfig(t, anotherClient, conf)
 		doneChan := make(chan struct{})

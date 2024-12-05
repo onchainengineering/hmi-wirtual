@@ -68,13 +68,13 @@ type FakeIDP struct {
 	handler   http.Handler
 	cfg       *oauth2.Config
 
-	// callbackPath allows changing where the callback path to coderd is expected.
+	// callbackPath allows changing where the callback path to wirtuald is expected.
 	// This only affects using the Login helper functions.
 	callbackPath string
-	// clientID to be used by coderd
+	// clientID to be used by wirtuald
 	clientID     string
 	clientSecret string
-	// externalProviderID is optional to match the provider in coderd for
+	// externalProviderID is optional to match the provider in wirtuald for
 	// redirectURLs.
 	externalProviderID string
 	logger             slog.Logger
@@ -1426,7 +1426,7 @@ func (f *FakeIDP) OauthConfig(t testing.TB, scopes []string) *oauth2.Config {
 	return oauthCfg
 }
 
-func (f *FakeIDP) OIDCConfigSkipIssuerChecks(t testing.TB, scopes []string, opts ...func(cfg *coderd.OIDCConfig)) *coderd.OIDCConfig {
+func (f *FakeIDP) OIDCConfigSkipIssuerChecks(t testing.TB, scopes []string, opts ...func(cfg *wirtuald.OIDCConfig)) *wirtuald.OIDCConfig {
 	ctx := oidc.InsecureIssuerURLContext(context.Background(), f.issuer)
 
 	return f.internalOIDCConfig(ctx, t, scopes, func(config *oidc.Config) {
@@ -1434,12 +1434,12 @@ func (f *FakeIDP) OIDCConfigSkipIssuerChecks(t testing.TB, scopes []string, opts
 	}, opts...)
 }
 
-func (f *FakeIDP) OIDCConfig(t testing.TB, scopes []string, opts ...func(cfg *coderd.OIDCConfig)) *coderd.OIDCConfig {
+func (f *FakeIDP) OIDCConfig(t testing.TB, scopes []string, opts ...func(cfg *wirtuald.OIDCConfig)) *wirtuald.OIDCConfig {
 	return f.internalOIDCConfig(context.Background(), t, scopes, nil, opts...)
 }
 
 // OIDCConfig returns the OIDC config to use for Coderd.
-func (f *FakeIDP) internalOIDCConfig(ctx context.Context, t testing.TB, scopes []string, verifierOpt func(config *oidc.Config), opts ...func(cfg *coderd.OIDCConfig)) *coderd.OIDCConfig {
+func (f *FakeIDP) internalOIDCConfig(ctx context.Context, t testing.TB, scopes []string, verifierOpt func(config *oidc.Config), opts ...func(cfg *wirtuald.OIDCConfig)) *wirtuald.OIDCConfig {
 	t.Helper()
 
 	oauthCfg := f.OauthConfig(t, scopes)
@@ -1459,7 +1459,7 @@ func (f *FakeIDP) internalOIDCConfig(ctx context.Context, t testing.TB, scopes [
 		verifierOpt(verifierConfig)
 	}
 
-	cfg := &coderd.OIDCConfig{
+	cfg := &wirtuald.OIDCConfig{
 		OAuth2Config: oauthCfg,
 		Provider:     p,
 		Verifier: oidc.NewVerifier(f.provider.Issuer, &oidc.StaticKeySet{

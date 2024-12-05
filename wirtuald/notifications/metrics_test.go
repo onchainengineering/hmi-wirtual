@@ -80,7 +80,7 @@ func TestMetrics(t *testing.T) {
 	methodFP := fingerprintLabels(notifications.LabelMethod, string(method))
 
 	expected := map[string]func(metric *dto.Metric, series string) bool{
-		"coderd_notifications_dispatch_attempts_total": func(metric *dto.Metric, series string) bool {
+		"wirtuald_notifications_dispatch_attempts_total": func(metric *dto.Metric, series string) bool {
 			// This metric has 3 possible dispositions; find if any of them match first before we check the metric's value.
 			results := map[string]float64{
 				notifications.ResultSuccess:  1,               // Only 1 successful delivery.
@@ -98,7 +98,7 @@ func TestMetrics(t *testing.T) {
 				match = result
 
 				if debug {
-					t.Logf("coderd_notifications_dispatch_attempts_total{result=%q} == %v: %v", result, val, metric.Counter.GetValue())
+					t.Logf("wirtuald_notifications_dispatch_attempts_total{result=%q} == %v: %v", result, val, metric.Counter.GetValue())
 				}
 
 				break
@@ -114,21 +114,21 @@ func TestMetrics(t *testing.T) {
 			target := results[match]
 			return metric.Counter.GetValue() == target
 		},
-		"coderd_notifications_retry_count": func(metric *dto.Metric, series string) bool {
+		"wirtuald_notifications_retry_count": func(metric *dto.Metric, series string) bool {
 			assert.Truef(t, hasMatchingFingerprint(metric, methodTemplateFP), "found unexpected series %q", series)
 
 			if debug {
-				t.Logf("coderd_notifications_retry_count == %v: %v", maxAttempts-1, metric.Counter.GetValue())
+				t.Logf("wirtuald_notifications_retry_count == %v: %v", maxAttempts-1, metric.Counter.GetValue())
 			}
 
 			// 1 original attempts + 2 retries = maxAttempts
 			return metric.Counter.GetValue() == maxAttempts-1
 		},
-		"coderd_notifications_queued_seconds": func(metric *dto.Metric, series string) bool {
+		"wirtuald_notifications_queued_seconds": func(metric *dto.Metric, series string) bool {
 			assert.Truef(t, hasMatchingFingerprint(metric, methodFP), "found unexpected series %q", series)
 
 			if debug {
-				t.Logf("coderd_notifications_queued_seconds > 0: %v", metric.Histogram.GetSampleSum())
+				t.Logf("wirtuald_notifications_queued_seconds > 0: %v", metric.Histogram.GetSampleSum())
 			}
 
 			// This check is extremely flaky on windows. It fails more often than not, but not always.
@@ -139,11 +139,11 @@ func TestMetrics(t *testing.T) {
 			// Notifications will queue for a non-zero amount of time.
 			return metric.Histogram.GetSampleSum() > 0
 		},
-		"coderd_notifications_dispatcher_send_seconds": func(metric *dto.Metric, series string) bool {
+		"wirtuald_notifications_dispatcher_send_seconds": func(metric *dto.Metric, series string) bool {
 			assert.Truef(t, hasMatchingFingerprint(metric, methodFP), "found unexpected series %q", series)
 
 			if debug {
-				t.Logf("coderd_notifications_dispatcher_send_seconds > 0: %v", metric.Histogram.GetSampleSum())
+				t.Logf("wirtuald_notifications_dispatcher_send_seconds > 0: %v", metric.Histogram.GetSampleSum())
 			}
 
 			// This check is extremely flaky on windows. It fails more often than not, but not always.
@@ -154,19 +154,19 @@ func TestMetrics(t *testing.T) {
 			// Dispatches should take a non-zero amount of time.
 			return metric.Histogram.GetSampleSum() > 0
 		},
-		"coderd_notifications_inflight_dispatches": func(metric *dto.Metric, series string) bool {
+		"wirtuald_notifications_inflight_dispatches": func(metric *dto.Metric, series string) bool {
 			// This is a gauge, so it can be difficult to get the timing right to catch it.
 			// See TestInflightDispatchesMetric for a more precise test.
 			return true
 		},
-		"coderd_notifications_pending_updates": func(metric *dto.Metric, series string) bool {
+		"wirtuald_notifications_pending_updates": func(metric *dto.Metric, series string) bool {
 			// This is a gauge, so it can be difficult to get the timing right to catch it.
 			// See TestPendingUpdatesMetric for a more precise test.
 			return true
 		},
-		"coderd_notifications_synced_updates_total": func(metric *dto.Metric, series string) bool {
+		"wirtuald_notifications_synced_updates_total": func(metric *dto.Metric, series string) bool {
 			if debug {
-				t.Logf("coderd_notifications_synced_updates_total = %v: %v", maxAttempts+1, metric.Counter.GetValue())
+				t.Logf("wirtuald_notifications_synced_updates_total = %v: %v", maxAttempts+1, metric.Counter.GetValue())
 			}
 
 			// 1 message will exceed its maxAttempts, 1 will succeed on the first try.

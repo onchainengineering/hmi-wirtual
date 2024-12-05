@@ -291,7 +291,7 @@ func (a *agent) runLoop() {
 	// messages.
 	ctx := a.hardCtx
 	for retrier := retry.New(100*time.Millisecond, 10*time.Second); retrier.Wait(ctx); {
-		a.logger.Info(ctx, "connecting to coderd")
+		a.logger.Info(ctx, "connecting to wirtuald")
 		err := a.run()
 		if err == nil {
 			continue
@@ -305,7 +305,7 @@ func (a *agent) runLoop() {
 			return
 		}
 		if errors.Is(err, io.EOF) {
-			a.logger.Info(ctx, "disconnected from coderd")
+			a.logger.Info(ctx, "disconnected from wirtuald")
 			continue
 		}
 		a.logger.Warn(ctx, "run exited with error", slog.Error(err))
@@ -316,7 +316,7 @@ func (a *agent) collectMetadata(ctx context.Context, md wirtualsdk.WorkspaceAgen
 	var out bytes.Buffer
 	result := &wirtualsdk.WorkspaceAgentMetadataResult{
 		// CollectedAt is set here for testing purposes and overrode by
-		// coderd to the time of server receipt to solve clock skew.
+		// wirtuald to the time of server receipt to solve clock skew.
 		//
 		// In the future, the server may accept the timestamp from the agent
 		// if it can guarantee the clocks are synchronized.
@@ -869,7 +869,7 @@ func (a *agent) handleManifest(manifestOK *checkpoint) func(ctx context.Context,
 		}
 		a.client.RewriteDERPMap(manifest.DERPMap)
 
-		// Expand the directory and send it back to coderd so external
+		// Expand the directory and send it back to wirtuald so external
 		// applications that rely on the directory can use it.
 		//
 		// An example is VS Code Remote, which must know the directory

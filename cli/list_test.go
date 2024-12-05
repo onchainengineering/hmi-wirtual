@@ -12,9 +12,9 @@ import (
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbfake"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -22,9 +22,9 @@ func TestList(t *testing.T) {
 	t.Parallel()
 	t.Run("Single", func(t *testing.T) {
 		t.Parallel()
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, memberUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client, db := wirtualdtest.NewWithDatabase(t, nil)
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		member, memberUser := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 		// setup template
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: owner.OrganizationID,
@@ -51,9 +51,9 @@ func TestList(t *testing.T) {
 
 	t.Run("JSON", func(t *testing.T) {
 		t.Parallel()
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, memberUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client, db := wirtualdtest.NewWithDatabase(t, nil)
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		member, memberUser := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 		_ = dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: owner.OrganizationID,
 			OwnerID:        memberUser.ID,

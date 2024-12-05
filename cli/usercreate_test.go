@@ -9,7 +9,7 @@ import (
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 )
 
 func TestUserCreate(t *testing.T) {
@@ -17,8 +17,8 @@ func TestUserCreate(t *testing.T) {
 	t.Run("Prompts", func(t *testing.T) {
 		t.Parallel()
 		ctx := testutil.Context(t, testutil.WaitLong)
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		wirtualdtest.CreateFirstUser(t, client)
 		inv, root := clitest.New(t, "users", "create")
 		clitest.SetupConfig(t, client, root)
 		doneChan := make(chan struct{})
@@ -50,8 +50,8 @@ func TestUserCreate(t *testing.T) {
 	t.Run("PromptsNoName", func(t *testing.T) {
 		t.Parallel()
 		ctx := testutil.Context(t, testutil.WaitLong)
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		wirtualdtest.CreateFirstUser(t, client)
 		inv, root := clitest.New(t, "users", "create")
 		clitest.SetupConfig(t, client, root)
 		doneChan := make(chan struct{})
@@ -82,8 +82,8 @@ func TestUserCreate(t *testing.T) {
 
 	t.Run("Args", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		wirtualdtest.CreateFirstUser(t, client)
 		args := []string{
 			"users", "create",
 			"-e", "dean@coder.com",
@@ -105,8 +105,8 @@ func TestUserCreate(t *testing.T) {
 
 	t.Run("ArgsNoName", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		wirtualdtest.CreateFirstUser(t, client)
 		args := []string{
 			"users", "create",
 			"-e", "dean@coder.com",

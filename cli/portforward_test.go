@@ -20,19 +20,19 @@ import (
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbfake"
 	"github.com/coder/coder/v2/wirtuald/database/dbtime"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 func TestPortForward_None(t *testing.T) {
 	t.Parallel()
 
-	client := coderdtest.New(t, nil)
-	owner := coderdtest.CreateFirstUser(t, client)
-	member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+	client := wirtualdtest.New(t, nil)
+	owner := wirtualdtest.CreateFirstUser(t, client)
+	member, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 	inv, root := clitest.New(t, "port-forward", "blah")
 	clitest.SetupConfig(t, member, root)
@@ -135,12 +135,12 @@ func TestPortForward(t *testing.T) {
 	var (
 		wuTick     = make(chan time.Time)
 		wuFlush    = make(chan int, 1)
-		client, db = coderdtest.NewWithDatabase(t, &coderdtest.Options{
+		client, db = wirtualdtest.NewWithDatabase(t, &wirtualdtest.Options{
 			WorkspaceUsageTrackerTick:  wuTick,
 			WorkspaceUsageTrackerFlush: wuFlush,
 		})
-		admin              = coderdtest.CreateFirstUser(t, client)
-		member, memberUser = coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+		admin              = wirtualdtest.CreateFirstUser(t, client)
+		member, memberUser = wirtualdtest.CreateAnotherUser(t, client, admin.OrganizationID)
 		workspace          = runAgent(t, client, memberUser.ID, db)
 	)
 
@@ -398,7 +398,7 @@ func runAgent(t *testing.T, client *wirtualsdk.Client, owner uuid.UUID, db datab
 			o.SSHMaxTimeout = 60 * time.Second
 		},
 	)
-	coderdtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
+	wirtualdtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
 	return r.Workspace
 }
 

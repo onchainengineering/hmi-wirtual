@@ -17,7 +17,6 @@ import (
 	"cdr.dev/slog"
 	"github.com/coder/coder/v2/provisionersdk"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/database/dbgen"
@@ -25,6 +24,7 @@ import (
 	"github.com/coder/coder/v2/wirtuald/provisionerdserver"
 	"github.com/coder/coder/v2/wirtuald/rbac"
 	"github.com/coder/coder/v2/wirtuald/unhanger"
+
 )
 
 func TestMain(m *testing.M) {
@@ -829,6 +829,6 @@ func wrapDBAuthz(db database.Store, logger slog.Logger) database.Store {
 		db,
 		rbac.NewStrictCachingAuthorizer(prometheus.NewRegistry()),
 		logger,
-		coderdtest.AccessControlStorePointer(),
+		wirtualdtest.AccessControlStorePointer(),
 	)
 }

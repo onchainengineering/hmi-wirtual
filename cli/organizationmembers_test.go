@@ -8,8 +8,8 @@ import (
 
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 )
 
 func TestListOrganizationMembers(t *testing.T) {
@@ -18,9 +18,9 @@ func TestListOrganizationMembers(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		ownerClient := coderdtest.New(t, &coderdtest.Options{})
-		owner := coderdtest.CreateFirstUser(t, ownerClient)
-		client, user := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleUserAdmin())
+		ownerClient := wirtualdtest.New(t, &wirtualdtest.Options{})
+		owner := wirtualdtest.CreateFirstUser(t, ownerClient)
+		client, user := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleUserAdmin())
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		inv, root := clitest.New(t, "organization", "members", "list", "-c", "user id,username,organization roles")

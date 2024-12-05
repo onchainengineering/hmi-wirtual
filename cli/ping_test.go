@@ -10,7 +10,7 @@ import (
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 )
 
 func TestPing(t *testing.T) {
@@ -28,7 +28,7 @@ func TestPing(t *testing.T) {
 		inv.Stdout = pty.Output()
 
 		_ = agenttest.New(t, client.URL, agentToken)
-		_ = coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		_ = wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -55,7 +55,7 @@ func TestPing(t *testing.T) {
 		inv.Stdout = pty.Output()
 
 		_ = agenttest.New(t, client.URL, agentToken)
-		_ = coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		_ = wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()

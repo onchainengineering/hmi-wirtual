@@ -24,9 +24,9 @@ import (
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbfake"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
 )
@@ -34,8 +34,8 @@ import (
 func prepareTestGitSSH(ctx context.Context, t *testing.T) (*agentsdk.Client, string, gossh.PublicKey) {
 	t.Helper()
 
-	client, db := coderdtest.NewWithDatabase(t, nil)
-	user := coderdtest.CreateFirstUser(t, client)
+	client, db := wirtualdtest.NewWithDatabase(t, nil)
+	user := wirtualdtest.CreateFirstUser(t, client)
 
 	ctx, cancel := context.WithCancel(ctx)
 	defer t.Cleanup(cancel) // Defer so that cancel is the first cleanup.
@@ -59,7 +59,7 @@ func prepareTestGitSSH(ctx context.Context, t *testing.T) (*agentsdk.Client, str
 	_ = agenttest.New(t, client.URL, r.AgentToken, func(o *agent.Options) {
 		o.Client = agentClient
 	})
-	_ = coderdtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
+	_ = wirtualdtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
 	return agentClient, r.AgentToken, pubkey
 }
 

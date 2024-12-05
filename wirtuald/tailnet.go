@@ -1,4 +1,4 @@
-package coderd
+package wirtuald
 
 import (
 	"bufio"
@@ -48,7 +48,7 @@ func init() {
 
 var _ workspaceapps.AgentProvider = (*ServerTailnet)(nil)
 
-// NewServerTailnet creates a new tailnet intended for use by coderd.
+// NewServerTailnet creates a new tailnet intended for use by wirtuald.
 func NewServerTailnet(
 	ctx context.Context,
 	logger slog.Logger,

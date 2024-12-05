@@ -23,13 +23,13 @@ import (
 
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/coder/v2/wirtuald"
-	"github.com/coder/coder/v2/wirtuald/coderdtest/oidctest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/database/dbmem"
 	"github.com/coder/coder/v2/wirtuald/database/dbmock"
 	"github.com/coder/coder/v2/wirtuald/externalauth"
 	"github.com/coder/coder/v2/wirtuald/promoauth"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest/oidctest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -513,8 +513,8 @@ func TestConstantQueryParams(t *testing.T) {
 				})
 			}),
 		},
-		CoderOIDCConfigOpts: []func(cfg *coderd.OIDCConfig){
-			func(cfg *coderd.OIDCConfig) {
+		CoderOIDCConfigOpts: []func(cfg *wirtuald.OIDCConfig){
+			func(cfg *wirtuald.OIDCConfig) {
 				// Include a constant query parameter.
 				authURL, err := url.Parse(cfg.OAuth2Config.(*oauth2.Config).Endpoint.AuthURL)
 				require.NoError(t, err)
@@ -565,7 +565,7 @@ func TestConstantQueryParams(t *testing.T) {
 
 type testConfig struct {
 	FakeIDPOpts         []oidctest.FakeIDPOpt
-	CoderOIDCConfigOpts []func(cfg *coderd.OIDCConfig)
+	CoderOIDCConfigOpts []func(cfg *wirtuald.OIDCConfig)
 	ExternalAuthOpt     func(cfg *externalauth.Config)
 	// If DB is passed in, the link will be inserted into the DB.
 	DB database.Store

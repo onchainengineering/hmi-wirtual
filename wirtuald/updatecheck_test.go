@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"encoding/json"
@@ -12,8 +12,8 @@ import (
 
 	"github.com/coder/coder/v2/buildinfo"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/updatecheck"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -63,7 +63,7 @@ func TestUpdateCheck_NewVersion(t *testing.T) {
 			}))
 			defer srv.Close()
 
-			client := coderdtest.New(t, &coderdtest.Options{
+			client := wirtualdtest.New(t, &wirtualdtest.Options{
 				UpdateCheckOptions: &updatecheck.Options{
 					URL: srv.URL,
 				},

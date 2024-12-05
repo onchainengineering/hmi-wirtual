@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -6,11 +6,11 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -19,22 +19,22 @@ func TestProvisionerKeys(t *testing.T) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong*10)
 	t.Cleanup(cancel)
-	dv := coderdtest.DeploymentValues(t)
-	client, owner := coderdenttest.New(t, &coderdenttest.Options{
-		Options: &coderdtest.Options{
+	dv := wirtualdtest.DeploymentValues(t)
+	client, owner := wirtualdenttest.New(t, &wirtualdenttest.Options{
+		Options: &wirtualdtest.Options{
 			DeploymentValues: dv,
 		},
-		LicenseOptions: &coderdenttest.LicenseOptions{
+		LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				wirtualsdk.FeatureMultipleOrganizations:      1,
 			},
 		},
 	})
-	orgAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.ScopedRoleOrgAdmin(owner.OrganizationID))
-	member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-	otherOrg := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{})
-	outsideOrgAdmin, _ := coderdtest.CreateAnotherUser(t, client, otherOrg.ID, rbac.ScopedRoleOrgAdmin(otherOrg.ID))
+	orgAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.ScopedRoleOrgAdmin(owner.OrganizationID))
+	member, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+	otherOrg := wirtualdenttest.CreateOrganization(t, client, wirtualdenttest.CreateOrganizationOptions{})
+	outsideOrgAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, otherOrg.ID, rbac.ScopedRoleOrgAdmin(otherOrg.ID))
 
 	// member cannot create a provisioner key
 	_, err := member.CreateProvisionerKey(ctx, otherOrg.ID, wirtualsdk.CreateProvisionerKeyRequest{
@@ -172,12 +172,12 @@ func TestGetProvisionerKey(t *testing.T) {
 			t.Parallel()
 
 			ctx := testutil.Context(t, testutil.WaitShort)
-			dv := coderdtest.DeploymentValues(t)
-			client, owner := coderdenttest.New(t, &coderdenttest.Options{
-				Options: &coderdtest.Options{
+			dv := wirtualdtest.DeploymentValues(t)
+			client, owner := wirtualdenttest.New(t, &wirtualdenttest.Options{
+				Options: &wirtualdtest.Options{
 					DeploymentValues: dv,
 				},
-				LicenseOptions: &coderdenttest.LicenseOptions{
+				LicenseOptions: &wirtualdenttest.LicenseOptions{
 					Features: license.Features{
 						wirtualsdk.FeatureMultipleOrganizations:      1,
 						wirtualsdk.FeatureExternalProvisionerDaemons: 1,
@@ -212,13 +212,13 @@ func TestGetProvisionerKey(t *testing.T) {
 		t.Parallel()
 		const testPSK = "psk-testing-purpose"
 		ctx := testutil.Context(t, testutil.WaitShort)
-		dv := coderdtest.DeploymentValues(t)
-		client, owner := coderdenttest.New(t, &coderdenttest.Options{
+		dv := wirtualdtest.DeploymentValues(t)
+		client, owner := wirtualdenttest.New(t, &wirtualdenttest.Options{
 			ProvisionerDaemonPSK: testPSK,
-			Options: &coderdtest.Options{
+			Options: &wirtualdtest.Options{
 				DeploymentValues: dv,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations:      1,
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
@@ -242,12 +242,12 @@ func TestGetProvisionerKey(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitShort)
-		dv := coderdtest.DeploymentValues(t)
-		client, owner := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		dv := wirtualdtest.DeploymentValues(t)
+		client, owner := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				DeploymentValues: dv,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations:      1,
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,

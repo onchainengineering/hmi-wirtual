@@ -10,17 +10,17 @@ import (
 
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 func TestTokens(t *testing.T) {
 	t.Parallel()
-	client := coderdtest.New(t, nil)
-	adminUser := coderdtest.CreateFirstUser(t, client)
+	client := wirtualdtest.New(t, nil)
+	adminUser := wirtualdtest.CreateFirstUser(t, client)
 
-	secondUserClient, secondUser := coderdtest.CreateAnotherUser(t, client, adminUser.OrganizationID)
-	_, thirdUser := coderdtest.CreateAnotherUser(t, client, adminUser.OrganizationID)
+	secondUserClient, secondUser := wirtualdtest.CreateAnotherUser(t, client, adminUser.OrganizationID)
+	_, thirdUser := wirtualdtest.CreateAnotherUser(t, client, adminUser.OrganizationID)
 
 	ctx, cancelFunc := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancelFunc()

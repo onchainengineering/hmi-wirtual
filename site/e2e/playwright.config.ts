@@ -4,7 +4,7 @@ import { defineConfig } from "@playwright/test";
 import {
 	coderMain,
 	coderPort,
-	coderdPProfPort,
+	wirtualdPProfPort,
 	e2eFakeExperiment1,
 	e2eFakeExperiment2,
 	gitAuth,
@@ -148,7 +148,7 @@ export default defineConfig({
 				gitAuth.webPort,
 				gitAuth.validatePath,
 			),
-			WIRTUAL_PPROF_ADDRESS: `127.0.0.1:${coderdPProfPort}`,
+			WIRTUAL_PPROF_ADDRESS: `127.0.0.1:${wirtualdPProfPort}`,
 			WIRTUAL_EXPERIMENTS: `${e2eFakeExperiment1},${e2eFakeExperiment2}`,
 
 			// Tests for Deployment / User Authentication / OIDC

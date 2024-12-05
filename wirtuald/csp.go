@@ -1,4 +1,4 @@
-package coderd
+package wirtuald
 
 import (
 	"encoding/json"

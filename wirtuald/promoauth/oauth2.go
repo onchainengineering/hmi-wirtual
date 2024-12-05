@@ -81,7 +81,7 @@ func NewFactory(registry prometheus.Registerer) *Factory {
 	return &Factory{
 		metrics: &metrics{
 			externalRequestCount: factory.NewCounterVec(prometheus.CounterOpts{
-				Namespace: "coderd",
+				Namespace: "wirtuald",
 				Subsystem: "oauth2",
 				Name:      "external_requests_total",
 				Help:      "The total number of api calls made to external oauth2 providers. 'status_code' will be 0 if the request failed with no response.",
@@ -91,7 +91,7 @@ func NewFactory(registry prometheus.Registerer) *Factory {
 				"status_code",
 			}),
 			rateLimit: factory.NewGaugeVec(prometheus.GaugeOpts{
-				Namespace: "coderd",
+				Namespace: "wirtuald",
 				Subsystem: "oauth2",
 				Name:      "external_requests_rate_limit",
 				Help:      "The total number of allowed requests per interval.",
@@ -105,16 +105,16 @@ func NewFactory(registry prometheus.Registerer) *Factory {
 			// See: https://github.com/coder/coder/issues/12999
 			// Deprecation reason: gauge metrics should avoid suffix `_total``
 			rateLimitDeprecated: factory.NewGaugeVec(prometheus.GaugeOpts{
-				Namespace: "coderd",
+				Namespace: "wirtuald",
 				Subsystem: "oauth2",
 				Name:      "external_requests_rate_limit_total",
-				Help:      "DEPRECATED: use coderd_oauth2_external_requests_rate_limit instead",
+				Help:      "DEPRECATED: use wirtuald_oauth2_external_requests_rate_limit instead",
 			}, []string{
 				"name",
 				"resource",
 			}),
 			rateLimitRemaining: factory.NewGaugeVec(prometheus.GaugeOpts{
-				Namespace: "coderd",
+				Namespace: "wirtuald",
 				Subsystem: "oauth2",
 				Name:      "external_requests_rate_limit_remaining",
 				Help:      "The remaining number of allowed requests in this interval.",
@@ -123,7 +123,7 @@ func NewFactory(registry prometheus.Registerer) *Factory {
 				"resource",
 			}),
 			rateLimitUsed: factory.NewGaugeVec(prometheus.GaugeOpts{
-				Namespace: "coderd",
+				Namespace: "wirtuald",
 				Subsystem: "oauth2",
 				Name:      "external_requests_rate_limit_used",
 				Help:      "The number of requests made in this interval.",
@@ -132,7 +132,7 @@ func NewFactory(registry prometheus.Registerer) *Factory {
 				"resource",
 			}),
 			rateLimitReset: factory.NewGaugeVec(prometheus.GaugeOpts{
-				Namespace: "coderd",
+				Namespace: "wirtuald",
 				Subsystem: "oauth2",
 				Name:      "external_requests_rate_limit_next_reset_unix",
 				Help:      "Unix timestamp for when the next interval starts",
@@ -141,7 +141,7 @@ func NewFactory(registry prometheus.Registerer) *Factory {
 				"resource",
 			}),
 			rateLimitResetIn: factory.NewGaugeVec(prometheus.GaugeOpts{
-				Namespace: "coderd",
+				Namespace: "wirtuald",
 				Subsystem: "oauth2",
 				Name:      "external_requests_rate_limit_reset_in_seconds",
 				Help:      "Seconds until the next interval",

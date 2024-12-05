@@ -130,7 +130,7 @@ To disable encryption, perform the following actions:
 
 - Ensure you have a valid backup of your database. **Do not skip this step.**
 
-- Stop all active coderd instances. This will prevent new encrypted data from
+- Stop all active wirtuald instances. This will prevent new encrypted data from
   being written, which may cause the next step to fail.
 
 - Run
@@ -147,7 +147,7 @@ To disable encryption, perform the following actions:
   [external token encryption keys](../../reference/cli/server.md#--external-token-encryption-keys)
   from Coder's configuration.
 
-- Start coderd. You can now safely delete the encryption keys from your secret
+- Start wirtuald. You can now safely delete the encryption keys from your secret
   store.
 
 ## Deleting Encrypted Data
@@ -158,7 +158,7 @@ To delete all encrypted data from your database, perform the following actions:
 
 - Ensure you have a valid backup of your database. **Do not skip this step.**
 
-- Stop all active coderd instances. This will prevent new encrypted data from
+- Stop all active wirtuald instances. This will prevent new encrypted data from
   being written.
 
 - Run
@@ -170,7 +170,7 @@ To delete all encrypted data from your database, perform the following actions:
   [external token encryption keys](../../reference/cli/server.md#--external-token-encryption-keys)
   from Coder's configuration.
 
-- Start coderd. You can now safely delete the encryption keys from your secret
+- Start wirtuald. You can now safely delete the encryption keys from your secret
   store.
 
 ## Troubleshooting

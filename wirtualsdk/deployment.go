@@ -2266,7 +2266,7 @@ when required by your organization's security policy.`,
 		{
 			Name: "Cache Directory",
 			Description: "The directory to cache temporary files. If unspecified and $CACHE_DIRECTORY is set, it will be used for compatibility with systemd. " +
-				"This directory is NOT safe to be configured as a shared directory across coderd/provisionerd replicas.",
+				"This directory is NOT safe to be configured as a shared directory across wirtuald/provisionerd replicas.",
 			Flag:    "cache-dir",
 			Env:     "WIRTUAL_CACHE_DIRECTORY",
 			Default: DefaultCacheDir(),
@@ -2540,7 +2540,7 @@ Write out the current server config as YAML to stdout.`,
 		},
 		{
 			Name:        "Proxy Health Check Interval",
-			Description: "The interval in which coderd should be checking the status of workspace proxies.",
+			Description: "The interval in which wirtuald should be checking the status of workspace proxies.",
 			Flag:        "proxy-health-interval",
 			Env:         "WIRTUAL_PROXY_HEALTH_INTERVAL",
 			Default:     (time.Minute).String(),
@@ -3046,7 +3046,7 @@ type BuildInfoResponse struct {
 	// Version returns the semantic version of the build.
 	Version string `json:"version"`
 	// DashboardURL is the URL to hit the deployment's dashboard.
-	// For external workspace proxies, this is the coderd they are connected
+	// For external workspace proxies, this is the wirtuald they are connected
 	// to.
 	DashboardURL string `json:"dashboard_url"`
 	// Telemetry is a boolean that indicates whether telemetry is enabled.
@@ -3071,7 +3071,7 @@ type BuildInfoResponse struct {
 type WorkspaceProxyBuildInfo struct {
 	// TODO: @emyrk what should we include here?
 	WorkspaceProxy bool `json:"workspace_proxy"`
-	// DashboardURL is the URL of the coderd this proxy is connected to.
+	// DashboardURL is the URL of the wirtuald this proxy is connected to.
 	DashboardURL string `json:"dashboard_url"`
 }
 

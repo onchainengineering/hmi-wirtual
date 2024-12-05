@@ -8,12 +8,12 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -25,8 +25,8 @@ func TestEditOrganizationRoles(t *testing.T) {
 	t.Run("JSON", func(t *testing.T) {
 		t.Parallel()
 
-		client, owner := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, owner := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureCustomRoles: 1,
 				},
@@ -63,8 +63,8 @@ func TestEditOrganizationRoles(t *testing.T) {
 	t.Run("InvalidRole", func(t *testing.T) {
 		t.Parallel()
 
-		client, owner := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, owner := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureCustomRoles: 1,
 				},
@@ -109,11 +109,11 @@ func TestShowOrganizations(t *testing.T) {
 	t.Run("OnlyID", func(t *testing.T) {
 		t.Parallel()
 
-		ownerClient, first := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		ownerClient, first := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations:      1,
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
@@ -122,7 +122,7 @@ func TestShowOrganizations(t *testing.T) {
 		})
 
 		// Owner is required to make orgs
-		client, _ := coderdtest.CreateAnotherUser(t, ownerClient, first.OrganizationID, rbac.RoleOwner())
+		client, _ := wirtualdtest.CreateAnotherUser(t, ownerClient, first.OrganizationID, rbac.RoleOwner())
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		orgs := []string{"foo", "bar"}
@@ -146,11 +146,11 @@ func TestShowOrganizations(t *testing.T) {
 
 	t.Run("UsingFlag", func(t *testing.T) {
 		t.Parallel()
-		ownerClient, first := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		ownerClient, first := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations:      1,
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
@@ -159,7 +159,7 @@ func TestShowOrganizations(t *testing.T) {
 		})
 
 		// Owner is required to make orgs
-		client, _ := coderdtest.CreateAnotherUser(t, ownerClient, first.OrganizationID, rbac.RoleOwner())
+		client, _ := wirtualdtest.CreateAnotherUser(t, ownerClient, first.OrganizationID, rbac.RoleOwner())
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		orgs := map[string]wirtualsdk.Organization{

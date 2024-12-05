@@ -16,8 +16,8 @@ import (
 
 	"github.com/coder/coder/v2/cli/config"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 )
@@ -178,28 +178,28 @@ func prepareTestData(t *testing.T) (*wirtualsdk.Client, map[string]string) {
 	// and differ the table header spacings.
 	//nolint:gocritic
 	db, pubsub := dbtestutil.NewDB(t, dbtestutil.WithTimezone("UTC"))
-	rootClient := coderdtest.New(t, &coderdtest.Options{
+	rootClient := wirtualdtest.New(t, &wirtualdtest.Options{
 		Database:                 db,
 		Pubsub:                   pubsub,
 		IncludeProvisionerDaemon: true,
 	})
-	firstUser := coderdtest.CreateFirstUser(t, rootClient)
+	firstUser := wirtualdtest.CreateFirstUser(t, rootClient)
 	secondUser, err := rootClient.CreateUserWithOrgs(ctx, wirtualsdk.CreateUserRequestWithOrgs{
 		Email:           "testuser2@coder.com",
 		Username:        "testuser2",
-		Password:        coderdtest.FirstUserParams.Password,
+		Password:        wirtualdtest.FirstUserParams.Password,
 		OrganizationIDs: []uuid.UUID{firstUser.OrganizationID},
 	})
 	require.NoError(t, err)
-	version := coderdtest.CreateTemplateVersion(t, rootClient, firstUser.OrganizationID, nil)
-	version = coderdtest.AwaitTemplateVersionJobCompleted(t, rootClient, version.ID)
-	template := coderdtest.CreateTemplate(t, rootClient, firstUser.OrganizationID, version.ID, func(req *wirtualsdk.CreateTemplateRequest) {
+	version := wirtualdtest.CreateTemplateVersion(t, rootClient, firstUser.OrganizationID, nil)
+	version = wirtualdtest.AwaitTemplateVersionJobCompleted(t, rootClient, version.ID)
+	template := wirtualdtest.CreateTemplate(t, rootClient, firstUser.OrganizationID, version.ID, func(req *wirtualsdk.CreateTemplateRequest) {
 		req.Name = "test-template"
 	})
-	workspace := coderdtest.CreateWorkspace(t, rootClient, template.ID, func(req *wirtualsdk.CreateWorkspaceRequest) {
+	workspace := wirtualdtest.CreateWorkspace(t, rootClient, template.ID, func(req *wirtualsdk.CreateWorkspaceRequest) {
 		req.Name = "test-workspace"
 	})
-	workspaceBuild := coderdtest.AwaitWorkspaceBuildJobCompleted(t, rootClient, workspace.LatestBuild.ID)
+	workspaceBuild := wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, rootClient, workspace.LatestBuild.ID)
 
 	replacements := map[string]string{
 		firstUser.UserID.String():            "[first user ID]",

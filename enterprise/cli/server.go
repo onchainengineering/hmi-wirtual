@@ -17,20 +17,20 @@ import (
 	"github.com/coder/coder/v2/cryptorand"
 	"github.com/coder/coder/v2/enterprise/audit"
 	"github.com/coder/coder/v2/enterprise/audit/backends"
-	"github.com/coder/coder/v2/enterprise/coderd"
-	"github.com/coder/coder/v2/enterprise/coderd/dormancy"
 	"github.com/coder/coder/v2/enterprise/dbcrypt"
 	"github.com/coder/coder/v2/enterprise/trialer"
+	"github.com/coder/coder/v2/enterprise/wirtuald"
+	"github.com/coder/coder/v2/enterprise/wirtuald/dormancy"
 	"github.com/coder/coder/v2/tailnet"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/quartz"
 	"github.com/coder/serpent"
 
-	agplcoderd "github.com/coder/coder/v2/wirtuald"
+	agplwirtuald "github.com/coder/coder/v2/wirtuald"
 )
 
 func (r *RootCmd) Server(_ func()) *serpent.Command {
-	cmd := r.RootCmd.Server(func(ctx context.Context, options *agplcoderd.Options) (*agplcoderd.API, io.Closer, error) {
+	cmd := r.RootCmd.Server(func(ctx context.Context, options *agplwirtuald.Options) (*agplwirtuald.API, io.Closer, error) {
 		if options.DeploymentValues.DERP.Server.RelayURL.String() != "" {
 			_, err := url.Parse(options.DeploymentValues.DERP.Server.RelayURL.String())
 			if err != nil {
@@ -82,9 +82,9 @@ func (r *RootCmd) Server(_ func()) *serpent.Command {
 			backends.NewSlog(options.Logger),
 		)
 
-		options.TrialGenerator = trialer.New(options.Database, "https://v2-licensor.coder.com/trial", coderd.Keys)
+		options.TrialGenerator = trialer.New(options.Database, "https://v2-licensor.coder.com/trial", wirtuald.Keys)
 
-		o := &coderd.Options{
+		o := &wirtuald.Options{
 			Options:                   options,
 			AuditLogging:              true,
 			BrowserOnly:               options.DeploymentValues.BrowserOnly.Value(),
@@ -115,7 +115,7 @@ func (r *RootCmd) Server(_ func()) *serpent.Command {
 			o.ExternalTokenEncryption = cs
 		}
 
-		api, err := coderd.New(ctx, o)
+		api, err := wirtuald.New(ctx, o)
 		if err != nil {
 			return nil, nil, err
 		}

@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 )
 
 func TestWhoami(t *testing.T) {
@@ -15,7 +15,7 @@ func TestWhoami(t *testing.T) {
 
 	t.Run("InitialUserNoTTY", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
+		client := wirtualdtest.New(t, nil)
 		root, _ := clitest.New(t, "login", client.URL.String())
 		err := root.Run()
 		require.Error(t, err)
@@ -23,8 +23,8 @@ func TestWhoami(t *testing.T) {
 
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 		inv, root := clitest.New(t, "whoami")
 		clitest.SetupConfig(t, client, root)
 		buf := new(bytes.Buffer)

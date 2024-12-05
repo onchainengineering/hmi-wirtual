@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cdr.dev/slog/sloggers/slogtest"
-	"github.com/coder/coder/v2/enterprise/coderd/enidpsync"
+	"github.com/coder/coder/v2/enterprise/wirtuald/enidpsync"
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/coder/v2/wirtuald/entitlements"
 	"github.com/coder/coder/v2/wirtuald/idpsync"

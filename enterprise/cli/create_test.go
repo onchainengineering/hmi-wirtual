@@ -11,11 +11,12 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
+	"github.com/coder/coder/v2/enterprise/w
 	"github.com/coder/coder/v2/pty/ptytest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/rbac"
+coder/v2/wirtuald/rbac"
+	"github.com/co
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -37,12 +38,12 @@ func TestEnterpriseCreate(t *testing.T) {
 	// setupMultipleOrganizations creates an extra organization, assigns a member
 	// both organizations, and optionally creates templates in each organization.
 	setupMultipleOrganizations := func(t *testing.T, args setupArgs) setupData {
-		ownerClient, first := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		ownerClient, first := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				// This only affects the first org.
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 					wirtualsdk.FeatureMultipleOrganizations:      1,
@@ -50,22 +51,22 @@ func TestEnterpriseCreate(t *testing.T) {
 			},
 		})
 
-		second := coderdenttest.CreateOrganization(t, ownerClient, coderdenttest.CreateOrganizationOptions{
+		second := wirtualdenttest.CreateOrganization(t, ownerClient, wirtualdenttest.CreateOrganizationOptions{
 			IncludeProvisionerDaemon: true,
 		})
-		member, _ := coderdtest.CreateAnotherUser(t, ownerClient, first.OrganizationID, rbac.ScopedRoleOrgMember(second.ID))
+		member, _ := wirtualdtest.CreateAnotherUser(t, ownerClient, first.OrganizationID, rbac.ScopedRoleOrgMember(second.ID))
 
 		var wg sync.WaitGroup
 
 		createTemplate := func(tplName string, orgID uuid.UUID) {
-			version := coderdtest.CreateTemplateVersion(t, ownerClient, orgID, nil)
+			version := wirtualdtest.CreateTemplateVersion(t, ownerClient, orgID, nil)
 			wg.Add(1)
 			go func() {
-				coderdtest.AwaitTemplateVersionJobCompleted(t, ownerClient, version.ID)
+				wirtualdtest.AwaitTemplateVersionJobCompleted(t, ownerClient, version.ID)
 				wg.Done()
 			}()
 
-			coderdtest.CreateTemplate(t, ownerClient, orgID, version.ID, func(request *wirtualsdk.CreateTemplateRequest) {
+			wirtualdtest.CreateTemplate(t, ownerClient, orgID, version.ID, func(request *wirtualsdk.CreateTemplateRequest) {
 				request.Name = tplName
 			})
 		}

@@ -7,15 +7,15 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 )
 
 func TestPublicKey(t *testing.T) {
 	t.Parallel()
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		_ = wirtualdtest.CreateFirstUser(t, client)
 		inv, root := clitest.New(t, "publickey")
 		clitest.SetupConfig(t, client, root)
 		buf := new(bytes.Buffer)

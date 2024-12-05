@@ -110,7 +110,7 @@ import (
 	"github.com/coder/coder/v2/wirtualsdk/drpc"
 )
 
-func createOIDCConfig(ctx context.Context, logger slog.Logger, vals *wirtualsdk.DeploymentValues) (*coderd.OIDCConfig, error) {
+func createOIDCConfig(ctx context.Context, logger slog.Logger, vals *wirtualsdk.DeploymentValues) (*wirtuald.OIDCConfig, error) {
 	if vals.OIDC.ClientID == "" {
 		return nil, xerrors.Errorf("OIDC client ID must be set!")
 	}
@@ -172,7 +172,7 @@ func createOIDCConfig(ctx context.Context, logger slog.Logger, vals *wirtualsdk.
 		groupAllowList[group] = true
 	}
 
-	return &coderd.OIDCConfig{
+	return &wirtuald.OIDCConfig{
 		OAuth2Config: useCfg,
 		Provider:     oidcProvider,
 		Verifier: oidcProvider.Verifier(&oidc.Config{
@@ -206,7 +206,7 @@ func enablePrometheus(
 	ctx context.Context,
 	logger slog.Logger,
 	vals *wirtualsdk.DeploymentValues,
-	options *coderd.Options,
+	options *wirtuald.Options,
 ) (closeFn func(), err error) {
 	options.PrometheusRegistry.MustRegister(collectors.NewGoCollector())
 	options.PrometheusRegistry.MustRegister(collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}))
@@ -245,7 +245,7 @@ func enablePrometheus(
 	afterCtx(ctx, closeInsightsMetricsCollector)
 
 	if vals.Prometheus.CollectAgentStats {
-		experiments := coderd.ReadExperiments(options.Logger, options.DeploymentValues.Experiments.Value())
+		experiments := wirtuald.ReadExperiments(options.Logger, options.DeploymentValues.Experiments.Value())
 		closeAgentStatsFunc, err := prometheusmetrics.AgentStats(ctx, logger, options.PrometheusRegistry, options.Database, time.Now(), 0, options.DeploymentValues.Prometheus.AggregateAgentStatsBy.Value(), experiments.Enabled(wirtualsdk.ExperimentWorkspaceUsage))
 		if err != nil {
 			return nil, xerrors.Errorf("register agent stats prometheus metric: %w", err)
@@ -276,10 +276,10 @@ func enablePrometheus(
 }
 
 //nolint:gocognit // TODO(dannyk): reduce complexity of this function
-func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.API, io.Closer, error)) *serpent.Command {
+func (r *RootCmd) Server(newAPI func(context.Context, *wirtuald.Options) (*wirtuald.API, io.Closer, error)) *serpent.Command {
 	if newAPI == nil {
-		newAPI = func(_ context.Context, o *coderd.Options) (*coderd.API, io.Closer, error) {
-			api := coderd.New(o)
+		newAPI = func(_ context.Context, o *wirtuald.Options) (*wirtuald.API, io.Closer, error) {
+			api := wirtuald.New(o)
 			return api, api, nil
 		}
 	}
@@ -306,7 +306,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				cliui.Warnf(inv.Stderr, "YAML support is experimental and offers no compatibility guarantees.")
 			}
 
-			go DumpHandler(ctx, "coderd")
+			go DumpHandler(ctx, "wirtuald")
 
 			// Validate bind addresses.
 			if vals.Address.String() != "" {
@@ -583,11 +583,11 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				return xerrors.Errorf("parse ssh config options %q: %w", vals.SSHConfig.SSHConfigOptions.String(), err)
 			}
 
-			options := &coderd.Options{
+			options := &wirtuald.Options{
 				AccessURL:                   vals.AccessURL.Value(),
 				AppHostname:                 appHostname,
 				AppHostnameRegex:            appHostnameRegex,
-				Logger:                      logger.Named("coderd"),
+				Logger:                      logger.Named("wirtuald"),
 				Database:                    dbmem.New(),
 				BaseDERPMap:                 derpMap,
 				Pubsub:                      pubsub.NewInMemory(),
@@ -630,7 +630,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 					int(vals.StrictTransportSecurity.Value()), vals.StrictTransportSecurityOptions,
 				)
 				if err != nil {
-					return xerrors.Errorf("coderd: setting hsts header failed (options: %v): %w", vals.StrictTransportSecurityOptions, err)
+					return xerrors.Errorf("wirtuald: setting hsts header failed (options: %v): %w", vals.StrictTransportSecurityOptions, err)
 				}
 			}
 
@@ -1240,9 +1240,9 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 }
 
 // templateHelpers builds a set of functions which can be called in templates.
-// We build them here to avoid an import cycle by using coderd.Options in notifications.Manager.
+// We build them here to avoid an import cycle by using wirtuald.Options in notifications.Manager.
 // We can later use this to inject whitelabel fields when app name / logo URL are overridden.
-func templateHelpers(options *coderd.Options) map[string]any {
+func templateHelpers(options *wirtuald.Options) map[string]any {
 	return map[string]any{
 		"base_url":     func() string { return options.AccessURL.String() },
 		"current_year": func() string { return strconv.Itoa(time.Now().Year()) },
@@ -1313,7 +1313,7 @@ func shutdownWithTimeout(shutdown func(context.Context) error, timeout time.Dura
 // nolint:revive
 func newProvisionerDaemon(
 	ctx context.Context,
-	coderAPI *coderd.API,
+	coderAPI *wirtuald.API,
 	metrics provisionerd.Metrics,
 	logger slog.Logger,
 	cfg *wirtualsdk.DeploymentValues,
@@ -1801,7 +1801,7 @@ func configureCAPool(tlsClientCAFile string, tlsConfig *tls.Config) error {
 }
 
 //nolint:revive // Ignore flag-parameter: parameter 'allowEveryone' seems to be a control flag, avoid control coupling (revive)
-func configureGithubOAuth2(instrument *promoauth.Factory, accessURL *url.URL, clientID, clientSecret string, allowSignups, allowEveryone bool, allowOrgs []string, rawTeams []string, enterpriseBaseURL string) (*coderd.GithubOAuth2Config, error) {
+func configureGithubOAuth2(instrument *promoauth.Factory, accessURL *url.URL, clientID, clientSecret string, allowSignups, allowEveryone bool, allowOrgs []string, rawTeams []string, enterpriseBaseURL string) (*wirtuald.GithubOAuth2Config, error) {
 	redirectURL, err := accessURL.Parse("/api/v2/users/oauth2/github/callback")
 	if err != nil {
 		return nil, xerrors.Errorf("parse github oauth callback url: %w", err)
@@ -1815,13 +1815,13 @@ func configureGithubOAuth2(instrument *promoauth.Factory, accessURL *url.URL, cl
 	if !allowEveryone && len(allowOrgs) == 0 {
 		return nil, xerrors.New("allowed orgs is empty: must specify at least one org or allow everyone")
 	}
-	allowTeams := make([]coderd.GithubOAuth2Team, 0, len(rawTeams))
+	allowTeams := make([]wirtuald.GithubOAuth2Team, 0, len(rawTeams))
 	for _, rawTeam := range rawTeams {
 		parts := strings.SplitN(rawTeam, "/", 2)
 		if len(parts) != 2 {
 			return nil, xerrors.Errorf("github team allowlist is formatted incorrectly. got %s; wanted <organization>/<team>", rawTeam)
 		}
-		allowTeams = append(allowTeams, coderd.GithubOAuth2Team{
+		allowTeams = append(allowTeams, wirtuald.GithubOAuth2Team{
 			Organization: parts[0],
 			Slug:         parts[1],
 		})
@@ -1867,7 +1867,7 @@ func configureGithubOAuth2(instrument *promoauth.Factory, accessURL *url.URL, cl
 		return github.NewClient(client), nil
 	}
 
-	return &coderd.GithubOAuth2Config{
+	return &wirtuald.GithubOAuth2Config{
 		OAuth2Config:       instrumentedOauth,
 		AllowSignups:       allowSignups,
 		AllowEveryone:      allowEveryone,
@@ -2243,7 +2243,7 @@ func ConfigureTraceProvider(
 	)
 
 	if cfg.Trace.Enable.Value() || cfg.Trace.DataDog.Value() || cfg.Trace.HoneycombAPIKey != "" {
-		sdkTracerProvider, _closeTracing, err := tracing.TracerProvider(ctx, "coderd", tracing.TracerOpts{
+		sdkTracerProvider, _closeTracing, err := tracing.TracerProvider(ctx, "wirtuald", tracing.TracerOpts{
 			Default:   cfg.Trace.Enable.Value(),
 			DataDog:   cfg.Trace.DataDog.Value(),
 			Honeycomb: cfg.Trace.HoneycombAPIKey.String(),
@@ -2251,7 +2251,7 @@ func ConfigureTraceProvider(
 		if err != nil {
 			logger.Warn(ctx, "start telemetry exporter", slog.Error(err))
 		} else {
-			d, err := tracing.PostgresDriver(sdkTracerProvider, "coderd.database")
+			d, err := tracing.PostgresDriver(sdkTracerProvider, "wirtuald.database")
 			if err != nil {
 				logger.Warn(ctx, "start postgres tracing driver", slog.Error(err))
 			} else {

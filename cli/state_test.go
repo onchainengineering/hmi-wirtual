@@ -16,17 +16,17 @@ import (
 
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/provisioner/echo"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 )
 
 func TestStatePull(t *testing.T) {
 	t.Parallel()
 	t.Run("File", func(t *testing.T) {
 		t.Parallel()
-		client, store := coderdtest.NewWithDatabase(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, taUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		client, store := wirtualdtest.NewWithDatabase(t, nil)
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		templateAdmin, taUser := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 		wantState := []byte("some state")
 		r := dbfake.WorkspaceBuild(t, store, database.WorkspaceTable{
 			OrganizationID: owner.OrganizationID,
@@ -45,9 +45,9 @@ func TestStatePull(t *testing.T) {
 	})
 	t.Run("Stdout", func(t *testing.T) {
 		t.Parallel()
-		client, store := coderdtest.NewWithDatabase(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, taUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		client, store := wirtualdtest.NewWithDatabase(t, nil)
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		templateAdmin, taUser := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 		wantState := []byte("some state")
 		r := dbfake.WorkspaceBuild(t, store, database.WorkspaceTable{
 			OrganizationID: owner.OrganizationID,
@@ -65,9 +65,9 @@ func TestStatePull(t *testing.T) {
 	})
 	t.Run("OtherUserBuild", func(t *testing.T) {
 		t.Parallel()
-		client, store := coderdtest.NewWithDatabase(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		_, taUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		client, store := wirtualdtest.NewWithDatabase(t, nil)
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		_, taUser := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 		wantState := []byte("some state")
 		r := dbfake.WorkspaceBuild(t, store, database.WorkspaceTable{
 			OrganizationID: owner.OrganizationID,
@@ -91,17 +91,17 @@ func TestStatePush(t *testing.T) {
 	t.Parallel()
 	t.Run("File", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, &echo.Responses{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionApply: echo.ApplyComplete,
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, templateAdmin, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, templateAdmin, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 		stateFile, err := os.CreateTemp(t.TempDir(), "")
 		require.NoError(t, err)
 		wantState := []byte("some magic state")
@@ -117,17 +117,17 @@ func TestStatePush(t *testing.T) {
 
 	t.Run("Stdin", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, &echo.Responses{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		templateAdmin, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionApply: echo.ApplyComplete,
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, templateAdmin, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, templateAdmin, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 		inv, root := clitest.New(t, "state", "push", "--build", strconv.Itoa(int(workspace.LatestBuild.BuildNumber)), workspace.Name, "-")
 		clitest.SetupConfig(t, templateAdmin, root)
 		inv.Stdin = strings.NewReader("some magic state")
@@ -137,17 +137,17 @@ func TestStatePush(t *testing.T) {
 
 	t.Run("OtherUserBuild", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, taUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, &echo.Responses{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		templateAdmin, taUser := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionApply: echo.ApplyComplete,
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, templateAdmin, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, templateAdmin, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 		inv, root := clitest.New(t, "state", "push",
 			"--build", strconv.Itoa(int(workspace.LatestBuild.BuildNumber)),
 			taUser.Username+"/"+workspace.Name,

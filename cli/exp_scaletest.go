@@ -878,7 +878,7 @@ func (r *RootCmd) scaletestWorkspaceTraffic() *serpent.Command {
 
 	cmd := &serpent.Command{
 		Use:   "workspace-traffic",
-		Short: "Generate traffic to scaletest workspaces through coderd",
+		Short: "Generate traffic to scaletest workspaces through wirtuald",
 		Middleware: serpent.Chain(
 			r.InitClient(client),
 		),
@@ -1098,7 +1098,7 @@ func (r *RootCmd) scaletestWorkspaceTraffic() *serpent.Command {
 			Flag:        "app",
 			Env:         "WIRTUAL_SCALETEST_WORKSPACE_TRAFFIC_APP",
 			Default:     "",
-			Description: "Send WebSocket traffic to a workspace app (proxied via coderd), cannot be used with --ssh.",
+			Description: "Send WebSocket traffic to a workspace app (proxied via wirtuald), cannot be used with --ssh.",
 			Value:       serpent.StringOf(&app),
 		},
 		{

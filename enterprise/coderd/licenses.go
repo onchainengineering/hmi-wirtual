@@ -1,4 +1,4 @@
-package coderd
+package wirtuald
 
 import (
 	"bytes"
@@ -21,7 +21,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/wirtuald"
 	"github.com/coder/coder/v2/wirtuald/audit"
 	"github.com/coder/coder/v2/wirtuald/database"
@@ -247,7 +247,7 @@ func (api *API) licenses(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	licenses, err = coderd.AuthorizeFilter(api.AGPL.HTTPAuth, r, policy.ActionRead, licenses)
+	licenses, err = wirtuald.AuthorizeFilter(api.AGPL.HTTPAuth, r, policy.ActionRead, licenses)
 	if err != nil {
 		httpapi.Write(ctx, rw, http.StatusInternalServerError, wirtualsdk.Response{
 			Message: "Internal error fetching licenses.",

@@ -52,7 +52,7 @@ type Options struct {
 }
 
 // ProxyHealth runs a go routine that periodically checks the health of all
-// workspace proxies. This information is stored in memory, so each coderd
+// workspace proxies. This information is stored in memory, so each wirtuald
 // replica has its own view of the health of the proxies. These views should be
 // consistent, and if they are not, it indicates a problem.
 type ProxyHealth struct {
@@ -92,7 +92,7 @@ func New(opts *Options) (*ProxyHealth, error) {
 
 	// Prometheus metrics
 	healthCheckDuration := prometheus.NewHistogram(prometheus.HistogramOpts{
-		Namespace: "coderd",
+		Namespace: "wirtuald",
 		Subsystem: "proxyhealth",
 		Name:      "health_check_duration_seconds",
 		Help:      "Histogram for duration of proxy health collection in seconds.",
@@ -102,7 +102,7 @@ func New(opts *Options) (*ProxyHealth, error) {
 
 	healthCheckResults := prometheusmetrics.NewCachedGaugeVec(prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: "coderd",
+			Namespace: "wirtuald",
 			Subsystem: "proxyhealth",
 			Name:      "health_check_results",
 			Help: "This endpoint returns a number to indicate the health status. " +
@@ -278,7 +278,7 @@ func (p *ProxyHealth) runOnce(ctx context.Context, now time.Time) (map[uuid.UUID
 				if err != nil {
 					isCoderErr := xerrors.Errorf("proxy url %q is not a coder proxy instance, verify the url is correct", reqURL)
 					if resp.Header.Get(wirtualsdk.BuildVersionHeader) != "" {
-						isCoderErr = xerrors.Errorf("proxy url %q is a coder instance, but unable to decode the response payload. Could this be a primary coderd and not a proxy?", reqURL)
+						isCoderErr = xerrors.Errorf("proxy url %q is a coder instance, but unable to decode the response payload. Could this be a primary wirtuald and not a proxy?", reqURL)
 					}
 
 					// If the response is not json, then the user likely input a bad url that returns status code 200.

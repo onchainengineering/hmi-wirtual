@@ -7,10 +7,10 @@ These pipelines will require tokens for your deployment. To cap token lifetime
 on creation,
 [configure Coder server to set a shorter max token lifetime](../../../reference/cli/server.md#--max-token-lifetime).
 
-## coderd Terraform Provider
+## wirtuald Terraform Provider
 
 The
-[coderd Terraform provider](https://registry.terraform.io/providers/coder/coderd/latest)
+[wirtuald Terraform provider](https://registry.terraform.io/providers/coder/wirtuald/latest)
 can be used to push new template versions, either manually, or in CI/CD
 pipelines. To run the provider in a CI/CD pipeline, and to prevent drift, you'll
 need to store the Terraform state
@@ -19,8 +19,8 @@ need to store the Terraform state
 ```tf
 terraform {
   required_providers {
-    coderd = {
-      source = "coder/coderd"
+    wirtuald = {
+      source = "coder/wirtuald"
     }
   }
   backend "gcs" {
@@ -29,7 +29,7 @@ terraform {
   }
 }
 
-provider "coderd" {
+provider "wirtuald" {
   // Can be populated from environment variables
   url   = "https://coder.example.com"
   token = "****"
@@ -40,7 +40,7 @@ variable "TFC_CONFIGURATION_VERSION_GIT_COMMIT_SHA" {
   type = string
 }
 
-resource "coderd_template" "kubernetes" {
+resource "wirtuald_template" "kubernetes" {
   name = "kubernetes"
   description = "Develop in Kubernetes!"
   versions = [{
@@ -97,5 +97,5 @@ for an example of how to test and publish Coder templates in a CI/CD pipeline.
 ### Next steps
 
 - [Coder CLI Reference](../../../reference/cli/templates.md)
-- [Coderd Terraform Provider Reference](https://registry.terraform.io/providers/coder/coderd/latest/docs)
+- [Coderd Terraform Provider Reference](https://registry.terraform.io/providers/coder/wirtuald/latest/docs)
 - [Coderd API Reference](../../../reference/index.md)

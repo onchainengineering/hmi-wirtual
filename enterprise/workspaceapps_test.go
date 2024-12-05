@@ -4,11 +4,11 @@ import (
 	"net"
 	"testing"
 
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
 	"github.com/coder/coder/v2/wirtuald/httpmw"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/workspaceapps/apptest"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
@@ -18,7 +18,7 @@ func TestWorkspaceApps(t *testing.T) {
 	t.Parallel()
 
 	apptest.Run(t, true, func(t *testing.T, opts *apptest.DeploymentOptions) *apptest.Deployment {
-		deploymentValues := coderdtest.DeploymentValues(t)
+		deploymentValues := wirtualdtest.DeploymentValues(t)
 		deploymentValues.DisablePathApps = serpent.Bool(opts.DisablePathApps)
 		deploymentValues.Dangerous.AllowPathAppSharing = serpent.Bool(opts.DangerousAllowPathAppSharing)
 		deploymentValues.Dangerous.AllowPathAppSiteOwnerAccess = serpent.Bool(opts.DangerousAllowPathAppSiteOwnerAccess)
@@ -40,8 +40,8 @@ func TestWorkspaceApps(t *testing.T) {
 
 		db, pubsub := dbtestutil.NewDB(t)
 
-		client, _, _, user := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, _, _, user := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				DeploymentValues:         deploymentValues,
 				AppHostname:              opts.AppHost,
 				IncludeProvisionerDaemon: true,
@@ -58,7 +58,7 @@ func TestWorkspaceApps(t *testing.T) {
 				Database:                           db,
 				Pubsub:                             pubsub,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureMultipleOrganizations: 1,
 				},

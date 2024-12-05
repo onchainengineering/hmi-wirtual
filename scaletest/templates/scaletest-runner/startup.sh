@@ -86,7 +86,7 @@ gather_logs() {
 	fi
 	logs_gathered=1
 
-	# Gather logs from all coderd and provisioner instances, and all workspaces.
+	# Gather logs from all wirtuald and provisioner instances, and all workspaces.
 	annotate_grafana "logs" "Gather logs"
 	podsraw="$(
 		kubectl -n coder-big get pods -l app.kubernetes.io/name=coder -o name

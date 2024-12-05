@@ -59,7 +59,7 @@ func (r *Runner) Run(ctx context.Context, _ string, logs io.Writer) error {
 		height = DefaultHeight
 	}
 
-	_, _ = fmt.Fprintln(logs, "Opening reconnecting PTY connection to agent via coderd...")
+	_, _ = fmt.Fprintln(logs, "Opening reconnecting PTY connection to agent via wirtuald...")
 	_, _ = fmt.Fprintf(logs, "\tID:      %s\n", id.String())
 	_, _ = fmt.Fprintf(logs, "\tWidth:   %d\n", width)
 	_, _ = fmt.Fprintf(logs, "\tHeight:  %d\n", height)

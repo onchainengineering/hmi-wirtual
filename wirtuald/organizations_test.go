@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -15,8 +15,8 @@ func TestOrganizationByUserAndName(t *testing.T) {
 	t.Parallel()
 	t.Run("NoExist", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		wirtualdtest.CreateFirstUser(t, client)
 		ctx := testutil.Context(t, testutil.WaitLong)
 
 		_, err := client.OrganizationByUserAndName(ctx, wirtualsdk.Me, "nothing")
@@ -27,8 +27,8 @@ func TestOrganizationByUserAndName(t *testing.T) {
 
 	t.Run("Valid", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client := wirtualdtest.New(t, nil)
+		user := wirtualdtest.CreateFirstUser(t, client)
 		ctx := testutil.Context(t, testutil.WaitLong)
 
 		org, err := client.Organization(ctx, user.OrganizationID)

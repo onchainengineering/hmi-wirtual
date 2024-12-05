@@ -4,7 +4,7 @@ All Coder services log to standard output, which can be critical for identifying
 errors and monitoring Coder's deployment health. Like any service, logs can be
 captured via Splunk, Datadog, Grafana Loki, or other ingestion tools.
 
-## `coderd` Logs
+## `wirtuald` Logs
 
 By default, the Coder server exports human-readable logs to standard output. You
 can access these logs via `kubectl logs deployment/coder -n <coder-namespace>`
@@ -20,13 +20,13 @@ machine/VM.
   config.
 
 Events such as server errors, audit logs, user activities, and SSO & OpenID
-Connect logs are all captured in the `coderd` logs.
+Connect logs are all captured in the `wirtuald` logs.
 
 ## `provisionerd` Logs
 
 Logs for [external provisioners](../provisioners.md) are structured
 [and configured](../../reference/cli/provisioner_start.md#--log-human) similarly
-to `coderd` logs. Use these logs to troubleshoot and monitor the Terraform
+to `wirtuald` logs. Use these logs to troubleshoot and monitor the Terraform
 operations behind workspaces and templates.
 
 ## Workspace Logs

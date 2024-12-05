@@ -4,7 +4,7 @@ import type { RBACAction, RBACResource } from "./typesGenerated";
 
 // RBACResourceActions maps RBAC resources to their possible actions.
 // Descriptions are included to document the purpose of each action.
-// Source is in 'coderd/rbac/policy/policy.go'.
+// Source is in 'wirtuald/rbac/policy/policy.go'.
 export const RBACResourceActions: Partial<
   Record<RBACResource, Partial<Record<RBACAction, string>>>
 > = {

@@ -13,13 +13,13 @@ import (
 	"go.uber.org/mock/gomock"
 
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbfake"
 	"github.com/coder/coder/v2/wirtuald/database/dbmock"
 	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
 	"github.com/coder/coder/v2/wirtuald/database/dbtime"
 	"github.com/coder/coder/v2/wirtuald/database/pubsub"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/workspacestats"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
@@ -114,7 +114,7 @@ func TestTracker_MultipleInstances(t *testing.T) {
 		t.Skip("this test only makes sense with postgres")
 	}
 
-	// Given we have two coderd instances connected to the same database
+	// Given we have two wirtuald instances connected to the same database
 	var (
 		ctx   = testutil.Context(t, testutil.WaitLong)
 		db, _ = dbtestutil.NewDB(t)
@@ -125,19 +125,19 @@ func TestTracker_MultipleInstances(t *testing.T) {
 		wuFlushA = make(chan int, 1)
 		wuTickB  = make(chan time.Time)
 		wuFlushB = make(chan int, 1)
-		clientA  = coderdtest.New(t, &coderdtest.Options{
+		clientA  = wirtualdtest.New(t, &wirtualdtest.Options{
 			WorkspaceUsageTrackerTick:  wuTickA,
 			WorkspaceUsageTrackerFlush: wuFlushA,
 			Database:                   db,
 			Pubsub:                     ps,
 		})
-		clientB = coderdtest.New(t, &coderdtest.Options{
+		clientB = wirtualdtest.New(t, &wirtualdtest.Options{
 			WorkspaceUsageTrackerTick:  wuTickB,
 			WorkspaceUsageTrackerFlush: wuFlushB,
 			Database:                   db,
 			Pubsub:                     ps,
 		})
-		owner = coderdtest.CreateFirstUser(t, clientA)
+		owner = wirtualdtest.CreateFirstUser(t, clientA)
 		now   = dbtime.Now()
 	)
 

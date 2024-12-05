@@ -2447,7 +2447,7 @@ export interface WorkspaceProxyReport extends BaseReport {
 export type HealthSection = "AccessURL" | "DERP" | "Database" | "ProvisionerDaemons" | "Websocket" | "WorkspaceProxy"
 export const HealthSections: HealthSection[] = ["AccessURL", "DERP", "Database", "ProvisionerDaemons", "Websocket", "WorkspaceProxy"]
 
-// The code below is generated from coderd/healthcheck/health.
+// The code below is generated from wirtuald/healthcheck/health.
 
 // From health/model.go
 export interface HealthMessage {

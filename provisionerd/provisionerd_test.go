@@ -595,7 +595,7 @@ func TestProvisionerd(t *testing.T) {
 		assert.True(t, didFail.Load(), "should fail the job")
 	})
 
-	// Simulates when there is no coderd to connect to. So the client connection
+	// Simulates when there is no wirtuald to connect to. So the client connection
 	// will never be established.
 	t.Run("ShutdownNoCoderd", func(t *testing.T) {
 		t.Parallel()

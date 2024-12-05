@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -17,25 +17,25 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/coder/coder/v2/cryptorand"
-	"github.com/coder/coder/v2/enterprise/coderd"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
-	"github.com/coder/coder/v2/enterprise/coderd/scim"
+	"github.com/coder/coder/v2/enterprise/wirtuald"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/scim"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/coder/v2/wirtuald/audit"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
-	"github.com/coder/coder/v2/wirtuald/coderdtest/oidctest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/notifications/notificationstest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest/oidctest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 //nolint:revive
-func makeScimUser(t testing.TB) coderd.SCIMUser {
+func makeScimUser(t testing.TB) wirtuald.SCIMUser {
 	rstr, err := cryptorand.String(10)
 	require.NoError(t, err)
 
-	return coderd.SCIMUser{
+	return wirtuald.SCIMUser{
 		UserName: rstr,
 		Name: struct {
 			GivenName  string "json:\"givenName\""
@@ -82,9 +82,9 @@ func TestScim(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			defer cancel()
 
-			client, _ := coderdenttest.New(t, &coderdenttest.Options{
+			client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
 				SCIMAPIKey: []byte("hi"),
-				LicenseOptions: &coderdenttest.LicenseOptions{
+				LicenseOptions: &wirtualdenttest.LicenseOptions{
 					AccountID: "coolin",
 					Features: license.Features{
 						wirtualsdk.FeatureSCIM: 0,
@@ -104,9 +104,9 @@ func TestScim(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			defer cancel()
 
-			client, _ := coderdenttest.New(t, &coderdenttest.Options{
+			client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
 				SCIMAPIKey: []byte("hi"),
-				LicenseOptions: &coderdenttest.LicenseOptions{
+				LicenseOptions: &wirtualdenttest.LicenseOptions{
 					AccountID: "coolin",
 					Features: license.Features{
 						wirtualsdk.FeatureSCIM: 1,
@@ -130,14 +130,14 @@ func TestScim(t *testing.T) {
 			scimAPIKey := []byte("hi")
 			mockAudit := audit.NewMock()
 			notifyEnq := &notificationstest.FakeEnqueuer{}
-			client, _ := coderdenttest.New(t, &coderdenttest.Options{
-				Options: &coderdtest.Options{
+			client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+				Options: &wirtualdtest.Options{
 					Auditor:               mockAudit,
 					NotificationsEnqueuer: notifyEnq,
 				},
 				SCIMAPIKey:   scimAPIKey,
 				AuditLogging: true,
-				LicenseOptions: &coderdenttest.LicenseOptions{
+				LicenseOptions: &wirtualdenttest.LicenseOptions{
 					AccountID: "coolin",
 					Features: license.Features{
 						wirtualsdk.FeatureSCIM:     1,
@@ -167,7 +167,7 @@ func TestScim(t *testing.T) {
 			af := map[string]string{}
 			err = json.Unmarshal([]byte(aLogs[0].AdditionalFields), &af)
 			require.NoError(t, err)
-			assert.Equal(t, coderd.SCIMAuditAdditionalFields, af)
+			assert.Equal(t, wirtuald.SCIMAuditAdditionalFields, af)
 			assert.Equal(t, database.AuditActionCreate, aLogs[0].Action)
 
 			// Expect users exposed over API
@@ -192,14 +192,14 @@ func TestScim(t *testing.T) {
 			scimAPIKey := []byte("hi")
 			mockAudit := audit.NewMock()
 			notifyEnq := &notificationstest.FakeEnqueuer{}
-			client, _ := coderdenttest.New(t, &coderdenttest.Options{
-				Options: &coderdtest.Options{
+			client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+				Options: &wirtualdtest.Options{
 					Auditor:               mockAudit,
 					NotificationsEnqueuer: notifyEnq,
 				},
 				SCIMAPIKey:   scimAPIKey,
 				AuditLogging: true,
-				LicenseOptions: &coderdenttest.LicenseOptions{
+				LicenseOptions: &wirtualdenttest.LicenseOptions{
 					AccountID: "coolin",
 					Features: license.Features{
 						wirtualsdk.FeatureSCIM:     1,
@@ -223,7 +223,7 @@ func TestScim(t *testing.T) {
 			af := map[string]string{}
 			err = json.Unmarshal([]byte(aLogs[0].AdditionalFields), &af)
 			require.NoError(t, err)
-			assert.Equal(t, coderd.SCIMAuditAdditionalFields, af)
+			assert.Equal(t, wirtuald.SCIMAuditAdditionalFields, af)
 			assert.Equal(t, database.AuditActionCreate, aLogs[0].Action)
 
 			// Expect users exposed over API
@@ -248,17 +248,17 @@ func TestScim(t *testing.T) {
 			scimAPIKey := []byte("hi")
 			mockAudit := audit.NewMock()
 			notifyEnq := &notificationstest.FakeEnqueuer{}
-			dv := coderdtest.DeploymentValues(t)
+			dv := wirtualdtest.DeploymentValues(t)
 			dv.OIDC.OrganizationAssignDefault = false
-			client, _ := coderdenttest.New(t, &coderdenttest.Options{
-				Options: &coderdtest.Options{
+			client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+				Options: &wirtualdtest.Options{
 					Auditor:               mockAudit,
 					NotificationsEnqueuer: notifyEnq,
 					DeploymentValues:      dv,
 				},
 				SCIMAPIKey:   scimAPIKey,
 				AuditLogging: true,
-				LicenseOptions: &coderdenttest.LicenseOptions{
+				LicenseOptions: &wirtualdenttest.LicenseOptions{
 					AccountID: "coolin",
 					Features: license.Features{
 						wirtualsdk.FeatureSCIM:     1,
@@ -282,7 +282,7 @@ func TestScim(t *testing.T) {
 			af := map[string]string{}
 			err = json.Unmarshal([]byte(aLogs[0].AdditionalFields), &af)
 			require.NoError(t, err)
-			assert.Equal(t, coderd.SCIMAuditAdditionalFields, af)
+			assert.Equal(t, wirtuald.SCIMAuditAdditionalFields, af)
 			assert.Equal(t, database.AuditActionCreate, aLogs[0].Action)
 
 			// Expect users exposed over API
@@ -304,9 +304,9 @@ func TestScim(t *testing.T) {
 			defer cancel()
 
 			scimAPIKey := []byte("hi")
-			client, _ := coderdenttest.New(t, &coderdenttest.Options{
+			client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
 				SCIMAPIKey: scimAPIKey,
-				LicenseOptions: &coderdenttest.LicenseOptions{
+				LicenseOptions: &wirtualdenttest.LicenseOptions{
 					AccountID: "coolin",
 					Features: license.Features{
 						wirtualsdk.FeatureSCIM: 1,
@@ -337,9 +337,9 @@ func TestScim(t *testing.T) {
 			defer cancel()
 
 			scimAPIKey := []byte("hi")
-			client, _ := coderdenttest.New(t, &coderdenttest.Options{
+			client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
 				SCIMAPIKey: scimAPIKey,
-				LicenseOptions: &coderdenttest.LicenseOptions{
+				LicenseOptions: &wirtualdenttest.LicenseOptions{
 					AccountID: "coolin",
 					Features: license.Features{
 						wirtualsdk.FeatureSCIM: 1,
@@ -385,9 +385,9 @@ func TestScim(t *testing.T) {
 			defer cancel()
 
 			scimAPIKey := []byte("hi")
-			client, _ := coderdenttest.New(t, &coderdenttest.Options{
+			client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
 				SCIMAPIKey: scimAPIKey,
-				LicenseOptions: &coderdenttest.LicenseOptions{
+				LicenseOptions: &wirtualdenttest.LicenseOptions{
 					AccountID: "coolin",
 					Features: license.Features{
 						wirtualsdk.FeatureSCIM: 1,
@@ -423,9 +423,9 @@ func TestScim(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			defer cancel()
 
-			client, _ := coderdenttest.New(t, &coderdenttest.Options{
+			client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
 				SCIMAPIKey: []byte("hi"),
-				LicenseOptions: &coderdenttest.LicenseOptions{
+				LicenseOptions: &wirtualdenttest.LicenseOptions{
 					AccountID: "coolin",
 					Features: license.Features{
 						wirtualsdk.FeatureSCIM: 0,
@@ -446,9 +446,9 @@ func TestScim(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 			defer cancel()
 
-			client, _ := coderdenttest.New(t, &coderdenttest.Options{
+			client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
 				SCIMAPIKey: []byte("hi"),
-				LicenseOptions: &coderdenttest.LicenseOptions{
+				LicenseOptions: &wirtualdenttest.LicenseOptions{
 					AccountID: "coolin",
 					Features: license.Features{
 						wirtualsdk.FeatureSCIM: 1,
@@ -471,11 +471,11 @@ func TestScim(t *testing.T) {
 
 			scimAPIKey := []byte("hi")
 			mockAudit := audit.NewMock()
-			client, _ := coderdenttest.New(t, &coderdenttest.Options{
-				Options:      &coderdtest.Options{Auditor: mockAudit},
+			client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+				Options:      &wirtualdtest.Options{Auditor: mockAudit},
 				SCIMAPIKey:   scimAPIKey,
 				AuditLogging: true,
-				LicenseOptions: &coderdenttest.LicenseOptions{
+				LicenseOptions: &wirtualdenttest.LicenseOptions{
 					AccountID: "coolin",
 					Features: license.Features{
 						wirtualsdk.FeatureSCIM:     1,
@@ -526,14 +526,14 @@ func TestScim(t *testing.T) {
 
 			mockAudit := audit.NewMock()
 			fake := oidctest.NewFakeIDP(t, oidctest.WithServing())
-			client, _ := coderdenttest.New(t, &coderdenttest.Options{
-				Options: &coderdtest.Options{
+			client, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+				Options: &wirtualdtest.Options{
 					Auditor:    mockAudit,
 					OIDCConfig: fake.OIDCConfig(t, []string{}),
 				},
 				SCIMAPIKey:   scimAPIKey,
 				AuditLogging: true,
-				LicenseOptions: &coderdenttest.LicenseOptions{
+				LicenseOptions: &wirtualdenttest.LicenseOptions{
 					AccountID: "coolin",
 					Features: license.Features{
 						wirtualsdk.FeatureSCIM:     1,

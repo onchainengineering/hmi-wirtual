@@ -145,19 +145,19 @@ func NewMetrics(reg prometheus.Registerer) Metrics {
 	return Metrics{
 		Runner: runner.Metrics{
 			ConcurrentJobs: auto.NewGaugeVec(prometheus.GaugeOpts{
-				Namespace: "coderd",
+				Namespace: "wirtuald",
 				Subsystem: "provisionerd",
 				Name:      "jobs_current",
 				Help:      "The number of currently running provisioner jobs.",
 			}, []string{"provisioner"}),
 			NumDaemons: auto.NewGauge(prometheus.GaugeOpts{
-				Namespace: "coderd",
+				Namespace: "wirtuald",
 				Subsystem: "provisionerd",
 				Name:      "num_daemons",
 				Help:      "The number of provisioner daemons.",
 			}),
 			JobTimings: auto.NewHistogramVec(prometheus.HistogramOpts{
-				Namespace: "coderd",
+				Namespace: "wirtuald",
 				Subsystem: "provisionerd",
 				Name:      "job_timings_seconds",
 				Help:      "The provisioner job time duration in seconds.",
@@ -173,7 +173,7 @@ func NewMetrics(reg prometheus.Registerer) Metrics {
 				},
 			}, []string{"provisioner", "status"}),
 			WorkspaceBuilds: auto.NewCounterVec(prometheus.CounterOpts{
-				Namespace: "coderd",
+				Namespace: "wirtuald",
 				Subsystem: "", // Explicitly empty to make this a top-level metric.
 				Name:      "workspace_builds_total",
 				Help:      "The number of workspaces started, updated, or deleted.",
@@ -182,12 +182,12 @@ func NewMetrics(reg prometheus.Registerer) Metrics {
 	}
 }
 
-// Connect establishes a connection to coderd.
+// Connect establishes a connection to wirtuald.
 func (p *Server) connect() {
 	defer p.opts.Logger.Debug(p.closeContext, "connect loop exited")
 	defer p.wg.Done()
 	// An exponential back-off occurs when the connection is failing to dial.
-	// This is to prevent server spam in case of a coderd outage.
+	// This is to prevent server spam in case of a wirtuald outage.
 connectLoop:
 	for retrier := retry.New(50*time.Millisecond, 10*time.Second); retrier.Wait(p.closeContext); {
 		// It's possible for the provisioner daemon to be shut down
@@ -195,7 +195,7 @@ connectLoop:
 		if p.isClosed() {
 			return
 		}
-		p.opts.Logger.Debug(p.closeContext, "dialing coderd")
+		p.opts.Logger.Debug(p.closeContext, "dialing wirtuald")
 		client, err := p.clientDialer(p.closeContext)
 		if err != nil {
 			if errors.Is(err, context.Canceled) {
@@ -204,16 +204,16 @@ connectLoop:
 			var sdkErr *wirtualsdk.Error
 			// If something is wrong with our auth, stop trying to connect.
 			if errors.As(err, &sdkErr) && sdkErr.StatusCode() == http.StatusForbidden {
-				p.opts.Logger.Error(p.closeContext, "not authorized to dial coderd", slog.Error(err))
+				p.opts.Logger.Error(p.closeContext, "not authorized to dial wirtuald", slog.Error(err))
 				return
 			}
 			if p.isClosed() {
 				return
 			}
-			p.opts.Logger.Warn(p.closeContext, "coderd client failed to dial", slog.Error(err))
+			p.opts.Logger.Warn(p.closeContext, "wirtuald client failed to dial", slog.Error(err))
 			continue
 		}
-		p.opts.Logger.Info(p.closeContext, "successfully connected to coderd")
+		p.opts.Logger.Info(p.closeContext, "successfully connected to wirtuald")
 		retrier.Reset()
 
 		// serve the client until we are closed or it disconnects
@@ -223,7 +223,7 @@ connectLoop:
 				client.DRPCConn().Close()
 				return
 			case <-client.DRPCConn().Closed():
-				p.opts.Logger.Info(p.closeContext, "connection to coderd closed")
+				p.opts.Logger.Info(p.closeContext, "connection to wirtuald closed")
 				continue connectLoop
 			case p.clientCh <- client:
 				continue
@@ -301,7 +301,7 @@ func (p *Server) acquireAndRunOne(client proto.DRPCProvisionerDaemonClient) {
 		ctx = tracing.MetadataToContext(ctx, job.TraceMetadata)
 	}
 	ctx, span := p.tracer.Start(ctx, tracing.FuncName(), trace.WithAttributes(
-		semconv.ServiceNameKey.String("coderd.provisionerd"),
+		semconv.ServiceNameKey.String("wirtuald.provisionerd"),
 		attribute.String("job_id", job.JobId),
 		attribute.String("job_type", reflect.TypeOf(job.GetType()).Elem().Name()),
 		attribute.Int64("job_created_at", job.CreatedAt),

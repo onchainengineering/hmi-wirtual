@@ -1,4 +1,4 @@
-package coderdtest
+package wirtualdtest
 
 import (
 	"bytes"
@@ -102,9 +102,9 @@ type Options struct {
 	AWSCertificates                awsidentity.Certificates
 	Authorizer                     rbac.Authorizer
 	AzureCertificates              x509.VerifyOptions
-	GithubOAuth2Config             *coderd.GithubOAuth2Config
+	GithubOAuth2Config             *wirtuald.GithubOAuth2Config
 	RealIPConfig                   *httpmw.RealIPConfig
-	OIDCConfig                     *coderd.OIDCConfig
+	OIDCConfig                     *wirtuald.OIDCConfig
 	GoogleTokenValidator           *idtoken.Validator
 	SSHKeygenAlgorithm             gitsshkey.Algorithm
 	AutobuildTicker                <-chan time.Time
@@ -181,7 +181,7 @@ func NewWithDatabase(t testing.TB, options *Options) (*wirtualsdk.Client, databa
 
 // NewWithProvisionerCloser returns a client as well as a handle to close
 // the provisioner. This is a temporary function while work is done to
-// standardize how provisioners are registered with coderd. The option
+// standardize how provisioners are registered with wirtuald. The option
 // to include a provisioner is set to true for convenience.
 func NewWithProvisionerCloser(t testing.TB, options *Options) (*wirtualsdk.Client, io.Closer) {
 	if options == nil {
@@ -194,7 +194,7 @@ func NewWithProvisionerCloser(t testing.TB, options *Options) (*wirtualsdk.Clien
 
 // newWithCloser constructs a wirtualsdk client connected to an in-memory API instance.
 // The returned closer closes a provisioner if it was provided
-// The API is intentionally not returned here because coderd tests should not
+// The API is intentionally not returned here because wirtuald tests should not
 // require a handle to the API. Do not expose the API or wrath shall descend
 // upon thee. Even the io.Closer that is exposed here shouldn't be exposed
 // and is a temporary measure while the API to register provisioners is ironed
@@ -204,14 +204,14 @@ func newWithCloser(t testing.TB, options *Options) (*wirtualsdk.Client, io.Close
 	return client, closer
 }
 
-func NewOptions(t testing.TB, options *Options) (func(http.Handler), context.CancelFunc, *url.URL, *coderd.Options) {
+func NewOptions(t testing.TB, options *Options) (func(http.Handler), context.CancelFunc, *url.URL, *wirtuald.Options) {
 	t.Helper()
 
 	if options == nil {
 		options = &Options{}
 	}
 	if options.Logger == nil {
-		logger := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true}).Leveled(slog.LevelDebug).Named("coderd")
+		logger := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true}).Leveled(slog.LevelDebug).Named("wirtuald")
 		options.Logger = &logger
 	}
 	if options.GoogleTokenValidator == nil {
@@ -361,7 +361,7 @@ func NewOptions(t testing.TB, options *Options) (func(http.Handler), context.Can
 	//
 	//   tickCh = make(chan time.Time)
 	//   flushCh = make(chan int, 1)
-	//   client  = coderdtest.New(t, &coderdtest.Options{
+	//   client  = wirtualdtest.New(t, &wirtualdtest.Options{
 	//     WorkspaceUsageTrackerFlush: flushCh,
 	//     WorkspaceUsageTrackerTick: tickCh
 	//   })
@@ -483,7 +483,7 @@ func NewOptions(t testing.TB, options *Options) (func(http.Handler), context.Can
 			mutex.Lock()
 			defer mutex.Unlock()
 			handler = h
-		}, cancelFunc, serverURL, &coderd.Options{
+		}, cancelFunc, serverURL, &wirtuald.Options{
 			AgentConnectionUpdateFrequency: 150 * time.Millisecond,
 			// Force a long disconnection timeout to ensure
 			// agents are not marked as disconnected during slow tests.
@@ -548,13 +548,13 @@ func NewOptions(t testing.TB, options *Options) (func(http.Handler), context.Can
 // NewWithAPI constructs an in-memory API instance and returns a client to talk to it.
 // Most tests never need a reference to the API, but AuthorizationTest in this module uses it.
 // Do not expose the API or wrath shall descend upon thee.
-func NewWithAPI(t testing.TB, options *Options) (*wirtualsdk.Client, io.Closer, *coderd.API) {
+func NewWithAPI(t testing.TB, options *Options) (*wirtualsdk.Client, io.Closer, *wirtuald.API) {
 	if options == nil {
 		options = &Options{}
 	}
 	setHandler, cancelFunc, serverURL, newOptions := NewOptions(t, options)
 	// We set the handler after server creation for the access URL.
-	coderAPI := coderd.New(newOptions)
+	coderAPI := wirtuald.New(newOptions)
 	setHandler(coderAPI.RootHandler)
 	var provisionerCloser io.Closer = nopcloser{}
 	if options.IncludeProvisionerDaemon {
@@ -599,13 +599,13 @@ func (c *ProvisionerdCloser) Close() error {
 }
 
 // NewProvisionerDaemon launches a provisionerd instance configured to work
-// well with coderd testing. It registers the "echo" provisioner for
+// well with wirtuald testing. It registers the "echo" provisioner for
 // quick testing.
-func NewProvisionerDaemon(t testing.TB, coderAPI *coderd.API) io.Closer {
+func NewProvisionerDaemon(t testing.TB, coderAPI *wirtuald.API) io.Closer {
 	return NewTaggedProvisionerDaemon(t, coderAPI, "test", nil)
 }
 
-func NewTaggedProvisionerDaemon(t testing.TB, coderAPI *coderd.API, name string, provisionerTags map[string]string) io.Closer {
+func NewTaggedProvisionerDaemon(t testing.TB, coderAPI *wirtuald.API, name string, provisionerTags map[string]string) io.Closer {
 	t.Helper()
 
 	// t.Cleanup runs in last added, first called order. t.TempDir() will delete

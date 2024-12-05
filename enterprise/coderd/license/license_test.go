@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/exp/slices"
 
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
+	"github.com/coder/coder/v2/enterprise/wirtual
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbmem"
 	"github.com/coder/coder/v2/wirtuald/database/dbtime"
@@ -31,7 +31,7 @@ func TestEntitlements(t *testing.T) {
 	t.Run("Defaults", func(t *testing.T) {
 		t.Parallel()
 		db := dbmem.New()
-		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, coderdenttest.Keys, all)
+		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, wirtualdenttest.Keys, all)
 		require.NoError(t, err)
 		require.False(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
@@ -43,7 +43,7 @@ func TestEntitlements(t *testing.T) {
 	t.Run("Always return the current user count", func(t *testing.T) {
 		t.Parallel()
 		db := dbmem.New()
-		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, coderdenttest.Keys, all)
+		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, wirtualdenttest.Keys, all)
 		require.NoError(t, err)
 		require.False(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
@@ -53,10 +53,10 @@ func TestEntitlements(t *testing.T) {
 		t.Parallel()
 		db := dbmem.New()
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{}),
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{}),
 			Exp: dbtime.Now().Add(time.Hour),
 		})
-		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, coderdenttest.Keys, empty)
+		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, wirtualdenttest.Keys, empty)
 		require.NoError(t, err)
 		require.True(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
@@ -69,7 +69,7 @@ func TestEntitlements(t *testing.T) {
 		t.Parallel()
 		db := dbmem.New()
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 				Features: func() license.Features {
 					f := make(license.Features)
 					for _, name := range wirtualsdk.FeatureNames {
@@ -80,7 +80,7 @@ func TestEntitlements(t *testing.T) {
 			}),
 			Exp: dbtime.Now().Add(time.Hour),
 		})
-		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, coderdenttest.Keys, empty)
+		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, wirtualdenttest.Keys, empty)
 		require.NoError(t, err)
 		require.True(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
@@ -92,7 +92,7 @@ func TestEntitlements(t *testing.T) {
 		t.Parallel()
 		db := dbmem.New()
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureUserLimit: 100,
 					wirtualsdk.FeatureAuditLog:  1,
@@ -103,7 +103,7 @@ func TestEntitlements(t *testing.T) {
 			}),
 			Exp: dbtime.Now().Add(time.Hour),
 		})
-		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, coderdenttest.Keys, all)
+		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, wirtualdenttest.Keys, all)
 		require.NoError(t, err)
 		require.True(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
@@ -118,7 +118,7 @@ func TestEntitlements(t *testing.T) {
 		t.Parallel()
 		db := dbmem.New()
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureUserLimit: 100,
 					wirtualsdk.FeatureAuditLog:  1,
@@ -130,7 +130,7 @@ func TestEntitlements(t *testing.T) {
 			Exp: dbtime.Now().AddDate(0, 0, 5),
 		})
 
-		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, coderdenttest.Keys, all)
+		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, wirtualdenttest.Keys, all)
 
 		require.NoError(t, err)
 		require.True(t, entitlements.HasLicense)
@@ -147,7 +147,7 @@ func TestEntitlements(t *testing.T) {
 		t.Parallel()
 		db := dbmem.New()
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureUserLimit: 100,
 					wirtualsdk.FeatureAuditLog:  1,
@@ -159,7 +159,7 @@ func TestEntitlements(t *testing.T) {
 			Exp: time.Now().AddDate(0, 0, 5),
 		})
 
-		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, coderdenttest.Keys, all)
+		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, wirtualdenttest.Keys, all)
 
 		require.NoError(t, err)
 		require.True(t, entitlements.HasLicense)
@@ -176,7 +176,7 @@ func TestEntitlements(t *testing.T) {
 		t.Parallel()
 		db := dbmem.New()
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureUserLimit: 100,
 					wirtualsdk.FeatureAuditLog:  1,
@@ -189,7 +189,7 @@ func TestEntitlements(t *testing.T) {
 			Exp: dbtime.Now().AddDate(0, 0, 5),
 		})
 
-		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, coderdenttest.Keys, all)
+		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, wirtualdenttest.Keys, all)
 
 		require.NoError(t, err)
 		require.True(t, entitlements.HasLicense)
@@ -206,7 +206,7 @@ func TestEntitlements(t *testing.T) {
 		t.Parallel()
 		db := dbmem.New()
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureUserLimit: 100,
 					wirtualsdk.FeatureAuditLog:  1,
@@ -218,7 +218,7 @@ func TestEntitlements(t *testing.T) {
 			Exp: dbtime.Now().AddDate(0, 0, 5),
 		})
 
-		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, coderdenttest.Keys, all)
+		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, wirtualdenttest.Keys, all)
 
 		require.NoError(t, err)
 		require.True(t, entitlements.HasLicense)
@@ -235,10 +235,10 @@ func TestEntitlements(t *testing.T) {
 		t.Parallel()
 		db := dbmem.New()
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{}),
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{}),
 			Exp: time.Now().Add(time.Hour),
 		})
-		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, coderdenttest.Keys, all)
+		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, wirtualdenttest.Keys, all)
 		require.NoError(t, err)
 		require.True(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
@@ -293,14 +293,14 @@ func TestEntitlements(t *testing.T) {
 		})
 		require.NoError(t, err)
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureUserLimit: 1,
 				},
 			}),
 			Exp: time.Now().Add(time.Hour),
 		})
-		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, coderdenttest.Keys, empty)
+		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, wirtualdenttest.Keys, empty)
 		require.NoError(t, err)
 		require.True(t, entitlements.HasLicense)
 		require.Contains(t, entitlements.Warnings, "Your deployment has 2 active users but is only licensed for 1.")
@@ -311,7 +311,7 @@ func TestEntitlements(t *testing.T) {
 		db.InsertUser(context.Background(), database.InsertUserParams{})
 		db.InsertUser(context.Background(), database.InsertUserParams{})
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureUserLimit: 10,
 				},
@@ -320,7 +320,7 @@ func TestEntitlements(t *testing.T) {
 			Exp: time.Now().Add(60 * 24 * time.Hour),
 		})
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureUserLimit: 1,
 				},
@@ -328,7 +328,7 @@ func TestEntitlements(t *testing.T) {
 			}),
 			Exp: time.Now().Add(60 * 24 * time.Hour),
 		})
-		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, coderdenttest.Keys, empty)
+		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, wirtualdenttest.Keys, empty)
 		require.NoError(t, err)
 		require.True(t, entitlements.HasLicense)
 		require.Empty(t, entitlements.Warnings)
@@ -339,19 +339,19 @@ func TestEntitlements(t *testing.T) {
 		// One trial
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
 			Exp: time.Now().Add(time.Hour),
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 				Trial: true,
 			}),
 		})
 		// One not
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
 			Exp: time.Now().Add(time.Hour),
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 				Trial: false,
 			}),
 		})
 
-		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, coderdenttest.Keys, empty)
+		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, wirtualdenttest.Keys, empty)
 		require.NoError(t, err)
 		require.True(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
@@ -362,12 +362,12 @@ func TestEntitlements(t *testing.T) {
 		db := dbmem.New()
 		_, err := db.InsertLicense(context.Background(), database.InsertLicenseParams{
 			Exp: time.Now().Add(time.Hour),
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 				FeatureSet: wirtualsdk.FeatureSetEnterprise,
 			}),
 		})
 		require.NoError(t, err)
-		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, coderdenttest.Keys, all)
+		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, wirtualdenttest.Keys, all)
 		require.NoError(t, err)
 		require.True(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
@@ -393,12 +393,12 @@ func TestEntitlements(t *testing.T) {
 		db := dbmem.New()
 		_, err := db.InsertLicense(context.Background(), database.InsertLicenseParams{
 			Exp: time.Now().Add(time.Hour),
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 				FeatureSet: wirtualsdk.FeatureSetPremium,
 			}),
 		})
 		require.NoError(t, err)
-		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, coderdenttest.Keys, all)
+		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, wirtualdenttest.Keys, all)
 		require.NoError(t, err)
 		require.True(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
@@ -424,12 +424,12 @@ func TestEntitlements(t *testing.T) {
 		db := dbmem.New()
 		_, err := db.InsertLicense(context.Background(), database.InsertLicenseParams{
 			Exp: time.Now().Add(time.Hour),
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 				FeatureSet: "",
 			}),
 		})
 		require.NoError(t, err)
-		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, coderdenttest.Keys, all)
+		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, wirtualdenttest.Keys, all)
 		require.NoError(t, err)
 		require.True(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
@@ -446,11 +446,11 @@ func TestEntitlements(t *testing.T) {
 		db := dbmem.New()
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
 			Exp: time.Now().Add(time.Hour),
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 				AllFeatures: true,
 			}),
 		})
-		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, coderdenttest.Keys, all)
+		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, wirtualdenttest.Keys, all)
 		require.NoError(t, err)
 		require.True(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
@@ -476,11 +476,11 @@ func TestEntitlements(t *testing.T) {
 		db := dbmem.New()
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
 			Exp: dbtime.Now().Add(time.Hour),
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 				AllFeatures: true,
 			}),
 		})
-		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, coderdenttest.Keys, empty)
+		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, wirtualdenttest.Keys, empty)
 		require.NoError(t, err)
 		require.True(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
@@ -507,13 +507,13 @@ func TestEntitlements(t *testing.T) {
 		db := dbmem.New()
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
 			Exp: dbtime.Now().Add(time.Hour),
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 				AllFeatures: true,
 				GraceAt:     dbtime.Now().Add(-time.Hour),
 				ExpiresAt:   dbtime.Now().Add(time.Hour),
 			}),
 		})
-		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, coderdenttest.Keys, all)
+		entitlements, err := license.Entitlements(context.Background(), db, 1, 1, wirtualdenttest.Keys, all)
 		require.NoError(t, err)
 		require.True(t, entitlements.HasLicense)
 		require.False(t, entitlements.Trial)
@@ -536,7 +536,7 @@ func TestEntitlements(t *testing.T) {
 	t.Run("MultipleReplicasNoLicense", func(t *testing.T) {
 		t.Parallel()
 		db := dbmem.New()
-		entitlements, err := license.Entitlements(context.Background(), db, 2, 1, coderdenttest.Keys, all)
+		entitlements, err := license.Entitlements(context.Background(), db, 2, 1, wirtualdenttest.Keys, all)
 		require.NoError(t, err)
 		require.False(t, entitlements.HasLicense)
 		require.Len(t, entitlements.Errors, 1)
@@ -548,13 +548,13 @@ func TestEntitlements(t *testing.T) {
 		db := dbmem.New()
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
 			Exp: time.Now().Add(time.Hour),
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureAuditLog: 1,
 				},
 			}),
 		})
-		entitlements, err := license.Entitlements(context.Background(), db, 2, 1, coderdenttest.Keys, map[wirtualsdk.FeatureName]bool{
+		entitlements, err := license.Entitlements(context.Background(), db, 2, 1, wirtualdenttest.Keys, map[wirtualsdk.FeatureName]bool{
 			wirtualsdk.FeatureHighAvailability: true,
 		})
 		require.NoError(t, err)
@@ -567,7 +567,7 @@ func TestEntitlements(t *testing.T) {
 		t.Parallel()
 		db := dbmem.New()
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureHighAvailability: 1,
 				},
@@ -576,7 +576,7 @@ func TestEntitlements(t *testing.T) {
 			}),
 			Exp: time.Now().Add(time.Hour),
 		})
-		entitlements, err := license.Entitlements(context.Background(), db, 2, 1, coderdenttest.Keys, map[wirtualsdk.FeatureName]bool{
+		entitlements, err := license.Entitlements(context.Background(), db, 2, 1, wirtualdenttest.Keys, map[wirtualsdk.FeatureName]bool{
 			wirtualsdk.FeatureHighAvailability: true,
 		})
 		require.NoError(t, err)
@@ -588,7 +588,7 @@ func TestEntitlements(t *testing.T) {
 	t.Run("MultipleGitAuthNoLicense", func(t *testing.T) {
 		t.Parallel()
 		db := dbmem.New()
-		entitlements, err := license.Entitlements(context.Background(), db, 1, 2, coderdenttest.Keys, all)
+		entitlements, err := license.Entitlements(context.Background(), db, 1, 2, wirtualdenttest.Keys, all)
 		require.NoError(t, err)
 		require.False(t, entitlements.HasLicense)
 		require.Len(t, entitlements.Errors, 1)
@@ -600,13 +600,13 @@ func TestEntitlements(t *testing.T) {
 		db := dbmem.New()
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
 			Exp: time.Now().Add(time.Hour),
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureAuditLog: 1,
 				},
 			}),
 		})
-		entitlements, err := license.Entitlements(context.Background(), db, 1, 2, coderdenttest.Keys, map[wirtualsdk.FeatureName]bool{
+		entitlements, err := license.Entitlements(context.Background(), db, 1, 2, wirtualdenttest.Keys, map[wirtualsdk.FeatureName]bool{
 			wirtualsdk.FeatureMultipleExternalAuth: true,
 		})
 		require.NoError(t, err)
@@ -619,7 +619,7 @@ func TestEntitlements(t *testing.T) {
 		t.Parallel()
 		db := dbmem.New()
 		db.InsertLicense(context.Background(), database.InsertLicenseParams{
-			JWT: coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+			JWT: wirtualdenttest.GenerateLicense(t, wirtualdenttest.LicenseOptions{
 				GraceAt:   time.Now().Add(-time.Hour),
 				ExpiresAt: time.Now().Add(time.Hour),
 				Features: license.Features{
@@ -628,7 +628,7 @@ func TestEntitlements(t *testing.T) {
 			}),
 			Exp: time.Now().Add(time.Hour),
 		})
-		entitlements, err := license.Entitlements(context.Background(), db, 1, 2, coderdenttest.Keys, map[wirtualsdk.FeatureName]bool{
+		entitlements, err := license.Entitlements(context.Background(), db, 1, 2, wirtualdenttest.Keys, map[wirtualsdk.FeatureName]bool{
 			wirtualsdk.FeatureMultipleExternalAuth: true,
 		})
 		require.NoError(t, err)
@@ -645,7 +645,7 @@ func TestLicenseEntitlements(t *testing.T) {
 	// not accept a custom time function. The only way to change it is as a
 	// package global, which does not work in t.Parallel().
 
-	// This list comes from coderd.go on launch. This list is a bit arbitrary,
+	// This list comes from wirtuald.go on launch. This list is a bit arbitrary,
 	// maybe some should be moved to "AlwaysEnabled" instead.
 	defaultEnablements := map[wirtualsdk.FeatureName]bool{
 		wirtualsdk.FeatureAuditLog:                   true,
@@ -662,8 +662,8 @@ func TestLicenseEntitlements(t *testing.T) {
 		wirtualsdk.FeatureControlSharedPorts:         true,
 	}
 
-	legacyLicense := func() *coderdenttest.LicenseOptions {
-		return (&coderdenttest.LicenseOptions{
+	legacyLicense := func() *wirtualdenttest.LicenseOptions {
+		return (&wirtualdenttest.LicenseOptions{
 			AccountType: "salesforce",
 			AccountID:   "Alice",
 			Trial:       false,
@@ -672,8 +672,8 @@ func TestLicenseEntitlements(t *testing.T) {
 		}).Valid(time.Now())
 	}
 
-	enterpriseLicense := func() *coderdenttest.LicenseOptions {
-		return (&coderdenttest.LicenseOptions{
+	enterpriseLicense := func() *wirtualdenttest.LicenseOptions {
+		return (&wirtualdenttest.LicenseOptions{
 			AccountType:   "salesforce",
 			AccountID:     "Bob",
 			DeploymentIDs: nil,
@@ -683,8 +683,8 @@ func TestLicenseEntitlements(t *testing.T) {
 		}).Valid(time.Now())
 	}
 
-	premiumLicense := func() *coderdenttest.LicenseOptions {
-		return (&coderdenttest.LicenseOptions{
+	premiumLicense := func() *wirtualdenttest.LicenseOptions {
+		return (&wirtualdenttest.LicenseOptions{
 			AccountType:   "salesforce",
 			AccountID:     "Charlie",
 			DeploymentIDs: nil,
@@ -696,7 +696,7 @@ func TestLicenseEntitlements(t *testing.T) {
 
 	testCases := []struct {
 		Name        string
-		Licenses    []*coderdenttest.LicenseOptions
+		Licenses    []*wirtualdenttest.LicenseOptions
 		Enablements map[wirtualsdk.FeatureName]bool
 		Arguments   license.FeatureArguments
 
@@ -714,7 +714,7 @@ func TestLicenseEntitlements(t *testing.T) {
 		},
 		{
 			Name: "MixedUsedCounts",
-			Licenses: []*coderdenttest.LicenseOptions{
+			Licenses: []*wirtualdenttest.LicenseOptions{
 				legacyLicense().UserLimit(100),
 				enterpriseLicense().UserLimit(500),
 			},
@@ -735,7 +735,7 @@ func TestLicenseEntitlements(t *testing.T) {
 		},
 		{
 			Name: "MixedUsedCountsWithExpired",
-			Licenses: []*coderdenttest.LicenseOptions{
+			Licenses: []*wirtualdenttest.LicenseOptions{
 				// This license is ignored
 				enterpriseLicense().UserLimit(500).Expired(time.Now()),
 				enterpriseLicense().UserLimit(100),
@@ -762,7 +762,7 @@ func TestLicenseEntitlements(t *testing.T) {
 			// The new license does not have enough seats to cover the active user count.
 			// The old license is in it's grace period.
 			Name: "MixedUsedCountsWithGrace",
-			Licenses: []*coderdenttest.LicenseOptions{
+			Licenses: []*wirtualdenttest.LicenseOptions{
 				enterpriseLicense().UserLimit(500).GracePeriod(time.Now()),
 				enterpriseLicense().UserLimit(100),
 			},
@@ -782,7 +782,7 @@ func TestLicenseEntitlements(t *testing.T) {
 		{
 			// Legacy license uses the "AllFeatures" boolean
 			Name: "LegacyLicense",
-			Licenses: []*coderdenttest.LicenseOptions{
+			Licenses: []*wirtualdenttest.LicenseOptions{
 				legacyLicense().UserLimit(100),
 			},
 			Enablements: defaultEnablements,
@@ -802,7 +802,7 @@ func TestLicenseEntitlements(t *testing.T) {
 		},
 		{
 			Name: "EnterpriseDisabledMultiOrg",
-			Licenses: []*coderdenttest.LicenseOptions{
+			Licenses: []*wirtualdenttest.LicenseOptions{
 				enterpriseLicense().UserLimit(100),
 			},
 			Enablements:           defaultEnablements,
@@ -815,7 +815,7 @@ func TestLicenseEntitlements(t *testing.T) {
 		},
 		{
 			Name: "PremiumEnabledMultiOrg",
-			Licenses: []*coderdenttest.LicenseOptions{
+			Licenses: []*wirtualdenttest.LicenseOptions{
 				premiumLicense().UserLimit(100),
 			},
 			Enablements:           defaultEnablements,
@@ -828,7 +828,7 @@ func TestLicenseEntitlements(t *testing.T) {
 		},
 		{
 			Name: "CurrentAndFuture",
-			Licenses: []*coderdenttest.LicenseOptions{
+			Licenses: []*wirtualdenttest.LicenseOptions{
 				enterpriseLicense().UserLimit(100),
 				premiumLicense().UserLimit(200).FutureTerm(time.Now()),
 			},
@@ -864,7 +864,7 @@ func TestLicenseEntitlements(t *testing.T) {
 				})
 			}
 
-			entitlements, err := license.LicensesEntitlements(time.Now(), generatedLicenses, tc.Enablements, coderdenttest.Keys, tc.Arguments)
+			entitlements, err := license.LicensesEntitlements(time.Now(), generatedLicenses, tc.Enablements, wirtualdenttest.Keys, tc.Arguments)
 			if tc.ExpectedErrorContains != "" {
 				require.Error(t, err)
 				require.Contains(t, err.Error(), tc.ExpectedErrorContains)

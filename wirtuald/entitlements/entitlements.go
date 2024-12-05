@@ -27,7 +27,7 @@ type Set struct {
 func New() *Set {
 	s := &Set{
 		// Some defaults for an unlicensed instance.
-		// These will be updated when coderd is initialized.
+		// These will be updated when wirtuald is initialized.
 		entitlements: wirtualsdk.Entitlements{
 			Features:         map[wirtualsdk.FeatureName]wirtualsdk.Feature{},
 			Warnings:         nil,

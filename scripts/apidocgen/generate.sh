@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # This script generates swagger description file and required Go docs files
-# from the coderd API.
+# from the wirtuald API.
 
 set -euo pipefail
 # shellcheck source=scripts/lib.sh
@@ -19,9 +19,9 @@ log "Use temporary file: ${API_MD_TMP_FILE}"
 
 pushd "${PROJECT_ROOT}"
 go run github.com/swaggo/swag/cmd/swag@v1.8.9 init \
-	--generalInfo="coderd.go" \
-	--dir="./coderd,./wirtualsdk,./enterprise/coderd,./enterprise/wsproxy/wsproxysdk" \
-	--output="./coderd/apidoc" \
+	--generalInfo="wirtuald.go" \
+	--dir="./wirtuald,./wirtualsdk,./enterprise/wirtuald,./enterprise/wsproxy/wsproxysdk" \
+	--output="./wirtuald/apidoc" \
 	--outputTypes="go,json" \
 	--parseDependency=true
 popd
@@ -37,7 +37,7 @@ pnpm exec -- widdershins \
 	--search false \
 	--omitHeader true \
 	--language_tabs "shell:curl" \
-	--summary "../../coderd/apidoc/swagger.json" \
+	--summary "../../wirtuald/apidoc/swagger.json" \
 	--outfile "${API_MD_TMP_FILE}"
 # Perform the postprocessing
 go run postprocess/main.go -in-md-file-single "${API_MD_TMP_FILE}"

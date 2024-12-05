@@ -12,8 +12,8 @@ import (
 	"go.uber.org/mock/gomock"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
+	"github.com/coder/coder/v2/enterpris
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbmock"
@@ -157,8 +157,8 @@ func TestExtractProvisionerDaemonAuthenticated(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitShort)
-		client, db, user := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, db, user := wirtualdenttest.NewWithDatabase(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},
@@ -192,8 +192,8 @@ func TestExtractProvisionerDaemonAuthenticated(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitShort)
-		client, db, user := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, db, user := wirtualdenttest.NewWithDatabase(t, &wirtualdenttest.Options{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureExternalProvisionerDaemons: 1,
 				},

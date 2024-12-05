@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/coder/coder/v2/cli/clilog"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
 
@@ -105,7 +105,7 @@ func TestBuilder(t *testing.T) {
 			t.Cleanup(func() { _ = stderr.Close() })
 
 			// Use the default deployment values.
-			dv := coderdtest.DeploymentValues(t)
+			dv := wirtualdtest.DeploymentValues(t)
 			cmd := &serpent.Command{
 				Use:     "test",
 				Handler: testHandler(t, clilog.FromDeploymentValues(dv)),

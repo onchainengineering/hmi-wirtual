@@ -23,7 +23,7 @@ import (
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/provisionersdk/proto"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/workspaceapps"
 	"github.com/coder/coder/v2/wirtuald/workspaceapps/appurl"
 	"github.com/coder/coder/v2/wirtualsdk"
@@ -181,7 +181,7 @@ func setupProxyTestWithFactory(t *testing.T, factory DeploymentFactory, opts *De
 	deployment := factory(t, opts)
 
 	// Configure the HTTP client to not follow redirects and to route all
-	// requests regardless of hostname to the coderd test server.
+	// requests regardless of hostname to the wirtuald test server.
 	deployment.SDKClient.HTTPClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 		return http.ErrUseLastResponse
 	}
@@ -362,7 +362,7 @@ func createWorkspaceWithApps(t *testing.T, client *wirtualsdk.Client, orgID uuid
 			Subdomain:    true,
 		},
 	}
-	version := coderdtest.CreateTemplateVersion(t, client, orgID, &echo.Responses{
+	version := wirtualdtest.CreateTemplateVersion(t, client, orgID, &echo.Responses{
 		Parse:         echo.ParseComplete,
 		ProvisionPlan: echo.PlanComplete,
 		ProvisionApply: []*proto.Response{{
@@ -384,10 +384,10 @@ func createWorkspaceWithApps(t *testing.T, client *wirtualsdk.Client, orgID uuid
 			},
 		}},
 	})
-	template := coderdtest.CreateTemplate(t, client, orgID, version.ID)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID, workspaceMutators...)
-	workspaceBuild := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	template := wirtualdtest.CreateTemplate(t, client, orgID, version.ID)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	workspace := wirtualdtest.CreateWorkspace(t, client, template.ID, workspaceMutators...)
+	workspaceBuild := wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 	// Verify app subdomains
 	for _, app := range workspaceBuild.Resources[0].Agents[0].Apps {
@@ -445,7 +445,7 @@ func createWorkspaceWithApps(t *testing.T, client *wirtualsdk.Client, orgID uuid
 		_ = agentCloser.Close()
 	})
 
-	resources := coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+	resources := wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 	agents := make([]wirtualsdk.WorkspaceAgent, 0, 1)
 	for _, resource := range resources {
 		agents = append(agents, resource.Agents...)

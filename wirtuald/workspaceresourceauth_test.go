@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/provisionersdk/proto"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
 )
@@ -18,13 +18,13 @@ import (
 func TestPostWorkspaceAuthAzureInstanceIdentity(t *testing.T) {
 	t.Parallel()
 	instanceID := "instanceidentifier"
-	certificates, metadataClient := coderdtest.NewAzureInstanceIdentity(t, instanceID)
-	client := coderdtest.New(t, &coderdtest.Options{
+	certificates, metadataClient := wirtualdtest.NewAzureInstanceIdentity(t, instanceID)
+	client := wirtualdtest.New(t, &wirtualdtest.Options{
 		AzureCertificates:        certificates,
 		IncludeProvisionerDaemon: true,
 	})
-	user := coderdtest.CreateFirstUser(t, client)
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	user := wirtualdtest.CreateFirstUser(t, client)
+	version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse: echo.ParseComplete,
 		ProvisionApply: []*proto.Response{{
 			Type: &proto.Response_Apply{
@@ -42,10 +42,10 @@ func TestPostWorkspaceAuthAzureInstanceIdentity(t *testing.T) {
 			},
 		}},
 	})
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+	wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
@@ -63,13 +63,13 @@ func TestPostWorkspaceAuthAWSInstanceIdentity(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Parallel()
 		instanceID := "instanceidentifier"
-		certificates, metadataClient := coderdtest.NewAWSInstanceIdentity(t, instanceID)
-		client := coderdtest.New(t, &coderdtest.Options{
+		certificates, metadataClient := wirtualdtest.NewAWSInstanceIdentity(t, instanceID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			AWSCertificates:          certificates,
 			IncludeProvisionerDaemon: true,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionApply: []*proto.Response{{
 				Type: &proto.Response_Apply{
@@ -87,10 +87,10 @@ func TestPostWorkspaceAuthAWSInstanceIdentity(t *testing.T) {
 				},
 			}},
 		})
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -109,8 +109,8 @@ func TestPostWorkspaceAuthGoogleInstanceIdentity(t *testing.T) {
 	t.Run("Expired", func(t *testing.T) {
 		t.Parallel()
 		instanceID := "instanceidentifier"
-		validator, metadata := coderdtest.NewGoogleInstanceIdentity(t, instanceID, true)
-		client := coderdtest.New(t, &coderdtest.Options{
+		validator, metadata := wirtualdtest.NewGoogleInstanceIdentity(t, instanceID, true)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			GoogleTokenValidator: validator,
 		})
 
@@ -129,8 +129,8 @@ func TestPostWorkspaceAuthGoogleInstanceIdentity(t *testing.T) {
 	t.Run("InstanceNotFound", func(t *testing.T) {
 		t.Parallel()
 		instanceID := "instanceidentifier"
-		validator, metadata := coderdtest.NewGoogleInstanceIdentity(t, instanceID, false)
-		client := coderdtest.New(t, &coderdtest.Options{
+		validator, metadata := wirtualdtest.NewGoogleInstanceIdentity(t, instanceID, false)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			GoogleTokenValidator: validator,
 		})
 
@@ -149,13 +149,13 @@ func TestPostWorkspaceAuthGoogleInstanceIdentity(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Parallel()
 		instanceID := "instanceidentifier"
-		validator, metadata := coderdtest.NewGoogleInstanceIdentity(t, instanceID, false)
-		client := coderdtest.New(t, &coderdtest.Options{
+		validator, metadata := wirtualdtest.NewGoogleInstanceIdentity(t, instanceID, false)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			GoogleTokenValidator:     validator,
 			IncludeProvisionerDaemon: true,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		user := wirtualdtest.CreateFirstUser(t, client)
+		version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionApply: []*proto.Response{{
 				Type: &proto.Response_Apply{
@@ -173,10 +173,10 @@ func TestPostWorkspaceAuthGoogleInstanceIdentity(t *testing.T) {
 				},
 			}},
 		})
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()

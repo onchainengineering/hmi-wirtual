@@ -365,7 +365,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/coderd.cspViolation"
+                            "$ref": "#/definitions/wirtuald.cspViolation"
                         }
                     }
                 ],
@@ -3784,7 +3784,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/coderd.SCIMUser"
+                            "$ref": "#/definitions/wirtuald.SCIMUser"
                         }
                     }
                 ],
@@ -3792,7 +3792,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/coderd.SCIMUser"
+                            "$ref": "#/definitions/wirtuald.SCIMUser"
                         }
                     }
                 }
@@ -3858,7 +3858,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/coderd.SCIMUser"
+                            "$ref": "#/definitions/wirtuald.SCIMUser"
                         }
                     }
                 ],
@@ -9079,7 +9079,7 @@ const docTemplate = `{
                 }
             }
         },
-        "coderd.SCIMUser": {
+        "wirtuald.SCIMUser": {
             "type": "object",
             "properties": {
                 "active": {
@@ -9143,7 +9143,7 @@ const docTemplate = `{
                 }
             }
         },
-        "coderd.cspViolation": {
+        "wirtuald.cspViolation": {
             "type": "object",
             "properties": {
                 "csp-report": {
@@ -9620,7 +9620,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "resource_type": {
-                    "description": "ResourceType is the name of the resource.\n` + "`" + `./coderd/rbac/object.go` + "`" + ` has the list of valid resource types.",
+                    "description": "ResourceType is the name of the resource.\n` + "`" + `./wirtuald/rbac/object.go` + "`" + ` has the list of valid resource types.",
                     "allOf": [
                         {
                             "$ref": "#/definitions/codersdk.RBACResource"
@@ -9680,7 +9680,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "dashboard_url": {
-                    "description": "DashboardURL is the URL to hit the deployment's dashboard.\nFor external workspace proxies, this is the coderd they are connected\nto.",
+                    "description": "DashboardURL is the URL to hit the deployment's dashboard.\nFor external workspace proxies, this is the wirtuald they are connected\nto.",
                     "type": "string"
                 },
                 "deployment_id": {
@@ -16721,7 +16721,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/api/v2",
 	Schemes:          []string{},
 	Title:            "Coder API",
-	Description:      "Coderd is the service created by running coder server. It is a thin API that connects workspaces, provisioners and users. coderd stores its state in Postgres and is the only service that communicates with Postgres.",
+	Description:      "Coderd is the service created by running coder server. It is a thin API that connects workspaces, provisioners and users. wirtuald stores its state in Postgres and is the only service that communicates with Postgres.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }

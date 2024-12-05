@@ -21,7 +21,7 @@ type PostWorkspaceAgentAppHealth func(context.Context, agentsdk.PostAppHealthsRe
 // WorkspaceAppHealthReporter is a function that checks and reports the health of the workspace apps until the passed context is canceled.
 type WorkspaceAppHealthReporter func(ctx context.Context)
 
-// NewWorkspaceAppHealthReporter creates a WorkspaceAppHealthReporter that reports app health to coderd.
+// NewWorkspaceAppHealthReporter creates a WorkspaceAppHealthReporter that reports app health to wirtuald.
 func NewWorkspaceAppHealthReporter(logger slog.Logger, apps []wirtualsdk.WorkspaceApp, postWorkspaceAgentAppHealth PostWorkspaceAgentAppHealth) WorkspaceAppHealthReporter {
 	return NewAppHealthReporterWithClock(logger, apps, postWorkspaceAgentAppHealth, quartz.NewReal())
 }

@@ -5,7 +5,7 @@
 All actions possible through the Coder dashboard can also be automated. There
 are several ways to extend/automate Coder:
 
-- [coderd Terraform Provider](https://registry.terraform.io/providers/coder/coderd/latest)
+- [wirtuald Terraform Provider](https://registry.terraform.io/providers/coder/wirtuald/latest)
 - [CLI](../reference/cli/index.md)
 - [REST API](../reference/api/index.md)
 - [Coder SDK](https://pkg.go.dev/github.com/coder/coder/v2/wirtualsdk)
@@ -48,8 +48,8 @@ payloads, we recommend checking the relevant documentation.
 
 ### Users & Groups
 
-- [Manage Users via Terraform](https://registry.terraform.io/providers/coder/coderd/latest/docs/resources/user)
-- [Manage Groups via Terraform](https://registry.terraform.io/providers/coder/coderd/latest/docs/resources/group)
+- [Manage Users via Terraform](https://registry.terraform.io/providers/coder/wirtuald/latest/docs/resources/user)
+- [Manage Groups via Terraform](https://registry.terraform.io/providers/coder/wirtuald/latest/docs/resources/group)
 
 ### Templates
 

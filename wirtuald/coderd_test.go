@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -31,7 +31,7 @@ import (
 	tailnetproto "github.com/coder/coder/v2/tailnet/proto"
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/coder/v2/wirtuald"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -44,7 +44,7 @@ func TestMain(m *testing.M) {
 
 func TestBuildInfo(t *testing.T) {
 	t.Parallel()
-	client := coderdtest.New(t, nil)
+	client := wirtualdtest.New(t, nil)
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
@@ -58,7 +58,7 @@ func TestBuildInfo(t *testing.T) {
 func TestDERP(t *testing.T) {
 	t.Parallel()
 	ctx := testutil.Context(t, testutil.WaitMedium)
-	client := coderdtest.New(t, nil)
+	client := wirtualdtest.New(t, nil)
 
 	logger := testutil.Logger(t)
 
@@ -147,16 +147,16 @@ func TestDERP(t *testing.T) {
 func TestDERPForceWebSockets(t *testing.T) {
 	t.Parallel()
 
-	dv := coderdtest.DeploymentValues(t)
+	dv := wirtualdtest.DeploymentValues(t)
 	dv.DERP.Config.ForceWebSockets = true
 	dv.DERP.Config.BlockDirect = true // to ensure the test always uses DERP
 
 	// Manually create a server so we can influence the HTTP handler.
-	options := &coderdtest.Options{
+	options := &wirtualdtest.Options{
 		DeploymentValues: dv,
 	}
-	setHandler, cancelFunc, serverURL, newOptions := coderdtest.NewOptions(t, options)
-	coderAPI := coderd.New(newOptions)
+	setHandler, cancelFunc, serverURL, newOptions := wirtualdtest.NewOptions(t, options)
+	coderAPI := wirtuald.New(newOptions)
 	t.Cleanup(func() {
 		cancelFunc()
 		_ = coderAPI.Close()
@@ -179,7 +179,7 @@ func TestDERPForceWebSockets(t *testing.T) {
 	}))
 
 	// Start a provisioner daemon.
-	provisionerCloser := coderdtest.NewProvisionerDaemon(t, coderAPI)
+	provisionerCloser := wirtualdtest.NewProvisionerDaemon(t, coderAPI)
 	t.Cleanup(func() {
 		_ = provisionerCloser.Close()
 	})
@@ -189,30 +189,30 @@ func TestDERPForceWebSockets(t *testing.T) {
 		client.HTTPClient.CloseIdleConnections()
 	})
 	wsclient := workspacesdk.New(client)
-	user := coderdtest.CreateFirstUser(t, client)
+	user := wirtualdtest.CreateFirstUser(t, client)
 
 	gen, err := wsclient.AgentConnectionInfoGeneric(context.Background())
 	require.NoError(t, err)
 	t.Log(spew.Sdump(gen))
 
 	authToken := uuid.NewString()
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	version := wirtualdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse:          echo.ParseComplete,
 		ProvisionPlan:  echo.PlanComplete,
 		ProvisionApply: echo.ProvisionApplyWithAgent(authToken),
 	})
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	template := wirtualdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	workspace := wirtualdtest.CreateWorkspace(t, client, template.ID)
+	wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 	_ = agenttest.New(t, client.URL, authToken)
-	_ = coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+	_ = wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
 
-	resources := coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+	resources := wirtualdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 	conn, err := wsclient.DialAgent(ctx, resources[0].Agents[0].ID,
 		&workspacesdk.DialAgentOptions{
 			Logger: testutil.Logger(t).Named("client"),
@@ -229,7 +229,7 @@ func TestDERPForceWebSockets(t *testing.T) {
 
 func TestDERPLatencyCheck(t *testing.T) {
 	t.Parallel()
-	client := coderdtest.New(t, nil)
+	client := wirtualdtest.New(t, nil)
 	res, err := client.Request(context.Background(), http.MethodGet, "/derp/latency-check", nil)
 	require.NoError(t, err)
 	defer res.Body.Close()
@@ -238,7 +238,7 @@ func TestDERPLatencyCheck(t *testing.T) {
 
 func TestFastLatencyCheck(t *testing.T) {
 	t.Parallel()
-	client := coderdtest.New(t, nil)
+	client := wirtualdtest.New(t, nil)
 	res, err := client.Request(context.Background(), http.MethodGet, "/latency-check", nil)
 	require.NoError(t, err)
 	defer res.Body.Close()
@@ -247,7 +247,7 @@ func TestFastLatencyCheck(t *testing.T) {
 
 func TestHealthz(t *testing.T) {
 	t.Parallel()
-	client := coderdtest.New(t, nil)
+	client := wirtualdtest.New(t, nil)
 
 	res, err := client.Request(context.Background(), http.MethodGet, "/healthz", nil)
 	require.NoError(t, err)
@@ -267,7 +267,7 @@ func TestSwagger(t *testing.T) {
 	t.Run("endpoint enabled", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			SwaggerEndpoint: true,
 		})
 
@@ -286,7 +286,7 @@ func TestSwagger(t *testing.T) {
 	t.Run("doc.json exposed", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := wirtualdtest.New(t, &wirtualdtest.Options{
 			SwaggerEndpoint: true,
 		})
 
@@ -305,7 +305,7 @@ func TestSwagger(t *testing.T) {
 	t.Run("endpoint disabled by default", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
+		client := wirtualdtest.New(t, nil)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitMedium)
 		defer cancel()
@@ -319,7 +319,7 @@ func TestSwagger(t *testing.T) {
 	t.Run("doc.json disabled by default", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
+		client := wirtualdtest.New(t, nil)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitMedium)
 		defer cancel()
@@ -342,8 +342,8 @@ func TestCSRFExempt(t *testing.T) {
 	t.Run("PathBasedApp", func(t *testing.T) {
 		t.Parallel()
 
-		client, _, api := coderdtest.NewWithAPI(t, nil)
-		first := coderdtest.CreateFirstUser(t, client)
+		client, _, api := wirtualdtest.NewWithAPI(t, nil)
+		first := wirtualdtest.CreateFirstUser(t, client)
 		owner, err := client.User(context.Background(), "me")
 		require.NoError(t, err)
 

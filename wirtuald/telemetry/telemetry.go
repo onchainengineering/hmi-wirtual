@@ -1393,7 +1393,7 @@ type NetworkEvent struct {
 	Time           time.Time               `json:"time"`
 	Application    string                  `json:"application"`
 	Status         string                  `json:"status"`      // connected, disconnected
-	ClientType     string                  `json:"client_type"` // cli, agent, coderd, wsproxy
+	ClientType     string                  `json:"client_type"` // cli, agent, wirtuald, wsproxy
 	ClientVersion  string                  `json:"client_version"`
 	NodeIDSelf     uint64                  `json:"node_id_self"`
 	NodeIDRemote   uint64                  `json:"node_id_remote"`

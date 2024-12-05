@@ -1,4 +1,4 @@
-package coderd
+package wirtuald
 
 import (
 	"context"
@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/enterprise/coderd/enidpsync"
-	"github.com/coder/coder/v2/enterprise/coderd/portsharing"
+	"github.com/coder/coder/v2/enterprise/wirtuald/enidpsync"
+	"github.com/coder/coder/v2/enterprise/wirtuald/portsharing"
 	"github.com/coder/coder/v2/wirtuald/appearance"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/entitlements"
@@ -31,14 +31,14 @@ import (
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/enterprise/coderd/dbauthz"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
-	"github.com/coder/coder/v2/enterprise/coderd/proxyhealth"
-	"github.com/coder/coder/v2/enterprise/coderd/schedule"
 	"github.com/coder/coder/v2/enterprise/dbcrypt"
 	"github.com/coder/coder/v2/enterprise/derpmesh"
 	"github.com/coder/coder/v2/enterprise/replicasync"
 	"github.com/coder/coder/v2/enterprise/tailnet"
+	"github.com/coder/coder/v2/enterprise/wirtuald/dbauthz"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/proxyhealth"
+	"github.com/coder/coder/v2/enterprise/wirtuald/schedule"
 	"github.com/coder/coder/v2/provisionerd/proto"
 	agpltailnet "github.com/coder/coder/v2/tailnet"
 	"github.com/coder/coder/v2/wirtuald"
@@ -53,7 +53,7 @@ import (
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
-// New constructs an Enterprise coderd API instance.
+// New constructs an Enterprise wirtuald API instance.
 // This handler is designed to wrap the AGPL Coder code and
 // layer Enterprise functionality on top as much as possible.
 func New(ctx context.Context, options *Options) (_ *API, err error) {
@@ -64,7 +64,7 @@ func New(ctx context.Context, options *Options) (_ *API, err error) {
 		options.LicenseKeys = Keys
 	}
 	if options.Options == nil {
-		options.Options = &coderd.Options{}
+		options.Options = &wirtuald.Options{}
 	}
 	if options.PrometheusRegistry == nil {
 		options.PrometheusRegistry = prometheus.NewRegistry()
@@ -129,9 +129,9 @@ func New(ctx context.Context, options *Options) (_ *API, err error) {
 			Entitlements: options.Entitlements,
 		},
 	}
-	// This must happen before coderd initialization!
+	// This must happen before wirtuald initialization!
 	options.PostAuthAdditionalHeadersFunc = api.writeEntitlementWarningsHeader
-	api.AGPL = coderd.New(options.Options)
+	api.AGPL = wirtuald.New(options.Options)
 	defer func() {
 		if err != nil {
 			_ = api.Close()
@@ -172,7 +172,7 @@ func New(ctx context.Context, options *Options) (_ *API, err error) {
 	}
 	apiKeyMiddleware := httpmw.ExtractAPIKeyMW(httpmw.ExtractAPIKeyConfig{
 		DB:                            options.Database,
-		ActivateDormantUser:           coderd.ActivateDormantUser(options.Logger, &api.AGPL.Auditor, options.Database),
+		ActivateDormantUser:           wirtuald.ActivateDormantUser(options.Logger, &api.AGPL.Auditor, options.Database),
 		OAuth2Configs:                 oauthConfigs,
 		RedirectToLogin:               false,
 		DisableSessionExpiryRefresh:   options.DeploymentValues.Sessions.DisableExpiryRefresh.Value(),
@@ -574,7 +574,7 @@ func New(ctx context.Context, options *Options) (_ *API, err error) {
 }
 
 type Options struct {
-	*coderd.Options
+	*wirtuald.Options
 
 	RBAC         bool
 	AuditLogging bool
@@ -604,7 +604,7 @@ type Options struct {
 }
 
 type API struct {
-	AGPL *coderd.API
+	AGPL *wirtuald.API
 	*Options
 
 	// ctx is canceled immediately on shutdown, it can be used to abort
@@ -1056,8 +1056,8 @@ func (api *API) runEntitlementsLoop(ctx context.Context) {
 
 	defer func() {
 		// If this function ends, it means the context was canceled and this
-		// coderd is shutting down. In this case, post a pubsub message to
-		// tell other coderd's to resync their entitlements. This is required to
+		// wirtuald is shutting down. In this case, post a pubsub message to
+		// tell other wirtuald's to resync their entitlements. This is required to
 		// make sure things like replica counts are updated in the UI.
 		// Ignore the error, as this is just a best effort. If it fails,
 		// the system will eventually recover as replicas timeout

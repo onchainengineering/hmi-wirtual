@@ -59,7 +59,7 @@ func TracerProvider(ctx context.Context, service string, opts TracerOpts) (*sdkt
 
 		// See https://docs.datadoghq.com/profiler/enabling/go/
 		_ = ddprofiler.Start(
-			ddprofiler.WithService("coderd"),
+			ddprofiler.WithService("wirtuald"),
 			ddprofiler.WithProfileTypes(
 				ddprofiler.CPUProfile,
 				ddprofiler.HeapProfile,

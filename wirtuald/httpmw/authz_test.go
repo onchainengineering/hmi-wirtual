@@ -8,15 +8,15 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
 	"github.com/coder/coder/v2/wirtuald/httpmw"
 	"github.com/coder/coder/v2/wirtuald/rbac"
+
 )
 
 func TestAsAuthzSystem(t *testing.T) {
 	t.Parallel()
-	userActor := coderdtest.RandomRBACSubject()
+	userActor := wirtualdtest.RandomRBACSubject()
 
 	base := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		actor, ok := dbauthz.ActorFromContext(r.Context())

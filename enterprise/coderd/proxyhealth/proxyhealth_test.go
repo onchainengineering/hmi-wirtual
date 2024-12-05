@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/enterprise/coderd/proxyhealth"
+	"github.com/coder/coder/v2/enterprise/wirtuald/proxyhealth"
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbgen"

@@ -232,7 +232,7 @@ func ReservedRoleName(name string) bool {
 // ReloadBuiltinRoles loads the static roles into the builtInRoles map.
 // This can be called again with a different config to change the behavior.
 //
-// TODO: @emyrk This would be great if it was instanced to a coderd rather
+// TODO: @emyrk This would be great if it was instanced to a wirtuald rather
 // than a global. But that is a much larger refactor right now.
 // Essentially we did not foresee different deployments needing slightly
 // different role permissions.

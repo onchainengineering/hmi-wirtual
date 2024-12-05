@@ -15,7 +15,7 @@
 		"**.pb.go": true,
 		"**/*.gen.json": true,
 		"**/testdata/*": true,
-		"coderd/apidoc/**": true,
+		"wirtuald/apidoc/**": true,
 		"docs/reference/api/*.md": true,
 		"docs/reference/cli/*.md": true,
 		"docs/templates/*.md": true,
@@ -35,7 +35,7 @@
 		"coveredGutterStyle": "blockgreen",
 		"uncoveredGutterStyle": "blockred"
 	},
-	// The wirtualsdk is used by coderd another other packages extensively.
+	// The wirtualsdk is used by wirtuald another other packages extensively.
 	// To reduce redundancy in tests, it's covered by other packages.
 	// Since package coverage pairing can't be defined, all packages cover
 	// all other packages.

@@ -459,7 +459,7 @@ func (c *Client) TemplateDAUs(ctx context.Context, templateID uuid.UUID, tzOffse
 	return &resp, json.NewDecoder(res.Body).Decode(&resp)
 }
 
-// AgentStatsReportRequest is a WebSocket request by coderd
+// AgentStatsReportRequest is a WebSocket request by wirtuald
 // to the agent for stats.
 // @typescript-ignore AgentStatsReportRequest
 type AgentStatsReportRequest struct{}

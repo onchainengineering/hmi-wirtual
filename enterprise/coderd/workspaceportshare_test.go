@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -6,28 +6,28 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/rbac"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
 func TestWorkspacePortShare(t *testing.T) {
 	t.Parallel()
 
-	ownerClient, owner := coderdenttest.New(t, &coderdenttest.Options{
-		Options: &coderdtest.Options{
+	ownerClient, owner := wirtualdenttest.New(t, &wirtualdenttest.Options{
+		Options: &wirtualdtest.Options{
 			IncludeProvisionerDaemon: true,
 		},
-		LicenseOptions: &coderdenttest.LicenseOptions{
+		LicenseOptions: &wirtualdenttest.LicenseOptions{
 			Features: license.Features{
 				wirtualsdk.FeatureControlSharedPorts: 1,
 			},
 		},
 	})
-	client, user := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
+	client, user := wirtualdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
 	r := setupWorkspaceAgent(t, client, wirtualsdk.CreateFirstUserResponse{
 		UserID:         user.ID,
 		OrganizationID: owner.OrganizationID,

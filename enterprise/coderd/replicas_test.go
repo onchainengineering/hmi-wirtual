@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -8,11 +8,11 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
 )
@@ -27,8 +27,8 @@ func TestReplicas(t *testing.T) {
 		// This will error because replicas are expected to instantly report
 		// errors when the license is not present.
 		db, pubsub := dbtestutil.NewDB(t)
-		firstClient, _ := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		firstClient, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 				Database:                 db,
 				Pubsub:                   pubsub,
@@ -36,8 +36,8 @@ func TestReplicas(t *testing.T) {
 			DontAddLicense:          true,
 			ReplicaErrorGracePeriod: time.Nanosecond,
 		})
-		secondClient, _, secondAPI, _ := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		secondClient, _, secondAPI, _ := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				Database: db,
 				Pubsub:   pubsub,
 			},
@@ -58,16 +58,16 @@ func TestReplicas(t *testing.T) {
 	t.Run("DoesNotErrorBeforeGrace", func(t *testing.T) {
 		t.Parallel()
 		db, pubsub := dbtestutil.NewDB(t)
-		firstClient, _ := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		firstClient, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 				Database:                 db,
 				Pubsub:                   pubsub,
 			},
 			DontAddLicense: true,
 		})
-		secondClient, _, secondAPI, _ := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		secondClient, _, secondAPI, _ := wirtualdenttest.NewWithAPI(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				Database: db,
 				Pubsub:   pubsub,
 			},
@@ -87,21 +87,21 @@ func TestReplicas(t *testing.T) {
 	t.Run("ConnectAcrossMultiple", func(t *testing.T) {
 		t.Parallel()
 		db, pubsub := dbtestutil.NewDB(t)
-		firstClient, firstUser := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		firstClient, firstUser := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 				Database:                 db,
 				Pubsub:                   pubsub,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureHighAvailability: 1,
 				},
 			},
 		})
 
-		secondClient, _ := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		secondClient, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				Database: db,
 				Pubsub:   pubsub,
 			},
@@ -132,22 +132,22 @@ func TestReplicas(t *testing.T) {
 		t.Parallel()
 		db, pubsub := dbtestutil.NewDB(t)
 		certificates := []tls.Certificate{testutil.GenerateTLSCertificate(t, "localhost")}
-		firstClient, firstUser := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		firstClient, firstUser := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				IncludeProvisionerDaemon: true,
 				Database:                 db,
 				Pubsub:                   pubsub,
 				TLSCertificates:          certificates,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &wirtualdenttest.LicenseOptions{
 				Features: license.Features{
 					wirtualsdk.FeatureHighAvailability: 1,
 				},
 			},
 		})
 
-		secondClient, _ := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		secondClient, _ := wirtualdenttest.New(t, &wirtualdenttest.Options{
+			Options: &wirtualdtest.Options{
 				Database:        db,
 				Pubsub:          pubsub,
 				TLSCertificates: certificates,

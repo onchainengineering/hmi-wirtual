@@ -13,10 +13,10 @@ import (
 	"github.com/coder/coder/v2/provisionersdk/proto"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbfake"
 	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
@@ -103,17 +103,17 @@ func TestStart(t *testing.T) {
 	t.Run("BuildOptions", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, echoResponses)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, member, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		member, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, echoResponses)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, member, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 		// Stop the workspace
-		workspaceBuild := coderdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStop)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
+		workspaceBuild := wirtualdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStop)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
 
 		inv, root := clitest.New(t, "start", workspace.Name, "--prompt-ephemeral-parameters")
 		clitest.SetupConfig(t, member, root)
@@ -157,17 +157,17 @@ func TestStart(t *testing.T) {
 	t.Run("EphemeralParameterFlags", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, echoResponses)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, member, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		member, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, echoResponses)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, member, template.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 		// Stop the workspace
-		workspaceBuild := coderdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStop)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
+		workspaceBuild := wirtualdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStop)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
 
 		inv, root := clitest.New(t, "start", workspace.Name,
 			"--ephemeral-parameter", fmt.Sprintf("%s=%s", ephemeralParameterName, ephemeralParameterValue))
@@ -205,13 +205,13 @@ func TestStartWithParameters(t *testing.T) {
 		t.Parallel()
 
 		// Create the workspace
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, immutableParamsResponse)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, member, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		member, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, immutableParamsResponse)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, member, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 			cwr.RichParameterValues = []wirtualsdk.WorkspaceBuildParameter{
 				{
 					Name:  immutableParameterName,
@@ -219,11 +219,11 @@ func TestStartWithParameters(t *testing.T) {
 				},
 			}
 		})
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		// Stop the workspace
-		workspaceBuild := coderdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStop)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
+		workspaceBuild := wirtualdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStop)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
 
 		// Start the workspace again
 		inv, root := clitest.New(t, "start", workspace.Name)
@@ -257,13 +257,13 @@ func TestStartWithParameters(t *testing.T) {
 		t.Parallel()
 
 		// Create the workspace
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, mutableParamsResponse)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, member, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+		client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+		owner := wirtualdtest.CreateFirstUser(t, client)
+		member, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, mutableParamsResponse)
+		wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		workspace := wirtualdtest.CreateWorkspace(t, member, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 			cwr.RichParameterValues = []wirtualsdk.WorkspaceBuildParameter{
 				{
 					Name:  mutableParameterName,
@@ -271,11 +271,11 @@ func TestStartWithParameters(t *testing.T) {
 				},
 			}
 		})
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		// Stop the workspace
-		workspaceBuild := coderdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStop)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
+		workspaceBuild := wirtualdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStop)
+		wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
 
 		// Start the workspace again
 		inv, root := clitest.New(t, "start", workspace.Name, "--always-prompt")
@@ -343,25 +343,25 @@ func TestStartAutoUpdate(t *testing.T) {
 		t.Run(c.Name, func(t *testing.T) {
 			t.Parallel()
 
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			owner := coderdtest.CreateFirstUser(t, client)
-			member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-			version1 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-			coderdtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
-			workspace := coderdtest.CreateWorkspace(t, member, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
+			client := wirtualdtest.New(t, &wirtualdtest.Options{IncludeProvisionerDaemon: true})
+			owner := wirtualdtest.CreateFirstUser(t, client)
+			member, _ := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+			version1 := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+			wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
+			template := wirtualdtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
+			workspace := wirtualdtest.CreateWorkspace(t, member, template.ID, func(cwr *wirtualsdk.CreateWorkspaceRequest) {
 				cwr.AutomaticUpdates = wirtualsdk.AutomaticUpdatesAlways
 			})
-			coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+			wirtualdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 			if c.Cmd == "start" {
-				coderdtest.MustTransitionWorkspace(t, member, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
+				wirtualdtest.MustTransitionWorkspace(t, member, workspace.ID, database.WorkspaceTransitionStart, database.WorkspaceTransitionStop)
 			}
-			version2 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(stringRichParameters), func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
+			version2 := wirtualdtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(stringRichParameters), func(ctvr *wirtualsdk.CreateTemplateVersionRequest) {
 				ctvr.TemplateID = template.ID
 			})
-			coderdtest.AwaitTemplateVersionJobCompleted(t, client, version2.ID)
-			coderdtest.UpdateActiveTemplateVersion(t, client, template.ID, version2.ID)
+			wirtualdtest.AwaitTemplateVersionJobCompleted(t, client, version2.ID)
+			wirtualdtest.UpdateActiveTemplateVersion(t, client, template.ID, version2.ID)
 
 			inv, root := clitest.New(t, c.Cmd, "-y", workspace.Name)
 			clitest.SetupConfig(t, member, root)
@@ -377,7 +377,7 @@ func TestStartAutoUpdate(t *testing.T) {
 			pty.WriteLine(stringParameterValue)
 			<-doneChan
 
-			workspace = coderdtest.MustWorkspace(t, member, workspace.ID)
+			workspace = wirtualdtest.MustWorkspace(t, member, workspace.ID)
 			require.Equal(t, version2.ID, workspace.LatestBuild.TemplateVersionID)
 		})
 	}
@@ -387,9 +387,9 @@ func TestStart_AlreadyRunning(t *testing.T) {
 	t.Parallel()
 	ctx := testutil.Context(t, testutil.WaitShort)
 
-	client, db := coderdtest.NewWithDatabase(t, nil)
-	owner := coderdtest.CreateFirstUser(t, client)
-	memberClient, member := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+	client, db := wirtualdtest.NewWithDatabase(t, nil)
+	owner := wirtualdtest.CreateFirstUser(t, client)
+	memberClient, member := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 	r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 		OwnerID:        member.ID,
 		OrganizationID: owner.OrganizationID,
@@ -414,9 +414,9 @@ func TestStart_Starting(t *testing.T) {
 	ctx := testutil.Context(t, testutil.WaitShort)
 
 	store, ps := dbtestutil.NewDB(t)
-	client := coderdtest.New(t, &coderdtest.Options{Pubsub: ps, Database: store})
-	owner := coderdtest.CreateFirstUser(t, client)
-	memberClient, member := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+	client := wirtualdtest.New(t, &wirtualdtest.Options{Pubsub: ps, Database: store})
+	owner := wirtualdtest.CreateFirstUser(t, client)
+	memberClient, member := wirtualdtest.CreateAnotherUser(t, client, owner.OrganizationID)
 	r := dbfake.WorkspaceBuild(t, store, database.WorkspaceTable{
 		OwnerID:        member.ID,
 		OrganizationID: owner.OrganizationID,

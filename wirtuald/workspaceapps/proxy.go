@@ -87,7 +87,7 @@ type AgentProvider interface {
 type Server struct {
 	Logger slog.Logger
 
-	// DashboardURL should be a url to the coderd dashboard. This can be the
+	// DashboardURL should be a url to the wirtuald dashboard. This can be the
 	// same as the AccessURL if the Server is embedded.
 	DashboardURL *url.URL
 	AccessURL    *url.URL
@@ -376,7 +376,7 @@ func (s *Server) HandleSubdomain(middlewares ...func(http.Handler) http.Handler)
 			if host == "" {
 				if r.URL.Path == "/derp" {
 					// The /derp endpoint is used by wireguard clients to tunnel
-					// through coderd. For some reason these requests don't set
+					// through wirtuald. For some reason these requests don't set
 					// a Host header properly sometimes in tests (no idea how),
 					// which causes this path to get hit.
 					next.ServeHTTP(rw, r)

@@ -1910,7 +1910,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "code",
-					"expr": "histogram_quantile(0.95, sum by(le, query) (rate(coderd_db_query_latencies_seconds_bucket{cluster=\"$cluster\", namespace=\"$namespace\", pod=~\"$pod\"}[$__rate_interval])))",
+					"expr": "histogram_quantile(0.95, sum by(le, query) (rate(wirtuald_db_query_latencies_seconds_bucket{cluster=\"$cluster\", namespace=\"$namespace\", pod=~\"$pod\"}[$__rate_interval])))",
 					"legendFormat": "__auto",
 					"range": true,
 					"refId": "A"
@@ -1992,7 +1992,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "code",
-					"expr": "sum by(le, query) (rate(coderd_db_query_latencies_seconds_count{cluster=\"$cluster\", namespace=\"$namespace\", pod=~\"$pod\"}[$__rate_interval]))",
+					"expr": "sum by(le, query) (rate(wirtuald_db_query_latencies_seconds_count{cluster=\"$cluster\", namespace=\"$namespace\", pod=~\"$pod\"}[$__rate_interval]))",
 					"legendFormat": "__auto",
 					"range": true,
 					"refId": "A"
@@ -2098,7 +2098,7 @@
 					},
 					"editorMode": "builder",
 					"exemplar": false,
-					"expr": "sum by(pod) (rate(coderd_api_requests_processed_total{cluster=\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\"}[$__rate_interval]))",
+					"expr": "sum by(pod) (rate(wirtuald_api_requests_processed_total{cluster=\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\"}[$__rate_interval]))",
 					"instant": true,
 					"key": "Q-2eb2f8ac-845d-462d-9bb0-b98334fbfd4a-0",
 					"legendFormat": "__auto",
@@ -2192,7 +2192,7 @@
 					},
 					"editorMode": "code",
 					"exemplar": false,
-					"expr": "sum(rate(coderd_api_requests_processed_total{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", code=~\"5..\"}[$__rate_interval]))",
+					"expr": "sum(rate(wirtuald_api_requests_processed_total{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", code=~\"5..\"}[$__rate_interval]))",
 					"instant": true,
 					"key": "Q-2eb2f8ac-845d-462d-9bb0-b98334fbfd4a-0",
 					"legendFormat": "5xx",
@@ -2205,7 +2205,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "code",
-					"expr": "sum(rate(coderd_api_requests_processed_total{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", code=~\"4..\"}[$__rate_interval]))",
+					"expr": "sum(rate(wirtuald_api_requests_processed_total{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", code=~\"4..\"}[$__rate_interval]))",
 					"instant": true,
 					"key": "Q-fe3b7389-28e7-4b2c-90ef-3b1490f99528-1",
 					"legendFormat": "4xx",
@@ -2285,7 +2285,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "code",
-					"expr": "sum by (code,method) (rate(coderd_api_requests_processed_total{cluster=~\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\",container=\"coder\",code!=\"0\"}[$__rate_interval]))",
+					"expr": "sum by (code,method) (rate(wirtuald_api_requests_processed_total{cluster=~\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\",container=\"coder\",code!=\"0\"}[$__rate_interval]))",
 					"legendFormat": "{{method}} {{code}}",
 					"range": true,
 					"refId": "A"
@@ -2365,7 +2365,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "histogram_quantile(0.95, sum by(le, path) (rate(coderd_api_request_latencies_seconds_bucket{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", path=~\"^/api/v2/.*\"}[$__rate_interval])))",
+					"expr": "histogram_quantile(0.95, sum by(le, path) (rate(wirtuald_api_request_latencies_seconds_bucket{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", path=~\"^/api/v2/.*\"}[$__rate_interval])))",
 					"interval": "",
 					"legendFormat": "{{path}}",
 					"range": true,
@@ -2443,7 +2443,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "sum by(method, path) (rate(coderd_api_request_latencies_seconds_count{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", path=~\"^/api/v2/.*\"}[$__rate_interval]))",
+					"expr": "sum by(method, path) (rate(wirtuald_api_request_latencies_seconds_count{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", path=~\"^/api/v2/.*\"}[$__rate_interval]))",
 					"interval": "",
 					"legendFormat": "{{method}} {{path}}",
 					"range": true,
@@ -3046,7 +3046,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "sum(rate(coderd_agentstats_rx_bytes{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\"}[$__rate_interval]))",
+					"expr": "sum(rate(wirtuald_agentstats_rx_bytes{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\"}[$__rate_interval]))",
 					"legendFormat": "rx",
 					"range": true,
 					"refId": "A"
@@ -3057,7 +3057,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "sum(rate(coderd_agentstats_tx_bytes{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\"}[$__rate_interval])) * -1",
+					"expr": "sum(rate(wirtuald_agentstats_tx_bytes{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\"}[$__rate_interval])) * -1",
 					"hide": false,
 					"legendFormat": "tx",
 					"range": true,
@@ -3151,7 +3151,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "quantile(0.5, coderd_agents_connection_latencies_seconds{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\"})",
+					"expr": "quantile(0.5, wirtuald_agents_connection_latencies_seconds{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\"})",
 					"legendFormat": "p50",
 					"range": true,
 					"refId": "A"
@@ -3162,7 +3162,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "quantile(0.95, coderd_agents_connection_latencies_seconds{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\"})",
+					"expr": "quantile(0.95, wirtuald_agents_connection_latencies_seconds{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\"})",
 					"hide": false,
 					"legendFormat": "p95",
 					"range": true,
@@ -3174,7 +3174,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "quantile(0.99, coderd_agents_connection_latencies_seconds{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\"})",
+					"expr": "quantile(0.99, wirtuald_agents_connection_latencies_seconds{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\"})",
 					"hide": false,
 					"legendFormat": "p99",
 					"range": true,
@@ -3267,7 +3267,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "sum by(pod) (coderd_api_concurrent_websockets{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", container=\"coder\"})",
+					"expr": "sum by(pod) (wirtuald_api_concurrent_websockets{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", container=\"coder\"})",
 					"format": "time_series",
 					"interval": "",
 					"legendFormat": "__auto",
@@ -3361,7 +3361,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "code",
-					"expr": "sum by (pod) (coderd_agents_connections{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\"})",
+					"expr": "sum by (pod) (wirtuald_agents_connections{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\"})",
 					"legendFormat": "__auto",
 					"range": true,
 					"refId": "A"
@@ -3467,7 +3467,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "sum by(pod) (rate(coderd_scaletest_bytes_written_total{cluster=~\"$cluster\", namespace=~\"$namespace\"}[$__rate_interval])) * -1",
+					"expr": "sum by(pod) (rate(wirtuald_scaletest_bytes_written_total{cluster=~\"$cluster\", namespace=~\"$namespace\"}[$__rate_interval])) * -1",
 					"legendFormat": "tx inside container",
 					"range": true,
 					"refId": "A"
@@ -3478,7 +3478,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "sum by(pod) (rate(coderd_scaletest_bytes_read_total{cluster=~\"$cluster\", namespace=~\"$namespace\"}[$__rate_interval]))",
+					"expr": "sum by(pod) (rate(wirtuald_scaletest_bytes_read_total{cluster=~\"$cluster\", namespace=~\"$namespace\"}[$__rate_interval]))",
 					"hide": false,
 					"legendFormat": "rx inside container",
 					"range": true,
@@ -3596,7 +3596,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "histogram_quantile(0.95, sum by(le, pod) (rate(coderd_scaletest_read_latency_seconds_bucket{cluster=~\"$cluster\", namespace=~\"$namespace\"}[$__rate_interval])))",
+					"expr": "histogram_quantile(0.95, sum by(le, pod) (rate(wirtuald_scaletest_read_latency_seconds_bucket{cluster=~\"$cluster\", namespace=~\"$namespace\"}[$__rate_interval])))",
 					"hide": false,
 					"legendFormat": "__auto",
 					"range": true,
@@ -3690,7 +3690,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "histogram_quantile(0.95, sum by(le, pod) (rate(coderd_scaletest_write_latency_seconds_bucket{cluster=~\"$cluster\", namespace=~\"$namespace\"}[$__rate_interval])))",
+					"expr": "histogram_quantile(0.95, sum by(le, pod) (rate(wirtuald_scaletest_write_latency_seconds_bucket{cluster=~\"$cluster\", namespace=~\"$namespace\"}[$__rate_interval])))",
 					"hide": false,
 					"legendFormat": "__auto",
 					"range": true,
@@ -3783,7 +3783,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "sum by(pod) (rate(coderd_scaletest_read_errors_total{cluster=~\"$cluster\", namespace=~\"$namespace\"}[$__rate_interval]))",
+					"expr": "sum by(pod) (rate(wirtuald_scaletest_read_errors_total{cluster=~\"$cluster\", namespace=~\"$namespace\"}[$__rate_interval]))",
 					"hide": false,
 					"legendFormat": "__auto",
 					"range": true,
@@ -3876,7 +3876,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "sum by(pod) (rate(coderd_scaletest_write_errors_total{cluster=~\"$cluster\", namespace=~\"$namespace\"}[$__rate_interval]))",
+					"expr": "sum by(pod) (rate(wirtuald_scaletest_write_errors_total{cluster=~\"$cluster\", namespace=~\"$namespace\"}[$__rate_interval]))",
 					"hide": false,
 					"legendFormat": "__auto",
 					"range": true,
@@ -4367,7 +4367,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "histogram_quantile(0.95, sum by(le, action) (rate(coderd_scaletest_dashboard_duration_seconds_bucket{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\"}[$__rate_interval])))",
+					"expr": "histogram_quantile(0.95, sum by(le, action) (rate(wirtuald_scaletest_dashboard_duration_seconds_bucket{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\"}[$__rate_interval])))",
 					"legendFormat": "__auto",
 					"range": true,
 					"refId": "A"
@@ -4459,7 +4459,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "code",
-					"expr": "sum by(le, action) (rate(coderd_scaletest_dashboard_errors_total{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\"}[$__rate_interval]))",
+					"expr": "sum by(le, action) (rate(wirtuald_scaletest_dashboard_errors_total{cluster=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\"}[$__rate_interval]))",
 					"legendFormat": "__auto",
 					"range": true,
 					"refId": "A"
@@ -4565,7 +4565,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "code",
-					"expr": "histogram_quantile(0.5, sum by(le) (rate(coderd_authz_authorize_duration_seconds_bucket{cluster=~\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\"}[$__rate_interval])))",
+					"expr": "histogram_quantile(0.5, sum by(le) (rate(wirtuald_authz_authorize_duration_seconds_bucket{cluster=~\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\"}[$__rate_interval])))",
 					"interval": "",
 					"legendFormat": "p50",
 					"range": true,
@@ -4577,7 +4577,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "code",
-					"expr": "histogram_quantile(0.9, sum by(le) (rate(coderd_authz_authorize_duration_seconds_bucket{cluster=~\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\"}[$__rate_interval])))",
+					"expr": "histogram_quantile(0.9, sum by(le) (rate(wirtuald_authz_authorize_duration_seconds_bucket{cluster=~\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\"}[$__rate_interval])))",
 					"hide": false,
 					"interval": "",
 					"legendFormat": "p90",
@@ -4590,7 +4590,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "code",
-					"expr": "histogram_quantile(0.95, sum by(le) (rate(coderd_authz_authorize_duration_seconds_bucket{cluster=~\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\"}[$__rate_interval])))",
+					"expr": "histogram_quantile(0.95, sum by(le) (rate(wirtuald_authz_authorize_duration_seconds_bucket{cluster=~\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\"}[$__rate_interval])))",
 					"hide": false,
 					"interval": "",
 					"legendFormat": "p95",
@@ -4685,7 +4685,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "histogram_quantile(0.5, sum by(le, pod) (rate(coderd_provisionerd_job_timings_seconds_bucket{cluster=~\"$cluster\", namespace=~\"$namespace\"}[$__rate_interval])))",
+					"expr": "histogram_quantile(0.5, sum by(le, pod) (rate(wirtuald_provisionerd_job_timings_seconds_bucket{cluster=~\"$cluster\", namespace=~\"$namespace\"}[$__rate_interval])))",
 					"interval": "",
 					"legendFormat": "p50-{{pod}}",
 					"range": true,
@@ -4697,7 +4697,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "histogram_quantile(0.9, sum by(le, pod) (rate(coderd_provisionerd_job_timings_seconds_bucket{cluster=~\"$cluster\", namespace=~\"$namespace\"}[$__rate_interval])))",
+					"expr": "histogram_quantile(0.9, sum by(le, pod) (rate(wirtuald_provisionerd_job_timings_seconds_bucket{cluster=~\"$cluster\", namespace=~\"$namespace\"}[$__rate_interval])))",
 					"hide": false,
 					"interval": "",
 					"legendFormat": "p90-{{pod}}",
@@ -4710,7 +4710,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "histogram_quantile(0.95, sum by(le, pod) (rate(coderd_provisionerd_job_timings_seconds_bucket{cluster=~\"$cluster\", namespace=~\"$namespace\"}[$__rate_interval])))",
+					"expr": "histogram_quantile(0.95, sum by(le, pod) (rate(wirtuald_provisionerd_job_timings_seconds_bucket{cluster=~\"$cluster\", namespace=~\"$namespace\"}[$__rate_interval])))",
 					"hide": false,
 					"interval": "",
 					"legendFormat": "p95-{{pod}}",
@@ -4803,7 +4803,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "builder",
-					"expr": "sum by(status, pod) (coderd_workspace_builds_total{cluster=~\"$cluster\", namespace=~\"$namespace\", workspace_transition=\"START\"})",
+					"expr": "sum by(status, pod) (wirtuald_workspace_builds_total{cluster=~\"$cluster\", namespace=~\"$namespace\", workspace_transition=\"START\"})",
 					"legendFormat": "__auto",
 					"range": true,
 					"refId": "A"
@@ -4933,7 +4933,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "code",
-					"expr": "sum by(status, container) (coderd_provisionerd_jobs_current{cluster=~\"$cluster\", namespace=~\"$namespace\", container=~\"^(coder|provisionerd)$\"})",
+					"expr": "sum by(status, container) (wirtuald_provisionerd_jobs_current{cluster=~\"$cluster\", namespace=~\"$namespace\", container=~\"^(coder|provisionerd)$\"})",
 					"legendFormat": "__auto",
 					"range": true,
 					"refId": "A"
@@ -4944,7 +4944,7 @@
 						"uid": "${DS_PROMETHEUS}"
 					},
 					"editorMode": "code",
-					"expr": "sum by(status, container) (coderd_provisionerd_num_daemons{cluster=~\"$cluster\", namespace=~\"$namespace\", container=~\"^(coder|provisionerd)$\"})",
+					"expr": "sum by(status, container) (wirtuald_provisionerd_num_daemons{cluster=~\"$cluster\", namespace=~\"$namespace\", container=~\"^(coder|provisionerd)$\"})",
 					"hide": false,
 					"legendFormat": "builtin_daemons",
 					"range": true,
@@ -4979,7 +4979,7 @@
 					"type": "prometheus",
 					"uid": "${DS_PROMETHEUS}"
 				},
-				"definition": "label_values(coderd_api_concurrent_requests,cluster)",
+				"definition": "label_values(wirtuald_api_concurrent_requests,cluster)",
 				"hide": 0,
 				"includeAll": false,
 				"label": "cluster",
@@ -4987,7 +4987,7 @@
 				"name": "cluster",
 				"options": [],
 				"query": {
-					"query": "label_values(coderd_api_concurrent_requests,cluster)",
+					"query": "label_values(wirtuald_api_concurrent_requests,cluster)",
 					"refId": "PrometheusVariableQueryEditor-VariableQuery"
 				},
 				"refresh": 1,
@@ -5003,7 +5003,7 @@
 					"type": "prometheus",
 					"uid": "${DS_PROMETHEUS}"
 				},
-				"definition": "label_values(coderd_api_concurrent_requests,namespace)",
+				"definition": "label_values(wirtuald_api_concurrent_requests,namespace)",
 				"hide": 0,
 				"includeAll": false,
 				"label": "namespace",
@@ -5011,7 +5011,7 @@
 				"name": "namespace",
 				"options": [],
 				"query": {
-					"query": "label_values(coderd_api_concurrent_requests,namespace)",
+					"query": "label_values(wirtuald_api_concurrent_requests,namespace)",
 					"refId": "PrometheusVariableQueryEditor-VariableQuery"
 				},
 				"refresh": 1,
@@ -5027,7 +5027,7 @@
 					"type": "prometheus",
 					"uid": "${DS_PROMETHEUS}"
 				},
-				"definition": "label_values(coderd_api_concurrent_requests,pod)",
+				"definition": "label_values(wirtuald_api_concurrent_requests,pod)",
 				"hide": 0,
 				"includeAll": true,
 				"label": "pod",
@@ -5035,7 +5035,7 @@
 				"name": "pod",
 				"options": [],
 				"query": {
-					"query": "label_values(coderd_api_concurrent_requests,pod)",
+					"query": "label_values(wirtuald_api_concurrent_requests,pod)",
 					"refId": "PrometheusVariableQueryEditor-VariableQuery"
 				},
 				"refresh": 1,

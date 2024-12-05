@@ -1,4 +1,4 @@
-package coderd_test
+package wirtuald_test
 
 import (
 	"context"
@@ -10,21 +10,21 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/coderdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbtestutil"
 	"github.com/coder/coder/v2/wirtuald/notifications"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 
-func createOpts(t *testing.T) *coderdenttest.Options {
+func createOpts(t *testing.T) *wirtualdenttest.Options {
 	t.Helper()
 
-	dt := coderdtest.DeploymentValues(t)
-	return &coderdenttest.Options{
-		Options: &coderdtest.Options{
+	dt := wirtualdtest.DeploymentValues(t)
+	return &wirtualdenttest.Options{
+		Options: &wirtualdtest.Options{
 			DeploymentValues: dt,
 		},
 	}
@@ -41,7 +41,7 @@ func TestUpdateNotificationTemplateMethod(t *testing.T) {
 		}
 
 		ctx := testutil.Context(t, testutil.WaitSuperLong)
-		api, _ := coderdenttest.New(t, createOpts(t))
+		api, _ := wirtualdenttest.New(t, createOpts(t))
 
 		var (
 			method     = string(database.NotificationMethodSmtp)
@@ -74,8 +74,8 @@ func TestUpdateNotificationTemplateMethod(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitSuperLong)
 
 		// Given: the first user which has an "owner" role, and another user which does not.
-		api, firstUser := coderdenttest.New(t, createOpts(t))
-		anotherClient, _ := coderdtest.CreateAnotherUser(t, api, firstUser.OrganizationID)
+		api, firstUser := wirtualdenttest.New(t, createOpts(t))
+		anotherClient, _ := wirtualdtest.CreateAnotherUser(t, api, firstUser.OrganizationID)
 
 		// When: calling the API as an unprivileged user.
 		err := anotherClient.UpdateNotificationTemplateMethod(ctx, notifications.TemplateWorkspaceDeleted, string(database.NotificationMethodWebhook))
@@ -98,7 +98,7 @@ func TestUpdateNotificationTemplateMethod(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitSuperLong)
 
 		// Given: the first user which has an "owner" role
-		api, _ := coderdenttest.New(t, createOpts(t))
+		api, _ := wirtualdenttest.New(t, createOpts(t))
 
 		// When: calling the API with an invalid method.
 		const method = "nope"
@@ -125,7 +125,7 @@ func TestUpdateNotificationTemplateMethod(t *testing.T) {
 		}
 
 		ctx := testutil.Context(t, testutil.WaitSuperLong)
-		api, _ := coderdenttest.New(t, createOpts(t))
+		api, _ := wirtualdenttest.New(t, createOpts(t))
 
 		var (
 			method     = string(database.NotificationMethodSmtp)

@@ -35,7 +35,7 @@ var (
 	// of splitting db and api types.
 	// Only include dirs that are client facing packages.
 	externalTypePkgs = [...]string{
-		"./coderd/healthcheck/health",
+		"./wirtuald/healthcheck/health",
 		// CLI option types:
 		"github.com/coder/serpent",
 	}
@@ -875,9 +875,9 @@ func (g *Generator) typescriptType(ty types.Type) (TypescriptType, error) {
 		//      so explicitly specifying the correct generic TS type.
 		case "github.com/coder/coder/v2/wirtualsdk.RegionsResponse[github.com/coder/coder/v2/wirtualsdk.WorkspaceProxy]":
 			return TypescriptType{ValueType: "RegionsResponse<WorkspaceProxy>"}, nil
-		case "github.com/coder/coder/v2/coderd/healthcheck/health.Message":
+		case "github.com/coder/coder/v2/wirtuald/healthcheck/health.Message":
 			return TypescriptType{ValueType: "HealthMessage"}, nil
-		case "github.com/coder/coder/v2/coderd/healthcheck/health.Severity":
+		case "github.com/coder/coder/v2/wirtuald/healthcheck/health.Severity":
 			return TypescriptType{ValueType: "HealthSeverity"}, nil
 		case "github.com/coder/coder/v2/healthsdk.HealthSection":
 			return TypescriptType{ValueType: "HealthSection"}, nil

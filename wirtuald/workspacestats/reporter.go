@@ -99,7 +99,7 @@ func (r *Reporter) ReportAppStats(ctx context.Context, stats []workspaceapps.Sta
 		// TODO: We currently measure workspace usage based on when we get stats from it.
 		// There are currently two paths for this:
 		// 1) From SSH -> workspace agent stats POSTed from agent
-		// 2) From workspace apps / rpty -> workspace app stats (from coderd / wsproxy)
+		// 2) From workspace apps / rpty -> workspace app stats (from wirtuald / wsproxy)
 		// Ideally we would have a single code path for this.
 		uniqueIDs := slice.Unique(batch.WorkspaceID)
 		if err := tx.BatchUpdateWorkspaceLastUsedAt(ctx, database.BatchUpdateWorkspaceLastUsedAtParams{

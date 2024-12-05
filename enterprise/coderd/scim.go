@@ -1,4 +1,4 @@
-package coderd
+package wirtuald
 
 import (
 	"bytes"
@@ -16,7 +16,7 @@ import (
 	"github.com/imulab/go-scim/pkg/v2/spec"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/enterprise/coderd/scim"
+	"github.com/coder/coder/v2/enterprise/wirtuald/scim"
 	agpl "github.com/coder/coder/v2/wirtuald"
 	"github.com/coder/coder/v2/wirtuald/audit"
 	"github.com/coder/coder/v2/wirtuald/database"
@@ -192,8 +192,8 @@ var SCIMAuditAdditionalFields = map[string]string{
 // @Security Authorization
 // @Produce json
 // @Tags Enterprise
-// @Param request body coderd.SCIMUser true "New user"
-// @Success 200 {object} coderd.SCIMUser
+// @Param request body wirtuald.SCIMUser true "New user"
+// @Success 200 {object} wirtuald.SCIMUser
 // @Router /scim/v2/Users [post]
 func (api *API) scimPostUser(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -335,7 +335,7 @@ func (api *API) scimPostUser(rw http.ResponseWriter, r *http.Request) {
 // @Produce application/scim+json
 // @Tags Enterprise
 // @Param id path string true "User ID" format(uuid)
-// @Param request body coderd.SCIMUser true "Update user request"
+// @Param request body wirtuald.SCIMUser true "Update user request"
 // @Success 200 {object} wirtualsdk.User
 // @Router /scim/v2/Users/{id} [patch]
 func (api *API) scimPatchUser(rw http.ResponseWriter, r *http.Request) {

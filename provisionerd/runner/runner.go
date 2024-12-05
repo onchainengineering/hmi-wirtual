@@ -566,7 +566,7 @@ func (r *Runner) runTemplateImport(ctx context.Context) (*proto.CompletedJob, *p
 		return nil, r.failedJobf("template import provision for stop: %s", err)
 	}
 
-	// For backwards compatibility with older versions of coderd
+	// For backwards compatibility with older versions of wirtuald
 	externalAuthProviderNames := make([]string, 0, len(startProvision.ExternalAuthProviders))
 	for _, it := range startProvision.ExternalAuthProviders {
 		externalAuthProviderNames = append(externalAuthProviderNames, it.Id)
@@ -1085,7 +1085,7 @@ func (r *Runner) failedJobf(format string, args ...interface{}) *proto.FailedJob
 
 func (r *Runner) startTrace(ctx context.Context, name string, opts ...trace.SpanStartOption) (context.Context, trace.Span) {
 	return r.tracer.Start(ctx, name, append(opts, trace.WithAttributes(
-		semconv.ServiceNameKey.String("coderd.provisionerd"),
+		semconv.ServiceNameKey.String("wirtuald.provisionerd"),
 		attribute.String("job_id", r.job.JobId),
 	))...)
 }

@@ -41,7 +41,7 @@ const (
 )
 
 // CSPHeaders returns a middleware that sets the Content-Security-Policy header
-// for coderd.
+// for wirtuald.
 //
 // Arguments:
 //   - websocketHosts: a function that returns a list of supported external websocket hosts.

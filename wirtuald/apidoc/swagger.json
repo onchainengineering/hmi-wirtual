@@ -1,7 +1,7 @@
 {
 	"swagger": "2.0",
 	"info": {
-		"description": "Coderd is the service created by running coder server. It is a thin API that connects workspaces, provisioners and users. coderd stores its state in Postgres and is the only service that communicates with Postgres.",
+		"description": "Coderd is the service created by running coder server. It is a thin API that connects workspaces, provisioners and users. wirtuald stores its state in Postgres and is the only service that communicates with Postgres.",
 		"title": "Coder API",
 		"termsOfService": "https://coder.com/legal/terms-of-service",
 		"contact": {
@@ -309,7 +309,7 @@
 						"in": "body",
 						"required": true,
 						"schema": {
-							"$ref": "#/definitions/coderd.cspViolation"
+							"$ref": "#/definitions/wirtuald.cspViolation"
 						}
 					}
 				],
@@ -3326,7 +3326,7 @@
 						"in": "body",
 						"required": true,
 						"schema": {
-							"$ref": "#/definitions/coderd.SCIMUser"
+							"$ref": "#/definitions/wirtuald.SCIMUser"
 						}
 					}
 				],
@@ -3334,7 +3334,7 @@
 					"200": {
 						"description": "OK",
 						"schema": {
-							"$ref": "#/definitions/coderd.SCIMUser"
+							"$ref": "#/definitions/wirtuald.SCIMUser"
 						}
 					}
 				}
@@ -3392,7 +3392,7 @@
 						"in": "body",
 						"required": true,
 						"schema": {
-							"$ref": "#/definitions/coderd.SCIMUser"
+							"$ref": "#/definitions/wirtuald.SCIMUser"
 						}
 					}
 				],
@@ -8035,7 +8035,7 @@
 				}
 			}
 		},
-		"coderd.SCIMUser": {
+		"wirtuald.SCIMUser": {
 			"type": "object",
 			"properties": {
 				"active": {
@@ -8099,7 +8099,7 @@
 				}
 			}
 		},
-		"coderd.cspViolation": {
+		"wirtuald.cspViolation": {
 			"type": "object",
 			"properties": {
 				"csp-report": {
@@ -8551,7 +8551,7 @@
 					"type": "string"
 				},
 				"resource_type": {
-					"description": "ResourceType is the name of the resource.\n`./coderd/rbac/object.go` has the list of valid resource types.",
+					"description": "ResourceType is the name of the resource.\n`./wirtuald/rbac/object.go` has the list of valid resource types.",
 					"allOf": [
 						{
 							"$ref": "#/definitions/codersdk.RBACResource"
@@ -8605,7 +8605,7 @@
 					"type": "string"
 				},
 				"dashboard_url": {
-					"description": "DashboardURL is the URL to hit the deployment's dashboard.\nFor external workspace proxies, this is the coderd they are connected\nto.",
+					"description": "DashboardURL is the URL to hit the deployment's dashboard.\nFor external workspace proxies, this is the wirtuald they are connected\nto.",
 					"type": "string"
 				},
 				"deployment_id": {
