@@ -8,7 +8,7 @@ import (
 
 	"github.com/briandowns/spinner"
 
-	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 type ExternalAuthOptions struct {

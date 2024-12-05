@@ -10,10 +10,10 @@ import (
 	"go.uber.org/goleak"
 	"storj.io/drpc/drpcconn"
 
-	"github.com/coder/coder/v2/provisionersdk"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtualsdk/drpc"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk/proto"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk/drpc"
 )
 
 func TestMain(m *testing.M) {

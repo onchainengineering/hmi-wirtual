@@ -28,8 +28,8 @@ import (
 	"tailscale.com/wgengine/wgcfg/nmcfg"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/tailnet/proto"
 	"github.com/coder/quartz"
+	"github.com/onchainengineering/hmi-wirtual/tailnet/proto"
 )
 
 const lostTimeout = 15 * time.Minute

@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/httpmw/patternmatcher"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/httpmw/patternmatcher"
 )
 
 func Test_RoutePatterns(t *testing.T) {

@@ -18,10 +18,10 @@ import (
 
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/sloghuman"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/support"
-	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
+	"github.com/onchainengineering/hmi-wirtual/cli/cliui"
+	"github.com/onchainengineering/hmi-wirtual/support"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 func (r *RootCmd) support() *serpent.Command {

@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/coder/coder/v2/wirtuald/util/ptr"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/ptr"
 )
 
 func Test_Ref_Deref(t *testing.T) {

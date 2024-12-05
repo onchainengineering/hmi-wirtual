@@ -7,9 +7,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/coder/coder/v2/enterprise/cli"
 	"github.com/coder/flog"
 	"github.com/coder/serpent"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/cli"
 )
 
 // route is an individual page object in the docs manifest.json.

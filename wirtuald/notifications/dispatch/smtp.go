@@ -27,10 +27,10 @@ import (
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/wirtuald/notifications/render"
-	"github.com/coder/coder/v2/wirtuald/notifications/types"
-	markdown "github.com/coder/coder/v2/wirtuald/render"
-	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications/render"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications/types"
+	markdown "github.com/onchainengineering/hmi-wirtual/wirtuald/render"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 var (

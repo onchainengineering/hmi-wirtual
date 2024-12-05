@@ -9,7 +9,7 @@ import (
 	"golang.org/x/exp/slices"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
 )
 
 type metricsStore struct {

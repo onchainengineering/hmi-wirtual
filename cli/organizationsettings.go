@@ -10,8 +10,8 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 func (r *RootCmd) organizationSettings(orgContext *OrganizationContext) *serpent.Command {

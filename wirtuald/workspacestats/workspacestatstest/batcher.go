@@ -6,8 +6,8 @@ import (
 
 	"github.com/google/uuid"
 
-	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/wirtuald/workspacestats"
+	agentproto "github.com/onchainengineering/hmi-wirtual/agent/proto"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/workspacestats"
 )
 
 type StatsBatcher struct {

@@ -3,8 +3,8 @@
 package cli
 
 import (
-	agplcli "github.com/coder/coder/v2/cli"
 	"github.com/coder/serpent"
+	agplcli "github.com/onchainengineering/hmi-wirtual/cli"
 )
 
 func (r *RootCmd) provisionerDaemonStart() *serpent.Command {

@@ -1,6 +1,6 @@
 
 syntax = "proto3";
-option go_package = "github.com/coder/coder/v2/provisionersdk/proto";
+option go_package = "github.com/onchainengineering/hmi-wirtual/provisionersdk/proto";
 
 import "google/protobuf/timestamp.proto";
 

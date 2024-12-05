@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/render"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/render"
 )
 
 func TestPlaintext(t *testing.T) {

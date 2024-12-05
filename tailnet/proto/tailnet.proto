@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/coder/coder/v2/tailnet/proto";
+option go_package = "github.com/onchainengineering/hmi-wirtual/tailnet/proto";
 
 package coder.tailnet.v2;
 

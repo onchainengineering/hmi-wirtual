@@ -12,7 +12,6 @@ import (
 
 	"github.com/acarl005/stripansi"
 
-	"github.com/coder/coder/v2/buildinfo"
 	"github.com/coder/flog"
 	"github.com/coder/serpent"
 )

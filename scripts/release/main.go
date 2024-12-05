@@ -21,8 +21,8 @@ import (
 
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/sloghuman"
-	"github.com/coder/coder/v2/cli/cliui"
 	"github.com/coder/serpent"
+	"github.com/onchainengineering/hmi-wirtual/cli/cliui"
 )
 
 const (

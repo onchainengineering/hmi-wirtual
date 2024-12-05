@@ -13,7 +13,7 @@ import (
 	"tailscale.com/types/key"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/tailnet"
+	"github.com/onchainengineering/hmi-wirtual/tailnet"
 )
 
 // New constructs a new mesh for DERP servers.

@@ -3,7 +3,7 @@ package provisionersdk
 import (
 	"fmt"
 
-	"github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk/proto"
 )
 
 func ParseErrorf(format string, args ...any) *proto.ParseComplete {

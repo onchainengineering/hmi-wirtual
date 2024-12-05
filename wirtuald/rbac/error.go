@@ -10,8 +10,8 @@ import (
 	"github.com/open-policy-agent/opa/topdown"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtuald/httpapi/httpapiconstraints"
-	"github.com/coder/coder/v2/wirtuald/rbac/policy"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/httpapi/httpapiconstraints"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac/policy"
 )
 
 const (

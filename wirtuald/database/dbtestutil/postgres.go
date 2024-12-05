@@ -21,9 +21,9 @@ import (
 	"github.com/ory/dockertest/v3/docker"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cryptorand"
-	"github.com/coder/coder/v2/wirtuald/database/migrations"
 	"github.com/coder/retry"
+	"github.com/onchainengineering/hmi-wirtual/cryptorand"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/migrations"
 )
 
 type ConnectionParams struct {

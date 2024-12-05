@@ -5,9 +5,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/serpent"
+	"github.com/onchainengineering/hmi-wirtual/cli"
+	"github.com/onchainengineering/hmi-wirtual/cli/clitest"
 )
 
 //nolint:tparallel,paralleltest

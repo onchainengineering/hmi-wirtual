@@ -2,7 +2,7 @@
 
 package agent
 
-import "github.com/coder/coder/v2/wirtualsdk"
+import "github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 
 func (*listeningPortsHandler) getListeningPorts() ([]wirtualsdk.WorkspaceAgentListeningPort, error) {
 	// Can't scan for ports on non-linux or non-windows_amd64 systems at the

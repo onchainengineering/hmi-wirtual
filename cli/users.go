@@ -1,8 +1,8 @@
 package cli
 
 import (
-	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 func (r *RootCmd) users() *serpent.Command {

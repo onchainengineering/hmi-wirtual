@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/workspaceapps/appurl"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/workspaceapps/appurl"
 )
 
 func Test_vscodeProxyURI(t *testing.T) {

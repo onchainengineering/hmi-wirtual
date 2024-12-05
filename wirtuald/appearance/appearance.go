@@ -3,7 +3,7 @@ package appearance
 import (
 	"context"
 
-	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 type Fetcher interface {

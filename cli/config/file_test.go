@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/config"
+	"github.com/onchainengineering/hmi-wirtual/cli/config"
 )
 
 func TestFile(t *testing.T) {

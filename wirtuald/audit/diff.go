@@ -1,7 +1,7 @@
 package audit
 
 import (
-	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
 )
 
 // Auditable is mostly a marker interface. It contains a definitive list of all

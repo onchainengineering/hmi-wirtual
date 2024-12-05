@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/coder/coder/v2/tailnet"
+	"github.com/onchainengineering/hmi-wirtual/tailnet"
 )
 
 func GracefulDisconnectTest(ctx context.Context, t *testing.T, coordinator tailnet.CoordinatorV2) {

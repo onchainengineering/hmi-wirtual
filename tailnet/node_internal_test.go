@@ -14,7 +14,7 @@ import (
 	"tailscale.com/types/key"
 	"tailscale.com/wgengine"
 
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 func TestNodeUpdater_setNetInfo_different(t *testing.T) {

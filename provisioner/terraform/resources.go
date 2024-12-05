@@ -16,12 +16,12 @@ import (
 
 	tfaddr "github.com/hashicorp/go-terraform-address"
 
-	"github.com/coder/coder/v2/provisioner"
-	"github.com/coder/coder/v2/provisionersdk"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/wirtuald/util/slice"
-	stringutil "github.com/coder/coder/v2/wirtuald/util/strings"
-	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/provisioner"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk/proto"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/slice"
+	stringutil "github.com/onchainengineering/hmi-wirtual/wirtuald/util/strings"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 type agentMetadata struct {

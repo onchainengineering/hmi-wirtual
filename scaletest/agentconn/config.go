@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/httpapi"
 )
 
 type ConnectionMode string

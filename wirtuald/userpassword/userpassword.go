@@ -15,7 +15,7 @@ import (
 	"golang.org/x/exp/slices"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtuald/util/lazy"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/lazy"
 )
 
 var (

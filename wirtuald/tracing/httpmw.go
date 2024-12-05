@@ -13,7 +13,7 @@ import (
 	"go.opentelemetry.io/otel/semconv/v1.14.0/netconv"
 	"go.opentelemetry.io/otel/trace"
 
-	"github.com/coder/coder/v2/wirtuald/httpmw/patternmatcher"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/httpmw/patternmatcher"
 )
 
 // Middleware adds tracing to http routes.

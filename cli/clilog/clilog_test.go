@@ -7,10 +7,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/coder/coder/v2/cli/clilog"
-	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
-	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
+	"github.com/onchainengineering/hmi-wirtual/cli/clilog"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/wirtualdtest"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

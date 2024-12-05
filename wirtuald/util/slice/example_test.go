@@ -3,7 +3,7 @@ package slice_test
 import (
 	"fmt"
 
-	"github.com/coder/coder/v2/wirtuald/util/slice"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/slice"
 )
 
 //nolint:revive // They want me to error check my Printlns

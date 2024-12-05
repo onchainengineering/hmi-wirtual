@@ -9,9 +9,9 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtuald/schedule/cron"
-	"github.com/coder/coder/v2/wirtuald/util/tz"
 	"github.com/coder/serpent"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/schedule/cron"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/tz"
 )
 
 var (

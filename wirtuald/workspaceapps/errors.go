@@ -6,8 +6,8 @@ import (
 	"net/url"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/site"
-	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/site"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 // WriteWorkspaceApp404 writes a HTML 404 error page for a workspace app. If

@@ -29,7 +29,7 @@ import (
 // explaining why it's ok and a nolint.
 func dbauthzAuthorizationContext(m dsl.Matcher) {
 	m.Import("context")
-	m.Import("github.com/coder/coder/v2/wirtuald/database/dbauthz")
+	m.Import("github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbauthz")
 
 	m.Match(
 		`dbauthz.$f($c)`,
@@ -51,8 +51,8 @@ func dbauthzAuthorizationContext(m dsl.Matcher) {
 //nolint:unused,deadcode,varnamelen
 func testingWithOwnerUser(m dsl.Matcher) {
 	m.Import("testing")
-	m.Import("github.com/coder/coder/v2/cli/clitest")
-	m.Import("github.com/coder/coder/v2/enterprise/wirtuald/coderenttest")
+	m.Import("github.com/onchainengineering/hmi-wirtual/cli/clitest")
+	m.Import("github.com/onchainengineering/hmi-wirtual/enterprise/wirtuald/coderenttest")
 
 	// For both AGPL and enterprise code, we check for SetupConfig being called with a
 	// client authenticated as the Owner user.
@@ -128,10 +128,10 @@ func xerrors(m dsl.Matcher) {
 //
 //nolint:unused,deadcode,varnamelen
 func databaseImport(m dsl.Matcher) {
-	m.Import("github.com/coder/coder/v2/wirtuald/database")
+	m.Import("github.com/onchainengineering/hmi-wirtual/wirtuald/database")
 	m.Match("database.$_").
 		Report("Do not import any database types into wirtualsdk").
-		Where(m.File().PkgPath.Matches("github.com/coder/coder/v2/wirtualsdk"))
+		Where(m.File().PkgPath.Matches("github.com/onchainengineering/hmi-wirtual/wirtualsdk"))
 }
 
 // doNotCallTFailNowInsideGoroutine enforces not calling t.FailNow or
@@ -181,7 +181,7 @@ func doNotCallTFailNowInsideGoroutine(m dsl.Matcher) {
 func useStandardTimeoutsAndDelaysInTests(m dsl.Matcher) {
 	m.Import("github.com/stretchr/testify/require")
 	m.Import("github.com/stretchr/testify/assert")
-	m.Import("github.com/coder/coder/v2/testutil")
+	m.Import("github.com/onchainengineering/hmi-wirtual/testutil")
 
 	m.Match(`context.WithTimeout($ctx, $duration)`).
 		Where(m.File().Imports("testing") && !m.File().PkgPath.Matches("testutil$") && !m["duration"].Text.Matches("^testutil\\.")).
@@ -262,7 +262,7 @@ func InTx(m dsl.Matcher) {
 // and ends with punctuation.
 // There are ways around the linter, but this should work in the common cases.
 func HttpAPIErrorMessage(m dsl.Matcher) {
-	m.Import("github.com/coder/coder/v2/wirtuald/httpapi")
+	m.Import("github.com/onchainengineering/hmi-wirtual/wirtuald/httpapi")
 
 	isNotProperError := func(v dsl.Var) bool {
 		return v.Type.Is("string") &&
@@ -295,7 +295,7 @@ func HttpAPIErrorMessage(m dsl.Matcher) {
 // HttpAPIReturn will report a linter violation if the http function is not
 // returned after writing a response to the client.
 func HttpAPIReturn(m dsl.Matcher) {
-	m.Import("github.com/coder/coder/v2/wirtuald/httpapi")
+	m.Import("github.com/onchainengineering/hmi-wirtual/wirtuald/httpapi")
 
 	// Manually enumerate the httpapi function rather then a 'Where' condition
 	// as this is a bit more efficient.
@@ -472,7 +472,7 @@ func withTimezoneUTC(m dsl.Matcher) {
 //
 //nolint:unused,deadcode,varnamelen
 func workspaceActivity(m dsl.Matcher) {
-	m.Import("github.com/coder/coder/v2/wirtuald/database")
+	m.Import("github.com/onchainengineering/hmi-wirtual/wirtuald/database")
 	m.Match(
 		`$_.ActivityBumpWorkspace($_, $_)`,
 		`$_.UpdateWorkspaceLastUsedAt($_, $_)`,
@@ -511,7 +511,7 @@ func noExecInAgent(m dsl.Matcher) {
 //
 //nolint:unused,deadcode,varnamelen
 func noPTYInAgent(m dsl.Matcher) {
-	m.Import("github.com/coder/coder/v2/pty")
+	m.Import("github.com/onchainengineering/hmi-wirtual/pty")
 	m.Match(
 		`pty.Command($*_)`,
 		`pty.CommandContext($*_)`,

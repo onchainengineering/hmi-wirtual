@@ -7,7 +7,7 @@ import (
 
 	"github.com/open-policy-agent/opa/ast"
 
-	"github.com/coder/coder/v2/wirtuald/rbac/regosql/sqltypes"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac/regosql/sqltypes"
 )
 
 var (
