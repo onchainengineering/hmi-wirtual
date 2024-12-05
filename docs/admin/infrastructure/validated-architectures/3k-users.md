@@ -16,7 +16,7 @@ continuously improve the reliability and performance of the platform.
 
 ## Hardware recommendations
 
-### Coderd nodes
+### Wirtuald nodes
 
 | Users       | Node capacity        | Replicas          | GCP             | AWS         | Azure             |
 | ----------- | -------------------- | ----------------- | --------------- | ----------- | ----------------- |

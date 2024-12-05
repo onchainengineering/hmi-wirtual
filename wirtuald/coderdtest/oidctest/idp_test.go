@@ -37,7 +37,7 @@ func TestFakeIDPBasicFlow(t *testing.T) {
 	const expectedState = "random-state"
 	var token *oauth2.Token
 	// This is the Coder callback using an actual network request.
-	fake.SetCoderdCallbackHandler(func(w http.ResponseWriter, r *http.Request) {
+	fake.SetWirtualdCallbackHandler(func(w http.ResponseWriter, r *http.Request) {
 		// Emulate OIDC flow
 		code := r.URL.Query().Get("code")
 		state := r.URL.Query().Get("state")
@@ -127,7 +127,7 @@ func TestIDPIssuerMismatch(t *testing.T) {
 	const expectedState = "random-state"
 	var token *oauth2.Token
 
-	fake.SetCoderdCallbackHandler(func(w http.ResponseWriter, r *http.Request) {
+	fake.SetWirtualdCallbackHandler(func(w http.ResponseWriter, r *http.Request) {
 		// Emulate OIDC flow
 		code := r.URL.Query().Get("code")
 		state := r.URL.Query().Get("state")

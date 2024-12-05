@@ -641,7 +641,7 @@ func (api *API) writeEntitlementWarningsHeader(a rbac.Subject, header http.Heade
 func (api *API) Close() error {
 	// Replica manager should be closed first. This is because the replica
 	// manager updates the replica's table in the database when it closes.
-	// This tells other Coderds that it is now offline.
+	// This tells other Wirtualds that it is now offline.
 	if api.replicaManager != nil {
 		_ = api.replicaManager.Close()
 	}

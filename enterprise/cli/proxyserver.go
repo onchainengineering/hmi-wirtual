@@ -76,7 +76,7 @@ func (r *RootCmd) proxyServer() *serpent.Command {
 		},
 
 		serpent.Option{
-			Name:        "Coderd (Primary) Access URL",
+			Name:        "Wirtuald (Primary) Access URL",
 			Description: "URL to communicate with wirtuald. This should match the access URL of the Coder deployment.",
 			Flag:        "primary-access-url",
 			Env:         "WIRTUAL_PRIMARY_ACCESS_URL",

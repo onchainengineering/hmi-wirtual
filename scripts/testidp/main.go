@@ -109,7 +109,7 @@ func RunIDP() func(t *testing.T) {
 		})
 
 		log.Println("IDP Issuer URL", idp.IssuerURL())
-		log.Println("Coderd Flags")
+		log.Println("Wirtuald Flags")
 
 		deviceCodeURL := ""
 		if coderCfg.DeviceAuth != nil {

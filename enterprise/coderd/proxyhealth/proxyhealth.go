@@ -320,7 +320,7 @@ func (p *ProxyHealth) runOnce(ctx context.Context, now time.Time) (map[uuid.UUID
 				// This error message is not ever decoded programmatically, so keep it human-
 				// readable.
 				builder.WriteString(fmt.Sprintf("unexpected status code %d. ", resp.StatusCode))
-				builder.WriteString(fmt.Sprintf("\nEncountered error, send a request to %q from the Coderd environment to debug this issue.", reqURL))
+				builder.WriteString(fmt.Sprintf("\nEncountered error, send a request to %q from the Wirtuald environment to debug this issue.", reqURL))
 				// err will always be non-nil
 				err := wirtualsdk.ReadBodyAsError(resp)
 				var apiErr *wirtualsdk.Error

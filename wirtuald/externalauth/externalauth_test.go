@@ -527,7 +527,7 @@ func TestConstantQueryParams(t *testing.T) {
 	})
 
 	callbackCalled := false
-	fake.SetCoderdCallbackHandler(func(writer http.ResponseWriter, request *http.Request) {
+	fake.SetWirtualdCallbackHandler(func(writer http.ResponseWriter, request *http.Request) {
 		// Just record the callback was hit, and the auth succeeded.
 		callbackCalled = true
 	})

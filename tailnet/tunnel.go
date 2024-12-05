@@ -16,7 +16,7 @@ type CoordinateeAuth interface {
 	Authorize(ctx context.Context, req *proto.CoordinateRequest) error
 }
 
-// SingleTailnetCoordinateeAuth allows all tunnels, since Coderd and wsproxy are allowed to initiate a tunnel to any agent
+// SingleTailnetCoordinateeAuth allows all tunnels, since Wirtuald and wsproxy are allowed to initiate a tunnel to any agent
 type SingleTailnetCoordinateeAuth struct{}
 
 func (SingleTailnetCoordinateeAuth) Authorize(context.Context, *proto.CoordinateRequest) error {

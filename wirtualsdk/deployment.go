@@ -434,7 +434,7 @@ func ParseSSHConfigOption(opt string) (key string, value string, err error) {
 	return opt[:idx], opt[idx+1:], nil
 }
 
-// SessionLifetime refers to "sessions" authenticating into Coderd. Coder has
+// SessionLifetime refers to "sessions" authenticating into Wirtuald. Coder has
 // multiple different session types: api keys, tokens, workspace app tokens,
 // agent tokens, etc. This configuration struct should be used to group all
 // settings referring to any of these session lifetime controls.

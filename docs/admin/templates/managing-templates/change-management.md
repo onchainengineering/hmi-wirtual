@@ -97,5 +97,5 @@ for an example of how to test and publish Coder templates in a CI/CD pipeline.
 ### Next steps
 
 - [Coder CLI Reference](../../../reference/cli/templates.md)
-- [Coderd Terraform Provider Reference](https://registry.terraform.io/providers/coder/wirtuald/latest/docs)
-- [Coderd API Reference](../../../reference/index.md)
+- [Wirtuald Terraform Provider Reference](https://registry.terraform.io/providers/coder/wirtuald/latest/docs)
+- [Wirtuald API Reference](../../../reference/index.md)

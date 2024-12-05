@@ -21,9 +21,7 @@ import (
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/coder/v2/wirtuald"
 	"github.com/coder/coder/v2/wirtuald/oauthpki"
-	"g
 	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
-	"github.com/coder/coder/v2/wirtuald/oauthpki"
 )
 
 //nolint:gosec // these are just for testing
@@ -128,9 +126,9 @@ func TestAzureADPKIOIDC(t *testing.T) {
 	require.Error(t, err, "error expected")
 }
 
-// TestAzureAKPKIWithCoderd uses a fake IDP and a real Coderd to test PKI auth.
+// TestAzureAKPKIWithWirtuald uses a fake IDP and a real Wirtuald to test PKI auth.
 // nolint:bodyclose
-func TestAzureAKPKIWithCoderd(t *testing.T) {
+func TestAzureAKPKIWithWirtuald(t *testing.T) {
 	t.Parallel()
 
 	scopes := []string{"openid", "email", "profile", "offline_access"}

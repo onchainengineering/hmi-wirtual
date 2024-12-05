@@ -1190,7 +1190,7 @@ func TestConfigMaps_addRemoveHosts(t *testing.T) {
 	req := testutil.RequireRecvCtx(ctx, t, fEng.reconfig)
 	require.Equal(t, req.dnsCfg, &dns.Config{
 		Routes: map[dnsname.FQDN][]*dnstype.Resolver{
-			CoderDNSSuffix: nil,
+			WirtualDNSSuffix: nil,
 		},
 		Hosts: map[dnsname.FQDN][]netip.Addr{
 			"agent.myws.me.coder.": {
@@ -1219,7 +1219,7 @@ func TestConfigMaps_addRemoveHosts(t *testing.T) {
 	req = testutil.RequireRecvCtx(ctx, t, fEng.reconfig)
 	require.Equal(t, req.dnsCfg, &dns.Config{
 		Routes: map[dnsname.FQDN][]*dnstype.Resolver{
-			CoderDNSSuffix: nil,
+			WirtualDNSSuffix: nil,
 		},
 		Hosts: map[dnsname.FQDN][]netip.Addr{
 			"newagent.myws.me.coder.": {

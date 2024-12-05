@@ -10,7 +10,7 @@ tech startups, educational units, or small to mid-sized enterprises.
 
 ## Hardware recommendations
 
-### Coderd nodes
+### Wirtuald nodes
 
 | Users       | Node capacity       | Replicas            | GCP             | AWS        | Azure             |
 | ----------- | ------------------- | ------------------- | --------------- | ---------- | ----------------- |

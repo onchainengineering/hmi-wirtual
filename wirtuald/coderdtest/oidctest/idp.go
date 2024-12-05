@@ -109,7 +109,7 @@ type FakeIDP struct {
 	// some claims.
 	defaultIDClaims jwt.MapClaims
 	hookMutateToken func(token map[string]interface{})
-	fakeCoderd      func(req *http.Request) (*http.Response, error)
+	fakeWirtuald    func(req *http.Request) (*http.Response, error)
 	hookOnRefresh   func(email string) error
 	// Custom authentication for the client. This is useful if you want
 	// to test something like PKI auth vs a client_secret.
@@ -625,9 +625,9 @@ func (f *FakeIDP) CreateAuthCode(t testing.TB, state string) string {
 }
 
 // OIDCCallback will emulate the IDP redirecting back to the Coder callback.
-// This is helpful if no Coderd exists because the IDP needs to redirect to
+// This is helpful if no Wirtuald exists because the IDP needs to redirect to
 // something.
-// Essentially this is used to fake the Coderd side of the exchange.
+// Essentially this is used to fake the Wirtuald side of the exchange.
 // The flow starts at the user hitting the OIDC login page.
 func (f *FakeIDP) OIDCCallback(t testing.TB, state string, idTokenClaims jwt.MapClaims) *http.Response {
 	t.Helper()
@@ -1231,8 +1231,8 @@ func (f *FakeIDP) HTTPClient(rest *http.Client) *http.Client {
 			roundTrip: func(req *http.Request) (*http.Response, error) {
 				u, _ := url.Parse(f.issuer)
 				if req.URL.Host != u.Host {
-					if f.fakeCoderd != nil {
-						return f.fakeCoderd(req)
+					if f.fakeWirtuald != nil {
+						return f.fakeWirtuald(req)
 					}
 					if rest == nil || rest.Transport == nil {
 						return nil, xerrors.Errorf("unexpected network request to %q", req.URL.Host)
@@ -1262,25 +1262,25 @@ func (f *FakeIDP) UpdateRefreshClaims(refreshToken string, claims jwt.MapClaims)
 }
 
 // SetRedirect is required for the IDP to know where to redirect and call
-// Coderd.
+// Wirtuald.
 func (f *FakeIDP) SetRedirect(t testing.TB, u string) {
 	t.Helper()
 
 	f.cfg.RedirectURL = u
 }
 
-// SetCoderdCallback is optional and only works if not using the IsServing.
-// It will setup a fake "Coderd" for the IDP to call when the IDP redirects
+// SetWirtualdCallback is optional and only works if not using the IsServing.
+// It will setup a fake "Wirtuald" for the IDP to call when the IDP redirects
 // back after authenticating.
-func (f *FakeIDP) SetCoderdCallback(callback func(req *http.Request) (*http.Response, error)) {
+func (f *FakeIDP) SetWirtualdCallback(callback func(req *http.Request) (*http.Response, error)) {
 	if f.serve {
-		panic("cannot set callback handler when using 'WithServing'. Must implement an actual 'Coderd'")
+		panic("cannot set callback handler when using 'WithServing'. Must implement an actual 'Wirtuald'")
 	}
-	f.fakeCoderd = callback
+	f.fakeWirtuald = callback
 }
 
-func (f *FakeIDP) SetCoderdCallbackHandler(handler http.HandlerFunc) {
-	f.SetCoderdCallback(func(req *http.Request) (*http.Response, error) {
+func (f *FakeIDP) SetWirtualdCallbackHandler(handler http.HandlerFunc) {
+	f.SetWirtualdCallback(func(req *http.Request) (*http.Response, error) {
 		resp := httptest.NewRecorder()
 		handler.ServeHTTP(resp, req)
 		return resp.Result(), nil
@@ -1438,7 +1438,7 @@ func (f *FakeIDP) OIDCConfig(t testing.TB, scopes []string, opts ...func(cfg *wi
 	return f.internalOIDCConfig(context.Background(), t, scopes, nil, opts...)
 }
 
-// OIDCConfig returns the OIDC config to use for Coderd.
+// OIDCConfig returns the OIDC config to use for Wirtuald.
 func (f *FakeIDP) internalOIDCConfig(ctx context.Context, t testing.TB, scopes []string, verifierOpt func(config *oidc.Config), opts ...func(cfg *wirtuald.OIDCConfig)) *wirtuald.OIDCConfig {
 	t.Helper()
 

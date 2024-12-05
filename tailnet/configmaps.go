@@ -34,9 +34,9 @@ import (
 
 const lostTimeout = 15 * time.Minute
 
-// CoderDNSSuffix is the default DNS suffix that we append to Coder DNS
+// WirtualDNSSuffix is the default DNS suffix that we append to Coder DNS
 // records.
-const CoderDNSSuffix = "coder."
+const WirtualDNSSuffix = "coder."
 
 // engineConfigurable is the subset of wgengine.Engine that we use for configuration.
 //
@@ -338,7 +338,7 @@ func (c *configMaps) reconfig(nm *netmap.NetworkMap, hosts map[dnsname.FQDN][]ne
 		dnsCfg.Hosts = hosts
 		dnsCfg.OnlyIPv6 = true
 		dnsCfg.Routes = map[dnsname.FQDN][]*dnstype.Resolver{
-			CoderDNSSuffix: nil,
+			WirtualDNSSuffix: nil,
 		}
 	}
 	cfg, err := nmcfg.WGCfg(nm, Logger(c.logger.Named("net.wgconfig")), netmap.AllowSingleHosts, "")

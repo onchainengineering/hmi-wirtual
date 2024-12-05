@@ -597,7 +597,7 @@ func TestProvisionerd(t *testing.T) {
 
 	// Simulates when there is no wirtuald to connect to. So the client connection
 	// will never be established.
-	t.Run("ShutdownNoCoderd", func(t *testing.T) {
+	t.Run("ShutdownNoWirtuald", func(t *testing.T) {
 		t.Parallel()
 		done := make(chan struct{})
 		t.Cleanup(func() {
@@ -607,7 +607,7 @@ func TestProvisionerd(t *testing.T) {
 		connectAttemptedClose := sync.Once{}
 		connectAttempted := make(chan struct{})
 		server := createProvisionerd(t, func(ctx context.Context) (proto.DRPCProvisionerDaemonClient, error) {
-			// This is the dial out to Coderd, which in this unit test will always fail.
+			// This is the dial out to Wirtuald, which in this unit test will always fail.
 			connectAttemptedClose.Do(func() { close(connectAttempted) })
 			return nil, xerrors.New("client connection always fails")
 		}, provisionerd.LocalProvisioners{

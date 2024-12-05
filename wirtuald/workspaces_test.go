@@ -3035,7 +3035,7 @@ func TestWorkspaceWithOptionalRichParameters(t *testing.T) {
 	require.NoError(t, err)
 
 	expectedBuildParameters := []wirtualsdk.WorkspaceBuildParameter{
-		// Coderd inserts the default for the missing parameter
+		// Wirtuald inserts the default for the missing parameter
 		{Name: firstParameterName, Value: firstParameterDefaultValue},
 		{Name: secondParameterName, Value: secondParameterValue},
 	}

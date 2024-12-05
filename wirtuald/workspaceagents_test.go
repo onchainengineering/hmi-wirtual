@@ -1009,7 +1009,7 @@ func TestWorkspaceAgentListeningPorts(t *testing.T) {
 			res, err := client.WorkspaceAgentListeningPorts(ctx, agentID)
 			require.NoError(t, err)
 
-			sawCoderdPort := false
+			sawWirtualdPort := false
 			for _, port := range res.Ports {
 				if port.Network == "tcp" {
 					if port.Port == appLPort {
@@ -1019,11 +1019,11 @@ func TestWorkspaceAgentListeningPorts(t *testing.T) {
 						t.Fatalf("expected to not find TCP port (filtered port) %d in response", filteredLPort)
 					}
 					if port.Port == wirtualdPort {
-						sawCoderdPort = true
+						sawWirtualdPort = true
 					}
 				}
 			}
-			if !sawCoderdPort {
+			if !sawWirtualdPort {
 				t.Fatalf("expected to find TCP port (wirtuald port) %d in response", wirtualdPort)
 			}
 		})

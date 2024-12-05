@@ -1050,7 +1050,7 @@ func TestEnterpriseUserLogin(t *testing.T) {
 }
 
 // oidcTestRunner is just a helper to setup and run oidc tests.
-// An actual Coderd instance is used to run the tests.
+// An actual Wirtuald instance is used to run the tests.
 type oidcTestRunner struct {
 	AdminClient *wirtualsdk.Client
 	AdminUser   wirtualsdk.User
@@ -1070,7 +1070,7 @@ type oidcTestRunner struct {
 type oidcTestConfig struct {
 	Userinfo jwt.MapClaims
 
-	// Config allows modifying the Coderd OIDC configuration.
+	// Config allows modifying the Wirtuald OIDC configuration.
 	Config           func(cfg *wirtuald.OIDCConfig)
 	DeploymentValues func(dv *wirtualsdk.DeploymentValues)
 	FakeOpts         []oidctest.FakeIDPOpt

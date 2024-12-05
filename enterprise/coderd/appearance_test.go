@@ -158,7 +158,7 @@ func TestAnnouncementBanners(t *testing.T) {
 		banners := requireGetAnnouncementBanners(ctx, t, agentClient)
 		require.Equal(t, cfg.AnnouncementBanners, banners)
 
-		// Create an AGPL Coderd against the same database
+		// Create an AGPL Wirtuald against the same database
 		agplClient := wirtualdtest.New(t, &wirtualdtest.Options{Database: store, Pubsub: ps})
 		agplAgentClient := agentsdk.New(agplClient.URL)
 		agplAgentClient.SetSessionToken(r.AgentToken)

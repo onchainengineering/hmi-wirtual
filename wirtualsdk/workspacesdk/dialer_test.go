@@ -278,7 +278,7 @@ func TestWebsocketDialer_UplevelVersion(t *testing.T) {
 	svr := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		sVer := apiversion.New(2, 2)
 
-		// the following matches what Coderd does;
+		// the following matches what Wirtuald does;
 		// c.f. wirtuald/workspaceagents.go: workspaceAgentClientCoordinate
 		cVer := r.URL.Query().Get("version")
 		if err := sVer.Validate(cVer); err != nil {

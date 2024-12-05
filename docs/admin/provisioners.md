@@ -342,7 +342,7 @@ will use in concert with the Helm chart for deploying the Coder server.
    ```
 
    You can verify that your provisioner daemons have successfully connected to
-   Coderd by looking for a debug log message that says
+   Wirtuald by looking for a debug log message that says
    `provisioner: successfully connected to wirtuald` from each Pod.
 
 ## Example: Running an external provisioner on a VM
