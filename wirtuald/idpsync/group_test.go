@@ -22,7 +22,7 @@ import (
 	"github.com/coder/coder/v2/wirtuald/idpsync"
 	"github.com/coder/coder/v2/wirtuald/runtimeconfig"
 	"github.com/coder/coder/v2/wirtuald/util/ptr"
-	"github.com/coder/coder/v2/wirtuald/wi
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 

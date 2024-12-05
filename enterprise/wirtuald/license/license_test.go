@@ -12,7 +12,7 @@ import (
 	"golang.org/x/exp/slices"
 
 	"github.com/coder/coder/v2/enterprise/wirtuald/license"
-	"github.com/coder/coder/v2/enterprise/wirtual
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbmem"
 	"github.com/coder/coder/v2/wirtuald/database/dbtime"

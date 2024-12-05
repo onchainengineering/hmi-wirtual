@@ -19,7 +19,7 @@ import (
 	"github.com/coder/coder/v2/scaletest/agentconn"
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/coder/v2/wirtuald/httpapi"
-	"github.com/coder/coder/v2/wirtuald/wi
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 

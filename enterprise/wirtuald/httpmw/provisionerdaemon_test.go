@@ -13,7 +13,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/coder/coder/v2/enterprise/wirtuald/license"
-	"github.com/coder/coder/v2/enterpris
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/testutil"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbmock"

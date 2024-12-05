@@ -12,11 +12,10 @@ import (
 
 	"github.com/coder/coder/v2/cli/clitest"
 	"github.com/coder/coder/v2/enterprise/wirtuald/license"
-	"github.com/coder/coder/v2/enterprise/w
+	"github.com/coder/coder/v2/enterprise/wirtuald/wirtualdenttest"
 	"github.com/coder/coder/v2/pty/ptytest"
 	"github.com/coder/coder/v2/wirtuald/rbac"
-coder/v2/wirtuald/rbac"
-	"github.com/co
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 )
 

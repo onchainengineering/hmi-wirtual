@@ -19,20 +19,17 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/coder/coder/v2/enterprise/dbcrypt"
-
 	"github.com/coder/coder/v2/enterprise/wirtuald"
-	"github.com/coder/coder/v2/enterprise/dbcrypt"
+	"github.com/coder/coder/v2/enterprise/wirtuald/license"
 	"github.com/coder/coder/v2/provisioner/echo"
 	"github.com/coder/coder/v2/provisionerd"
 	provisionerdproto "github.com/coder/coder/v2/provisionerd/proto"
 	"github.com/coder/coder/v2/provisionersdk"
 	sdkproto "github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtuald/database"
 	"github.com/coder/coder/v2/wirtuald/database/dbmem"
-hub.com/coder/coder/v2/wirtuald/database/pubsub"
-	"gi
 	"github.com/coder/coder/v2/wirtuald/database/pubsub"
+	"github.com/coder/coder/v2/wirtuald/wirtualdtest"
 	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/coder/v2/wirtualsdk/drpc"
 )
