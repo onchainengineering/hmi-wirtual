@@ -12,7 +12,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/buildinfo"
+	"github.com/onchainengineering/hmi-wirtual/buildinfo"
 )
 
 var (

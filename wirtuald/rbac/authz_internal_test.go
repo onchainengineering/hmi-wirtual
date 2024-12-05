@@ -13,10 +13,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/rbac/policy"
-	"github.com/coder/coder/v2/wirtuald/rbac/regosql"
-	"github.com/coder/coder/v2/wirtuald/util/slice"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac/policy"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac/regosql"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/slice"
 )
 
 type fakeObject struct {

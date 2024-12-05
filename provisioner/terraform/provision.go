@@ -18,10 +18,10 @@ import (
 	"cdr.dev/slog"
 	"github.com/coder/terraform-provider-coder/provider"
 
-	"github.com/coder/coder/v2/provisionersdk"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/tracing"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk/proto"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/tracing"
 )
 
 const staleTerraformPluginRetention = 30 * 24 * time.Hour

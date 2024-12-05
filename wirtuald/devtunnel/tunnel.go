@@ -15,10 +15,10 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/cryptorand"
 	"github.com/coder/pretty"
 	"github.com/coder/wgtunnel/tunnelsdk"
+	"github.com/onchainengineering/hmi-wirtual/cli/cliui"
+	"github.com/onchainengineering/hmi-wirtual/cryptorand"
 )
 
 type Config struct {

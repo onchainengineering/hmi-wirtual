@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/coder/coder/v2/wirtuald/util/ptr"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/ptr"
 )
 
 const (

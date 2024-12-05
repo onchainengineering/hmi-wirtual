@@ -22,11 +22,11 @@ import (
 
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/slogtest"
-	"github.com/coder/coder/v2/provisioner/terraform"
-	"github.com/coder/coder/v2/provisionersdk"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtualsdk/drpc"
+	"github.com/onchainengineering/hmi-wirtual/provisioner/terraform"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk/proto"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk/drpc"
 )
 
 type provisionerServeOptions struct {

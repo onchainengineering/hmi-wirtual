@@ -14,8 +14,8 @@ import (
 
 	"github.com/coder/pretty"
 
-	"github.com/coder/coder/v2/cli/cliui"
 	"github.com/coder/serpent"
+	"github.com/onchainengineering/hmi-wirtual/cli/cliui"
 )
 
 func (r *RootCmd) dotfiles() *serpent.Command {

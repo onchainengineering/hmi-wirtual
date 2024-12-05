@@ -6,11 +6,11 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/enterprise/audit"
-	"github.com/coder/coder/v2/enterprise/audit/audittest"
-	"github.com/coder/coder/v2/enterprise/audit/backends"
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/dbmem"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/audit"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/audit/audittest"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/audit/backends"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbmem"
 )
 
 func TestPostgresBackend(t *testing.T) {

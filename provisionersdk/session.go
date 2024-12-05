@@ -18,7 +18,7 @@ import (
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk/proto"
 )
 
 const (

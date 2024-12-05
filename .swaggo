@@ -1,8 +1,8 @@
 // Replace all NullTime with string
-replace github.com/coder/coder/v2/wirtualsdk.NullTime string
+replace github.com/onchainengineering/hmi-wirtual/wirtualsdk.NullTime string
 // Prevent swaggo from rendering enums for time.Duration
 replace time.Duration int64
 // Do not expose "echo" provider
-replace github.com/coder/coder/v2/wirtualsdk.ProvisionerType string
+replace github.com/onchainengineering/hmi-wirtual/wirtualsdk.ProvisionerType string
 // Do not render netip.Addr
 replace netip.Addr string

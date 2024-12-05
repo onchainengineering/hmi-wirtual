@@ -26,9 +26,9 @@ import (
 	"tailscale.com/tailcfg"
 	"tailscale.com/types/nettype"
 
-	"github.com/coder/coder/v2/tailnet"
-	"github.com/coder/coder/v2/tailnet/test/integration"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/tailnet"
+	"github.com/onchainengineering/hmi-wirtual/tailnet/test/integration"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 const runTestEnv = "WIRTUAL_TAILNET_TESTS"

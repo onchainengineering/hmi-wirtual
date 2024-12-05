@@ -15,8 +15,8 @@ import (
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/provisionersdk"
-	"github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk/proto"
 )
 
 // ProvisionApplyWithAgent returns provision responses that will mock a fake

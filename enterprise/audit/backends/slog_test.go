@@ -18,10 +18,10 @@ import (
 
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/slogjson"
-	"github.com/coder/coder/v2/enterprise/audit"
-	"github.com/coder/coder/v2/enterprise/audit/audittest"
-	"github.com/coder/coder/v2/enterprise/audit/backends"
-	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/audit"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/audit/audittest"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/audit/backends"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
 )
 
 func TestSlogBackend(t *testing.T) {

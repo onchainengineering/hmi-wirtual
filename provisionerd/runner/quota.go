@@ -1,6 +1,6 @@
 package runner
 
-import "github.com/coder/coder/v2/provisionersdk/proto"
+import "github.com/onchainengineering/hmi-wirtual/provisionersdk/proto"
 
 func sumDailyCost(resources []*proto.Resource) int {
 	var sum int

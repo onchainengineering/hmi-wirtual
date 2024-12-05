@@ -14,8 +14,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/scaletest/harness"
-	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/onchainengineering/hmi-wirtual/scaletest/harness"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/httpapi"
 )
 
 type testError struct {
@@ -109,7 +109,7 @@ Test results:
 			"started_at": "2023-10-05T12:03:56.395813665Z",
 			"duration": "1s",
 			"duration_ms": 1000,
-			"error": "test-0/0 error:\n    github.com/coder/coder/v2/scaletest/harness_test.Test_Results\n        [working_directory]/results_test.go:43"
+			"error": "test-0/0 error:\n    github.com/onchainengineering/hmi-wirtual/scaletest/harness_test.Test_Results\n        [working_directory]/results_test.go:43"
 		},
 		"test-0/1": {
 			"full_id": "test-0/1",

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 func RichParameter(inv *serpent.Invocation, templateVersionParameter wirtualsdk.TemplateVersionParameter, defaultOverrides map[string]string) (string, error) {

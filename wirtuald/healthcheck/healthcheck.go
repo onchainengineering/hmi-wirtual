@@ -5,11 +5,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/wirtuald/healthcheck/derphealth"
-	"github.com/coder/coder/v2/wirtuald/healthcheck/health"
-	"github.com/coder/coder/v2/wirtuald/util/ptr"
-	"github.com/coder/coder/v2/wirtualsdk/healthsdk"
+	"github.com/onchainengineering/hmi-wirtual/buildinfo"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/healthcheck/derphealth"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/healthcheck/health"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/ptr"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk/healthsdk"
 )
 
 type Checker interface {

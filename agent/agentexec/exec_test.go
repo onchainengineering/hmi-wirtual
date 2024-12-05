@@ -9,7 +9,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/agent/agentexec"
+	"github.com/onchainengineering/hmi-wirtual/agent/agentexec"
 )
 
 //nolint:paralleltest // we need to test environment variables

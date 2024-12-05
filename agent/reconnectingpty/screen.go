@@ -19,8 +19,8 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/agent/agentexec"
-	"github.com/coder/coder/v2/pty"
+	"github.com/onchainengineering/hmi-wirtual/agent/agentexec"
+	"github.com/onchainengineering/hmi-wirtual/pty"
 )
 
 // screenReconnectingPTY provides a reconnectable PTY via `screen`.

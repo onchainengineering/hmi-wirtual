@@ -7,8 +7,8 @@ import (
 	"github.com/open-policy-agent/opa/rego"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/rbac/regosql"
-	"github.com/coder/coder/v2/wirtuald/rbac/regosql/sqltypes"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac/regosql"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac/regosql/sqltypes"
 )
 
 // TestRegoQueriesNoVariables handles cases without variables. These should be

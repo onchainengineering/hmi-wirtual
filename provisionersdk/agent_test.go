@@ -24,9 +24,9 @@ import (
 	"github.com/go-chi/render"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 
-	"github.com/coder/coder/v2/provisionersdk"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk"
 )
 
 // mimicking the --version output which we use to test the binary (see provisionersdk/scripts/bootstrap_*).

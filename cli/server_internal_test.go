@@ -13,9 +13,9 @@ import (
 
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/sloghuman"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 func Test_configureServerTLS(t *testing.T) {

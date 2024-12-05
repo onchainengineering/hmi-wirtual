@@ -21,10 +21,11 @@ import (
 	"github.com/sqlc-dev/pqtype"
 	xgithub "golang.org/x/oauth2/github"
 
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/dbtime"
-	"github.com/coder/coder/v2/wirtuald/promoauth"
-	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/coder/retry"
+	"github.com/onchainengineering/hmi-
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbtime"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/promoauth"
 	"github.com/coder/retry"
 )
 

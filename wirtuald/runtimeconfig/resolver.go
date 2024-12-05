@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
 )
 
 // NoopResolver is a useful test device.

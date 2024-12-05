@@ -12,8 +12,8 @@ import (
 	"golang.org/x/xerrors"
 	"nhooyr.io/websocket"
 
-	"github.com/coder/coder/v2/wirtuald/healthcheck/health"
-	"github.com/coder/coder/v2/wirtualsdk/healthsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/healthcheck/health"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk/healthsdk"
 )
 
 type WebsocketReport healthsdk.WebsocketReport

@@ -16,8 +16,8 @@ import (
 
 	"github.com/coder/serpent"
 
-	"github.com/coder/coder/v2/wirtuald/util/ptr"
-	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/ptr"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 type exclusion struct {

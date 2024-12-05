@@ -3,8 +3,8 @@ package workspaceapps
 import (
 	"net/http"
 
-	"github.com/coder/coder/v2/wirtuald/httpmw"
-	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/httpmw"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 // AppConnectSessionTokenCookieName returns the cookie name for the session

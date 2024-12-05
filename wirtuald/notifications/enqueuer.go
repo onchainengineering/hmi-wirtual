@@ -12,11 +12,11 @@ import (
 	"cdr.dev/slog"
 	"github.com/coder/quartz"
 
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/dbtime"
-	"github.com/coder/coder/v2/wirtuald/notifications/render"
-	"github.com/coder/coder/v2/wirtuald/notifications/types"
-	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbtime"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications/render"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications/types"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 var (

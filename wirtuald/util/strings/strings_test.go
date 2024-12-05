@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/util/strings"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/strings"
 )
 
 func TestJoinWithConjunction(t *testing.T) {

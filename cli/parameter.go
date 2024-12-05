@@ -9,8 +9,8 @@ import (
 	"golang.org/x/xerrors"
 	"gopkg.in/yaml.v3"
 
-	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/serpent"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 // workspaceParameterFlags are used by commands processing rich parameters and/or build options.

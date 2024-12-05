@@ -10,10 +10,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/cli/config"
-	"github.com/coder/coder/v2/enterprise/cli"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/cli/clitest"
+	"github.com/onchainengineering/hmi-wirtual/cli/config"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/cli"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 // TestServer runs the enterprise server command

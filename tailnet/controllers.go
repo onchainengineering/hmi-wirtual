@@ -19,10 +19,10 @@ import (
 	"tailscale.com/util/dnsname"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/tailnet/proto"
-	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/quartz"
 	"github.com/coder/retry"
+	"github.com/onchainengineering/hmi-wirtual/tailnet/proto"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 // A Controller connects to the tailnet control plane, and then uses the control protocols to

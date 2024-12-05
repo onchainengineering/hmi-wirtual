@@ -12,8 +12,8 @@ import (
 	"tailscale.com/net/netcheck"
 	"tailscale.com/tailcfg"
 
-	"github.com/coder/coder/v2/wirtuald/healthcheck/health"
-	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/healthcheck/health"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 // @typescript-ignore HealthClient

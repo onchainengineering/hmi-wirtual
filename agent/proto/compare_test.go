@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/agent/proto"
+	"github.com/onchainengineering/hmi-wirtual/agent/proto"
 )
 
 func TestLabelsEqual(t *testing.T) {

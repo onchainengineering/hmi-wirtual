@@ -9,8 +9,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/httpapi"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/httpapi"
 )
 
 func TestIPV4Check(t *testing.T) {

@@ -8,7 +8,7 @@ import (
 	"github.com/open-policy-agent/opa/rego"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtuald/rbac/regosql/sqltypes"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac/regosql/sqltypes"
 )
 
 // ConvertConfig is required to generate SQL from the rego queries.

@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/database/pubsub"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/pubsub"
 )
 
 func TestPubsubMemory(t *testing.T) {

@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/wirtuald/userpassword"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/userpassword"
 )
 
 func TestUserPasswordValidate(t *testing.T) {

@@ -14,8 +14,8 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtualsdk"
 	"github.com/coder/pretty"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 func WorkspaceBuild(ctx context.Context, writer io.Writer, client *wirtualsdk.Client, build uuid.UUID) error {

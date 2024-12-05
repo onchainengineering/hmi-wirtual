@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliutil"
+	"github.com/onchainengineering/hmi-wirtual/cli/cliutil"
 )
 
 func TestDiscardAfterClose(t *testing.T) {

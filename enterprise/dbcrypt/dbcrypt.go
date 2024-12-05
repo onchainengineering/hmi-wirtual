@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"encoding/base64"
 
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/dbauthz"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbauthz"
 
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"

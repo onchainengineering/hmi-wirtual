@@ -13,7 +13,7 @@ import (
 	"golang.org/x/exp/slices"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtuald/util/slice"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/slice"
 )
 
 func main() {

@@ -6,8 +6,8 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/schedule/cron"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/schedule/cron"
 )
 
 var ErrUserCannotSetQuietHoursSchedule = xerrors.New("user cannot set custom quiet hours schedule due to deployment configuration")

@@ -9,7 +9,7 @@ import (
 	"tailscale.com/types/netlogtype"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/agent/proto"
+	"github.com/onchainengineering/hmi-wirtual/agent/proto"
 )
 
 const maxConns = 2048

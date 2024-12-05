@@ -12,7 +12,7 @@ import (
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/wirtuald/util/xio"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/xio"
 )
 
 const (

@@ -19,11 +19,11 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtuald/rbac/policy"
-	"github.com/coder/coder/v2/wirtuald/rbac/regosql"
-	"github.com/coder/coder/v2/wirtuald/rbac/regosql/sqltypes"
-	"github.com/coder/coder/v2/wirtuald/tracing"
-	"github.com/coder/coder/v2/wirtuald/util/slice"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac/policy"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac/regosql"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac/regosql/sqltypes"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/tracing"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/slice"
 )
 
 type AuthCall struct {

@@ -14,8 +14,8 @@ import (
 
 	"cdr.dev/slog"
 
-	"github.com/coder/coder/v2/agent/agentexec"
-	"github.com/coder/coder/v2/pty"
+	"github.com/onchainengineering/hmi-wirtual/agent/agentexec"
+	"github.com/onchainengineering/hmi-wirtual/pty"
 )
 
 // bufferedReconnectingPTY provides a reconnectable PTY by using a ring buffer to store

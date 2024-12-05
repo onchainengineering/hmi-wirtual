@@ -10,9 +10,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/tools/go/packages"
 
-	"github.com/coder/coder/v2/wirtuald/audit"
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/util/slice"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/audit"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/slice"
 )
 
 // TestAuditableResources ensures that all auditable resources are included in
@@ -48,7 +48,7 @@ func TestAuditableResources(t *testing.T) {
 	expectedList := make([]string, 0)
 	// Now we check we have all the resources in the AuditableResources
 	for i := 0; i < unionType.Len(); i++ {
-		// All types come across like 'github.com/coder/coder/v2/wirtuald/database.<type>'
+		// All types come across like 'github.com/onchainengineering/hmi-wirtual/wirtuald/database.<type>'
 		typeName := unionType.Term(i).Type().String()
 		_, ok := AuditableResources[typeName]
 		assert.True(t, ok, "missing resource %q from AuditableResources", typeName)

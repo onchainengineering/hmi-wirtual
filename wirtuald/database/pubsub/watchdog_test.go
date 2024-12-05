@@ -8,9 +8,9 @@ import (
 
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/slogtest"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/database/pubsub"
 	"github.com/coder/quartz"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/pubsub"
 )
 
 func TestWatchdog_NoTimeout(t *testing.T) {

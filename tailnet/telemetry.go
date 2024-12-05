@@ -14,9 +14,9 @@ import (
 	"tailscale.com/tailcfg"
 	"tailscale.com/types/netmap"
 
-	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/cryptorand"
-	"github.com/coder/coder/v2/tailnet/proto"
+	"github.com/onchainengineering/hmi-wirtual/buildinfo"
+	"github.com/onchainengineering/hmi-wirtual/cryptorand"
+	"github.com/onchainengineering/hmi-wirtual/tailnet/proto"
 )
 
 const (

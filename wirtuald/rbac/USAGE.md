@@ -181,7 +181,7 @@ resources.
 
 Let's run the RBAC test suite:
 
-`go test github.com/coder/coder/v2/wirtuald/rbac`
+`go test github.com/onchainengineering/hmi-wirtual/wirtuald/rbac`
 
 We'll see a failure like this:
 
@@ -208,7 +208,7 @@ We'll see a failure like this:
             	Test:       	TestRolePermissions/frobulator-AllActions
             	Messages:   	remaining permissions should be empty for type "frobulator"
 FAIL
-FAIL	github.com/coder/coder/v2/wirtuald/rbac	1.314s
+FAIL	github.com/onchainengineering/hmi-wirtual/wirtuald/rbac	1.314s
 FAIL
 ```
 
@@ -265,8 +265,8 @@ The above tests are illustrative not exhaustive, see
 Once we have covered all the possible scenarios, the tests will pass:
 
 ```bash
-$ go test github.com/coder/coder/v2/wirtuald/rbac -count=1
-ok  	github.com/coder/coder/v2/wirtuald/rbac	1.313s
+$ go test github.com/onchainengineering/hmi-wirtual/wirtuald/rbac -count=1
+ok  	github.com/onchainengineering/hmi-wirtual/wirtuald/rbac	1.313s
 ```
 
 When a case is not covered, you'll see an error like this (I moved the
@@ -281,7 +281,7 @@ When a case is not covered, you'll see an error like this (I moved the
             	Test:       	TestRolePermissions/FrobulatorsReadOnly
             	Messages:   	Should fail: FrobulatorsReadOnly as "org_auditor" doing "read" on "frobulator"
 FAIL
-FAIL	github.com/coder/coder/v2/wirtuald/rbac	1.390s
+FAIL	github.com/onchainengineering/hmi-wirtual/wirtuald/rbac	1.390s
 FAIL
 ```
 

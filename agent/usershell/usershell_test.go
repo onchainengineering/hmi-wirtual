@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/agent/usershell"
+	"github.com/onchainengineering/hmi-wirtual/agent/usershell"
 )
 
 //nolint:paralleltest,tparallel // This test sets an environment variable.

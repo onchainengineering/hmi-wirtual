@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/coder/coder/v2/provisionersdk"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -17,13 +17,13 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 	"go.uber.org/mock/gomock"
 
-	"github.com/coder/coder/v2/wirtuald/audit"
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/database/dbmock"
-	"github.com/coder/coder/v2/wirtuald/database/dbtime"
-	"github.com/coder/coder/v2/wirtuald/provisionerdserver"
-	"github.com/coder/coder/v2/wirtuald/wsbuilder"
-	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/audit"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbmock"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/dbtime"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/provisionerdserver"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/wsbuilder"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 var (

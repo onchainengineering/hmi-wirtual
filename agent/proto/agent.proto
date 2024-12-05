@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/coder/coder/v2/agent/proto";
+option go_package = "github.com/onchainengineering/hmi-wirtual/agent/proto";
 
 package coder.agent.v2;
 

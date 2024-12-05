@@ -1,8 +1,8 @@
 package cli
 
 import (
-	"github.com/coder/coder/v2/cli"
 	"github.com/coder/serpent"
+	"github.com/onchainengineering/hmi-wirtual/cli"
 )
 
 type RootCmd struct {

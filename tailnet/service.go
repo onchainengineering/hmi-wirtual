@@ -16,9 +16,9 @@ import (
 	"tailscale.com/tailcfg"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/apiversion"
-	"github.com/coder/coder/v2/tailnet/proto"
 	"github.com/coder/quartz"
+	"github.com/onchainengineering/hmi-wirtual/apiversion"
+	"github.com/onchainengineering/hmi-wirtual/tailnet/proto"
 )
 
 var ErrUnsupportedVersion = xerrors.New("unsupported version")

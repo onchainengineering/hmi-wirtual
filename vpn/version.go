@@ -1,6 +1,6 @@
 package vpn
 
-import "github.com/coder/coder/v2/apiversion"
+import "github.com/onchainengineering/hmi-wirtual/apiversion"
 
 const (
 	CurrentMajor = 1

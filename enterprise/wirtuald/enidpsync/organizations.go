@@ -5,9 +5,9 @@ import (
 
 	"github.com/golang-jwt/jwt/v4"
 
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/idpsync"
-	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/idpsync"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 func (e EnterpriseIDPSync) OrganizationSyncEntitled() bool {

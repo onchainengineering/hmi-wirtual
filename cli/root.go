@@ -31,14 +31,14 @@ import (
 
 	"github.com/coder/pretty"
 
-	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/cli/config"
-	"github.com/coder/coder/v2/cli/gitauth"
-	"github.com/coder/coder/v2/cli/telemetry"
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/wirtualsdk/agentsdk"
 	"github.com/coder/serpent"
+	"github.com/onchainengineering/hmi-wirtual/buildinfo"
+	"github.com/onchainengineering/hmi-wirtual/cli/cliui"
+	"github.com/onchainengineering/hmi-wirtual/cli/config"
+	"github.com/onchainengineering/hmi-wirtual/cli/gitauth"
+	"github.com/onchainengineering/hmi-wirtual/cli/telemetry"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk/agentsdk"
 )
 
 var (

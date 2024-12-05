@@ -8,7 +8,7 @@ are several ways to extend/automate Coder:
 - [wirtuald Terraform Provider](https://registry.terraform.io/providers/coder/wirtuald/latest)
 - [CLI](../reference/cli/index.md)
 - [REST API](../reference/api/index.md)
-- [Coder SDK](https://pkg.go.dev/github.com/coder/coder/v2/wirtualsdk)
+- [Coder SDK](https://pkg.go.dev/github.com/onchainengineering/hmi-wirtual/wirtualsdk)
 - [Agent API](../reference/agent-api/index.md)
 
 ## Quickstart

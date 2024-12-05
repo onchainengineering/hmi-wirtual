@@ -13,9 +13,9 @@ import (
 	"cdr.dev/slog"
 	"github.com/coder/quartz"
 
-	"github.com/coder/coder/v2/wirtuald/database"
-	"github.com/coder/coder/v2/wirtuald/notifications/dispatch"
-	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/notifications/dispatch"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 var ErrInvalidDispatchTimeout = xerrors.New("dispatch timeout must be less than lease period")

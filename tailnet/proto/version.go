@@ -1,7 +1,7 @@
 package proto
 
 import (
-	"github.com/coder/coder/v2/apiversion"
+	"github.com/onchainengineering/hmi-wirtual/apiversion"
 )
 
 // Version history:

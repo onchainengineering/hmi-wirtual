@@ -8,8 +8,8 @@ import (
 	"github.com/cakturk/go-netstat/netstat"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/wirtualsdk"
-	"github.com/coder/coder/v2/wirtualsdk/workspacesdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk/workspacesdk"
 )
 
 func (lp *listeningPortsHandler) getListeningPorts() ([]wirtualsdk.WorkspaceAgentListeningPort, error) {

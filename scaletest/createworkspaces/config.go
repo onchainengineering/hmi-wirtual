@@ -4,10 +4,10 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/scaletest/agentconn"
-	"github.com/coder/coder/v2/scaletest/reconnectingpty"
-	"github.com/coder/coder/v2/scaletest/workspacebuild"
-	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/scaletest/agentconn"
+	"github.com/onchainengineering/hmi-wirtual/scaletest/reconnectingpty"
+	"github.com/onchainengineering/hmi-wirtual/scaletest/workspacebuild"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 type UserConfig struct {

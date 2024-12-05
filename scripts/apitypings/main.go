@@ -23,7 +23,7 @@ import (
 
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/sloghuman"
-	"github.com/coder/coder/v2/wirtuald/util/slice"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/util/slice"
 )
 
 var (
@@ -861,7 +861,7 @@ func (g *Generator) typescriptType(ty types.Type) (TypescriptType, error) {
 			return TypescriptType{ValueType: "number"}, nil
 		case "database/sql.NullTime":
 			return TypescriptType{ValueType: "string", Optional: true}, nil
-		case "github.com/coder/coder/v2/wirtualsdk.NullTime":
+		case "github.com/onchainengineering/hmi-wirtual/wirtualsdk.NullTime":
 			return TypescriptType{ValueType: "string", Optional: true}, nil
 		case "github.com/google/uuid.NullUUID":
 			return TypescriptType{ValueType: "string", Optional: true}, nil
@@ -873,15 +873,15 @@ func (g *Generator) typescriptType(ty types.Type) (TypescriptType, error) {
 			return TypescriptType{ValueType: "string"}, nil
 		// XXX: For some reason, the type generator generates these as `any`
 		//      so explicitly specifying the correct generic TS type.
-		case "github.com/coder/coder/v2/wirtualsdk.RegionsResponse[github.com/coder/coder/v2/wirtualsdk.WorkspaceProxy]":
+		case "github.com/onchainengineering/hmi-wirtual/wirtualsdk.RegionsResponse[github.com/onchainengineering/hmi-wirtual/wirtualsdk.WorkspaceProxy]":
 			return TypescriptType{ValueType: "RegionsResponse<WorkspaceProxy>"}, nil
-		case "github.com/coder/coder/v2/wirtuald/healthcheck/health.Message":
+		case "github.com/onchainengineering/hmi-wirtual/wirtuald/healthcheck/health.Message":
 			return TypescriptType{ValueType: "HealthMessage"}, nil
-		case "github.com/coder/coder/v2/wirtuald/healthcheck/health.Severity":
+		case "github.com/onchainengineering/hmi-wirtual/wirtuald/healthcheck/health.Severity":
 			return TypescriptType{ValueType: "HealthSeverity"}, nil
-		case "github.com/coder/coder/v2/healthsdk.HealthSection":
+		case "github.com/onchainengineering/hmi-wirtual/healthsdk.HealthSection":
 			return TypescriptType{ValueType: "HealthSection"}, nil
-		case "github.com/coder/coder/v2/wirtualsdk.ProvisionerDaemon":
+		case "github.com/onchainengineering/hmi-wirtual/wirtualsdk.ProvisionerDaemon":
 			return TypescriptType{ValueType: "ProvisionerDaemon"}, nil
 
 		// Some very unfortunate `any` types that leaked into the frontend.

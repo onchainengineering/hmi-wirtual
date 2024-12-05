@@ -8,7 +8,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/wirtuald/database"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/database"
 )
 
 // ActivityBumpWorkspace automatically bumps the workspace's auto-off timer

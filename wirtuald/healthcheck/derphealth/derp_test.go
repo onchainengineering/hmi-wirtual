@@ -18,10 +18,10 @@ import (
 	"tailscale.com/tailcfg"
 	"tailscale.com/types/key"
 
-	"github.com/coder/coder/v2/tailnet"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/healthcheck/derphealth"
-	"github.com/coder/coder/v2/wirtuald/healthcheck/health"
+	"github.com/onchainengineering/hmi-wirtual/tailnet"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/healthcheck/derphealth"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/healthcheck/health"
 )
 
 //nolint:tparallel

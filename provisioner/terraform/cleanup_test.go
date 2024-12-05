@@ -18,8 +18,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cdr.dev/slog"
-	"github.com/coder/coder/v2/provisioner/terraform"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/onchainengineering/hmi-wirtual/provisioner/terraform"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
 )
 
 const cachePath = "/tmp/coder/provisioner-0/tf"

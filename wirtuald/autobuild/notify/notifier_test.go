@@ -7,9 +7,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/goleak"
 
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/wirtuald/autobuild/notify"
 	"github.com/coder/quartz"
+	"github.com/onchainengineering/hmi-wirtual/testutil"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/autobuild/notify"
 )
 
 func TestNotifier(t *testing.T) {

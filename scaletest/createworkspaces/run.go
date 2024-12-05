@@ -12,14 +12,14 @@ import (
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/sloghuman"
 
-	"github.com/coder/coder/v2/cryptorand"
-	"github.com/coder/coder/v2/scaletest/agentconn"
-	"github.com/coder/coder/v2/scaletest/harness"
-	"github.com/coder/coder/v2/scaletest/loadtestutil"
-	"github.com/coder/coder/v2/scaletest/reconnectingpty"
-	"github.com/coder/coder/v2/scaletest/workspacebuild"
-	"github.com/coder/coder/v2/wirtuald/tracing"
-	"github.com/coder/coder/v2/wirtualsdk"
+	"github.com/onchainengineering/hmi-wirtual/cryptorand"
+	"github.com/onchainengineering/hmi-wirtual/scaletest/agentconn"
+	"github.com/onchainengineering/hmi-wirtual/scaletest/harness"
+	"github.com/onchainengineering/hmi-wirtual/scaletest/loadtestutil"
+	"github.com/onchainengineering/hmi-wirtual/scaletest/reconnectingpty"
+	"github.com/onchainengineering/hmi-wirtual/scaletest/workspacebuild"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/tracing"
+	"github.com/onchainengineering/hmi-wirtual/wirtualsdk"
 )
 
 type Runner struct {

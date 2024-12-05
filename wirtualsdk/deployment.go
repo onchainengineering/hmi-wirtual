@@ -22,9 +22,9 @@ import (
 
 	"github.com/coder/serpent"
 
-	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/wirtuald/agentmetrics"
-	"github.com/coder/coder/v2/wirtuald/workspaceapps/appurl"
+	"github.com/onchainengineering/hmi-wirtual/buildinfo"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/agentmetrics"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/workspaceapps/appurl"
 )
 
 // Entitlement represents whether a feature is licensed.

@@ -12,7 +12,7 @@ import (
 
 	"cdr.dev/slog/sloggers/slogtest"
 
-	"github.com/coder/coder/v2/provisionersdk"
+	"github.com/onchainengineering/hmi-wirtual/provisionersdk"
 )
 
 func TestTar(t *testing.T) {
