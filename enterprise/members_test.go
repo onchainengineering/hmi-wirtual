@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/onchainengineering/hmi-wirtual/enterprise/wirtuald/license"
-	"github.com/onchainengineering/hmi-wirtual/enterprise/wirtualdenttest"
-	"github.com/onchainengineering/hmi-wirtual/enterprise/wirtualdtest"
+	"github.com/onchainengineering/hmi-wirtual/enterprise/wirtuald/wirtualdenttest"
+	"github.com/onchainengineering/hmi-wirtual/wirtuald/wirtualdtest"
 	"github.com/onchainengineering/hmi-wirtual/testutil"
 	"github.com/onchainengineering/hmi-wirtual/wirtuald/database/db2sdk"
 	"github.com/onchainengineering/hmi-wirtual/wirtuald/rbac"
