@@ -1,4 +1,4 @@
-module github.com/coder/coder/v2
+module github.com/onchainengineering/hmi-wirtual
 
 go 1.22.8
 
